@@ -173,7 +173,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </body>
     </html>
   );
-  
 }
 
 export default withWeaverse(App);

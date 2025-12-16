@@ -30,8 +30,10 @@ npm run typecheck  # Run TypeScript type checking
 
 ### Testing
 ```bash
-npm run e2e        # Run Playwright E2E tests
-npm run e2e:ui     # Run tests with UI mode
+npm run e2e                          # Run all Playwright E2E tests
+npm run e2e:ui                       # Run tests with UI mode
+npx playwright test tests/cart.test.ts  # Run specific test file
+npx playwright test --debug          # Run tests in debug mode
 ```
 
 ### GraphQL
@@ -42,14 +44,22 @@ npm run codegen    # Generate TypeScript types from GraphQL queries
 ## Architecture Overview
 
 ### Route Structure
-All routes follow the pattern `($locale).{route}.tsx` to support internationalization:
-- Homepage: `($locale)._index.tsx`
-- Products: `($locale).products.$productHandle.tsx`
-- Collections: `($locale).collections.$collectionHandle.tsx`
-- Account: `($locale).account.*`
-- API routes: `($locale).api.*`
-- Cart operations: `($locale).cart.*`
-- Policies & Pages: `($locale).pages.$pageHandle.tsx`, `($locale).policies.$policyHandle.tsx`
+Routes are organized in subdirectories under `app/routes/`:
+- `home.tsx` - Homepage
+- `products/` - Product detail pages
+- `collections/` - Collection listing pages
+- `account/` - Customer account pages
+- `api/` - API endpoints
+- `cart/` - Cart operations
+- `pages/` - Custom pages
+- `policies/` - Policy pages
+- `blogs/` - Blog functionality
+- `wine-clubs/` - Winehub wine club integration
+- `search/` - Search functionality
+- `seo/` - SEO routes (robots.txt, sitemap.xml)
+- `catch-all.tsx` - 404 handler
+
+All route files support internationalization via locale handling in `app/.server/root.ts`.
 
 ### Key Architectural Patterns
 
@@ -65,6 +75,11 @@ All routes follow the pattern `($locale).{route}.tsx` to support internationaliz
 2. **Component Structure**:
    - `/app/sections/` - Weaverse visual builder sections with schema exports and optional loaders
    - `/app/components/` - Reusable UI components organized by feature (cart/, product/, layout/, customer/)
+   - `/app/weaverse/` - Weaverse configuration (components.ts, schema.server.ts, style.tsx, csp.ts)
+   - `/app/.server/` - Server-side utilities (context.ts, root.ts, seo.ts, redirect.ts)
+   - `/app/graphql/` - GraphQL queries and fragments
+   - `/app/utils/` - Helper functions and utilities
+   - `/app/hooks/` - Custom React hooks
    - Each Weaverse section must export: default component + schema + optional loader
 
 3. **Data Fetching**:
@@ -77,7 +92,7 @@ All routes follow the pattern `($locale).{route}.tsx` to support internationaliz
    - Tailwind CSS v4 with custom utilities
    - class-variance-authority (cva) for component variants
    - Use the `cn()` utility from `/app/utils/cn.ts` for class merging
-   - Biome's `useSortedClasses` enabled for `clsx`, `cva`, and `cn` functions
+   - Global styles in `/app/styles/`
 
 5. **Type Safety**:
    - GraphQL types are auto-generated via codegen
@@ -91,11 +106,15 @@ All routes follow the pattern `($locale).{route}.tsx` to support internationaliz
 
 - **Weaverse**: Visual page builder - sections must be registered in `/app/weaverse/components.ts`
 - **Judge.me**: Product reviews integration via utilities in `/app/utils/judgeme.ts`
+- **Klaviyo**: Email marketing integration for newsletters and campaigns
 - **Combined Listings**: Intelligent product grouping system via utilities in `/app/utils/combined-listings.ts`
-- **Analytics**: Shopify Analytics integrated throughout components
+- **Winehub**: Wine club integration with headless API - routes in `/app/routes/wine-clubs/`
+- **Analytics**: Shopify Analytics and Google Tag Manager integration
 - **Customer Accounts**: New Shopify Customer Account API support (OAuth-based)
+- **Shopify Inbox**: Customer chat support integration
 - **Radix UI**: For accessible UI primitives (accordion, dialog, dropdown, etc.)
 - **Swiper**: For carousel/slideshow functionality
+- **Framer Motion**: For animations and transitions
 
 ### Weaverse Section Development
 
@@ -235,7 +254,7 @@ export default withWeaverse(App);
 
 ### Weaverse Context Integration
 
-The `weaverse` client is injected into the app context in `app/lib/context.ts`:
+The `weaverse` client is injected into the app context in `app/.server/context.ts`:
 
 ```typescript
 import { WeaverseClient } from '@weaverse/hydrogen';
@@ -298,10 +317,29 @@ Key integration points:
 
 ### Environment Configuration
 
-Required environment variables are defined in `env.d.ts`:
-- **Shopify**: `PUBLIC_STORE_DOMAIN`, `PUBLIC_STOREFRONT_API_TOKEN`, `PUBLIC_CUSTOMER_ACCOUNT_API_CLIENT_ID`
-- **Weaverse**: `WEAVERSE_PROJECT_ID`, `WEAVERSE_HOST` (optional), `WEAVERSE_API_BASE` (optional)
-- **Optional services**: `PUBLIC_GOOGLE_GTM_ID`, `JUDGEME_PRIVATE_API_TOKEN`, `KLAVIYO_PRIVATE_API_TOKEN`
+Required environment variables are defined in `env.d.ts` and `.env.example`:
+
+**Required**:
+- `SESSION_SECRET` - Session encryption key
+- `PUBLIC_STORE_DOMAIN` - Shopify store domain
+- `PUBLIC_STOREFRONT_API_TOKEN` - Shopify Storefront API token
+- `PUBLIC_CUSTOMER_ACCOUNT_API_CLIENT_ID` - Customer Account API client ID
+- `SHOP_ID` - Shopify shop ID
+- `PUBLIC_CHECKOUT_DOMAIN` - Checkout domain
+- `WEAVERSE_PROJECT_ID` - Weaverse project identifier
+
+**Optional**:
+- `PUBLIC_STOREFRONT_ID` - Storefront ID for analytics
+- `WEAVERSE_API_KEY` - Weaverse API key for custom integrations
+- `WEAVERSE_HOST` - Custom Weaverse Studio URL (default: https://studio.weaverse.io)
+- `WEAVERSE_API_BASE` - Custom Weaverse API URL (default: https://api.weaverse.io)
+- `PUBLIC_GOOGLE_GTM_ID` - Google Tag Manager ID
+- `JUDGEME_PRIVATE_API_TOKEN` - Judge.me reviews API token
+- `KLAVIYO_PRIVATE_API_TOKEN` - Klaviyo email marketing API token
+- `WINEHUB_API_BASE` - Winehub headless API for wine club features
+- `METAOBJECT_COLORS_TYPE` - Custom color metaobject type
+- `CUSTOM_COLLECTION_BANNER_METAFIELD` - Custom collection banner metafield
+- `PUBLIC_SHOPIFY_INBOX_SHOP_ID` - Shopify Inbox shop ID for chat support
 
 The project uses `@shopify/hydrogen` and `@shopify/remix-oxygen` for environment handling.
 
@@ -313,6 +351,13 @@ The project uses `@shopify/hydrogen` and `@shopify/remix-oxygen` for environment
 - Focus on critical user flows: cart operations, checkout process
 - Run individual tests: `npx playwright test tests/cart.test.ts`
 
+### Performance Optimizations
+
+- **Server Warmup**: Vite pre-warms routes, sections, and components on dev server start for faster initial loads
+- **SSR Optimizations**: Pre-bundled dependencies in `vite.config.ts` include typography utilities, Radix UI primitives, and common libraries
+- **Build Configuration**: Assets are not inlined as base64 to support strict Content Security Policy
+- **GraphQL Codegen**: Separate type generation for Storefront and Customer Account APIs reduces bundle size
+
 ### Biome Configuration
 
 The project extends from `ultracite` and `@weaverse/biome` configurations with these customizations:
@@ -320,7 +365,9 @@ The project extends from `ultracite` and `@weaverse/biome` configurations with t
 - Semicolons always
 - Trailing commas
 - Max cognitive complexity: 50
-- Sorted Tailwind classes in `clsx`, `cva`, and `cn` functions
+- Disabled rules: `noExplicitAny`, `noConsole`, `noParameterAssign`, `noMagicNumbers`, `noNestedTernary`
+- File naming conventions disabled for flexibility
+- Namespace imports allowed (`noNamespaceImport` off)
 
 ## Code Conventions
 
@@ -363,11 +410,17 @@ When running `npm run dev`, access these helpful tools:
 - **Environment**: Copy `.env.example` to `.env` and configure Shopify store credentials
 
 ### Key Configuration Files
-- **react-router.config.ts**: React Router v7 configuration (SSR enabled, app directory structure)
-- **vite.config.ts**: Includes Hydrogen, Oxygen, Tailwind CSS v4, and development server warmup
+- **react-router.config.ts**: React Router v7 configuration (SSR enabled, app directory structure, Hydrogen preset)
+- **vite.config.ts**: Includes Hydrogen, Oxygen, Tailwind CSS v4, and development server warmup for routes/sections/components
 - **biome.json**: Code quality configuration extending from `ultracite` and `@weaverse/biome`
-- **codegen.ts**: GraphQL code generation for Shopify Storefront and Customer Account APIs
+- **codegen.ts**: GraphQL code generation with separate outputs for Storefront API and Customer Account API
 - **tsconfig.json**: TypeScript config with `~/` path alias, strict mode disabled for compatibility
+- **playwright.config.ts**: E2E test configuration
+- **env.d.ts**: TypeScript environment variable definitions and type augmentations
+- **app/root.tsx**: Root React component with Weaverse HOC wrapper
+- **app/routes.ts**: Route manifest for React Router
+- **app/entry.client.tsx**: Client-side entry point for React hydration
+- **app/entry.server.tsx**: Server-side entry point for SSR
 
 ## Tech Stack
 

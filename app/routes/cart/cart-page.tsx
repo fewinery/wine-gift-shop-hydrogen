@@ -8,23 +8,27 @@ import type {
   CartLineInput,
   CartLineUpdateInput,
 } from "@shopify/hydrogen/storefront-api-types";
+import { Suspense } from "react";
 import {
   type ActionFunctionArgs,
   Await,
   data,
   type LoaderFunctionArgs,
   redirect,
-  useRouteLoaderData,
+  useLoaderData,
 } from "react-router";
-import type { CartApiQueryFragment } from "storefront-api.generated";
 import invariant from "tiny-invariant";
-import { Cart } from "~/components/cart/cart";
-import type { RootLoader } from "~/root";
+import { CartMain } from "~/components/cart/cart-main";
+import { ProductCard } from "~/components/product/product-card";
+import { Section } from "~/components/section";
+import { Swimlane } from "~/components/swimlane";
+import { getFeaturedProducts } from "~/utils/featured-products";
 
 export async function action({ request, context }: ActionFunctionArgs) {
   const { cart } = context;
   const formData = await request.formData();
   const { action: cartFormAction, inputs } = CartForm.getFormInput(formData);
+
   invariant(cartFormAction, "No cartAction defined");
 
   const status = 200;
@@ -32,23 +36,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
 
   switch (cartFormAction) {
     case CartForm.ACTIONS.LinesAdd:
-      console.log(
-        "[Cart Action] Adding lines:",
-        JSON.stringify(inputs.lines, null, 2),
-      );
       result = await cart.addLines(inputs.lines as CartLineInput[]);
-      console.log(
-        "[Cart Action] Result:",
-        JSON.stringify(
-          {
-            hasCart: Boolean(result.cart),
-            errors: result.errors,
-            userErrors: result.userErrors,
-          },
-          null,
-          2,
-        ),
-      );
       break;
     case CartForm.ACTIONS.LinesUpdate:
       result = await cart.updateLines(inputs.lines as CartLineUpdateInput[]);
@@ -56,18 +44,38 @@ export async function action({ request, context }: ActionFunctionArgs) {
     case CartForm.ACTIONS.LinesRemove:
       result = await cart.removeLines(inputs.lineIds as string[]);
       break;
+    case CartForm.ACTIONS.NoteUpdate: {
+      const cartNote = inputs.cartNote as string;
+      if (cartNote) {
+        result = await cart.updateNote(cartNote);
+      }
+      break;
+    }
     case CartForm.ACTIONS.DiscountCodesUpdate: {
       const formDiscountCode = inputs.discountCode;
-
       // User inputted discount code
       const discountCodes = (
         formDiscountCode ? [formDiscountCode] : []
       ) as string[];
-
       // Combine discount codes already applied on cart
       discountCodes.push(...(inputs.discountCodes as string[]));
-
       result = await cart.updateDiscountCodes(discountCodes);
+      break;
+    }
+    case CartForm.ACTIONS.GiftCardCodesUpdate: {
+      const formGiftCardCode = inputs.giftCardCode;
+      // User inputted gift card code
+      const giftCardCodes = (
+        formGiftCardCode ? [formGiftCardCode] : []
+      ) as string[];
+      // Combine gift card codes already applied on cart
+      giftCardCodes.push(...inputs.giftCardCodes);
+      result = await cart.updateGiftCardCodes(giftCardCodes);
+      break;
+    }
+    case CartForm.ACTIONS.GiftCardCodesRemove: {
+      const giftCardIds = inputs.giftCardCodes as string[];
+      result = await cart.removeGiftCardCodes(giftCardIds);
       break;
     }
     case CartForm.ACTIONS.BuyerIdentityUpdate:
@@ -82,8 +90,8 @@ export async function action({ request, context }: ActionFunctionArgs) {
   /**
    * The Cart ID may change after each mutation. We need to update it each time in the session.
    */
-  let headers = new Headers();
-  if (result.cart?.id) {
+  let headers = {};
+  if (result?.cart?.id) {
     headers = cart.setCartId(result.cart.id);
   }
 
@@ -94,38 +102,55 @@ export async function action({ request, context }: ActionFunctionArgs) {
     return redirect(redirectTo);
   }
 
-  const { cart: cartResult, errors, userErrors } = result;
+  const { cart: cartResult, errors, userErrors } = result || {};
 
-  return data(
-    {
-      cart: cartResult,
-      userErrors,
-      errors,
-    },
-    { status, headers },
-  );
+  return data({ cart: cartResult, userErrors, errors }, { status, headers });
 }
 
 export async function loader({ context }: LoaderFunctionArgs) {
-  const { cart } = context;
-  return await cart.get();
+  const { cart, storefront } = context;
+
+  return {
+    cart: await cart.get(),
+    featuredProducts: getFeaturedProducts(storefront),
+  };
 }
 
 export default function CartRoute() {
-  const rootData = useRouteLoaderData<RootLoader>("root");
-  if (!rootData) {
-    return null;
-  }
+  const { cart, featuredProducts } = useLoaderData<typeof loader>();
 
   return (
     <>
-      <div className="space-y-6 px-3 py-6 md:space-y-12 md:px-10 md:py-20 lg:px-16">
-        <h3 className="text-center">Cart</h3>
-        <Await resolve={rootData?.cart}>
-          {(cart) => <Cart layout="page" cart={cart as CartApiQueryFragment} />}
+      <Section width="fixed" verticalPadding="medium">
+        <h1 className="h3 mb-8 text-center md:mb-16">
+          Cart ({cart?.totalQuantity || 0})
+        </h1>
+        <CartMain layout="page" cart={cart} />
+        <Analytics.CartView />
+      </Section>
+      <Suspense fallback={null}>
+        <Await resolve={featuredProducts}>
+          {({ featuredProducts: products }) => {
+            if (!products?.nodes?.length) {
+              return null;
+            }
+            return (
+              <Section width="fixed" verticalPadding="large" gap={32}>
+                <h2 className="h4 text-center">More from our best sellers</h2>
+                <Swimlane className="gap-4">
+                  {products.nodes.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      className="w-80 snap-start"
+                    />
+                  ))}
+                </Swimlane>
+              </Section>
+            );
+          }}
         </Await>
-      </div>
-      <Analytics.CartView />
+      </Suspense>
     </>
   );
 }
@@ -143,7 +168,7 @@ function isLocalPath(url: string) {
     // url which is cross domain. If it fails, it's just
     // a path, which will be the current domain.
     new URL(url);
-  } catch {
+  } catch (e) {
     return true;
   }
 

@@ -33,8 +33,8 @@ function root({
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "Organization",
-      name: shop.name,
-      logo: shop.brand?.logo?.image?.url,
+      name: shop?.name,
+      logo: shop?.brand?.logo?.image?.url,
       sameAs: [
         "https://twitter.com/weaverseio",
         "https://facebook.com/weaverse",

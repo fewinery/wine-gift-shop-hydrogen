@@ -72,20 +72,22 @@ async function getLayoutData({ storefront, env }: AppLoadContext) {
   //
   const headerMenuHandle =
     env[`HEADER_MENU_HANDLE_${storefrontCode}`] || env.HEADER_MENU_HANDLE;
-  
+
   //
   // Footer menu (new)
   //
   const footerMenuHandle =
     env[`FOOTER_MENU_HANDLE_${storefrontCode}`] || env.FOOTER_MENU_HANDLE;
 
-  const data = await storefront.query<LayoutQuery>(LAYOUT_QUERY, {
-    variables: {
-      headerMenuHandle,
-      footerMenuHandle,
-      language: storefront.i18n.language,
-    },
-  }).catch(console.error);
+  const data = await storefront
+    .query<LayoutQuery>(LAYOUT_QUERY, {
+      variables: {
+        headerMenuHandle,
+        footerMenuHandle,
+        language: storefront.i18n.language,
+      },
+    })
+    .catch(console.error);
 
   invariant(data, "No data returned from Shopify API");
 

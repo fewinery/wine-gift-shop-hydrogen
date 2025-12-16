@@ -14,7 +14,7 @@ import Link from "~/components/link";
 import type { RootLoader } from "~/root";
 import { cn } from "~/utils/cn";
 import { DEFAULT_LOCALE } from "~/utils/const";
-import { CartDrawer } from "./cart-drawer";
+import { CartDrawer } from "~/components/cart/cart-drawer";
 import { Logo } from "./logo";
 import { DesktopMenu } from "./menu/desktop-menu";
 import { MobileMenu } from "./menu/mobile-menu";

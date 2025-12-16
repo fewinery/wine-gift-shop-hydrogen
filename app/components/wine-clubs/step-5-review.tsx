@@ -1,7 +1,7 @@
 import { CartForm } from "@shopify/hydrogen";
 import React, { useState } from "react";
 import type { FetcherWithComponents } from "react-router";
-import { toggleCartDrawer } from "~/components/layout/cart-drawer";
+import { useCartDrawerStore } from "~/components/cart/store";
 import { formatWineClubCart, validateCartData } from "~/utils/cart-utils";
 import { cn } from "~/utils/cn";
 import PromotionalOfferModal, {
@@ -602,6 +602,8 @@ interface AddToCartButtonProps {
 }
 
 function AddToCartButton({ cartLines }: AddToCartButtonProps) {
+  const { open: openCartDrawer } = useCartDrawerStore();
+
   return (
     <CartForm
       route="/cart"
@@ -613,9 +615,13 @@ function AddToCartButton({ cartLines }: AddToCartButtonProps) {
 
         // Open cart drawer when fetcher completes successfully
         React.useEffect(() => {
-          const hasErrors = (fetcher.data?.errors && fetcher.data.errors.length > 0) ||
-                           (fetcher.data?.userErrors && fetcher.data.userErrors.length > 0);
-          const isCompleting = (prevStateRef.current === "submitting" || prevStateRef.current === "loading") && fetcher.state === "idle";
+          const hasErrors =
+            (fetcher.data?.errors && fetcher.data.errors.length > 0) ||
+            (fetcher.data?.userErrors && fetcher.data.userErrors.length > 0);
+          const isCompleting =
+            (prevStateRef.current === "submitting" ||
+              prevStateRef.current === "loading") &&
+            fetcher.state === "idle";
 
           // Log for debugging
           console.log("[AddToCart] State transition:", {
@@ -628,7 +634,7 @@ function AddToCartButton({ cartLines }: AddToCartButtonProps) {
 
           if (isCompleting && !hasErrors) {
             console.log("[AddToCart] Opening cart drawer");
-            toggleCartDrawer(true);
+            openCartDrawer();
           }
 
           prevStateRef.current = fetcher.state;

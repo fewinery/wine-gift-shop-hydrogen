@@ -1,0 +1,62 @@
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "extends": ["ultracite", "./node_modules/@weaverse/biome/biome.json"],
+  "linter": {
+    "rules": {
+      "style": {
+        "useThrowNewError": "warn",
+        "useFilenamingConvention": "off",
+        "useNamingConvention": "off",
+        "noParameterAssign": "off",
+        "noMagicNumbers": "off",
+        "noNestedTernary": "off"
+      },
+      "suspicious": {
+        "noExplicitAny": "off",
+        "useAwait": "off",
+        "noConsole": "off",
+        "noAlert": "off",
+        "noArrayIndexKey": "off"
+      },
+      "nursery": {
+        "useConsistentTypeDefinitions": "off",
+        "useConsistentArrowReturn": "off",
+        "noUnnecessaryConditions": "off"
+      },
+      "correctness": {
+        "noUnusedVariables": "off",
+        "useUniqueElementIds": "off"
+      },
+      "performance": {
+        "noNamespaceImport": "off",
+        "useTopLevelRegex": "off"
+      },
+      "complexity": {
+        "noExcessiveCognitiveComplexity": {
+          "level": "error",
+          "options": {
+            "maxAllowedComplexity": 50
+          }
+        },
+        "noExcessiveLinesPerFunction": "off"
+      },
+      "a11y": {
+        "noNoninteractiveElementInteractions": "off"
+      }
+    }
+  },
+  "assist": {
+    "actions": {
+      "source": {
+        "useSortedAttributes": "off"
+      }
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double",
+      "semicolons": "always",
+      "trailingCommas": "all"
+    }
+  }
+}

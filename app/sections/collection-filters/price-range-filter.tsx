@@ -1,5 +1,5 @@
 import * as Slider from "@radix-ui/react-slider";
-import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
+
 import type { ProductFilter } from "@shopify/hydrogen/storefront-api-types";
 import clsx from "clsx";
 import { useRef, useState } from "react";
@@ -43,7 +43,11 @@ export function PriceRangeFilter({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <span>${minPrice ?? minVariantPrice}</span>
+        <span>${maxPrice ?? maxVariantPrice}</span>
+      </div>
       <Slider.Root
         min={minVariantPrice}
         max={maxVariantPrice}
@@ -67,8 +71,8 @@ export function PriceRangeFilter({
         onValueCommit={handleFilter}
         className="relative flex h-4 w-full items-center"
       >
-        <Slider.Track className="relative h-1 grow rounded-full bg-gray-200">
-          <Slider.Range className="absolute h-full rounded-full bg-gray-800" />
+        <Slider.Track className="relative h-[3px] grow bg-gray-200">
+          <Slider.Range className="absolute h-full bg-black" />
         </Slider.Track>
         {["from", "to"].map((s: "from" | "to") => (
           <Slider.Thumb
@@ -80,63 +84,13 @@ export function PriceRangeFilter({
               thumbRef.current = s;
             }}
             className={clsx(
-              "block h-4 w-4 cursor-grab rounded-full bg-gray-800 shadow-md",
+              "block h-3.5 w-3.5 cursor-grab rounded-full bg-black outline-none",
               "focus-visible:outline-hidden",
             )}
+            aria-label={s === "from" ? "Min price" : "Max price"}
           />
         ))}
       </Slider.Root>
-      <div className="flex items-center gap-4">
-        <div className="flex shrink items-center gap-1 border border-line-subtle bg-gray-50 px-4">
-          <VisuallyHidden.Root asChild>
-            <label htmlFor="minPrice" aria-label="Min price">
-              Min price
-            </label>
-          </VisuallyHidden.Root>
-          <span>$</span>
-          <input
-            name="minPrice"
-            type="number"
-            value={minPrice ?? ""}
-            min={minVariantPrice}
-            placeholder={minVariantPrice.toString()}
-            onChange={(e) => {
-              const { value } = e.target;
-              const newMinPrice = Number.isNaN(Number.parseFloat(value))
-                ? undefined
-                : Number.parseFloat(value);
-              setMinPrice(newMinPrice);
-            }}
-            onBlur={handleFilter}
-            className="w-full bg-transparent py-3 text-right focus-visible:outline-hidden"
-          />
-        </div>
-        <span>To</span>
-        <div className="flex items-center gap-1 border border-line-subtle bg-gray-50 px-4">
-          <VisuallyHidden.Root asChild>
-            <label htmlFor="maxPrice" aria-label="Max price">
-              Max price
-            </label>
-          </VisuallyHidden.Root>
-          <span>$</span>
-          <input
-            name="maxPrice"
-            type="number"
-            value={maxPrice ?? ""}
-            max={maxVariantPrice}
-            placeholder={maxVariantPrice.toString()}
-            onChange={(e) => {
-              const { value } = e.target;
-              const newMaxPrice = Number.isNaN(Number.parseFloat(value))
-                ? undefined
-                : Number.parseFloat(value);
-              setMaxPrice(newMaxPrice);
-            }}
-            onBlur={handleFilter}
-            className="w-full bg-transparent py-3 text-right focus-visible:outline-hidden"
-          />
-        </div>
-      </div>
     </div>
   );
 }

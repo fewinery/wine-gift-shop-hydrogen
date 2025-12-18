@@ -1,4 +1,4 @@
-import { CaretRightIcon } from "@phosphor-icons/react";
+
 import * as Accordion from "@radix-ui/react-accordion";
 import type { Filter } from "@shopify/hydrogen/storefront-api-types";
 import clsx from "clsx";
@@ -39,11 +39,11 @@ export function Filters({ className }: { className?: string }) {
     <ScrollArea className="h-[calc(100vh-var(--height-nav)-100px)]">
       <Accordion.Root
         type="multiple"
-        className={cn("divide-y divide-line-subtle pr-3", className)}
+        className={cn("", className)}
         key={
           collection.id + appliedFiltersKeys + expandFilters + showFiltersCount
         }
-        defaultValue={expandFilters ? filters.map((filter) => filter.id) : []}
+        defaultValue={[]}
       >
         {filters.map((filter: Filter) => {
           const asSwatch =
@@ -55,11 +55,15 @@ export function Filters({ className }: { className?: string }) {
               key={filter.id}
               ref={ref}
               value={filter.id}
-              className="w-full pt-7 pb-6"
+              className="w-full pb-4"
             >
-              <Accordion.Trigger className="flex w-full items-center justify-between data-[state=open]:[&>svg]:rotate-90">
-                <span>{filter.label}</span>
-                <CaretRightIcon className="h-4 w-4 rotate-0 transition-transform" />
+              <Accordion.Trigger className="group flex w-full items-center justify-start gap-2.5">
+                <span className="font-henderson-slab text-[19.2px] uppercase">
+                  {filter.label}
+                </span>
+                <span className="h-full leading-none group-data-[state=open]:rotate-180">
+                  ▼
+                </span>
               </Accordion.Trigger>
               <Accordion.Content
                 className={clsx([
@@ -72,7 +76,7 @@ export function Filters({ className }: { className?: string }) {
               >
                 <div
                   className={clsx(
-                    "flex pt-8",
+                    "flex pt-4",
                     asSwatch || asButton
                       ? "flex-wrap gap-1.5"
                       : "flex-col gap-5",

@@ -7,7 +7,7 @@ import { Button } from "~/components/button";
 import { ScrollArea } from "~/components/scroll-area";
 import { cn } from "~/utils/cn";
 import { Filters } from "./filters";
-import { LayoutSwitcher, type LayoutSwitcherProps } from "./layout-switcher";
+import type { LayoutSwitcherProps } from "./layout-switcher";
 import { Sort } from "./sort";
 
 interface ToolsBarProps extends LayoutSwitcherProps {
@@ -30,16 +30,11 @@ export function ToolsBar({
 }: ToolsBarProps) {
   const { collection } = useLoaderData<CollectionQuery>();
   return (
-    <div className="border-line-subtle border-y py-4">
+    <div className="pt-4 pb-12">
       <div className="flex w-full items-center justify-between gap-4 md:gap-8">
-        <LayoutSwitcher
-          gridSizeDesktop={gridSizeDesktop}
-          gridSizeMobile={gridSizeMobile}
-          onGridSizeChange={onGridSizeChange}
-        />
         {showProductsCount && (
-          <span className="hidden text-center md:inline">
-            {collection?.products.nodes.length} products
+          <span className="hidden text-center uppercase md:inline font-henderson-slab my-4">
+            PRODUCTS {collection?.products.nodes.length}
           </span>
         )}
         {(enableSort || (enableFilter && filtersPosition === "drawer")) && (
@@ -80,7 +75,7 @@ function FiltersDrawer({
         <Dialog.Content
           onCloseAutoFocus={(e) => e.preventDefault()}
           className={clsx([
-            "fixed inset-y-0 z-10 w-full bg-(--color-background) py-4 md:w-[360px]",
+            "fixed inset-y-0 z-10 w-full bg-background py-4 md:w-[360px]",
             "-translate-x-full left-0 data-[state=open]:translate-x-0 data-[state=open]:animate-enter-from-left",
           ])}
           aria-describedby={undefined}

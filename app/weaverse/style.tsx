@@ -112,6 +112,7 @@ export function GlobalStyle() {
 
               --heading-base-spacing: ${headingBaseSpacing};
               --heading-base-line-height: ${headingBaseLineHeight};
+            }
 
             @media (min-width: 32em) {
               body {

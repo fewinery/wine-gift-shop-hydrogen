@@ -603,23 +603,6 @@ export const themeSchema: HydrogenThemeSchema = {
           defaultValue: true,
         },
         {
-          type: "select",
-          name: "pcardImageRatio",
-          label: "Image aspect ratio",
-          defaultValue: "adapt",
-          configs: {
-            options: [
-              { value: "adapt", label: "Adapt to image" },
-              { value: "1/1", label: "Square (1/1)" },
-              { value: "3/4", label: "Portrait (3/4)" },
-              { value: "4/3", label: "Landscape (4/3)" },
-              { value: "16/9", label: "Widescreen (16/9)" },
-            ],
-          },
-          helpText:
-            'Learn more about image <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/aspect-ratio" target="_blank" rel="noopener noreferrer">aspect ratio</a> property.',
-        },
-        {
           type: "heading",
           label: "Content",
         },
@@ -717,7 +700,20 @@ export const themeSchema: HydrogenThemeSchema = {
           type: "switch",
           label: "Show when hovering product card",
           name: "pcardShowQuickShopOnHover",
-          defaultValue: true,
+          defaultValue: false,
+          condition: (theme) => theme.pcardEnableQuickShop === true,
+        },
+        {
+          type: "select",
+          label: "Quick shop button placement",
+          name: "pcardQuickShopButtonPlacement",
+          configs: {
+            options: [
+              { value: "image", label: "On product image" },
+              { value: "bottom", label: "At card bottom" },
+            ],
+          },
+          defaultValue: "bottom",
           condition: (theme) => theme.pcardEnableQuickShop === true,
         },
         {
@@ -730,7 +726,7 @@ export const themeSchema: HydrogenThemeSchema = {
               { value: "text", label: "Text button" },
             ],
           },
-          defaultValue: "icon",
+          defaultValue: "text",
           condition: (theme) => theme.pcardEnableQuickShop === true,
         },
         {
@@ -757,6 +753,20 @@ export const themeSchema: HydrogenThemeSchema = {
             ],
           },
           defaultValue: "modal",
+          condition: (theme) => theme.pcardEnableQuickShop === true,
+        },
+        {
+          type: "color",
+          label: "Button background color",
+          name: "pcardQuickShopButtonBg",
+          defaultValue: "#000000",
+          condition: (theme) => theme.pcardEnableQuickShop === true,
+        },
+        {
+          type: "color",
+          label: "Button text color",
+          name: "pcardQuickShopButtonTextColor",
+          defaultValue: "#ffffff",
           condition: (theme) => theme.pcardEnableQuickShop === true,
         },
         {
@@ -1026,6 +1036,11 @@ export const themeSchema: HydrogenThemeSchema = {
             "<p>We are a team of designers, developers, and creatives who are passionate about creating beautiful and functional products.</p>",
         },
         {
+          type: "image",
+          name: "footerBackgroundImage",
+          label: "Background image",
+        },
+        {
           type: "heading",
           label: "Social links",
         },
@@ -1079,41 +1094,17 @@ export const themeSchema: HydrogenThemeSchema = {
           placeholder: "contact@my-store.com",
         },
         {
-          type: "heading",
-          label: "Newsletter",
-        },
-        {
           type: "text",
-          name: "newsletterTitle",
-          label: "Title",
-          defaultValue: "STAY IN TOUCH",
-          placeholder: "Stay in touch",
-        },
-        {
-          type: "text",
-          name: "newsletterDescription",
-          label: "Description",
-          defaultValue: "News and inspiration in your inbox, every week.",
-        },
-        {
-          type: "text",
-          name: "newsletterPlaceholder",
-          label: "Input placeholder",
-          defaultValue: "Please enter your email",
-          placeholder: "Please enter your email",
-        },
-        {
-          type: "text",
-          name: "newsletterButtonText",
-          label: "Button text",
-          defaultValue: "Send",
-          placeholder: "Send",
+          name: "storePhone",
+          label: "Phone",
+          defaultValue: "+1 (123) 456-7890",
+          placeholder: "+1 (123) 456-7890",
         },
         {
           type: "richtext",
           name: "copyright",
           label: "Copyright text",
-          defaultValue: "© 2024 Weaverse. All rights reserved.",
+          defaultValue: "© 2025 1883 Reserve Napa Valley. Drink Responsibly. Calistoga, CA.",
         },
       ],
     },

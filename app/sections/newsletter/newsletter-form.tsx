@@ -1,4 +1,3 @@
-import { EnvelopeSimpleIcon } from "@phosphor-icons/react";
 import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
 import clsx from "clsx";
 import { useFetcher } from "react-router";
@@ -34,22 +33,19 @@ function NewsLetterForm(props: NewsLetterInputProps) {
       <Form
         method="POST"
         action="/api/customer"
-        className="flex w-full items-center"
+        className="flex w-full items-center justify-center gap-[14px] px-[6px] py-2.5"
         data-motion="fade-up"
       >
-        <div className="flex grow items-center border-y border-r-0 border-l">
-          <EnvelopeSimpleIcon className="mr-1.5 ml-3 h-5 w-5 shrink-0" />
-          <input
-            name="email"
-            type="email"
-            required
-            placeholder={placeholder}
-            className="w-full bg-transparent py-3 pr-3 pl-1.5 leading-tight focus:outline-hidden"
-          />
-        </div>
+        <input
+          name="email"
+          type="email"
+          required
+          placeholder={placeholder}
+          className="bg-white p-3 leading-tight focus:outline-hidden w-full border"
+        />
         <Button
           type="submit"
-          className="gap-3"
+          className="font-bold"
           loading={state === "submitting"}
         >
           {buttonText}
@@ -57,7 +53,7 @@ function NewsLetterForm(props: NewsLetterInputProps) {
       </Form>
       {helpText && (
         <div
-          className="mt-2 text-body-subtle"
+          className="text-center px-[6px] py-2.5 text-sm"
           data-motion="fade-up"
           dangerouslySetInnerHTML={{ __html: helpText }}
         />

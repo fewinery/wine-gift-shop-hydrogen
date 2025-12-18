@@ -1,48 +1,81 @@
 import { createSchema, useParentInstance } from "@weaverse/hydrogen";
-import type { VariantProps } from "class-variance-authority";
-import { cva } from "class-variance-authority";
+import { useState } from "react";
 import type { FeaturedProductsQuery } from "storefront-api.generated";
+import { Navigation } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
+import type { SwiperClass } from "swiper/react";
+import { ArrowLeft, ArrowRight } from "~/components/icons";
 import { ProductCard } from "~/components/product/product-card";
-import { Swimlane } from "~/components/swimlane";
 
-const variants = cva("", {
-  variants: {
-    gap: {
-      8: "gap-2",
-      12: "gap-3",
-      16: "gap-4",
-      20: "gap-5",
-      24: "gap-6",
-      28: "gap-7",
-      32: "gap-8",
-    },
-  },
-  defaultVariants: {
-    gap: 16,
-  },
-});
-
-interface ProductItemsProps extends VariantProps<typeof variants> {
+interface ProductItemsProps {
   ref?: React.Ref<HTMLDivElement>;
 }
 
 function ProductItems(props: ProductItemsProps) {
-  const { gap, ref, ...rest } = props;
+  const { ref, ...rest } = props;
   const parent = useParentInstance();
   const products: FeaturedProductsQuery["featuredProducts"] =
     parent.data?.loaderData?.products;
 
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [swiper, setSwiper] = useState<SwiperClass | null>(null);
+
+  const handlePrev = () => swiper?.slidePrev();
+  const handleNext = () => swiper?.slideNext();
+
   return (
     <div ref={ref} {...rest}>
-      <Swimlane className={variants({ gap })}>
+      <Swiper
+        onSwiper={setSwiper}
+        onSlideChange={(s) => setActiveIndex(s.activeIndex)}
+        modules={[Navigation]}
+        slidesPerView="auto"
+        spaceBetween={30}
+        className="overflow-visible h-auto!"
+      >
         {products?.nodes?.map((product) => (
-          <ProductCard
+          <SwiperSlide
             key={product.id}
-            product={product}
-            className="w-80 snap-start"
-          />
+            className="w-[28vw] min-w-[280px] shrink-0 h-auto! flex"
+          >
+            <ProductCard product={product} className="w-full" />
+          </SwiperSlide>
         ))}
-      </Swimlane>
+      </Swiper>
+
+      <div className="pt-[30px] flex items-center justify-between">
+        <div className="flex gap-2">
+          {products?.nodes?.map((_, index) => (
+            <button
+              type="button"
+              key={index}
+              aria-label={`Go to product ${index + 1}`}
+              className={`h-2 w-2 rounded-full transition-colors ${index === activeIndex ? "bg-black" : "bg-[#ccc7c0]"
+                }`}
+              onClick={() => swiper?.slideTo(index)}
+            />
+          ))}
+        </div>
+
+        <div className="flex gap-2.5">
+          <button
+            type="button"
+            aria-label="Previous"
+            onClick={handlePrev}
+            className="flex p-2.5 items-center justify-center rounded-full border border-black"
+          >
+            <ArrowLeft />
+          </button>
+          <button
+            type="button"
+            aria-label="Next"
+            onClick={handleNext}
+            className="flex p-2.5 items-center justify-center rounded-full border border-black"
+          >
+            <ArrowRight />
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -52,22 +85,5 @@ export default ProductItems;
 export const schema = createSchema({
   type: "featured-products-items",
   title: "Product items",
-  settings: [
-    {
-      group: "Product items",
-      inputs: [
-        {
-          type: "range",
-          name: "gap",
-          label: "Items gap",
-          configs: {
-            min: 8,
-            max: 32,
-            step: 4,
-          },
-          defaultValue: 16,
-        },
-      ],
-    },
-  ],
+  settings: [],
 });

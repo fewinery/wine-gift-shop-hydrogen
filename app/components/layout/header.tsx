@@ -28,7 +28,7 @@ const variants = cva("", {
       fixed: "mx-auto h-full w-full max-w-(--page-width)",
     },
     padding: {
-      full: "",
+      full: "px-4",
       stretch: "px-3 md:px-10 lg:px-16",
       fixed: "mx-auto px-3 md:px-4 lg:px-6",
     },
@@ -64,32 +64,32 @@ export function Header() {
         scrolled ? "shadow-header" : "shadow-none",
         enableTransparent
           ? [
-              "group/header fixed w-screen",
-              "top-(--topbar-height,var(--initial-topbar-height))",
-            ]
+            "group/header fixed w-screen",
+            "top-(--topbar-height,var(--initial-topbar-height))",
+          ]
           : "sticky top-0",
         isTransparent
           ? [
-              "border-transparent bg-transparent",
-              "text-(--color-transparent-header-text)",
-              "[&_.cart-count]:text-(--color-header-text)",
-              "[&_.cart-count]:bg-(--color-transparent-header-text)",
-              "hover:[&_.cart-count]:bg-(--color-header-text)",
-              "hover:[&_.cart-count]:text-(--color-transparent-header-text)",
-              "[&_.main-logo]:opacity-0 hover:[&_.main-logo]:opacity-100",
-              "[&_.transparent-logo]:opacity-100 hover:[&_.transparent-logo]:opacity-0",
-            ]
+            "border-transparent bg-transparent",
+            "text-(--color-transparent-header-text)",
+            "[&_.cart-count]:text-(--color-header-text)",
+            "[&_.cart-count]:bg-(--color-transparent-header-text)",
+            "hover:[&_.cart-count]:bg-(--color-header-text)",
+            "hover:[&_.cart-count]:text-(--color-transparent-header-text)",
+            "[&_.main-logo]:opacity-0 hover:[&_.main-logo]:opacity-100",
+            "[&_.transparent-logo]:opacity-100 hover:[&_.transparent-logo]:opacity-0",
+          ]
           : [
-              "[&_.cart-count]:text-(--color-header-bg)",
-              "[&_.cart-count]:bg-(--color-header-text)",
-              "[&_.main-logo]:opacity-100",
-              "[&_.transparent-logo]:opacity-0",
-            ],
+            "[&_.cart-count]:text-(--color-header-bg)",
+            "[&_.cart-count]:bg-(--color-header-text)",
+            "[&_.main-logo]:opacity-100",
+            "[&_.transparent-logo]:opacity-0",
+          ],
       )}
     >
       <div
         className={cn(
-          "flex h-(--height-nav) items-center justify-between gap-2 py-1.5 lg:gap-8 lg:py-3",
+          "flex h-(--height-nav) items-center justify-between",
           variants({ width: headerWidth }),
         )}
       >
@@ -100,8 +100,8 @@ export function Header() {
         <Logo />
         <DesktopMenu />
         <div className="z-1 flex items-center gap-1">
-          <PredictiveSearchButton />
           <AccountLink className="relative flex h-8 w-8 items-center justify-center" />
+          <PredictiveSearchButton />
           <CartDrawer />
         </div>
       </div>

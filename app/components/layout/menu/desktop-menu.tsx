@@ -18,7 +18,11 @@ export function DesktopMenu() {
     const items = headerMenu.items as unknown as SingleMenuItem[];
 
     return (
-      <NavigationMenu.Root value={value} onValueChange={setValue}>
+      <NavigationMenu.Root
+        value={value}
+        onValueChange={setValue}
+        className="font-henderson-slab ml-auto"
+      >
         <NavigationMenu.List className="hidden h-full grow justify-center lg:flex">
           {items.map((menuItem) => {
             const { id, items: childItems = [], title, to } = menuItem;
@@ -74,7 +78,7 @@ export function DesktopMenu() {
             className={cn(
               "relative origin-[top_center] overflow-hidden bg-(--color-header-bg)",
               "data-[state=closed]:animate-scale-out data-[state=open]:animate-scale-in",
-              "transition-[width,_height] duration-200",
+              "transition-[width,height] duration-200",
               "h-(--radix-navigation-menu-viewport-height) w-full",
             )}
           />

@@ -10,7 +10,7 @@ export function DropdownMenu({ menuItem }: { menuItem: SingleMenuItem }) {
   const [open, setOpen] = useState(false);
   const { items: childItems = [], title } = menuItem;
   return (
-    <div onMouseLeave={() => setOpen(false)}>
+    <div onMouseLeave={() => setOpen(false)} className="font-henderson-slab">
       <Root open={open} onOpenChange={setOpen} modal={false}>
         <Trigger
           className={clsx([

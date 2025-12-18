@@ -2,8 +2,71 @@
 @import "tailwindcss" source("../../app");
 @plugin "@tailwindcss/typography";
 
+/* Henderson Slab Basic font from Adobe Typekit */
+@font-face {
+  font-family: "henderson-slab-basic";
+  src: url("https://use.typekit.net/af/3132b3/00000000000000007735b1e1/31/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n4&v=3") format("woff2"),
+       url("https://use.typekit.net/af/3132b3/00000000000000007735b1e1/31/d?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n4&v=3") format("woff");
+  font-display: auto;
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: normal;
+}
+
+@font-face {
+  font-family: "henderson-slab-basic";
+  src: url("https://use.typekit.net/af/516ea2/00000000000000007735b1e4/31/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n7&v=3") format("woff2"),
+       url("https://use.typekit.net/af/516ea2/00000000000000007735b1e4/31/d?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n7&v=3") format("woff");
+  font-display: auto;
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: normal;
+}
+
+@font-face {
+  font-family: "henderson-slab-basic";
+  src: url("https://use.typekit.net/af/6cf856/00000000000000007735b1e0/31/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=i4&v=3") format("woff2"),
+       url("https://use.typekit.net/af/6cf856/00000000000000007735b1e0/31/d?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=i4&v=3") format("woff");
+  font-display: auto;
+  font-style: italic;
+  font-weight: 400;
+  font-stretch: normal;
+}
+
+/* Rockwell font from Adobe Typekit */
+@font-face {
+  font-family: "rockwell";
+  src: url("https://use.typekit.net/af/b0ef56/00000000000000007735bab8/31/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n4&v=3") format("woff2"),
+       url("https://use.typekit.net/af/b0ef56/00000000000000007735bab8/31/d?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n4&v=3") format("woff");
+  font-display: auto;
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: normal;
+}
+
+@font-face {
+  font-family: "rockwell";
+  src: url("https://use.typekit.net/af/209b88/00000000000000007735ba9f/31/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n7&v=3") format("woff2"),
+       url("https://use.typekit.net/af/209b88/00000000000000007735ba9f/31/d?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n7&v=3") format("woff");
+  font-display: auto;
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: normal;
+}
+
+@font-face {
+  font-family: "rockwell";
+  src: url("https://use.typekit.net/af/6935de/00000000000000007735baad/31/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=i4&v=3") format("woff2"),
+       url("https://use.typekit.net/af/6935de/00000000000000007735baad/31/d?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=i4&v=3") format("woff");
+  font-display: auto;
+  font-style: italic;
+  font-weight: 400;
+  font-stretch: normal;
+}
+
 @theme {
-  --font-cabin: Cabin Variable, ui-sans-serif, system-ui, sans-serif;
+  --font-henderson-slab: henderson-slab-basic, serif;
+  --font-rockwell: rockwell, sans-serif;
   --font-serif: Arial, IBMPlexSerif, Palatino, ui-serif;
 
   --breakpoint-sm: 32em;
@@ -421,7 +484,7 @@
   }
 
   html {
-    @apply font-cabin;
+    @apply font-rockwell;
     scroll-padding-top: 10rem;
   }
 

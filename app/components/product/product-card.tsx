@@ -38,7 +38,6 @@ export function ProductCard({
     pcardBorderRadius,
     pcardBackgroundColor,
     pcardShowImageOnHover,
-    pcardImageRatio,
     pcardTitlePricesAlignment,
     pcardAlignment,
     pcardShowVendor,
@@ -47,9 +46,12 @@ export function ProductCard({
     pcardShowSalePrice,
     pcardEnableQuickShop,
     pcardShowQuickShopOnHover,
+    pcardQuickShopButtonPlacement,
     pcardQuickShopButtonType,
     pcardQuickShopButtonText,
     pcardQuickShopPanelType,
+    pcardQuickShopButtonBg,
+    pcardQuickShopButtonTextColor,
     pcardShowSaleBadge,
     pcardShowBundleBadge,
     pcardShowBestSellerBadge,
@@ -93,12 +95,11 @@ export function ProductCard({
 
   return (
     <div
-      className={clsx("rounded-(--pcard-radius)", className)}
+      className={clsx("flex h-full flex-col rounded-(--pcard-radius)", className)}
       style={
         {
           backgroundColor: pcardBackgroundColor,
           "--pcard-radius": `${pcardBorderRadius}px`,
-          "--pcard-image-ratio": calculateAspectRatio(image, pcardImageRatio),
         } as React.CSSProperties
       }
     >
@@ -107,7 +108,7 @@ export function ProductCard({
           <Link
             to={`/products/${product.handle}?${params.toString()}`}
             prefetch="intent"
-            className="group relative block aspect-(--pcard-image-ratio) overflow-hidden rounded-t-(--pcard-radius) bg-gray-100"
+            className="group relative block aspect-1200/1000 overflow-hidden bg-transparent p-8"
           >
             {/* Loading skeleton overlay */}
             {isImageLoading && <Spinner />}
@@ -115,10 +116,10 @@ export function ProductCard({
               className={clsx([
                 "absolute inset-0",
                 pcardShowImageOnHover &&
-                  secondImage &&
-                  "transition-opacity duration-300 group-hover:opacity-50",
+                secondImage &&
+                "transition-opacity duration-300 group-hover:opacity-50",
                 isTransitioning &&
-                  "[&_img]:[view-transition-name:image-expand]",
+                "[&_img]:[view-transition-name:image-expand]",
               ])}
               sizes="(min-width: 64em) 25vw, (min-width: 48em) 30vw, 45vw"
               data={image}
@@ -158,19 +159,22 @@ export function ProductCard({
           {pcardShowNewBadge && <NewBadge publishedAt={product.publishedAt} />}
           {pcardShowOutOfStockBadge && <SoldOutBadge />}
         </div>
-        {pcardEnableQuickShop && (
+        {pcardEnableQuickShop && pcardQuickShopButtonPlacement === "image" && (
           <QuickShopTrigger
             productHandle={product.handle}
             showOnHover={pcardShowQuickShopOnHover}
             buttonType={pcardQuickShopButtonType}
             buttonText={pcardQuickShopButtonText}
             panelType={pcardQuickShopPanelType}
+            placement="image"
+            backgroundColor={pcardQuickShopButtonBg}
+            textColor={pcardQuickShopButtonTextColor}
           />
         )}
       </div>
       <div
         className={clsx(
-          "space-y-2 py-3 text-sm",
+          "flex flex-1 flex-col",
           pcardBackgroundColor && "px-2",
           isVertical && [
             pcardAlignment === "left" && "text-left",
@@ -194,27 +198,27 @@ export function ProductCard({
             "flex",
             isVertical
               ? [
-                  "flex-col gap-1",
-                  [
-                    pcardAlignment === "left" && "items-start",
-                    pcardAlignment === "center" && "items-center",
-                    pcardAlignment === "right" && "items-end",
-                  ],
-                ]
+                "flex-col mb-5",
+                [
+                  pcardAlignment === "left" && "items-start",
+                  pcardAlignment === "center" && "items-center",
+                  pcardAlignment === "right" && "items-end",
+                ],
+              ]
               : "justify-between gap-4",
           )}
         >
           <Link
             to={`/products/${product.handle}?${params.toString()}`}
             prefetch="intent"
-            className="font-bold"
+            className="font-medium font-henderson-slab uppercase py-4"
           >
-            <RevealUnderline className="bg-position-[left_calc(1em+3px)] leading-normal">
+            <RevealUnderline className="bg-position-[left_calc(1em+3px)] leading-[1.2]">
               {product.title}
             </RevealUnderline>
           </Link>
           {pcardShowLowestPrice || isCombinedListing(product) ? (
-            <div className="flex gap-1">
+            <div className="flex gap-1 font-henderson-slab">
               <span>From</span>
               <Money withoutTrailingZeros data={minVariantPrice} />
               {isCombinedListing(product) && (
@@ -228,6 +232,7 @@ export function ProductCard({
             <VariantPrices
               variant={selectedVariant || firstVariant}
               showCompareAtPrice={pcardShowSalePrice}
+              className="font-henderson-slab text-base"
             />
           )}
         </div>
@@ -250,6 +255,18 @@ export function ProductCard({
           )}
         />
       </div>
+      {pcardEnableQuickShop && pcardQuickShopButtonPlacement === "bottom" && (
+        <QuickShopTrigger
+          productHandle={product.handle}
+          showOnHover={pcardShowQuickShopOnHover}
+          buttonType={pcardQuickShopButtonType}
+          buttonText={pcardQuickShopButtonText}
+          panelType={pcardQuickShopPanelType}
+          placement="bottom"
+          backgroundColor={pcardQuickShopButtonBg}
+          textColor={pcardQuickShopButtonTextColor}
+        />
+      )}
     </div>
   );
 }

@@ -7,13 +7,12 @@ import {
 import { Image } from "@shopify/hydrogen";
 import { useThemeSettings } from "@weaverse/hydrogen";
 import { cva } from "class-variance-authority";
-import { useFetcher } from "react-router";
-import { Button } from "~/components/button";
 import { useShopMenu } from "~/hooks/use-shop-menu";
 import { cn } from "~/utils/cn";
 import Link from "../link";
 import { CountrySelector } from "./country-selector";
 import { FooterMenu } from "./menu/footer-menu";
+import { BackgroundImage } from "~/components/background-image";
 
 const variants = cva("", {
   variants: {
@@ -45,21 +44,17 @@ export function Footer() {
     addressTitle,
     storeAddress,
     storeEmail,
-    newsletterTitle,
-    newsletterDescription,
-    newsletterPlaceholder,
-    newsletterButtonText,
+    storePhone,
+    footerBackgroundImage,
   } = useThemeSettings();
-  const fetcher = useFetcher<{ ok: boolean; error: string }>();
 
-  // Compute message and error from fetcher data
-  const message = fetcher.data?.ok ? "Thank you for signing up! 🎉" : "";
-  const error =
-    fetcher.data && !fetcher.data.ok
-      ? fetcher.data.error || "An error occurred while signing up."
-      : "";
 
   const SOCIAL_ACCOUNTS = [
+    {
+      name: "Facebook",
+      to: socialFacebook,
+      Icon: FacebookLogoIcon,
+    },
     {
       name: "Instagram",
       to: socialInstagram,
@@ -75,114 +70,76 @@ export function Footer() {
       to: socialLinkedIn,
       Icon: LinkedinLogoIcon,
     },
-    {
-      name: "Facebook",
-      to: socialFacebook,
-      Icon: FacebookLogoIcon,
-    },
   ].filter((acc) => acc.to && acc.to.trim() !== "");
 
   return (
     <footer
       className={cn(
-        "w-full bg-(--color-footer-bg) pt-9 text-(--color-footer-text) lg:pt-16",
+        "relative isolate w-full bg-(--color-footer-bg) pt-9 text-(--color-footer-text) lg:p-16",
         variants({ padding: footerWidth }),
       )}
     >
+      <BackgroundImage backgroundImage={footerBackgroundImage} />
       <div
         className={cn(
-          "h-full w-full space-y-9",
+          "h-full w-full",
           variants({ width: footerWidth }),
         )}
       >
-        <div className="space-y-9">
-          <div className="grid w-full gap-8 lg:grid-cols-3">
-            <div className="flex flex-col gap-6">
-              {footerLogoData ? (
-                <div className="relative" style={{ width: footerLogoWidth }}>
-                  <Image
-                    data={footerLogoData}
-                    sizes="auto"
-                    width={500}
-                    className="h-full w-full object-contain object-left"
-                  />
-                </div>
-              ) : (
-                <div className="font-medium text-base uppercase">
-                  {shopName}
-                </div>
-              )}
-              {bio ? <div dangerouslySetInnerHTML={{ __html: bio }} /> : null}
-              <div className="flex gap-4">
-                {SOCIAL_ACCOUNTS.map(({ to, name, Icon }) => (
-                  <Link
-                    key={name}
-                    to={to}
-                    target="_blank"
-                    className="flex items-center gap-2 text-lg"
-                  >
-                    <Icon className="h-5 w-5" />
-                  </Link>
-                ))}
+        <div className="grid w-full lg:grid-cols-2">
+          <div className="flex flex-col gap-8">
+            {footerLogoData ? (
+              <div className="relative" style={{ width: footerLogoWidth }}>
+                <Image
+                  data={footerLogoData}
+                  sizes="auto"
+                  width={500}
+                  className="h-full w-full object-contain object-left"
+                />
               </div>
-            </div>
-            <div className="flex flex-col gap-6">
-              <div className="text-base">{addressTitle}</div>
-              <div className="space-y-2">
-                <p>{storeAddress}</p>
-                <p>Email: {storeEmail}</p>
+            ) : (
+              <div className="font-bold text-lg uppercase font-henderson-slab">
+                {shopName}
               </div>
+            )}
+            {bio ? <div dangerouslySetInnerHTML={{ __html: bio }} /> : null}
+            <div className="flex flex-col text-sm">
+              <div className="font-bold font-henderson-slab uppercase">{addressTitle}</div>
+              {storeEmail && <p className="pt-[5px]">{storeEmail}</p>}
+              {storePhone && <p className="pt-[5px]">{storePhone}</p>}
             </div>
-            <div className="flex flex-col gap-6">
-              <div className="text-base">{newsletterTitle}</div>
-              <div className="space-y-2">
-                <p>{newsletterDescription}</p>
-                <fetcher.Form
-                  action="/api/klaviyo"
-                  method="POST"
-                  encType="multipart/form-data"
+            <div className="flex gap-4">
+              {SOCIAL_ACCOUNTS.map(({ to, name, Icon }) => (
+                <Link
+                  key={name}
+                  to={to}
+                  target="_blank"
+                  className="flex items-center gap-2 text-lg"
                 >
-                  <div className="flex">
-                    <input
-                      name="email"
-                      type="email"
-                      required
-                      placeholder={newsletterPlaceholder}
-                      className="grow border border-gray-100 px-3 focus-visible:outline-hidden"
-                    />
-                    <Button
-                      variant="custom"
-                      type="submit"
-                      loading={fetcher.state === "submitting"}
-                    >
-                      {newsletterButtonText}
-                    </Button>
-                  </div>
-                </fetcher.Form>
-                <div className="h-8">
-                  {error && (
-                    <div className="mb-6 flex w-fit gap-1 bg-red-100 px-2 py-1 text-red-700">
-                      <p className="font-semibold">ERROR:</p>
-                      <p>{error}</p>
-                    </div>
-                  )}
-                  {message && (
-                    <div className="mb-6 w-fit py-1 text-green-500">
-                      {message}
-                    </div>
-                  )}
-                </div>
-              </div>
+                  <Icon
+                    className="h-5 w-5"
+                    weight={
+                      ["Facebook", "LinkedIn"].includes(name) ? "fill" : "bold"
+                    }
+                  />
+                </Link>
+              ))}
             </div>
           </div>
-          <FooterMenu />
-        </div>
-        <div className="flex flex-col border-t border-line-subtle items-center justify-between gap-4 py-9 lg:flex-row">
-          <div className="flex gap-2">
-            <CountrySelector />
+
+          <div className="flex justify-start">
+            <FooterMenu />
           </div>
-          <p>{copyright}</p>
         </div>
+        <div className="flex flex-col border-t-[3px] pt-8 mt-20 border-white items-center justify-between gap-4 lg:flex-row font-henderson-slab">
+          <p className="text-sm">{copyright}</p>
+          <div className="flex items-center gap-6 text-sm">
+            <Link to="/policies/privacy-policy">Privacy Policy</Link>
+            <Link to="/policies/terms-of-service">Terms of Service</Link>
+            <Link to="#">Cookies Settings</Link>
+          </div>
+        </div>
+        <img src="/paramount-network-copyright-2025.png" alt="Spike Cable Logo" className="w-[400px] object-contain mt-5" />
       </div>
     </footer>
   );

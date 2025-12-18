@@ -1,13 +1,14 @@
 import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
 import clsx from "clsx";
 import { useFetcher } from "react-router";
-import { Button } from "~/components/button";
 import type { CustomerApiPlayLoad } from "~/routes/api/customer";
 
 interface NewsLetterInputProps extends HydrogenComponentProps {
   width: number;
   placeholder: string;
   buttonText: string;
+  buttonBgColor: string;
+  buttonTextColor: string;
   helpText: string;
   successText?: string;
   ref?: React.Ref<HTMLDivElement>;
@@ -16,6 +17,8 @@ interface NewsLetterInputProps extends HydrogenComponentProps {
 function NewsLetterForm(props: NewsLetterInputProps) {
   const {
     buttonText,
+    buttonBgColor,
+    buttonTextColor,
     width,
     placeholder,
     helpText,
@@ -29,11 +32,11 @@ function NewsLetterForm(props: NewsLetterInputProps) {
   const { ok, errorMessage } = data || {};
 
   return (
-    <div ref={ref} {...rest} className="mx-auto max-w-full" style={{ width }}>
+    <div ref={ref} {...rest} className="mx-auto max-w-full">
       <Form
         method="POST"
         action="/api/customer"
-        className="flex w-full items-center justify-center gap-[14px] px-[6px] py-2.5"
+        className="flex w-full items-center justify-center"
         data-motion="fade-up"
       >
         <input
@@ -41,15 +44,20 @@ function NewsLetterForm(props: NewsLetterInputProps) {
           type="email"
           required
           placeholder={placeholder}
-          className="bg-white p-3 leading-tight focus:outline-hidden w-full border"
+          className="bg-white p-3 leading-tight focus:outline-hidden w-full border my-2.5 mx-1.5"
+          style={{ width }}
         />
-        <Button
+        <button
           type="submit"
-          className="font-bold"
-          loading={state === "submitting"}
+          className="font-bold px-2.5 py-3 my-2.5 mx-1.5"
+          style={{
+            backgroundColor: buttonBgColor,
+            color: buttonTextColor,
+          }}
+          disabled={state === "submitting"}
         >
-          {buttonText}
-        </Button>
+          {state === "submitting" ? "Submitting..." : buttonText}
+        </button>
       </Form>
       {helpText && (
         <div
@@ -119,6 +127,18 @@ export const schema = createSchema({
           label: "Button text",
           placeholder: "Subscribe",
           defaultValue: "Subscribe",
+        },
+        {
+          type: "color",
+          name: "buttonBgColor",
+          label: "Button background color",
+          defaultValue: "#000000",
+        },
+        {
+          type: "color",
+          name: "buttonTextColor",
+          label: "Button text color",
+          defaultValue: "#ffffff",
         },
       ],
     },

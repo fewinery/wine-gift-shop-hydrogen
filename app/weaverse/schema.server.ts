@@ -206,13 +206,13 @@ export const themeSchema: HydrogenThemeSchema = {
           type: "color",
           label: "Background",
           name: "colorBackground",
-          defaultValue: "#ffffff",
+          defaultValue: "#fff9f1",
         },
         {
           type: "color",
           label: "Text",
           name: "colorText",
-          defaultValue: "#0F0F0F",
+          defaultValue: "#000000",
         },
         {
           type: "color",

@@ -11,7 +11,7 @@ import type {
 } from "storefront-api.generated";
 import { backgroundInputs } from "~/components/background-image";
 import type { SectionProps } from "~/components/section";
-import { layoutInputs, Section } from "~/components/section";
+import { Section } from "~/components/section";
 import { PRODUCT_CARD_FRAGMENT } from "~/graphql/fragments";
 import type { I18nLocale } from "~/types/others";
 import { getFeaturedProducts } from "~/utils/featured-products";
@@ -39,7 +39,7 @@ export default function FeaturedProducts(props: FeaturedProductsProps) {
     ...rest
   } = props;
   return (
-    <Section ref={ref} {...rest} overflow="unset">
+    <Section ref={ref} {...rest} containerClassName="p-16 space-y-16" overflow="unset">
       {children}
     </Section>
   );
@@ -162,10 +162,6 @@ export const schema = createSchema({
             data.selectionMethod === "manual",
         },
       ],
-    },
-    {
-      group: "Layout",
-      inputs: layoutInputs.filter((i) => i.name !== "borderRadius"),
     },
     {
       group: "Background",

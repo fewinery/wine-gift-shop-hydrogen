@@ -11,7 +11,7 @@ export async function getFeaturedProducts(
     FEATURED_PRODUCTS_QUERY,
     {
       variables: {
-        pageBy: 16,
+        pageBy: 6,
         country: storefront.i18n.country,
         language: storefront.i18n.language,
         query: maybeFilterOutCombinedListingsQuery,
@@ -35,7 +35,7 @@ export const FEATURED_PRODUCTS_QUERY = `#graphql
   query featuredProducts(
     $country: CountryCode
     $language: LanguageCode
-    $pageBy: Int = 16
+    $pageBy: Int = 6
     $query: String
   ) @inContext(country: $country, language: $language) {
     featuredProducts: products(first: $pageBy, sortKey: BEST_SELLING, query: $query) {

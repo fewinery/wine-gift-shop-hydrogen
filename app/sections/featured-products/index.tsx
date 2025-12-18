@@ -9,6 +9,7 @@ import type {
   CollectionProductsQuery,
   ProductsByIdsQuery,
 } from "storefront-api.generated";
+import { backgroundInputs } from "~/components/background-image";
 import type { SectionProps } from "~/components/section";
 import { layoutInputs, Section } from "~/components/section";
 import { PRODUCT_CARD_FRAGMENT } from "~/graphql/fragments";
@@ -23,7 +24,7 @@ interface FeaturedProductsSectionData {
 
 interface FeaturedProductsProps
   extends SectionProps<FeaturedProductsLoaderData>,
-    FeaturedProductsSectionData {
+  FeaturedProductsSectionData {
   ref: React.Ref<HTMLElement>;
 }
 
@@ -38,7 +39,7 @@ export default function FeaturedProducts(props: FeaturedProductsProps) {
     ...rest
   } = props;
   return (
-    <Section ref={ref} {...rest}>
+    <Section ref={ref} {...rest} overflow="unset">
       {children}
     </Section>
   );
@@ -48,7 +49,7 @@ const COLLECTION_PRODUCTS_QUERY = `#graphql
   query collectionProducts($country: CountryCode, $language: LanguageCode, $handle: String!)
   @inContext(country: $country, language: $language) {
     collection(handle: $handle) {
-      products(first: 16) {
+      products(first: 6) {
         nodes {
           ...ProductCard
         }
@@ -128,7 +129,7 @@ export const loader = async ({
 export const schema = createSchema({
   type: "featured-products",
   title: "Featured products",
-  childTypes: ["featured-products-items", "heading", "subheading", "paragraph"],
+  childTypes: ["featured-products--header", "featured-products-items", "heading", "subheading", "paragraph"],
   settings: [
     {
       group: "Product selection",
@@ -166,12 +167,16 @@ export const schema = createSchema({
       group: "Layout",
       inputs: layoutInputs.filter((i) => i.name !== "borderRadius"),
     },
+    {
+      group: "Background",
+      inputs: backgroundInputs,
+    },
   ],
   presets: {
     gap: 32,
     selectionMethod: "auto",
     children: [
-      { type: "heading", content: "Featured products" },
+      { type: "featured-products--header" },
       { type: "featured-products-items" },
     ],
   },

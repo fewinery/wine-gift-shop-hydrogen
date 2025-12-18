@@ -125,16 +125,22 @@ export function QuickShop({
 
 export function QuickShopTrigger({
   productHandle,
-  showOnHover = true,
-  buttonType = "icon",
+  showOnHover = false,
+  buttonType = "text",
   buttonText = "Quick shop",
   panelType = "modal",
+  placement = "bottom",
+  backgroundColor,
+  textColor,
 }: {
   productHandle: string;
   showOnHover?: boolean;
   buttonType?: "icon" | "text";
   buttonText?: string;
   panelType?: "modal" | "drawer";
+  placement?: "image" | "bottom";
+  backgroundColor?: string;
+  textColor?: string;
 }) {
   const [open, setOpen] = useState(false);
   const { load, data } = useFetcher<{ product: ProductQuery["product"] }>();
@@ -151,15 +157,24 @@ export function QuickShopTrigger({
       <Dialog.Trigger asChild>
         <Button
           animate={false}
-          variant="secondary"
+          variant="custom"
           className={clsx(
-            "group/quick-shop absolute bottom-4 h-10.5 p-3 leading-4",
-            buttonType === "icon"
-              ? "right-4 rounded-full shadow-xl"
-              : "inset-x-4 shadow-xs",
-            showOnHover &&
+            "font-henderson-slab font-medium",
+            placement === "image" && [
+              "group/quick-shop absolute bottom-4 h-10.5 p-3 leading-4",
+              buttonType === "icon"
+                ? "right-4 rounded-full shadow-xl"
+                : "inset-x-4 shadow-xs",
+              showOnHover &&
               "opacity-0 transition-opacity group-hover:opacity-100",
+            ],
+            placement === "bottom" && "w-full py-[10px]",
           )}
+          style={{
+            backgroundColor,
+            color: textColor,
+            borderColor: backgroundColor,
+          }}
         >
           {buttonType === "icon" ? (
             <>
@@ -169,7 +184,7 @@ export function QuickShopTrigger({
               </span>
             </>
           ) : (
-            <span className="px-2">{buttonText}</span>
+            <span className={placement === "image" ? "px-2" : ""}>{buttonText}</span>
           )}
         </Button>
       </Dialog.Trigger>
@@ -206,7 +221,7 @@ export function QuickShopTrigger({
               "relative mx-auto h-auto w-full max-w-(--breakpoint-xl) overflow-hidden",
               "animate-slide-up bg-white shadow-sm",
               panelType === "drawer" &&
-                "mr-0 ml-auto min-h-screen max-w-md p-4",
+              "mr-0 ml-auto min-h-screen max-w-md p-4",
             )}
           >
             <VisuallyHidden.Root asChild>

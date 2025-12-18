@@ -18,6 +18,7 @@ import * as FeaturedCollections from "~/sections/featured-collections";
 import * as FeaturedCollectionItems from "~/sections/featured-collections/collection-items";
 import * as FeaturedProducts from "~/sections/featured-products";
 import * as FeaturedProductItems from "~/sections/featured-products/product-items";
+import * as FeaturedProductHeader from "~/sections/featured-products/product-header";
 import * as HeroImage from "~/sections/hero-image";
 import * as HeroVideo from "~/sections/hero-video";
 import * as Hotspots from "~/sections/hotspots";
@@ -26,8 +27,6 @@ import * as ImageGallery from "~/sections/image-gallery";
 import * as ImageGalleryItem from "~/sections/image-gallery/image";
 import * as ImageGalleryItems from "~/sections/image-gallery/items";
 import * as ImageWithText from "~/sections/image-with-text";
-import * as ImageWithTextContent from "~/sections/image-with-text/content";
-import * as ImageWithTextImage from "~/sections/image-with-text/image";
 import * as JudgemeReview from "~/sections/judgeme-reviews";
 import * as JudgemeReviewList from "~/sections/judgeme-reviews/review-list";
 import * as JudgemeReviewSummary from "~/sections/judgeme-reviews/review-summary";
@@ -85,8 +84,6 @@ export const components: HydrogenComponent[] = [
   VideoEmbedItem,
   HeroImage,
   ImageWithText,
-  ImageWithTextContent,
-  ImageWithTextImage,
   ColumnsWithImages,
   ColumnsWithImagesItems,
   ColumnWithImageItem,
@@ -106,6 +103,7 @@ export const components: HydrogenComponent[] = [
   AllProducts,
   FeaturedProducts,
   FeaturedProductItems,
+  FeaturedProductHeader,
   Testimonial,
   TestimonialItems,
   TestimonialItem,

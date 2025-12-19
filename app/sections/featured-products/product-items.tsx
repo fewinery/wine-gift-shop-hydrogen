@@ -27,7 +27,7 @@ function ProductItems(props: ProductItemsProps) {
   const handleNext = () => swiper?.slideNext();
 
   return (
-    <div ref={ref} {...rest}>
+    <div ref={ref} {...rest} className="overflow-hidden">
       <Swiper
         onSwiper={setSwiper}
         onSlideChange={(s) => setActiveIndex(s.activeIndex)}

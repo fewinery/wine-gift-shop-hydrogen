@@ -17,7 +17,7 @@ export default function ProductTitle(props: ProductTitleProps) {
 
   return (
     <div ref={ref} {...rest}>
-      <Tag className="h3 tracking-tight!">{product.title}</Tag>
+      <Tag className="font-henderson-slab text-[25.6px] tracking-tight! uppercase ">{product.title}</Tag>
     </div>
   );
 }

@@ -41,8 +41,8 @@ export default function ProductInformation(
         <div
           className={clsx([
             "space-y-5 lg:grid lg:space-y-0",
-            "lg:gap-[clamp(30px,5%,60px)]",
-            "lg:grid-cols-[1fr_clamp(360px,45%,480px)]",
+            "lg:gap-16",
+            "lg:grid-cols-[1fr_1fr]",
           ])}
         >
           <ProductMedia
@@ -53,16 +53,16 @@ export default function ProductInformation(
             media={
               combinedListing && product?.featuredImage
                 ? [
-                    {
-                      __typename: "MediaImage",
-                      id: product.featuredImage.id,
-                      mediaContentType: "IMAGE",
-                      alt: product.featuredImage.altText,
-                      previewImage: product.featuredImage,
-                      image: product.featuredImage,
-                    },
-                    ...(product?.media?.nodes || []),
-                  ]
+                  {
+                    __typename: "MediaImage",
+                    id: product.featuredImage.id,
+                    mediaContentType: "IMAGE",
+                    alt: product.featuredImage.altText,
+                    previewImage: product.featuredImage,
+                    image: product.featuredImage,
+                  },
+                  ...(product?.media?.nodes || []),
+                ]
                 : product?.media?.nodes || []
             }
             selectedVariant={product?.selectedOrFirstAvailableVariant}

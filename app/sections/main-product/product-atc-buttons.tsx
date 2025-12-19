@@ -6,6 +6,7 @@ import {
 import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
 import { useLoaderData } from "react-router";
 import { AddToCartButton } from "~/components/product/add-to-cart-button";
+import { Link } from "~/components/link";
 import type { loader as productRouteLoader } from "~/routes/products/product";
 import { isCombinedListing } from "~/utils/combined-listings";
 import { useProductQtyStore } from "./product-quantity-selector";
@@ -16,6 +17,9 @@ interface ProductATCButtonsProps extends HydrogenComponentProps {
   addBundleToCartText: string;
   soldOutText: string;
   showShopPayButton: boolean;
+  showSecondaryButton: boolean;
+  secondaryButtonText: string;
+  secondaryButtonLink: string;
 }
 
 export default function ProductATCButtons(props: ProductATCButtonsProps) {
@@ -25,6 +29,9 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
     addBundleToCartText,
     soldOutText,
     showShopPayButton,
+    showSecondaryButton,
+    secondaryButtonText,
+    secondaryButtonLink,
     ...rest
   } = props;
   const { product, storeDomain } = useLoaderData<typeof productRouteLoader>();
@@ -61,10 +68,18 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
           },
         ]}
         data-test="add-to-cart"
-        className="w-full uppercase"
+        className="w-full uppercase bg-black text-white border-black text-base"
       >
         {atcButtonText}
       </AddToCartButton>
+      {showSecondaryButton && (
+        <Link
+          to={secondaryButtonLink}
+          className="flex w-full items-center justify-center border border-body bg-transparent px-4 py-3 uppercase text-body hover:bg-body hover:text-background"
+        >
+          {secondaryButtonText}
+        </Link>
+      )}
       {showShopPayButton && selectedVariant?.availableForSale && (
         <ShopPayButton
           width="100%"
@@ -120,6 +135,33 @@ export const schema = createSchema({
           label: "Show Shop Pay button",
           name: "showShopPayButton",
           defaultValue: true,
+        },
+      ],
+    },
+    {
+      group: "Secondary button",
+      inputs: [
+        {
+          type: "switch",
+          label: "Show secondary button",
+          name: "showSecondaryButton",
+          defaultValue: true,
+        },
+        {
+          type: "text",
+          label: "Button text",
+          name: "secondaryButtonText",
+          defaultValue: "Join our wine club and save",
+          placeholder: "Join our wine club and save",
+          condition: (data: ProductATCButtonsProps) => data.showSecondaryButton,
+        },
+        {
+          type: "text",
+          label: "Button link",
+          name: "secondaryButtonLink",
+          defaultValue: "/pages/wine-club",
+          placeholder: "/pages/wine-club",
+          condition: (data: ProductATCButtonsProps) => data.showSecondaryButton,
         },
       ],
     },

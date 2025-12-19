@@ -17,6 +17,8 @@ interface ToolsBarProps extends LayoutSwitcherProps {
   filtersPosition: "sidebar" | "drawer";
   expandFilters: boolean;
   showFiltersCount: boolean;
+  showSidebar: boolean;
+  setShowSidebar: (v: boolean) => void;
 }
 
 export function ToolsBar({
@@ -27,6 +29,8 @@ export function ToolsBar({
   gridSizeDesktop,
   gridSizeMobile,
   onGridSizeChange,
+  showSidebar,
+  setShowSidebar,
 }: ToolsBarProps) {
   const { collection } = useLoaderData<CollectionQuery>();
   return (
@@ -37,8 +41,18 @@ export function ToolsBar({
             PRODUCTS {collection?.products.nodes.length}
           </span>
         )}
-        {(enableSort || (enableFilter && filtersPosition === "drawer")) && (
+        {(enableSort || enableFilter || filtersPosition === "sidebar") && (
           <div className="flex gap-2">
+            {filtersPosition === "sidebar" && (
+              <button
+                type="button"
+                className="hidden h-[43px] items-center gap-2.5 border bg-white p-2.5 text-base rounded focus-visible:outline-hidden lg:flex"
+                onClick={() => setShowSidebar(!showSidebar)}
+              >
+                <span>Filters</span>
+                <SlidersIcon size={18} />
+              </button>
+            )}
             {enableSort && <Sort />}
             {enableFilter && (
               <FiltersDrawer filtersPosition={filtersPosition} />

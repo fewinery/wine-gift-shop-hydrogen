@@ -39,7 +39,7 @@ export function Sort() {
 
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Trigger className="flex h-[43px] min-w-44 items-center justify-between gap-2 border bg-white p-2.5 text-base focus-visible:outline-hidden">
+      <DropdownMenu.Trigger className="flex h-[43px] min-w-44 items-center justify-between gap-2 border bg-white p-2.5 text-base focus-visible:outline-hidden rounded">
         <span className="truncate">{currentSort.label}</span>
         <CaretDownIcon />
       </DropdownMenu.Trigger>

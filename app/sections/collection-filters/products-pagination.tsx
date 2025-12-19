@@ -28,11 +28,17 @@ export function ProductsPagination({
   gridSizeMobile: mobileCols = 1,
   loadPrevText,
   loadMoreText,
+  titlePricesAlignment,
+  contentAlignment,
+  showViewProductButton,
 }: {
   gridSizeDesktop: number;
   gridSizeMobile: number;
   loadPrevText: string;
   loadMoreText: string;
+  titlePricesAlignment?: "horizontal" | "vertical";
+  contentAlignment?: "left" | "center" | "right";
+  showViewProductButton?: boolean;
 }) {
   const { collection, appliedFilters } = useLoaderData<
     CollectionQuery & {
@@ -112,6 +118,9 @@ export function ProductsPagination({
                 nextPageUrl={nextPageUrl}
                 hasNextPage={hasNextPage}
                 state={state}
+                titlePricesAlignment={titlePricesAlignment}
+                contentAlignment={contentAlignment}
+                showViewProductButton={showViewProductButton}
               />
               {hasNextPage && (
                 <NextLink
@@ -139,10 +148,13 @@ interface ProductsLoadedOnScrollProps {
   nextPageUrl: string;
   hasNextPage: boolean;
   state: any;
+  titlePricesAlignment?: "horizontal" | "vertical";
+  contentAlignment?: "left" | "center" | "right";
+  showViewProductButton?: boolean;
 }
 
 function ProductsLoadedOnScroll(props: ProductsLoadedOnScrollProps) {
-  const { nodes, inView, nextPageUrl, hasNextPage, state } = props;
+  const { nodes, inView, nextPageUrl, hasNextPage, state, titlePricesAlignment, contentAlignment, showViewProductButton } = props;
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -158,7 +170,7 @@ function ProductsLoadedOnScroll(props: ProductsLoadedOnScrollProps) {
   return (
     <div
       className={clsx([
-        "w-full gap-x-4 gap-y-6 lg:gap-y-10",
+        "w-full gap-x-6 gap-y-10",
         "grid grid-cols-(--cols-mobile) lg:grid-cols-(--cols-desktop)",
       ])}
     >
@@ -171,7 +183,13 @@ function ProductsLoadedOnScroll(props: ProductsLoadedOnScrollProps) {
             ),
         )
         .map((product: ProductCardFragment) => (
-          <ProductCard key={product.id} product={product} />
+          <ProductCard
+            key={product.id}
+            product={product}
+            titlePricesAlignment={titlePricesAlignment}
+            contentAlignment={contentAlignment}
+            showViewProductButton={showViewProductButton}
+          />
         ))}
     </div>
   );

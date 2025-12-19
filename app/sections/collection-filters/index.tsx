@@ -29,6 +29,9 @@ export interface CollectionFiltersData {
   productsPerRowMobile: number;
   loadPrevText: string;
   loadMoreText: string;
+  titlePricesAlignment?: "horizontal" | "vertical";
+  contentAlignment?: "left" | "center" | "right";
+  showViewProductButton?: boolean;
 }
 
 interface CollectionFiltersProps extends SectionProps, CollectionFiltersData {
@@ -56,6 +59,9 @@ export default function CollectionFilters(props: CollectionFiltersProps) {
     productsPerRowMobile,
     loadPrevText,
     loadMoreText,
+    titlePricesAlignment,
+    contentAlignment,
+    showViewProductButton,
     ...rest
   } = props;
 
@@ -68,14 +74,17 @@ export default function CollectionFilters(props: CollectionFiltersProps) {
   const [gridSizeDesktop, setGridSizeDesktop] = useState(
     Number(productsPerRowDesktop) || 3,
   );
-  const [gridSizeMobile, setGridSizeMobile] = useState(
-    Number(productsPerRowMobile) || 1,
-  );
+  const [gridSizeMobile, setGridSizeMobile] = useState(props.productsPerRowMobile);
+  const [showSidebar, setShowSidebar] = useState(enableFilter);
 
   useEffect(() => {
     setGridSizeDesktop(Number(productsPerRowDesktop) || 3);
     setGridSizeMobile(Number(productsPerRowMobile) || 1);
   }, [productsPerRowDesktop, productsPerRowMobile]);
+
+  useEffect(() => {
+    setShowSidebar(enableFilter);
+  }, [enableFilter]);
 
   if (collection?.products && collections) {
     const banner = collection.metafield
@@ -122,7 +131,7 @@ export default function CollectionFilters(props: CollectionFiltersProps) {
         </div>
 
         <div className="flex">
-          {enableFilter && filtersPosition === "sidebar" && (
+          {filtersPosition === "sidebar" && showSidebar && (
             <div className="hidden w-72 shrink-0 px-8 my-16 border-r lg:block">
               <div className="sticky top-[calc(var(--height-nav)+40px)] space-y-4">
 
@@ -142,6 +151,8 @@ export default function CollectionFilters(props: CollectionFiltersProps) {
                   setGridSizeMobile(v);
                 }
               }}
+              showSidebar={showSidebar}
+              setShowSidebar={setShowSidebar}
               {...props}
             />
             <ProductsPagination
@@ -149,6 +160,9 @@ export default function CollectionFilters(props: CollectionFiltersProps) {
               gridSizeMobile={gridSizeMobile}
               loadPrevText={loadPrevText}
               loadMoreText={loadMoreText}
+              titlePricesAlignment={titlePricesAlignment}
+              contentAlignment={contentAlignment}
+              showViewProductButton={showViewProductButton}
             />
           </div>
         </div>
@@ -169,7 +183,7 @@ export const schema = createSchema({
   },
   settings: [
     {
-      group: "Layout",
+      group: "Content",
       inputs: [
 
         {
@@ -336,6 +350,43 @@ export const schema = createSchema({
           label: "Load more text",
           defaultValue: "Load more ↓",
           placeholder: "Load more ↓",
+        },
+      ],
+    },
+    {
+      group: "Product card",
+      inputs: [
+        {
+          type: "select",
+          name: "titlePricesAlignment",
+          label: "Title & prices alignment",
+          configs: {
+            options: [
+              { value: "horizontal", label: "Horizontal" },
+              { value: "vertical", label: "Vertical" },
+            ],
+          },
+          defaultValue: "horizontal",
+        },
+        {
+          type: "toggle-group",
+          name: "contentAlignment",
+          label: "Content alignment",
+          configs: {
+            options: [
+              { value: "left", label: "Left", icon: "align-start-vertical" },
+              { value: "center", label: "Center", icon: "align-center-vertical" },
+              { value: "right", label: "Right", icon: "align-end-vertical" },
+            ],
+          },
+          defaultValue: "left",
+          condition: (data: CollectionFiltersData) => data.titlePricesAlignment === "vertical",
+        },
+        {
+          type: "switch",
+          name: "showViewProductButton",
+          label: "Show View Product button",
+          defaultValue: true,
         },
       ],
     },

@@ -43,7 +43,7 @@ export function Filters({ className }: { className?: string }) {
         key={
           collection.id + appliedFiltersKeys + expandFilters + showFiltersCount
         }
-        defaultValue={[]}
+        defaultValue={expandFilters ? filters.map((filter) => filter.id) : []}
       >
         {filters.map((filter: Filter) => {
           const asSwatch =

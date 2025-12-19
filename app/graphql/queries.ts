@@ -13,9 +13,8 @@ export const PRODUCT_QUERY = `#graphql
       vendor
       handle
       publishedAt
+      summary: description
       descriptionHtml
-      description
-      summary: description(truncateAt: 200)
       encodedVariantExistence
       encodedVariantAvailability
       tags
@@ -40,6 +39,31 @@ export const PRODUCT_QUERY = `#graphql
         key
         namespace
         value
+      }
+      accolades: metafield(namespace: "custom", key: "accolades") {
+        references(first: 20) {
+          nodes {
+            ... on Metaobject {
+              id
+              handle
+              type
+              fields {
+                key
+                value
+                reference {
+                  ... on MediaImage {
+                    image {
+                      url
+                      altText
+                      width
+                      height
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
       options {
         ...ProductOption

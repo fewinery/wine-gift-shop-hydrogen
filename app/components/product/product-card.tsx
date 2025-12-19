@@ -262,27 +262,33 @@ export function ProductCard({
           )}
         />
       </div>
-      {showViewProductButton && (
-        <Link
-          to={`/products/${product.handle}?${params.toString()}`}
-          prefetch="intent"
-          className="font-henderson-slab flex w-full items-center justify-center border border-body py-2 px-4 my-2.5 uppercase"
-        >
-          View Product
-        </Link>
-      )}
-      {pcardEnableQuickShop && pcardQuickShopButtonPlacement === "bottom" && (
-        <QuickShopTrigger
-          productHandle={product.handle}
-          showOnHover={pcardShowQuickShopOnHover}
-          buttonType={pcardQuickShopButtonType}
-          buttonText={pcardQuickShopButtonText}
-          panelType={pcardQuickShopPanelType}
-          placement="bottom"
-          backgroundColor={pcardQuickShopButtonBg}
-          textColor={pcardQuickShopButtonTextColor}
-        />
-      )}
+      {(showViewProductButton ||
+        (pcardEnableQuickShop &&
+          pcardQuickShopButtonPlacement === "bottom")) && (
+          <div className="mt-4 flex flex-col gap-2.5">
+            {showViewProductButton && (
+              <Link
+                to={`/products/${product.handle}?${params.toString()}`}
+                prefetch="intent"
+                className="font-henderson-slab flex w-full items-center justify-center border border-body py-2 px-4 uppercase"
+              >
+                View Product
+              </Link>
+            )}
+            {pcardEnableQuickShop && pcardQuickShopButtonPlacement === "bottom" && (
+              <QuickShopTrigger
+                productHandle={product.handle}
+                showOnHover={pcardShowQuickShopOnHover}
+                buttonType={pcardQuickShopButtonType}
+                buttonText={pcardQuickShopButtonText}
+                panelType={pcardQuickShopPanelType}
+                placement="bottom"
+                backgroundColor={pcardQuickShopButtonBg}
+                textColor={pcardQuickShopButtonTextColor}
+              />
+            )}
+          </div>
+        )}
     </div>
   );
 }

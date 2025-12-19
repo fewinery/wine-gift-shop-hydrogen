@@ -10,12 +10,11 @@ function CompareAtPrice({
   data: MoneyV2;
   className?: string;
 }) {
-  const { currencyNarrowSymbol, withoutTrailingZerosAndCurrency } =
-    useMoney(data);
+  const { currencyNarrowSymbol, amount } = useMoney(data);
   return (
     <span className={cn("strike text-(--color-compare-price-text)", className)}>
       {currencyNarrowSymbol}
-      {withoutTrailingZerosAndCurrency}
+      {amount}
     </span>
   );
 }
@@ -26,8 +25,8 @@ export function VariantPrices({
   className,
 }: {
   variant:
-    | ProductVariantFragment
-    | { price: Pick<MoneyV2, "amount" | "currencyCode"> };
+  | ProductVariantFragment
+  | { price: Pick<MoneyV2, "amount" | "currencyCode"> };
   showCompareAtPrice?: boolean;
   className?: string;
 }) {
@@ -38,7 +37,7 @@ export function VariantPrices({
     if (price) {
       return (
         <div className={cn("flex items-center gap-2", className)}>
-          <Money withoutTrailingZeros data={price} />
+          <Money data={price} />
           {showCompareAtPrice &&
             compareAtPrice &&
             compareAtPrice?.amount > price?.amount && (

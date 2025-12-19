@@ -1,14 +1,13 @@
 import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
 import clsx from "clsx";
 import { useFetcher } from "react-router";
+import { Button } from "~/components/button";
 import type { CustomerApiPlayLoad } from "~/routes/api/customer";
 
 interface NewsLetterInputProps extends HydrogenComponentProps {
   width: number;
   placeholder: string;
   buttonText: string;
-  buttonBgColor: string;
-  buttonTextColor: string;
   helpText: string;
   successText?: string;
   ref?: React.Ref<HTMLDivElement>;
@@ -17,8 +16,6 @@ interface NewsLetterInputProps extends HydrogenComponentProps {
 function NewsLetterForm(props: NewsLetterInputProps) {
   const {
     buttonText,
-    buttonBgColor,
-    buttonTextColor,
     width,
     placeholder,
     helpText,
@@ -47,17 +44,13 @@ function NewsLetterForm(props: NewsLetterInputProps) {
           className="bg-white p-3 leading-tight focus:outline-hidden w-full border my-2.5 mx-1.5"
           style={{ width }}
         />
-        <button
+        <Button
           type="submit"
-          className="font-bold px-2.5 py-3 my-2.5 mx-1.5"
-          style={{
-            backgroundColor: buttonBgColor,
-            color: buttonTextColor,
-          }}
-          disabled={state === "submitting"}
+          className="gap-3"
+          loading={state === "submitting"}
         >
-          {state === "submitting" ? "Submitting..." : buttonText}
-        </button>
+          {buttonText}
+        </Button>
       </Form>
       {helpText && (
         <div
@@ -127,18 +120,6 @@ export const schema = createSchema({
           label: "Button text",
           placeholder: "Subscribe",
           defaultValue: "Subscribe",
-        },
-        {
-          type: "color",
-          name: "buttonBgColor",
-          label: "Button background color",
-          defaultValue: "#000000",
-        },
-        {
-          type: "color",
-          name: "buttonTextColor",
-          label: "Button text color",
-          defaultValue: "#ffffff",
         },
       ],
     },

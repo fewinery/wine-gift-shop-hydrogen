@@ -23,8 +23,8 @@ import * as HeroImage from "~/sections/hero-image";
 import * as HeroVideo from "~/sections/hero-video";
 import * as Hotspots from "~/sections/hotspots";
 import * as HotspotsItem from "~/sections/hotspots/item";
-import * as HowItWorks from "~/sections/how-it-works";
-import * as HowItWorksStep from "~/sections/how-it-works/step";
+import * as StepsGuide from "~/sections/steps-guide";
+import * as StepsGuideItem from "~/sections/steps-guide/step";
 import * as ImageGallery from "~/sections/image-gallery";
 import * as ImageGalleryItem from "~/sections/image-gallery/image";
 import * as ImageGalleryItems from "~/sections/image-gallery/items";
@@ -108,8 +108,8 @@ export const components: HydrogenComponent[] = [
   PromotionGridButtons,
   Hotspots,
   HotspotsItem,
-  HowItWorks,
-  HowItWorksStep,
+  StepsGuide,
+  StepsGuideItem,
   Countdown,
   CountDownTimer,
   NewsLetter,

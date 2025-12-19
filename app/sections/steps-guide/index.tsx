@@ -2,12 +2,12 @@ import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
 import { type SectionProps, layoutInputs } from "~/components/section";
 import { Section } from "~/components/section";
 
-interface HowItWorksProps extends SectionProps {
+interface StepsGuideProps extends SectionProps {
   ref?: React.Ref<HTMLElement>;
   heading: string;
 }
 
-function HowItWorks(props: HowItWorksProps) {
+function StepsGuide(props: StepsGuideProps) {
   const { heading, children, ref, ...rest } = props;
 
   return (
@@ -24,13 +24,13 @@ function HowItWorks(props: HowItWorksProps) {
   );
 }
 
-export default HowItWorks;
+export default StepsGuide;
 
 export const schema = createSchema({
-  type: "how-it-works",
-  title: "How It Works",
+  type: "steps-guide",
+  title: "Steps Guide",
   limit: 1,
-  childTypes: ["how-it-works--step"],
+  childTypes: ["steps-guide--item"],
   settings: [
     {
       group: "Layout",
@@ -43,38 +43,38 @@ export const schema = createSchema({
           type: "text",
           name: "heading",
           label: "Section Heading",
-          defaultValue: "HOW IT WORKS",
+          defaultValue: "STEPS GUIDE",
         },
       ],
     },
   ],
   presets: {
-    heading: "HOW IT WORKS",
+    heading: "STEPS GUIDE",
     children: [
       {
-        type: "how-it-works--step",
-        stepLabel: "Step 1",
+        type: "steps-guide--item",
+        stepGuideItem: "Step 1",
         title: "Choose Your Frequency",
         description:
           "Choose between monthly, bi-monthly, quarterly, or bi-annually",
       },
       {
-        type: "how-it-works--step",
-        stepLabel: "Step 2",
+        type: "steps-guide--item",
+        itemLabel: "Step 2",
         title: "Customize Your Shipment",
         description:
           "Select 2 to 12 bottles with the option to personalize wine selections",
       },
       {
-        type: "how-it-works--step",
-        stepLabel: "Step 3",
+        type: "steps-guide--item",
+        itemLabel: "Step 3",
         title: "Enjoy Your Wine",
         description:
           "Place your order and your wines will ship within 2 business days",
       },
       {
-        type: "how-it-works--step",
-        stepLabel: "Step 4",
+        type: "steps-guide--item",
+        itemLabel: "Step 4",
         title: "Earn Loyalty Rewards",
         description:
           "Every dollar spent will go towards your WinePlus loyalty status",

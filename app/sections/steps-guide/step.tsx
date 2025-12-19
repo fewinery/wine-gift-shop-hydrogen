@@ -6,18 +6,18 @@ import {
 } from "@weaverse/hydrogen";
 import { Image } from "~/components/image";
 
-interface HowItWorksStepProps extends HydrogenComponentProps {
+interface StepsGuideItemProps extends HydrogenComponentProps {
   ref?: React.Ref<HTMLDivElement>;
   image: WeaverseImage | string;
-  stepLabel: string;
+  stepGuideItem: string;
   title: string;
   description: string;
 }
 
-function HowItWorksStep(props: HowItWorksStepProps) {
+function StepsGuideItem(props: StepsGuideItemProps) {
   const {
     image = IMAGES_PLACEHOLDERS.image,
-    stepLabel,
+    stepGuideItem,
     title,
     description,
     ref,
@@ -37,9 +37,9 @@ function HowItWorksStep(props: HowItWorksStepProps) {
           width={400}
         />
       </div>
-      {stepLabel && (
+      {stepGuideItem && (
         <p className="mb-4 text-2xl italic text-body-subtle">
-          {stepLabel}
+          {stepGuideItem}
         </p>
       )}
       {title && (
@@ -56,11 +56,11 @@ function HowItWorksStep(props: HowItWorksStepProps) {
   );
 }
 
-export default HowItWorksStep;
+export default StepsGuideItem;
 
 export const schema = createSchema({
-  type: "how-it-works--step",
-  title: "Step",
+  type: "steps-guide--item",
+  title: "Guide Item",
   limit: 1,
   settings: [
     {
@@ -73,8 +73,8 @@ export const schema = createSchema({
         },
         {
           type: "text",
-          name: "stepLabel",
-          label: "Step Label",
+          name: "stepGuideItem",
+          label: "Step guide item",
           defaultValue: "Step 1",
           placeholder: "e.g. Step 1",
         },
@@ -96,7 +96,7 @@ export const schema = createSchema({
   ],
   presets: {
     image: IMAGES_PLACEHOLDERS.image,
-    stepLabel: "Step 1",
+    stepGuideItem: "Step 1",
     title: "Choose Your Frequency",
     description: "Choose between monthly, bi-monthly, quarterly, or bi-annually",
   },

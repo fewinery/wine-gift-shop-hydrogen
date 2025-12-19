@@ -9,10 +9,13 @@ import { ProductCard } from "~/components/product/product-card";
 
 interface ProductItemsProps {
   ref?: React.Ref<HTMLDivElement>;
+  titlePricesAlignment?: "horizontal" | "vertical";
+  contentAlignment?: "left" | "center" | "right";
+  showViewProductButton?: boolean;
 }
 
 function ProductItems(props: ProductItemsProps) {
-  const { ref, ...rest } = props;
+  const { ref, titlePricesAlignment, contentAlignment, showViewProductButton, ...rest } = props;
   const parent = useParentInstance();
   const products: FeaturedProductsQuery["featuredProducts"] =
     parent.data?.loaderData?.products;
@@ -38,7 +41,13 @@ function ProductItems(props: ProductItemsProps) {
             key={product.id}
             className="w-[28vw] min-w-[280px] shrink-0 h-auto! flex"
           >
-            <ProductCard product={product} className="w-full" />
+            <ProductCard
+              product={product}
+              className="w-full"
+              titlePricesAlignment={titlePricesAlignment}
+              contentAlignment={contentAlignment}
+              showViewProductButton={showViewProductButton}
+            />
           </SwiperSlide>
         ))}
       </Swiper>
@@ -85,5 +94,43 @@ export default ProductItems;
 export const schema = createSchema({
   type: "featured-products-items",
   title: "Product items",
-  settings: [],
+  settings: [
+    {
+      group: "Product card",
+      inputs: [
+        {
+          type: "select",
+          name: "titlePricesAlignment",
+          label: "Title & prices alignment",
+          configs: {
+            options: [
+              { value: "horizontal", label: "Horizontal" },
+              { value: "vertical", label: "Vertical" },
+            ],
+          },
+          defaultValue: "horizontal",
+        },
+        {
+          type: "toggle-group",
+          name: "contentAlignment",
+          label: "Content alignment",
+          configs: {
+            options: [
+              { value: "left", label: "Left", icon: "align-start-vertical" },
+              { value: "center", label: "Center", icon: "align-center-vertical" },
+              { value: "right", label: "Right", icon: "align-end-vertical" },
+            ],
+          },
+          defaultValue: "left",
+          condition: (data: ProductItemsProps) => data.titlePricesAlignment === "vertical",
+        },
+        {
+          type: "switch",
+          name: "showViewProductButton",
+          label: "Show View Product button",
+          defaultValue: true,
+        },
+      ],
+    },
+  ],
 });

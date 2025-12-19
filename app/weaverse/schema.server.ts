@@ -607,36 +607,6 @@ export const themeSchema: HydrogenThemeSchema = {
           label: "Content",
         },
         {
-          type: "select",
-          label: "Title & prices alignment",
-          name: "pcardTitlePricesAlignment",
-          configs: {
-            options: [
-              { value: "horizontal", label: "Horizontal" },
-              { value: "vertical", label: "Vertical" },
-            ],
-          },
-          defaultValue: "horizontal",
-        },
-        {
-          type: "toggle-group",
-          name: "pcardAlignment",
-          label: "Content alignment",
-          configs: {
-            options: [
-              { value: "left", label: "Left", icon: "align-start-vertical" },
-              {
-                value: "center",
-                label: "Center",
-                icon: "align-center-vertical",
-              },
-              { value: "right", label: "Right", icon: "align-end-vertical" },
-            ],
-          },
-          defaultValue: "center",
-          condition: (theme) => theme.pcardTitlePricesAlignment === "vertical",
-        },
-        {
           type: "switch",
           label: "Show vendor",
           name: "pcardShowVendor",

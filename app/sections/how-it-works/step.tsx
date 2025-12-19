@@ -1,0 +1,103 @@
+import {
+  createSchema,
+  IMAGES_PLACEHOLDERS,
+  type HydrogenComponentProps,
+  type WeaverseImage,
+} from "@weaverse/hydrogen";
+import { Image } from "~/components/image";
+
+interface HowItWorksStepProps extends HydrogenComponentProps {
+  ref?: React.Ref<HTMLDivElement>;
+  image: WeaverseImage | string;
+  stepLabel: string;
+  title: string;
+  description: string;
+}
+
+function HowItWorksStep(props: HowItWorksStepProps) {
+  const {
+    image = IMAGES_PLACEHOLDERS.image,
+    stepLabel,
+    title,
+    description,
+    ref,
+    ...rest
+  } = props;
+
+  const imageData: Partial<WeaverseImage> =
+    typeof image === "string" ? { url: image, altText: title } : image;
+
+  return (
+    <div ref={ref} {...rest} className="flex flex-col items-center text-center">
+      <div className="mb-4 w-full">
+        <Image
+          data={imageData}
+          sizes="auto"
+          className="h-auto w-full object-contain"
+          width={400}
+        />
+      </div>
+      {stepLabel && (
+        <p className="mb-4 text-2xl italic text-body-subtle">
+          {stepLabel}
+        </p>
+      )}
+      {title && (
+        <h3 className="mb-4 text-[26px]">
+          {title}
+        </h3>
+      )}
+      {description && (
+        <p className="max-w-[280px] text-[16px]">
+          {description}
+        </p>
+      )}
+    </div>
+  );
+}
+
+export default HowItWorksStep;
+
+export const schema = createSchema({
+  type: "how-it-works--step",
+  title: "Step",
+  limit: 1,
+  settings: [
+    {
+      group: "Content",
+      inputs: [
+        {
+          type: "image",
+          name: "image",
+          label: "Icon/Image",
+        },
+        {
+          type: "text",
+          name: "stepLabel",
+          label: "Step Label",
+          defaultValue: "Step 1",
+          placeholder: "e.g. Step 1",
+        },
+        {
+          type: "text",
+          name: "title",
+          label: "Title",
+          defaultValue: "Choose Your Frequency",
+        },
+        {
+          type: "textarea",
+          name: "description",
+          label: "Description",
+          defaultValue:
+            "Choose between monthly, bi-monthly, quarterly, or bi-annually",
+        },
+      ],
+    },
+  ],
+  presets: {
+    image: IMAGES_PLACEHOLDERS.image,
+    stepLabel: "Step 1",
+    title: "Choose Your Frequency",
+    description: "Choose between monthly, bi-monthly, quarterly, or bi-annually",
+  },
+});

@@ -21,16 +21,25 @@ function ProductItems(props: ProductItemsProps) {
     parent.data?.loaderData?.products;
 
   const [activeIndex, setActiveIndex] = useState(0);
+  const [snapCount, setSnapCount] = useState(0);
   const [swiper, setSwiper] = useState<SwiperClass | null>(null);
 
   const handlePrev = () => swiper?.slidePrev();
   const handleNext = () => swiper?.slideNext();
 
+  const handleSwiperInit = (s: SwiperClass) => {
+    setSwiper(s);
+    setSnapCount(s.snapGrid?.length || products?.nodes?.length || 0);
+  };
+
+  const dots = Array.from({ length: snapCount }, (_, i) => i);
+
   return (
     <div ref={ref} {...rest} className="overflow-hidden">
       <Swiper
-        onSwiper={setSwiper}
+        onSwiper={handleSwiperInit}
         onSlideChange={(s) => setActiveIndex(s.activeIndex)}
+        onResize={(s) => setSnapCount(s.snapGrid?.length || products?.nodes?.length || 0)}
         modules={[Navigation]}
         slidesPerView="auto"
         spaceBetween={30}
@@ -54,11 +63,11 @@ function ProductItems(props: ProductItemsProps) {
 
       <div className="pt-[30px] flex items-center justify-between">
         <div className="flex gap-2">
-          {products?.nodes?.map((_, index) => (
+          {dots.map((index) => (
             <button
               type="button"
               key={index}
-              aria-label={`Go to product ${index + 1}`}
+              aria-label={`Go to position ${index + 1}`}
               className={`h-2 w-2 rounded-full transition-colors ${index === activeIndex ? "bg-black" : "bg-[#ccc7c0]"
                 }`}
               onClick={() => swiper?.slideTo(index)}

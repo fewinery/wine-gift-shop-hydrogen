@@ -87,6 +87,8 @@ import * as QuoteCarousel from "~/sections/quote-carousel";
 import * as QuoteCarouselItem from "~/sections/quote-carousel/item";
 import * as TierMembership from "~/sections/tier-membership";
 import * as TierMembershipItem from "~/sections/tier-membership/item";
+import * as ClubComparison from "~/sections/club-comparison";
+import * as ClubComparisonItem from "~/sections/club-comparison/item";
 
 export const components: HydrogenComponent[] = [
   SubHeading,
@@ -182,4 +184,6 @@ export const components: HydrogenComponent[] = [
   QuoteCarouselItem,
   TierMembership,
   TierMembershipItem,
+  ClubComparison,
+  ClubComparisonItem,
 ];

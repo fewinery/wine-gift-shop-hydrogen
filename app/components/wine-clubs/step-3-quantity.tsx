@@ -13,9 +13,6 @@ import type { WizardStepProps } from "./selection-wizard";
  */
 
 export interface Step3QuantityProps extends WizardStepProps {
-  /** Additional CSS classes */
-  className?: string;
-
   /** Custom quantity change handler */
   onQuantityChange?: (product: ProductVariant, quantity: number) => void;
 }
@@ -24,7 +21,6 @@ export default function Step3Quantity({
   state,
   wineClub,
   updateState,
-  className,
   onQuantityChange,
 }: Step3QuantityProps) {
   const selectedCaseSize = state.selectedCaseSize;
@@ -44,30 +40,27 @@ export default function Step3Quantity({
   };
 
   // Get case restrictions for a product
-  const getCaseRestrictions = (product: ProductVariant) => {
+  const getCaseRestrictions = (productData: ProductData) => {
     if (!selectedCaseSize) return null;
 
-    return product.caseRestrictions?.find(
+    return productData.caseRestrictions?.find(
       (restriction) => restriction.caseSize === selectedCaseSize.id,
     );
   };
 
   // Check if product has reached maximum quantity
   const isAtMaxQuantity = (
-    product: ProductVariant,
+    productData: ProductData,
     currentQuantity: number,
   ) => {
-    const restrictions = getCaseRestrictions(product);
+    const restrictions = getCaseRestrictions(productData);
     if (!restrictions || restrictions.max === null) return false;
     return currentQuantity >= restrictions.max;
   };
 
   // Check if product is at minimum quantity
-  const isAtMinQuantity = (
-    product: ProductVariant,
-    currentQuantity: number,
-  ) => {
-    const restrictions = getCaseRestrictions(product);
+  const isAtMinQuantity = (productData: ProductData, currentQuantity: number) => {
+    const restrictions = getCaseRestrictions(productData);
     if (!restrictions) return currentQuantity <= 0;
     return currentQuantity <= restrictions.min;
   };
@@ -80,24 +73,24 @@ export default function Step3Quantity({
   const caseSizeCapacity = selectedCaseSize?.quantity || 12;
 
   // Get available products for this wine club
-  // Transform sellingPlanVariants to productData format
-  const availableProducts = (wineClub.sellingPlanVariants || []).map((spv) => ({
+  // Use sellingPlanVariants (contains actual product data from Winehub API)
+  const availableProducts = (wineClub.sellingPlanVariants || wineClub.productData || []).map((spv) => ({
     productVariant: {
-      ...spv.productVariant,
-      // Convert string prices to numbers
-      retailPrice: Number.parseFloat(spv.productVariant.retailPrice),
+      ...(spv.productVariant || spv),
+      // API returns retailPrice as string, convert to number
+      retailPrice: Number.parseFloat((spv.productVariant?.retailPrice || (spv as any).retailPrice) as any),
     },
     caseRestrictions: spv.caseRestrictions || [],
     customOrderingIndex: spv.customOrderingIndex || null,
-    hidden: spv.hidden,
-    addOnOnly: spv.addOnOnly,
+    hidden: spv.hidden ?? false,
+    addOnOnly: spv.addOnOnly ?? false,
     individualPrices: spv.individualPrices || [],
     quantity: 0,
   }));
 
   if (!selectedCaseSize) {
     return (
-      <div className={cn("text-center py-8", className)}>
+      <div className="text-center py-8">
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
           <h3 className="text-lg font-medium text-yellow-800 mb-2">
             Case Size Required
@@ -117,49 +110,30 @@ export default function Step3Quantity({
   }
 
   return (
-    <div className={cn("space-y-6", className)}>
+    <div className="max-w-5xl mx-auto space-y-10">
       {/* Step Header */}
-      <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+      <div className="text-center space-y-1">
+        <h2 className="text-[40px]">
           Choose Your Wines
         </h2>
-        <p className="text-gray-600 max-w-2xl mx-auto">
-          Select the wines and quantities for your {selectedCaseSize.title}.
-          {selectedCaseSize.quantity > 1 &&
-            ` You can select up to ${selectedCaseSize.quantity} total items.`}
+        <p className="font-body text-[#5C5C5C] text-lg max-w-xl mx-auto">
+          Select the wines and quantities for your case
         </p>
-      </div>
-
-      {/* Selection Summary */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h4 className="font-medium text-blue-900">
-              Case Size: {selectedCaseSize.title}
-            </h4>
-            <p className="text-sm text-blue-700 mt-1">
-              Selected: {totalSelectedItems} of {selectedCaseSize.quantity}{" "}
-              items
-            </p>
-          </div>
-          <div className="text-right">
-            <div className="text-sm text-blue-600 font-medium">
-              {selectedCaseSize.quantity - totalSelectedItems} remaining
-            </div>
-            <button
-              onClick={() => updateState({ currentStep: 2 })}
-              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-            >
-              Change Frequency
-            </button>
-          </div>
+        {/* Compact Summary Badge */}
+        <div className="flex items-center justify-center gap-2 pt-3">
+          <span className="inline-flex items-center gap-3 px-5 py-2.5 bg-[#e8941d]/15 border border-[#e8941d]/40 rounded-full text-base">
+            <span className="font-semibold text-[#d4820a]">{selectedCaseSize.title}</span>
+            <span className="text-gray-400">•</span>
+            <span className="text-gray-700">{totalSelectedItems}/{selectedCaseSize.quantity} selected</span>
+            <span className="text-gray-400">•</span>
+            <span className="text-gray-600">{selectedCaseSize.quantity - totalSelectedItems} remaining</span>
+          </span>
         </div>
-
         {/* Progress bar */}
-        <div className="mt-3">
-          <div className="w-full bg-blue-200 rounded-full h-2">
+        <div className="max-w-md mx-auto pt-2">
+          <div className="w-full bg-gray-200 rounded-full h-2">
             <div
-              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+              className="bg-[#f5a623] h-2 rounded-full transition-all duration-300"
               style={{
                 width: `${Math.min((totalSelectedItems / selectedCaseSize.quantity) * 100, 100)}%`,
               }}
@@ -176,7 +150,7 @@ export default function Step3Quantity({
       )}
 
       {/* Product Errors */}
-      {errors.products && Object.keys(errors.products).length > 0 && (
+      {/* {errors.products && Object.keys(errors.products).length > 0 && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <h4 className="text-red-800 font-medium mb-2">
             Please fix these issues:
@@ -187,7 +161,7 @@ export default function Step3Quantity({
             ))}
           </ul>
         </div>
-      )}
+      )} */}
 
       {/* Products Grid */}
       {availableProducts.length > 0 ? (
@@ -201,9 +175,9 @@ export default function Step3Quantity({
                   (p) => p.productVariant.id === productData.productVariant.id,
                 )?.quantity || 0
               }
-              caseRestrictions={getCaseRestrictions(productData.productVariant)}
+              caseRestrictions={getCaseRestrictions(productData)}
               isAtMaxQuantity={isAtMaxQuantity(
-                productData.productVariant,
+                productData,
                 selectedProducts.find(
                   (p) => p.productVariant.id === productData.productVariant.id,
                 )?.quantity || 0,
@@ -233,7 +207,8 @@ export default function Step3Quantity({
             </p>
           </div>
         </div>
-      )}
+      )
+      }
 
       {/* Help Text */}
       <div className="text-center mt-8">
@@ -244,10 +219,10 @@ export default function Step3Quantity({
         </p>
       </div>
 
-      {/* Selection Summary */}
-      {selectedProducts.length > 0 && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mt-6">
-          <h4 className="font-medium text-green-900 mb-2">
+      {/* Selection Summary - Hidden for now */}
+      {/* {selectedProducts.length > 0 && (
+        <div className="bg-[#f5a623]/10 border border-[#f5a623]/30 rounded-lg p-4 mt-6">
+          <h4 className="font-henderson-slab text-lg text-[#d4820a] mb-2">
             Selected Wines ({totalSelectedItems} items)
           </h4>
           <div className="space-y-1">
@@ -256,18 +231,18 @@ export default function Step3Quantity({
                 key={product.productVariant.id}
                 className="flex justify-between text-sm"
               >
-                <span className="text-green-700">
+                <span className="text-gray-700">
                   {product.productVariant.productTitle}
                 </span>
-                <span className="text-green-600 font-medium">
+                <span className="text-[#d4820a] font-medium">
                   Qty: {product.quantity}
                 </span>
               </div>
             ))}
           </div>
         </div>
-      )}
-    </div>
+      )} */}
+    </div >
   );
 }
 
@@ -322,10 +297,10 @@ function ProductQuantityCard({
   return (
     <div
       className={cn(
-        "border-2 rounded-lg p-4 transition-all duration-200",
+        "border-2 rounded-lg p-4 transition-all duration-300 bg-white",
         selectedQuantity > 0
-          ? "border-green-600 bg-green-50 shadow-md"
-          : "border-gray-200 bg-white",
+          ? "border-[#f5a623] shadow-md"
+          : "border-gray-200",
       )}
     >
       {/* Product Image */}
@@ -360,17 +335,11 @@ function ProductQuantityCard({
 
       {/* Product Details */}
       <div className="space-y-2 mb-4">
-        <h3 className="font-semibold text-gray-900 line-clamp-2">
+        <h3 className="font-henderson-slab text-lg uppercase line-clamp-2">
           {productVariant.productTitle}
         </h3>
 
-        {productVariant.description && (
-          <p className="text-sm text-gray-600 line-clamp-2">
-            {productVariant.description}
-          </p>
-        )}
-
-        <div className="text-sm font-medium text-gray-900">
+        <div className="text-sm font-henderson-slab font-medium text-gray-900">
           ${productVariant.retailPrice.toFixed(2)}
         </div>
 
@@ -413,10 +382,7 @@ function ProductQuantityCard({
           </button>
 
           <span
-            className={cn(
-              "w-8 text-center font-medium",
-              selectedQuantity > 0 ? "text-green-600" : "text-gray-700",
-            )}
+            className="font-medium px-1"
           >
             {selectedQuantity}
           </span>
@@ -451,19 +417,21 @@ function ProductQuantityCard({
 
       {/* Selection Indicator */}
       {selectedQuantity > 0 && (
-        <div className="mt-3 pt-3 border-t border-green-200">
-          <div className="flex items-center text-green-700 text-sm">
+        <div className="mt-3 pt-3 border-t border-gray-200">
+          <div className="flex items-center gap-1.5 text-[#f5a623] text-sm font-medium">
             <svg
-              className="w-4 h-4 mr-1"
-              fill="none"
+              className="w-4 h-4"
               viewBox="0 0 24 24"
-              stroke="currentColor"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
             >
+              <circle cx="12" cy="12" r="10" fill="currentColor" />
               <path
+                d="M8 12L11 15L16 9"
+                stroke="white"
+                strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 13l4 4L19 7"
               />
             </svg>
             Added to selection

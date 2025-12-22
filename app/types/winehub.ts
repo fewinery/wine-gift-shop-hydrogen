@@ -126,6 +126,15 @@ export interface SellingPlan {
 
   /** Discount configuration */
   sellingPlanClubDiscount: SellingPlanClubDiscount | null;
+
+  /** Reference to case size (optional) */
+  caseSizeId?: string;
+
+  /** Whether this is a popular/recommended option */
+  popular?: boolean;
+
+  /** Discount percentage applied */
+  discountPercentage?: number;
 }
 
 /**

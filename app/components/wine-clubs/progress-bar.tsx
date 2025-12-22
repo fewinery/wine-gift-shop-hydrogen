@@ -43,9 +43,9 @@ export default function ProgressBar({
       {/* Progress Bar Container */}
       <div className="relative">
         {/* Progress Line */}
-        <div className="absolute top-5 left-0 right-0 h-0.5 bg-gray-200 -z-10">
+        <div className="absolute top-[16px] left-5 right-5 h-2 bg-gray-200 z-0">
           <div
-            className="h-full bg-blue-600 transition-all duration-300 ease-in-out"
+            className="h-full bg-[#f5a623] transition-all duration-300 ease-in-out"
             style={{
               width: `${((currentStep - 1) / (totalSteps - 1)) * 100}%`,
             }}
@@ -53,7 +53,7 @@ export default function ProgressBar({
         </div>
 
         {/* Step Indicators */}
-        <div className="flex justify-between">
+        <div className="flex justify-between relative z-[1]">
           {Array.from({ length: totalSteps }, (_, index) => {
             const stepNumber = index + 1;
             const isActive = stepNumber === currentStep;
@@ -76,48 +76,51 @@ export default function ProgressBar({
                 aria-label={`Go to step ${stepNumber}: ${stepLabels[index]}`}
                 aria-current={isActive ? "step" : undefined}
               >
-                {/* Step Circle */}
-                <div
-                  className={cn(
-                    "w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all duration-300",
-                    {
-                      "bg-blue-600 border-blue-600 text-white": isActive,
-                      "bg-green-600 border-green-600 text-white": isCompleted,
-                      "bg-white border-gray-300 text-gray-400": !(
-                        isActive || isCompleted
-                      ),
-                      "hover:border-blue-400 group-hover:text-blue-600":
-                        isClickable && !isActive,
-                    },
+                <div className="relative flex items-center justify-center">
+                  {/* Outer Halo */}
+                  {(isActive || isCompleted) && (
+                    <div className="absolute w-12 h-12 rounded-full bg-[#f5a623]/20 animate-pulse" />
                   )}
-                >
-                  {isCompleted ? (
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path d="M5 13l4 4L19 7" />
-                    </svg>
-                  ) : (
-                    <span className="text-sm font-medium">{stepNumber}</span>
-                  )}
+                  <div
+                    className={cn(
+                      "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 relative z-[2]",
+                      {
+                        "bg-[#f5a623] text-white shadow-md": isActive || isCompleted,
+                        "bg-background border-2 border-gray-300 text-gray-400": !(
+                          isActive || isCompleted
+                        ),
+                        "group-hover:border-[#f5a623] group-hover:text-[#f5a623]":
+                          isClickable && !isActive && !isCompleted,
+                      },
+                    )}
+                  >
+                    {isCompleted ? (
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : (
+                      <span className="text-sm font-bold">{stepNumber}</span>
+                    )}
+                  </div>
                 </div>
 
                 {/* Step Label */}
-                <div className="mt-2 text-center">
+                <div className="mt-3 text-center">
                   <p
                     className={cn(
-                      "text-sm font-medium transition-colors duration-200",
+                      "text-sm font-bold uppercase tracking-widest transition-colors duration-200",
                       {
-                        "text-blue-600": isActive,
-                        "text-green-600": isCompleted,
+                        "text-[#f5a623]": isActive || isCompleted,
                         "text-gray-500": !(isActive || isCompleted),
-                        "group-hover:text-blue-600": isClickable && !isActive,
+                        "group-hover:text-[#f5a623]": isClickable && !isActive && !isCompleted,
                       },
                     )}
                   >
@@ -144,18 +147,13 @@ export default function ProgressBar({
         </div>
       </div>
 
-      {/* Progress Summary */}
-      <div className="mt-6 text-center">
-        <p className="text-sm text-gray-600">
-          Step {currentStep} of {totalSteps}: {stepLabels[currentStep - 1]}
+      {/* Guide Message */}
+      <div className="mt-12 text-center">
+        <p className="text-sm">
+          {getProgressMessage(currentStep, totalSteps)}
         </p>
-        <div className="mt-1">
-          <span className="text-xs text-gray-500">
-            {getProgressMessage(currentStep, totalSteps)}
-          </span>
-        </div>
       </div>
-    </div>
+    </div >
   );
 }
 

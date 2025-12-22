@@ -13,7 +13,7 @@ function StepsGuide(props: StepsGuideProps) {
   return (
     <Section ref={ref} {...rest}>
       {heading && (
-        <h2 className="mb-12 text-center text-[40px] font-medium uppercase md:mb-16">
+        <h2 className="text-center text-[40px] font-medium">
           {heading}
         </h2>
       )}

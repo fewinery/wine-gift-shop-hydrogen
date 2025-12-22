@@ -78,7 +78,7 @@ export default function WineClubSelectionWizard(
         {(heading || description) && (
           <div className="text-center mb-12">
             {heading && (
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">{heading}</h2>
+              <h2 className="text-3xl md:text-4xl mb-4">{heading}</h2>
             )}
             {description && (
               <p className="text-lg text-gray-600 max-w-3xl mx-auto">
@@ -166,9 +166,6 @@ export const loader = async ({ weaverse, data }: ComponentLoaderArgs) => {
 export const schema = createSchema({
   type: "wine-club-selection-wizard",
   title: "Wine Club Selection Wizard",
-  category: "Wine Clubs",
-  description:
-    "5-step wine club selection process with case size, frequency, quantity, add-ons, and review steps",
   settings: [
     {
       group: "Content",
@@ -224,7 +221,7 @@ export const schema = createSchema({
           type: "color",
           name: "backgroundColor",
           label: "Background Color",
-          defaultValue: "#ffffff",
+          defaultValue: "#fff9f1",
           helpText: "Background color for the section",
         },
         {

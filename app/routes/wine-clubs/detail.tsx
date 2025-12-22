@@ -68,16 +68,16 @@ export default function WineClubDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-16 max-w-6xl">
         {/* Wine club header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+        <div className="text-center mb-12 space-y-2">
+          <h1 className="text-5xl font-henderson-slab font-bold uppercase">
             {wineClub.name}
           </h1>
           {wineClub.description && (
             <div
-              className="text-lg text-gray-600 mb-8"
+              className="text-xl max-w-3xl mx-auto"
               dangerouslySetInnerHTML={{
                 __html: sanitizeHtml(wineClub.description),
               }}

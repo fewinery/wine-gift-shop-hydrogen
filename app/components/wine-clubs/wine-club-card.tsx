@@ -25,79 +25,77 @@ export function WineClubCard({
   className,
 }: WineClubCardProps) {
   const hasImage = Boolean(club.image);
-  const hasDescription = Boolean(club.description);
   const frequencies = club.sellingPlans.map((plan) => plan.name).join(", ");
+  const caseSizes = club.caseSizes.map((size) => size.title).join(", ");
 
   return (
     <Link
       to={`/wine-clubs/${club.id}`}
       className={cn(
-        "group block overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md",
+        "group flex h-full flex-col border border-black/80 bg-[#FAF9F6] transition-all duration-300 hover:border-[#B59C66] rounded overflow-hidden",
         className,
       )}
     >
-      {/* Wine Club Image */}
-      {hasImage && (
-        <div className="aspect-[4/3] overflow-hidden bg-gray-100">
-          <img
-            src={club.image!}
-            alt={club.name}
-            loading="lazy"
-            className="h-full w-full object-cover transition-transform group-hover:scale-105"
-          />
-        </div>
-      )}
+
 
       {/* Wine Club Content */}
-      <div className="p-4">
+      <div className="flex flex-1 flex-col p-6 md:p-8">
         {/* Club Name */}
-        <h3 className="mb-2 text-xl font-semibold text-gray-900">
+        <h3 className="mb-2 leading-normal uppercase text-3xl transition-colors group-hover:text-[#B59C66]">
           {club.name}
         </h3>
 
         {/* Club Description */}
-        {showDescription && hasDescription && (
+        {showDescription && club.description && (
           <div
-            className="mb-3 line-clamp-3 text-sm text-gray-600"
+            className="mb-6 font-body text-lg text-[#5C5C5C] line-clamp-3"
             dangerouslySetInnerHTML={{
-              __html: sanitizeHtml(club.description!),
+              __html: sanitizeHtml(club.description),
             }}
           />
         )}
 
-        {/* Subscription Frequencies */}
-        {club.sellingPlans.length > 0 && (
-          <div className="mb-2 text-sm text-gray-500">
-            <span className="font-medium">Frequencies:</span> {frequencies}
+        {/* Details & CTA Container */}
+        <div className="mt-auto space-y-6">
+          {/* Metadata */}
+          <div className="space-y-2 border-t border-black/20 pt-4 text-sm text-[#5C5C5C]">
+            {club.sellingPlans.length > 0 && (
+              <div className="flex gap-2">
+                <span className="shrink-0 font-bold uppercase tracking-wider text-sm text-[#2F2F2F]">
+                  Frequency:
+                </span>
+                <span>{frequencies}</span>
+              </div>
+            )}
+            {club.caseSizes.length > 0 && (
+              <div className="flex gap-2">
+                <span className="shrink-0 font-bold uppercase tracking-wider text-sm text-[#2F2F2F]">
+                  Case Size:
+                </span>
+                <span>{caseSizes}</span>
+              </div>
+            )}
           </div>
-        )}
 
-        {/* Case Sizes */}
-        {club.caseSizes.length > 0 && (
-          <div className="text-sm text-gray-500">
-            <span className="font-medium">Case Sizes:</span>{" "}
-            {club.caseSizes.map((size) => size.title).join(", ")}
+          {/* Call to Action */}
+          <div>
+            <span className="inline-flex items-center font-bold uppercase tracking-[0.15em] text-[#2F2F2F] transition-colors group-hover:text-[#B59C66]">
+              Get Started
+              <svg
+                className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="square"
+                  strokeLinejoin="miter"
+                  strokeWidth={1.5}
+                  d="M17 8l4 4m0 0l-4 4m4-4H3"
+                />
+              </svg>
+            </span>
           </div>
-        )}
-
-        {/* Call to Action */}
-        <div className="mt-4">
-          <span className="inline-flex items-center text-sm font-medium text-blue-600 group-hover:underline">
-            Get Started
-            <svg
-              className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </span>
         </div>
       </div>
     </Link>
@@ -113,22 +111,25 @@ export function WineClubCardSkeleton({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm",
+        "flex h-full flex-col border border-gray-200 bg-[#FAF9F6] rounded-[4px] overflow-hidden",
         className,
       )}
     >
-      {/* Image Skeleton */}
-      <div className="aspect-[4/3] animate-pulse bg-gray-200" />
-
       {/* Content Skeleton */}
-      <div className="p-4">
-        <div className="mb-2 h-6 w-3/4 animate-pulse rounded bg-gray-200" />
-        <div className="mb-3 space-y-2">
-          <div className="h-4 w-full animate-pulse rounded bg-gray-200" />
-          <div className="h-4 w-5/6 animate-pulse rounded bg-gray-200" />
+      <div className="flex flex-1 flex-col p-6 md:p-8">
+        <div className="mb-4 h-8 w-3/4 animate-pulse bg-gray-200" />
+
+        <div className="mb-8 space-y-3">
+          <div className="h-4 w-full animate-pulse bg-gray-200" />
+          <div className="h-4 w-5/6 animate-pulse bg-gray-200" />
+          <div className="h-4 w-4/6 animate-pulse bg-gray-200" />
         </div>
-        <div className="mb-2 h-4 w-2/3 animate-pulse rounded bg-gray-200" />
-        <div className="h-4 w-1/2 animate-pulse rounded bg-gray-200" />
+
+        <div className="mt-auto space-y-4 pt-4 border-t border-gray-100">
+          <div className="h-4 w-2/3 animate-pulse bg-gray-200" />
+          <div className="h-4 w-1/2 animate-pulse bg-gray-200" />
+          <div className="mt-4 h-5 w-24 animate-pulse bg-gray-200" />
+        </div>
       </div>
     </div>
   );

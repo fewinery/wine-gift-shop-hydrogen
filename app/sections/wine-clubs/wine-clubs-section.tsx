@@ -85,10 +85,22 @@ export default function WineClubsSection(props: WineClubsSectionProps) {
     );
   }
 
+  const colsDesktopMap: Record<number, string> = {
+    1: "md:grid-cols-1",
+    2: "md:grid-cols-2",
+    3: "md:grid-cols-3",
+    4: "md:grid-cols-4",
+    5: "md:grid-cols-5",
+  };
+  const colsMobileMap: Record<number, string> = {
+    1: "grid-cols-1",
+    2: "grid-cols-2",
+  };
+
   // Grid or list layout classes
   const gridClasses = cn(
     layout === "grid"
-      ? `grid gap-6 grid-cols-${columnsMobile} md:grid-cols-${columnsDesktop}`
+      ? `grid gap-6 ${colsMobileMap[columnsMobile] || "grid-cols-1"} ${colsDesktopMap[columnsDesktop] || "md:grid-cols-3"}`
       : "flex flex-col gap-4",
   );
 
@@ -96,10 +108,14 @@ export default function WineClubsSection(props: WineClubsSectionProps) {
     <section ref={ref} {...rest} className="py-12">
       <div className="container mx-auto px-4">
         {/* Heading and Description */}
-        <h2 className="mb-4 text-3xl font-bold">{heading}</h2>
-        {description && (
-          <p className="mb-8 text-lg text-gray-600">{description}</p>
-        )}
+        <div className="mb-16 text-center space-y-4">
+          <h2 className="font-heading text-5xl uppercase tracking-wide">
+            {heading}
+          </h2>
+          {description && (
+            <p className="text-lg text-gray-600">{description}</p>
+          )}
+        </div>
 
         {/* Wine Clubs Grid/List */}
         <div className={gridClasses}>
@@ -173,7 +189,7 @@ export const schema = createSchema({
           defaultValue: 3,
           configs: {
             min: 1,
-            max: 4,
+            max: 5,
             step: 1,
           },
         },
@@ -206,7 +222,7 @@ export const loader = async (args: ComponentLoaderArgs) => {
   const { weaverse } = args;
   try {
     const clubs = await fetchWineClubs({ context: weaverse as any });
-    console.log("[WineClubsSection] Loader data:", clubs);
+    // console.log("[WineClubsSection] Loader data:", clubs);
     return { clubs, error: false };
   } catch (error) {
     console.error("[WineClubsSection] Loader failed:", error);

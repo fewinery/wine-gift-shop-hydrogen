@@ -13,18 +13,14 @@ import type { WizardStepProps } from "./selection-wizard";
  */
 
 export interface Step4AddOnsProps extends WizardStepProps {
-  /** Additional CSS classes */
-  className?: string;
-
-  /** Custom selection handler */
-  onAddOnSelect?: (product: ProductVariant, quantity: number) => void;
+  /** Custom add-on selection handler */
+  onAddOnSelect?: (addOn: ProductVariant, quantity: number) => void;
 }
 
 export default function Step4AddOns({
   state,
   wineClub,
   updateState,
-  className,
   onAddOnSelect,
 }: Step4AddOnsProps) {
   const selectedCaseSize = state.selectedCaseSize;
@@ -51,7 +47,7 @@ export default function Step4AddOns({
 
   if (!selectedCaseSize) {
     return (
-      <div className={cn("text-center py-8", className)}>
+      <div className="text-center py-8">
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
           <h3 className="text-lg font-medium text-yellow-800 mb-2">
             Previous Selection Required
@@ -71,7 +67,7 @@ export default function Step4AddOns({
   }
 
   return (
-    <div className={cn("space-y-6", className)}>
+    <div className="space-y-6">
       {/* Step Header */}
       <div className="text-center">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
@@ -284,12 +280,6 @@ function AddOnCard({
           {productVariant.productTitle}
         </h3>
 
-        {productVariant.description && (
-          <p className="text-sm text-gray-600 line-clamp-2">
-            {productVariant.description}
-          </p>
-        )}
-
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium text-gray-900">
             ${productVariant.retailPrice.toFixed(2)}
@@ -298,13 +288,6 @@ function AddOnCard({
             Add-on
           </span>
         </div>
-
-        {/* Additional info */}
-        {productVariant.additionalInfo && (
-          <div className="text-xs text-gray-500 bg-gray-50 rounded px-2 py-1">
-            {productVariant.additionalInfo}
-          </div>
-        )}
       </div>
 
       {/* Quantity Selector */}

@@ -157,7 +157,7 @@ export async function fetchWineClubs({
           return null;
         }
 
-        return normalized;
+        return normalized as WineClub;
       })
       .filter((club): club is WineClub => club !== null);
 

@@ -169,7 +169,7 @@ export default function SelectionWizardContainer({
 
       <div className={cn("w-full max-w-6xl mx-auto", className)}>
         {/* Progress Bar */}
-        <div className="mb-8">
+        <div className="mb-4">
           <ProgressBar
             currentStep={state.currentStep}
             totalSteps={4}
@@ -183,17 +183,15 @@ export default function SelectionWizardContainer({
 
         {/* Navigation Buttons */}
         {state.currentStep !== 4 && (
-          <div className="flex justify-between items-center mt-8 pt-6 border-t border-gray-200">
-            {state.currentStep > 1 ? (
+          <div className="flex justify-center items-center gap-4 mt-8 pt-6 border-t border-gray-200">
+            {state.currentStep > 1 && (
               <button
                 type="button"
                 onClick={goToPreviousStep}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium"
+                className="px-6 py-2 font-medium uppercase transition-colors bg-white border border-black text-black hover:bg-gray-50"
               >
-                ← Previous Step
+                ← Previous
               </button>
-            ) : (
-              <div />
             )}
 
             <button
@@ -205,9 +203,9 @@ export default function SelectionWizardContainer({
               }}
               disabled={!canProceedToNext}
               className={cn(
-                "px-6 py-2 rounded-lg font-medium transition-colors",
+                "px-6 py-2 font-medium uppercase transition-colors",
                 canProceedToNext
-                  ? "bg-blue-600 text-white hover:bg-blue-700"
+                  ? "bg-(--btn-primary-bg) text-(--btn-primary-text) hover:opacity-90"
                   : "bg-gray-300 text-gray-500 cursor-not-allowed",
               )}
             >
@@ -231,7 +229,7 @@ export default function SelectionWizardContainer({
         )}
 
         {/* Debug Information (development only) */}
-        {process.env.NODE_ENV === "development" && (
+        {/* {process.env.NODE_ENV === "development" && (
           <div className="mt-8 p-4 bg-gray-100 rounded-lg">
             <details>
               <summary className="text-sm font-medium text-gray-700 cursor-pointer">
@@ -242,7 +240,7 @@ export default function SelectionWizardContainer({
               </pre>
             </details>
           </div>
-        )}
+        )} */}
       </div>
     </>
   );
@@ -266,6 +264,7 @@ export function StandaloneSelectionWizard() {
     shopifyId: "gid://shopify/Product/123456789",
     type: "Automatic",
     caseType: "Mixed",
+    sellingPlanPerks: [],
     caseSizes: [
       {
         id: "6-bottles",
@@ -285,12 +284,28 @@ export function StandaloneSelectionWizard() {
         id: "monthly",
         name: "Monthly Delivery",
         description: "Receive wines every month",
+        shopifyId: "gid://shopify/SellingPlan/1",
+        intervalCount: 1,
+        interval: "MONTH" as const,
+        sellingPlanClubDiscount: {
+          fixedAmount: 10,
+          fixedType: "PERCENTAGE" as const,
+          description: "10% off",
+        },
         discountPercentage: 10,
       },
       {
         id: "quarterly",
         name: "Quarterly Delivery",
         description: "Receive wines every 3 months",
+        shopifyId: "gid://shopify/SellingPlan/2",
+        intervalCount: 3,
+        interval: "MONTH" as const,
+        sellingPlanClubDiscount: {
+          fixedAmount: 15,
+          fixedType: "PERCENTAGE" as const,
+          description: "15% off",
+        },
         discountPercentage: 15,
       },
     ],
@@ -299,27 +314,51 @@ export function StandaloneSelectionWizard() {
         productVariant: {
           id: "wine-1",
           title: "Cabernet Sauvignon",
-          description: "Rich, full-bodied red wine",
+          productTitle: "Cabernet Sauvignon 2020",
           retailPrice: 29.99,
-          caseRestrictions: [
-            { caseSize: "6-bottles", min: 1, max: 6, suggestedQuantity: 2 },
-            { caseSize: "12-bottles", min: 1, max: 12, suggestedQuantity: 4 },
-          ],
+          active: true,
+          currencyCode: "USD",
+          image: null,
+          productImage: null,
+          shopifyId: "gid://shopify/ProductVariant/1",
+          sku: "CAB-001",
+          totalAvailable: 100,
+          trackQuantity: true,
         },
+        quantity: 0,
         addOnOnly: false,
+        caseRestrictions: [
+          { caseSize: "6-bottles", min: 1, max: 6, suggestedQuantity: 2 },
+          { caseSize: "12-bottles", min: 1, max: 12, suggestedQuantity: 4 },
+        ],
+        customOrderingIndex: null,
+        hidden: false,
+        individualPrices: [],
       },
       {
         productVariant: {
           id: "wine-2",
           title: "Chardonnay",
-          description: "Crisp, refreshing white wine",
+          productTitle: "Chardonnay 2021",
           retailPrice: 24.99,
-          caseRestrictions: [
-            { caseSize: "6-bottles", min: 0, max: 6, suggestedQuantity: 1 },
-            { caseSize: "12-bottles", min: 0, max: 12, suggestedQuantity: 2 },
-          ],
+          active: true,
+          currencyCode: "USD",
+          image: null,
+          productImage: null,
+          shopifyId: "gid://shopify/ProductVariant/2",
+          sku: "CHARD-001",
+          totalAvailable: 50,
+          trackQuantity: true,
         },
+        quantity: 0,
         addOnOnly: false,
+        caseRestrictions: [
+          { caseSize: "6-bottles", min: 0, max: 6, suggestedQuantity: 1 },
+          { caseSize: "12-bottles", min: 0, max: 12, suggestedQuantity: 2 },
+        ],
+        customOrderingIndex: null,
+        hidden: false,
+        individualPrices: [],
       },
     ],
   };

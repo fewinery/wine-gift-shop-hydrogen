@@ -1,4 +1,3 @@
-import React from "react";
 import type { CaseSize } from "~/types/winehub";
 import { cn } from "~/utils/cn";
 import type { WizardStepProps } from "./selection-wizard";
@@ -25,8 +24,6 @@ export default function Step1CaseSize({
   state,
   wineClub,
   updateState,
-  goToNextStep,
-  className,
   onCaseSizeSelect,
 }: Step1CaseSizeProps) {
   const { caseSizes } = wineClub;
@@ -44,42 +41,35 @@ export default function Step1CaseSize({
 
   if (!caseSizes || caseSizes.length === 0) {
     return (
-      <div className={cn("text-center py-8", className)}>
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-          <h3 className="text-lg font-medium text-yellow-800 mb-2">
-            No Case Sizes Available
-          </h3>
-          <p className="text-yellow-700">
-            This wine club doesn't have any case sizes configured yet. Please
-            contact us for assistance.
-          </p>
-        </div>
+      <div className="text-center py-12">
+        <p className="text-gray-500">
+          No case sizes available. Please contact support.
+        </p>
       </div>
     );
   }
 
   return (
-    <div className={cn("space-y-6", className)}>
+    <div className="max-w-4xl mx-auto space-y-10">
       {/* Step Header */}
-      <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+      <div className="text-center space-y-1">
+        <h2 className="text-[40px]">
           Choose Your Case Size
         </h2>
-        <p className="text-gray-600 max-w-2xl mx-auto">
-          Select the number of bottles you'd like to receive in each delivery.
-          You can change this anytime before checkout.
+        <p className="font-body text-[#5C5C5C] text-lg max-w-xl mx-auto">
+          How many bottles would you like to receive?
         </p>
       </div>
 
       {/* Error Display */}
       {errors.caseSize && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <div className="bg-red-50 border border-red-200 p-4 text-center">
           <p className="text-red-800 text-sm">{errors.caseSize}</p>
         </div>
       )}
 
       {/* Case Size Options */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="flex flex-wrap justify-center gap-6">
         {caseSizes.map((caseSize) => (
           <CaseSizeCard
             key={caseSize.id}
@@ -89,36 +79,6 @@ export default function Step1CaseSize({
           />
         ))}
       </div>
-
-      {/* Help Text */}
-      <div className="text-center mt-8">
-        <p className="text-sm text-gray-500">
-          Not sure which size to choose? Most members start with 6 bottles per
-          delivery.
-        </p>
-      </div>
-
-      {/* Selected Case Size Summary */}
-      {selectedCaseSize && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="font-medium text-blue-900">
-                Selected: {selectedCaseSize.title}
-              </h4>
-              <p className="text-sm text-blue-700 mt-1">
-                {selectedCaseSize.quantity} bottles per delivery
-              </p>
-            </div>
-            <button
-              onClick={() => updateState({ selectedCaseSize: null })}
-              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-            >
-              Change
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -127,6 +87,7 @@ export default function Step1CaseSize({
 // Case Size Card Component
 // ============================================================================
 
+
 interface CaseSizeCardProps {
   caseSize: CaseSize;
   isSelected: boolean;
@@ -134,18 +95,15 @@ interface CaseSizeCardProps {
 }
 
 function CaseSizeCard({ caseSize, isSelected, onSelect }: CaseSizeCardProps) {
-  // T072: Track image load failures
-  const [imageError, setImageError] = React.useState(false);
-
   return (
     <div
       onClick={onSelect}
       className={cn(
-        "relative cursor-pointer rounded-lg border-2 p-6 transition-all duration-200",
-        "hover:shadow-lg hover:border-blue-300",
+        "relative cursor-pointer flex flex-col p-8 transition-all duration-300 bg-white rounded-lg w-[350px]",
+        "border-2 hover:shadow-lg",
         {
-          "border-blue-600 bg-blue-50 shadow-lg": isSelected,
-          "border-gray-200 bg-white": !isSelected,
+          "border-[#f5a623] shadow-md": isSelected,
+          "border-gray-200 hover:border-gray-300": !isSelected,
         },
       )}
       role="button"
@@ -156,83 +114,74 @@ function CaseSizeCard({ caseSize, isSelected, onSelect }: CaseSizeCardProps) {
           onSelect();
         }
       }}
-      aria-pressed={isSelected}
-      aria-describedby={`case-size-${caseSize.id}-description`}
     >
-      {/* Selection Indicator */}
-      {isSelected && (
-        <div className="absolute top-4 right-4">
-          <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
-            <svg
-              className="w-4 h-4 text-white"
-              fill="none"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-        </div>
-      )}
 
-      {/* Case Size Image with error handling (T072) */}
-      {caseSize.image && !imageError ? (
-        <div className="aspect-square mb-4 rounded-lg overflow-hidden bg-gray-100">
-          <img
-            src={caseSize.image}
-            alt={caseSize.title}
-            className="w-full h-full object-cover"
-            loading="lazy"
-            onError={() => {
-              console.warn(
-                "[CaseSize] Image failed to load:",
-                caseSize.image,
-                "- showing fallback",
-              );
-              setImageError(true);
-            }}
+      {/* Selection Checkmark */}
+      <div
+        className={cn(
+          "absolute top-4 right-4 transition-opacity duration-300",
+          isSelected ? "opacity-100" : "opacity-0",
+        )}
+      >
+        <svg
+          className="w-6 h-6"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <circle cx="12" cy="12" r="10" fill="#f5a623" />
+          <path
+            d="M8 12L11 15L16 9"
+            stroke="white"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           />
-        </div>
-      ) : (
-        <div className="aspect-square mb-4 rounded-lg bg-gray-100 flex items-center justify-center">
-          <div className="text-center">
-            <div className="text-3xl font-bold text-gray-400 mb-1">
-              {caseSize.quantity}
-            </div>
-            <div className="text-xs text-gray-500 uppercase">
-              {caseSize.quantity === 1 ? "Bottle" : "Bottles"}
-            </div>
-          </div>
-        </div>
-      )}
+        </svg>
+      </div>
 
-      {/* Case Size Details */}
-      <div className="space-y-2">
-        <h3 className="text-lg font-semibold text-gray-900">
+      {/* Icon Placeholder */}
+      <div
+        className={cn(
+          "mb-6 w-14 h-14 rounded-full flex items-center justify-center self-start transition-all duration-300",
+          isSelected ? "bg-[#f5a623]/10 text-[#f5a623]" : "bg-gray-50 text-gray-400",
+        )}
+      >
+        <svg
+          className="w-7 h-7"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={1.5}
+            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+          />
+        </svg>
+      </div>
+
+      {/* Content */}
+      <div className="space-y-3 flex-1 flex flex-col">
+        <h3 className={cn(
+          "leading-normal font-henderson-slab text-2xl uppercase transition-colors duration-300",
+          isSelected && "text-[#f5a623]"
+        )}>
           {caseSize.title}
         </h3>
 
-        <div className="text-sm text-gray-600">
-          <span className="font-medium">{caseSize.quantity} bottles</span>
-          <span className="mx-2">•</span>
-          <span>
-            {caseSize.quantity <= 6 ? "Every few weeks" : "Monthly delivery"}
-          </span>
+        <div className="space-y-1 font-body text-[#5C5C5C]">
+          <p>{caseSize.quantity} bottles</p>
+          <p>{caseSize.quantity <= 6 ? "Every few weeks" : "Monthly delivery"}</p>
         </div>
 
-        {/* Price indication placeholder */}
-        <div className="text-sm text-gray-500">
-          Price calculated in next step
+        {/* Price Placeholder */}
+        <div className="pt-6 mt-auto">
+          <p className="font-body text-sm text-gray-500 italic">
+            Price calculated in next step
+          </p>
         </div>
-      </div>
-
-      {/* Screen reader description */}
-      <div id={`case-size-${caseSize.id}-description`} className="sr-only">
-        {caseSize.quantity} bottles per delivery.{" "}
-        {isSelected ? "Currently selected" : "Click to select this case size"}.
       </div>
     </div>
   );

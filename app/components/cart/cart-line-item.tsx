@@ -84,9 +84,9 @@ export function CartLineItem({
             width={250}
             height={250}
             data={image}
-            className="h-auto w-24"
+            className="w-24 aspect-square object-contain"
             alt={title}
-            aspectRatio={calculateAspectRatio(image, "adapt")}
+            aspectRatio="1/1"
           />
         )}
       </div>

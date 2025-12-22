@@ -2,13 +2,15 @@ import { CartForm } from "@shopify/hydrogen";
 import React, { useState } from "react";
 import type { FetcherWithComponents } from "react-router";
 import { useCartDrawerStore } from "~/components/cart/store";
-import { formatWineClubCart, validateCartData } from "~/utils/cart-utils";
+import { formatWineClubCart, validateCartData, generateCartCreateMutation } from "~/utils/cart-utils";
 import { cn } from "~/utils/cn";
 import PromotionalOfferModal, {
   mockPromotionalOffer,
 } from "./promotional-offer-modal";
+import { EditIcon } from "~/components/icons";
 import type { WizardStepProps } from "./selection-wizard";
 import { calculateTotalPrice } from "./selection-wizard";
+import { getFrequencyInfo } from "./step-2-frequency";
 
 /**
  * Step 5: Review Component
@@ -21,11 +23,8 @@ import { calculateTotalPrice } from "./selection-wizard";
  */
 
 export interface Step5ReviewProps extends WizardStepProps {
-  /** Additional CSS classes */
-  className?: string;
-
   /** Custom checkout handler */
-  onCheckout?: () => void;
+  onCheckout?: (cartData: any) => void;
 
   /** Custom edit handlers */
   onEditCaseSize?: () => void;
@@ -37,7 +36,6 @@ export default function Step5Review({
   state,
   wineClub,
   updateState,
-  className,
   onCheckout,
   onEditCaseSize,
   onEditFrequency,
@@ -204,15 +202,15 @@ export default function Step5Review({
     process.env.NODE_ENV === "development"; // Show mock offer in development
 
   return (
-    <div className={cn("space-y-6", className)}>
+    <div className="max-w-6xl mx-auto space-y-10 pb-12">
       {/* Step Header */}
-      <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+      <div className="text-center space-y-1">
+        <h2 className="text-[40px]">
           Review Your Selection
         </h2>
-        <p className="text-gray-600 max-w-2xl mx-auto">
+        <p className="font-body text-[#5C5C5C] text-lg max-w-xl mx-auto">
           Please review your wine club configuration before proceeding to
-          checkout. You can edit any section by clicking the "Edit" buttons.
+          checkout. You can edit any section by clicking the pencil icon.
         </p>
       </div>
 
@@ -223,20 +221,20 @@ export default function Step5Review({
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Selection Summary */}
         <div className="lg:col-span-2 space-y-6">
           {/* Wine Club Info */}
-          <div className="bg-white border border-gray-200 rounded-lg p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Wine Club</h3>
-              <span className="text-sm text-gray-500">Club Details</span>
+          <div className="bg-white border border-gray-200 rounded-lg p-8 hover:border-[#f5a623]/40 transition-colors shadow-sm">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold uppercase tracking-widest text-gray-900">Wine Club</h3>
+              <span className="text-xs font-bold uppercase tracking-widest text-gray-400">Club Details</span>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-4">
               <div>
-                <h4 className="font-medium text-gray-900">{wineClub.name}</h4>
+                <h4 className="font-henderson-slab text-xl uppercase text-gray-900 mb-2">{wineClub.name}</h4>
                 {wineClub.description && (
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-base text-gray-600 leading-relaxed">
                     {wineClub.description.replace(/<[^>]*>/g, "").slice(0, 150)}
                     ...
                   </p>
@@ -245,65 +243,58 @@ export default function Step5Review({
             </div>
           </div>
 
-          {/* Case Size Selection */}
-          <SelectionSummaryCard
-            title="Case Size"
-            icon={<CaseSizeIcon />}
-            selection={selectedCaseSize}
-            onEdit={() => {
-              onEditCaseSize?.();
-              updateState({ currentStep: 1 });
-            }}
-          >
-            {selectedCaseSize && (
-              <div className="space-y-2">
-                <div className="text-sm text-gray-600">
-                  <span className="font-medium">
-                    {selectedCaseSize.quantity}
-                  </span>{" "}
-                  bottles per delivery
+          <div className="flex gap-6">
+            {/* Case Size Selection */}
+            <SelectionSummaryCard
+              title="Case Size"
+              selection={selectedCaseSize}
+              onEdit={() => {
+                onEditCaseSize?.();
+                updateState({ currentStep: 1 });
+              }}
+            >
+              {selectedCaseSize && (
+                <div className="space-y-2">
+                  <div className="text-base font-medium text-gray-900">
+                    {selectedCaseSize.quantity} bottles per delivery
+                  </div>
+                  {/* {selectedCaseSize.image && (
+                    <img
+                      src={selectedCaseSize.image}
+                      alt={selectedCaseSize.title}
+                      className="w-20 h-20 object-cover rounded"
+                    />
+                  )} */}
                 </div>
-                {selectedCaseSize.image && (
-                  <img
-                    src={selectedCaseSize.image}
-                    alt={selectedCaseSize.title}
-                    className="w-20 h-20 object-cover rounded"
-                  />
-                )}
-              </div>
-            )}
-          </SelectionSummaryCard>
+              )}
+            </SelectionSummaryCard>
 
-          {/* Frequency Selection */}
-          <SelectionSummaryCard
-            title="Delivery Frequency"
-            icon={<FrequencyIcon />}
-            selection={selectedSellingPlan}
-            onEdit={() => {
-              onEditFrequency?.();
-              updateState({ currentStep: 2 });
-            }}
-          >
-            {selectedSellingPlan && (
-              <div className="space-y-2">
-                <div className="text-sm text-gray-600">
-                  <span className="font-medium">
+            {/* Frequency Selection */}
+            <SelectionSummaryCard
+              title="Delivery Frequency"
+              selection={selectedSellingPlan}
+              onEdit={() => {
+                onEditFrequency?.();
+                updateState({ currentStep: 2 });
+              }}
+            >
+              {selectedSellingPlan && (
+                <div className="space-y-1">
+                  <div className="font-henderson-slab text-lg uppercase text-gray-900">
                     {selectedSellingPlan.name}
-                  </span>
+                  </div>
+                  <div className="text-base text-gray-600">
+                    <p>{getFrequencyInfo(selectedSellingPlan).deliveriesPerYear} deliveries per year</p>
+                    <p>Every {getFrequencyInfo(selectedSellingPlan).intervalText.toLowerCase()}</p>
+                  </div>
                 </div>
-                {selectedSellingPlan.description && (
-                  <p className="text-sm text-gray-500">
-                    {selectedSellingPlan.description}
-                  </p>
-                )}
-              </div>
-            )}
-          </SelectionSummaryCard>
+              )}
+            </SelectionSummaryCard>
+          </div>
 
           {/* Wine Selection */}
           <SelectionSummaryCard
             title="Wine Selection"
-            icon={<WineIcon />}
             selection={selectedProducts.length > 0 ? selectedProducts : null}
             onEdit={() => {
               onEditWines?.();
@@ -311,31 +302,48 @@ export default function Step5Review({
             }}
           >
             {selectedProducts.length > 0 ? (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {selectedProducts.map((product) => (
                   <div
                     key={product.productVariant.id}
-                    className="flex justify-between items-center py-2 border-b border-gray-100 last:border-0"
+                    className="flex items-center py-4 border-b border-gray-100 last:border-0"
                   >
-                    <div className="flex-1">
-                      <div className="font-medium text-gray-900 text-sm">
+                    {/* Thumbnail */}
+                    <div className="w-16 h-16 mr-4 flex-shrink-0 bg-gray-50 rounded-md overflow-hidden border border-gray-200">
+                      {product.productVariant.productImage ? (
+                        <img
+                          src={product.productVariant.productImage}
+                          alt={product.productVariant.productTitle}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-300">
+                          <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex-1 pr-4">
+                      <div className="font-henderson-slab text-base text-gray-900">
                         {product.productVariant.productTitle}
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-sm text-gray-500 mt-1">
                         ${product.productVariant.retailPrice.toFixed(2)} each
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-base font-medium text-gray-900">
                         ×{product.quantity}
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="font-henderson-slab text-base text-gray-900 mt-1">
                         ${(product.calculatedPrice || 0).toFixed(2)}
                       </div>
                     </div>
                   </div>
                 ))}
-                <div className="pt-2 text-sm text-gray-600">
+                <div className="pt-6 mt-2 text-base text-gray-900 border-t border-gray-100 font-medium">
                   Total items:{" "}
                   {selectedProducts.reduce((sum, p) => sum + p.quantity, 0)}{" "}
                   bottles
@@ -349,8 +357,8 @@ export default function Step5Review({
 
         {/* Pricing Summary */}
         <div className="lg:col-span-1">
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 sticky top-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          <div className="bg-white border border-gray-200 rounded-lg p-8 sticky top-6 shadow-sm">
+            <h3 className="text-xl font-bold uppercase tracking-widest text-gray-900 mb-8 border-b pb-4">
               Pricing Summary
             </h3>
 
@@ -368,10 +376,10 @@ export default function Step5Review({
               {/* Discount Amount */}
               {pricing.discountAmount > 0 && (
                 <div className="flex justify-between items-center pb-3 border-b border-gray-200">
-                  <span className="text-sm text-green-600">
+                  <span className="text-sm text-[#d4820a] font-medium">
                     {selectedSellingPlan?.discountPercentage}% Discount
                   </span>
-                  <span className="text-sm font-medium text-green-600">
+                  <span className="text-sm font-medium text-[#d4820a]">
                     -${pricing.discountAmount.toFixed(2)}
                   </span>
                 </div>
@@ -396,11 +404,11 @@ export default function Step5Review({
               )}
 
               {/* Grand Total */}
-              <div className="flex justify-between items-center pt-3">
-                <span className="text-base font-semibold text-gray-900">
+              <div className="flex justify-between items-end pt-3">
+                <span className="font-henderson-slab text-xl text-gray-900">
                   Total
                 </span>
-                <span className="text-xl font-bold text-gray-900">
+                <span className="font-henderson-slab text-3xl text-gray-900 leading-normal">
                   ${pricing.grandTotal.toFixed(2)}
                 </span>
               </div>
@@ -420,9 +428,9 @@ export default function Step5Review({
               )}
 
               {/* Billing Info */}
-              <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                <div className="text-xs text-blue-800">
-                  <p className="font-medium mb-1">Billing Information</p>
+              <div className="mt-4 p-4 bg-[#f9f5f0] rounded-lg border border-[#e6dac9]">
+                <div className="text-sm text-[#4a4a4a] space-y-1 font-body">
+                  <p className="font-bold text-gray-900 uppercase tracking-wide text-xs mb-2">Billing Information</p>
                   <p>• Subscription billed per delivery</p>
                   <p>• Add-ons billed with first delivery</p>
                   <p>• Free shipping on all orders</p>
@@ -436,9 +444,9 @@ export default function Step5Review({
               {showSignUpOffer && (
                 <button
                   onClick={() => setShowPromoModal(true)}
-                  className="w-full mt-2 py-2 px-4 bg-orange-100 text-orange-800 rounded-lg text-sm font-medium hover:bg-orange-200 transition-colors"
+                  className="w-full mt-3 py-3 px-6 bg-[#f5a623]/10 text-[#d4820a] text-sm font-bold uppercase tracking-wide hover:bg-[#f5a623]/20 transition-colors flex items-center justify-center gap-2"
                 >
-                  🎉 View Special Offer
+                  <span>🎉</span> View Special Offer
                 </button>
               )}
             </div>
@@ -471,7 +479,6 @@ export default function Step5Review({
 
 interface SelectionSummaryCardProps {
   title: string;
-  icon: React.ReactNode;
   selection: any;
   onEdit: () => void;
   optional?: boolean;
@@ -480,21 +487,19 @@ interface SelectionSummaryCardProps {
 
 function SelectionSummaryCard({
   title,
-  icon,
   selection,
   onEdit,
   optional = false,
   children,
 }: SelectionSummaryCardProps) {
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center space-x-2">
-          <div className="text-gray-400">{icon}</div>
-          <h3 className="text-lg font-semibold text-gray-900">
+    <div className="bg-white border border-gray-200 rounded-lg p-8 w-full hover:border-[#f5a623]/40 transition-all duration-300 shadow-sm">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center space-x-3">
+          <h3 className="text-xl font-bold uppercase tracking-widest text-gray-900">
             {title}
             {optional && (
-              <span className="text-sm text-gray-500 font-normal ml-1">
+              <span className="text-xs text-gray-400 font-sans font-bold ml-3 capitalize tracking-normal">
                 (Optional)
               </span>
             )}
@@ -502,9 +507,10 @@ function SelectionSummaryCard({
         </div>
         <button
           onClick={onEdit}
-          className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+          className="text-[#d4820a] hover:text-[#b5700a] transition-colors"
+          aria-label="Edit"
         >
-          Edit
+          <EditIcon />
         </button>
       </div>
 
@@ -646,11 +652,10 @@ function AddToCartButton({ cartLines }: AddToCartButtonProps) {
               type="submit"
               disabled={cartLines.length === 0 || fetcher.state !== "idle"}
               className={cn(
-                "w-full py-3 px-4 rounded-lg font-medium transition-colors",
-                "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500",
+                "w-full py-3 px-6 font-bold text-base uppercase tracking-widest mt-6",
                 cartLines.length === 0 || fetcher.state !== "idle"
                   ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-blue-600 text-white hover:bg-blue-700",
+                  : "bg-[#f5a623] text-black hover:bg-[#d4820a] border border-transparent"
               )}
             >
               {fetcher.state !== "idle" ? (

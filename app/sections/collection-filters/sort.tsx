@@ -12,11 +12,11 @@ const SORT_LIST: { label: string; key: SortParam }[] = [
     key: "relevance",
   },
   {
-    label: "Price, (low to high)",
+    label: "Price, low to high",
     key: "price-low-high",
   },
   {
-    label: "Price, (high to low)",
+    label: "Price, high to low",
     key: "price-high-low",
   },
   {
@@ -39,11 +39,8 @@ export function Sort() {
 
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Trigger className="flex h-12 items-center gap-1.5 border px-4 py-2.5 focus-visible:outline-hidden">
-        <span className="hidden lg:inline">
-          Sort by: <span className="font-semibold">{currentSort.label}</span>
-        </span>
-        <span className="lg:hidden">Sort</span>
+      <DropdownMenu.Trigger className="flex h-[43px] min-w-44 items-center justify-between gap-2 border bg-white p-2.5 text-base focus-visible:outline-hidden rounded">
+        <span className="truncate">{currentSort.label}</span>
         <CaretDownIcon />
       </DropdownMenu.Trigger>
       <DropdownMenu.Portal>

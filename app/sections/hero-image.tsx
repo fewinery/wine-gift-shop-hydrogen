@@ -1,66 +1,81 @@
 import {
   createSchema,
   IMAGES_PLACEHOLDERS,
+  useThemeSettings,
 } from "@weaverse/hydrogen";
+import type { VariantProps } from "class-variance-authority";
+import { cva } from "class-variance-authority";
 import { backgroundInputs } from "~/components/background-image";
+import { overlayInputs } from "~/components/overlay";
 import type { SectionProps } from "~/components/section";
-import { Section } from "~/components/section";
-import { Link } from "~/components/link";
+import { layoutInputs, Section } from "~/components/section";
 
-export interface HeroImageProps {
+export interface HeroImageProps extends VariantProps<typeof variants> {
   ref: React.Ref<HTMLElement>;
-  heading?: string;
-  paragraph?: string;
-  buttonText?: string;
-  buttonLink?: string;
-  buttonBgColor?: string;
-  buttonTextColor?: string;
+
+
+
+
+
+
 }
 
-export default function HeroImage(props: HeroImageProps & SectionProps) {
-  const {
-    ref,
-    heading,
-    paragraph,
-    buttonText,
-    buttonLink,
-    buttonBgColor,
-    buttonTextColor,
-    ...rest
-  } = props;
+const variants = cva("flex flex-col [&_.paragraph]:mx-[unset] [&_.heading]:max-w-[700px] [&_.paragraph]:max-w-[700px]", {
+  variants: {
+    height: {
+      small: "min-h-[40vh] lg:min-h-[50vh]",
+      medium: "min-h-[50vh] lg:min-h-[60vh]",
+      large: "min-h-[70vh] lg:min-h-[80vh]",
+      full: "",
+    },
+    enableTransparentHeader: {
+      true: "",
+      false: "",
+    },
+    contentPosition: {
+      "top left": "items-start justify-start [&_.paragraph]:text-left",
+      "top center": "items-center justify-start [&_.paragraph]:text-center",
+      "top right": "items-end justify-start [&_.paragraph]:text-right",
+      "center left": "items-start justify-center [&_.paragraph]:text-left",
+      "center center": "items-center justify-center [&_.paragraph]:text-center",
+      "center right": "items-end justify-center [&_.paragraph]:text-right",
+      "bottom left": "items-start justify-end [&_.paragraph]:text-left",
+      "bottom center": "items-center justify-end [&_.paragraph]:text-center",
+      "bottom right": "items-end justify-end [&_.paragraph]:text-right",
+    },
+  },
+  compoundVariants: [
+    {
+      height: "full",
+      enableTransparentHeader: true,
+      className: "h-screen-no-topbar",
+    },
+    {
+      height: "full",
+      enableTransparentHeader: false,
+      className: "h-screen-dynamic",
+    },
+  ],
+  defaultVariants: {
+    height: "large",
+    contentPosition: "center center",
+  },
+});
 
+export default function HeroImage(props: HeroImageProps & SectionProps) {
+  const { ref, children, height, contentPosition, ...rest } = props;
+  const { enableTransparentHeader } = useThemeSettings();
   return (
     <Section
       ref={ref}
       {...rest}
-      containerClassName="flex flex-col items-center justify-center text-center py-[124px] px-16"
+      containerClassName={variants({
+        contentPosition,
+        height,
+        enableTransparentHeader,
+      })}
     >
-      <div className="flex flex-col items-center max-w-[700px]">
-        {heading && (
-          <div
-            className="text-[50px] uppercase tracking-[3px] leading-[51px]"
-            dangerouslySetInnerHTML={{ __html: heading }}
-          />
-        )}
-        {paragraph && (
-          <div
-            className="text-[18px] text-center tracking-normal leading-[23px] mt-5"
-            dangerouslySetInnerHTML={{ __html: paragraph }}
-          />
-        )}
-        {buttonText && (
-          <Link
-            to={buttonLink}
-            className="flex items-center justify-center px-6 py-3 text-sm mt-8 w-[200px]"
-            style={{
-              backgroundColor: buttonBgColor,
-              color: buttonTextColor,
-            }}
-          >
-            {buttonText}
-          </Link>
-        )}
-      </div>
+      {children}
     </Section>
   );
 }
@@ -70,50 +85,30 @@ export const schema = createSchema({
   title: "Hero image",
   settings: [
     {
-      group: "Content",
+      group: "Layout",
       inputs: [
         {
-          type: "richtext",
-          name: "heading",
-          label: "Heading",
-          defaultValue: "Hero image heading",
+          type: "select",
+          name: "height",
+          label: "Section height",
+          configs: {
+            options: [
+              { value: "small", label: "Small" },
+              { value: "medium", label: "Medium" },
+              { value: "large", label: "Large" },
+              { value: "full", label: "Fullscreen" },
+            ],
+          },
         },
         {
-          type: "richtext",
-          name: "paragraph",
-          label: "Paragraph",
-          defaultValue:
-            "Use this text to share information about your brand with your customers.",
+          type: "position",
+          name: "contentPosition",
+          label: "Content position",
+          defaultValue: "center center",
         },
-      ],
-    },
-    {
-      group: "Button",
-      inputs: [
-        {
-          type: "text",
-          name: "buttonText",
-          label: "Button text",
-          defaultValue: "Text",
-        },
-        {
-          type: "text",
-          name: "buttonLink",
-          label: "Button link",
-          defaultValue: "/",
-        },
-        {
-          type: "color",
-          name: "buttonBgColor",
-          label: "Button background",
-          defaultValue: "#ffffff",
-        },
-        {
-          type: "color",
-          name: "buttonTextColor",
-          label: "Button text color",
-          defaultValue: "#000000",
-        },
+        ...layoutInputs.filter(
+          (inp) => inp.name !== "divider" && inp.name !== "borderRadius",
+        ),
       ],
     },
     {
@@ -125,16 +120,35 @@ export const schema = createSchema({
         ),
       ],
     },
+    { group: "Overlay", inputs: overlayInputs },
   ],
+  childTypes: ["subheading", "heading", "paragraph", "button"],
   presets: {
+    height: "large",
+    contentPosition: "center center",
     backgroundImage: IMAGES_PLACEHOLDERS.banner_1,
     backgroundFit: "cover",
-    heading: "Hero image heading",
-    paragraph:
-      "Use this text to share information about your brand with your customers. Describe a product, share announcements, or welcome customers to your store.",
-    buttonText: "Text",
-    buttonLink: "/",
-    buttonBgColor: "#ffffff",
-    buttonTextColor: "#000000",
+    enableOverlay: true,
+    overlayOpacity: 40,
+    children: [
+      {
+        type: "subheading",
+        content: "Subheading",
+        color: "#ffffff",
+      },
+      {
+        type: "heading",
+        content: "Hero image with text overlay",
+        as: "h2",
+        color: "#ffffff",
+        size: "default",
+      },
+      {
+        type: "paragraph",
+        content:
+          "Use this text to share information about your brand with your customers. Describe a product, share announcements, or welcome customers to your store.",
+        color: "#ffffff",
+      },
+    ],
   },
 });

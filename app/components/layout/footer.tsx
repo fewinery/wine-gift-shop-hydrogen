@@ -105,6 +105,7 @@ export function Footer() {
             {bio ? <div dangerouslySetInnerHTML={{ __html: bio }} /> : null}
             <div className="flex flex-col text-sm">
               <div className="font-bold font-henderson-slab uppercase">{addressTitle}</div>
+              {storeAddress && <p className="pt-[5px]">{storeAddress}</p>}
               {storeEmail && <p className="pt-[5px]">{storeEmail}</p>}
               {storePhone && <p className="pt-[5px]">{storePhone}</p>}
             </div>
@@ -132,7 +133,7 @@ export function Footer() {
           </div>
         </div>
         <div className="flex flex-col border-t-[3px] pt-8 mt-20 border-white items-center justify-between gap-4 lg:flex-row font-henderson-slab">
-          <p className="text-sm">{copyright}</p>
+          <div className="text-sm" dangerouslySetInnerHTML={{ __html: copyright }} />
           <div className="flex items-center gap-6 text-sm">
             <Link to="/policies/privacy-policy">Privacy Policy</Link>
             <Link to="/policies/terms-of-service">Terms of Service</Link>

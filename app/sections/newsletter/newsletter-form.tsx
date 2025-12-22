@@ -29,11 +29,11 @@ function NewsLetterForm(props: NewsLetterInputProps) {
   const { ok, errorMessage } = data || {};
 
   return (
-    <div ref={ref} {...rest} className="mx-auto max-w-full" style={{ width }}>
+    <div ref={ref} {...rest} className="mx-auto max-w-full">
       <Form
         method="POST"
         action="/api/customer"
-        className="flex w-full items-center justify-center gap-[14px] px-[6px] py-2.5"
+        className="flex w-full items-center justify-center"
         data-motion="fade-up"
       >
         <input
@@ -41,11 +41,12 @@ function NewsLetterForm(props: NewsLetterInputProps) {
           type="email"
           required
           placeholder={placeholder}
-          className="bg-white p-3 leading-tight focus:outline-hidden w-full border"
+          className="bg-white p-3 leading-tight focus:outline-hidden w-full border my-2.5 mx-1.5"
+          style={{ width }}
         />
         <Button
           type="submit"
-          className="font-bold"
+          className="gap-3"
           loading={state === "submitting"}
         >
           {buttonText}

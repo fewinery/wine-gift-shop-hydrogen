@@ -5,7 +5,7 @@ import { useLoaderData } from "react-router";
 import type { CollectionQuery } from "storefront-api.generated";
 import { BreadCrumb } from "~/components/breadcrumb";
 import { Image } from "~/components/image";
-import { layoutInputs, Section, type SectionProps } from "~/components/section";
+import { Section, type SectionProps } from "~/components/section";
 import { Filters } from "./filters";
 import { ProductsPagination } from "./products-pagination";
 import { ToolsBar } from "./tools-bar";
@@ -14,9 +14,9 @@ export interface CollectionFiltersData {
   showBreadcrumb: boolean;
   showDescription: boolean;
   showBanner: boolean;
+  showOverlay: boolean;
   bannerHeightDesktop: number;
   bannerHeightMobile: number;
-  bannerBorderRadius: number;
   enableSort: boolean;
   showProductsCount: boolean;
   enableFilter: boolean;
@@ -29,6 +29,9 @@ export interface CollectionFiltersData {
   productsPerRowMobile: number;
   loadPrevText: string;
   loadMoreText: string;
+  titlePricesAlignment?: "horizontal" | "vertical";
+  contentAlignment?: "left" | "center" | "right";
+  showViewProductButton?: boolean;
 }
 
 interface CollectionFiltersProps extends SectionProps, CollectionFiltersData {
@@ -41,9 +44,9 @@ export default function CollectionFilters(props: CollectionFiltersProps) {
     showBreadcrumb,
     showDescription,
     showBanner,
+    showOverlay,
     bannerHeightDesktop,
     bannerHeightMobile,
-    bannerBorderRadius,
     enableSort,
     showFiltersCount,
     enableFilter,
@@ -56,6 +59,9 @@ export default function CollectionFilters(props: CollectionFiltersProps) {
     productsPerRowMobile,
     loadPrevText,
     loadMoreText,
+    titlePricesAlignment,
+    contentAlignment,
+    showViewProductButton,
     ...rest
   } = props;
 
@@ -68,14 +74,17 @@ export default function CollectionFilters(props: CollectionFiltersProps) {
   const [gridSizeDesktop, setGridSizeDesktop] = useState(
     Number(productsPerRowDesktop) || 3,
   );
-  const [gridSizeMobile, setGridSizeMobile] = useState(
-    Number(productsPerRowMobile) || 1,
-  );
+  const [gridSizeMobile, setGridSizeMobile] = useState(props.productsPerRowMobile);
+  const [showSidebar, setShowSidebar] = useState(enableFilter);
 
   useEffect(() => {
     setGridSizeDesktop(Number(productsPerRowDesktop) || 3);
     setGridSizeMobile(Number(productsPerRowMobile) || 1);
   }, [productsPerRowDesktop, productsPerRowMobile]);
+
+  useEffect(() => {
+    setShowSidebar(enableFilter);
+  }, [enableFilter]);
 
   if (collection?.products && collections) {
     const banner = collection.metafield
@@ -83,18 +92,18 @@ export default function CollectionFilters(props: CollectionFiltersProps) {
       : collection.image;
     return (
       <Section ref={ref} {...rest} overflow="unset">
-        <div className="py-10">
+        <div className="">
           {showBreadcrumb && (
             <BreadCrumb page={collection.title} className="mb-2.5" />
           )}
-          <h3>{collection.title}</h3>
+          {(!showBanner || !banner) && <h3>{collection.title}</h3>}
           {showDescription && collection.description && (
             <p className="mt-2.5 text-body-subtle">{collection.description}</p>
           )}
           {showBanner && banner && (
             <div
               className={clsx([
-                "mt-6 overflow-hidden bg-gray-100",
+                "overflow-hidden bg-gray-100 relative flex items-center justify-center",
                 "rounded-(--banner-border-radius)",
                 "h-(--banner-height-mobile) lg:h-(--banner-height-desktop)",
               ])}
@@ -102,47 +111,67 @@ export default function CollectionFilters(props: CollectionFiltersProps) {
                 {
                   "--banner-height-desktop": `${bannerHeightDesktop}px`,
                   "--banner-height-mobile": `${bannerHeightMobile}px`,
-                  "--banner-border-radius": `${bannerBorderRadius}px`,
                 } as React.CSSProperties
               }
             >
-              <Image data={banner} sizes="auto" width={2000} />
+              <Image
+                data={banner}
+                sizes="auto"
+                width={2000}
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+              {showOverlay && (
+                <div className="absolute inset-0 bg-[#00000099]" />
+              )}
+              <h3 className="relative z-10 text-center font-henderson-slab text-white text-[25.6px] font-medium uppercase">
+                {collection.title}
+              </h3>
             </div>
           )}
         </div>
-        <ToolsBar
-          width={rest.width}
-          gridSizeDesktop={gridSizeDesktop}
-          gridSizeMobile={gridSizeMobile}
-          onGridSizeChange={(v) => {
-            if (v > 2) {
-              setGridSizeDesktop(v);
-            } else {
-              setGridSizeMobile(v);
-            }
-          }}
-          {...props}
-        />
-        <div className="flex gap-5 pt-6 pb-8 lg:pt-12 lg:pb-20">
-          {enableFilter && filtersPosition === "sidebar" && (
-            <div className="hidden w-72 shrink-0 lg:block">
+
+        <div className="flex">
+          {filtersPosition === "sidebar" && showSidebar && (
+            <div className="hidden w-72 shrink-0 px-8 my-16 border-r lg:block">
               <div className="sticky top-[calc(var(--height-nav)+40px)] space-y-4">
-                <div className="font-bold">Filters</div>
+
                 <Filters />
               </div>
             </div>
           )}
-          <ProductsPagination
-            gridSizeDesktop={gridSizeDesktop}
-            gridSizeMobile={gridSizeMobile}
-            loadPrevText={loadPrevText}
-            loadMoreText={loadMoreText}
-          />
+          <div className="flex-1 p-8">
+            <ToolsBar
+              width={rest.width}
+              gridSizeDesktop={gridSizeDesktop}
+              gridSizeMobile={gridSizeMobile}
+              onGridSizeChange={(v) => {
+                if (v > 2) {
+                  setGridSizeDesktop(v);
+                } else {
+                  setGridSizeMobile(v);
+                }
+              }}
+              showSidebar={showSidebar}
+              setShowSidebar={setShowSidebar}
+              {...props}
+            />
+            <ProductsPagination
+              gridSizeDesktop={gridSizeDesktop}
+              gridSizeMobile={gridSizeMobile}
+              loadPrevText={loadPrevText}
+              loadMoreText={loadMoreText}
+              titlePricesAlignment={titlePricesAlignment}
+              contentAlignment={contentAlignment}
+              showViewProductButton={showViewProductButton}
+            />
+          </div>
         </div>
       </Section>
     );
   }
-  return <Section ref={ref} {...rest} />;
+  return (
+    <Section ref={ref} {...rest} />
+  );
 }
 
 export const schema = createSchema({
@@ -154,11 +183,9 @@ export const schema = createSchema({
   },
   settings: [
     {
-      group: "Layout",
+      group: "Content",
       inputs: [
-        ...layoutInputs.filter((inp) => {
-          return inp.name !== "borderRadius" && inp.name !== "gap";
-        }),
+
         {
           type: "switch",
           name: "showBreadcrumb",
@@ -185,6 +212,13 @@ export const schema = createSchema({
             "A custom banner can be stored under `custom.collection_banner` metafield.",
         },
         {
+          type: "switch",
+          name: "showOverlay",
+          label: "Show overlay",
+          defaultValue: false,
+          condition: (data: CollectionFiltersData) => data.showBanner,
+        },
+        {
           type: "range",
           name: "bannerHeightDesktop",
           label: "Banner height (desktop)",
@@ -206,19 +240,6 @@ export const schema = createSchema({
             max: 400,
             step: 1,
           },
-          condition: (data: CollectionFiltersData) => data.showBanner,
-        },
-        {
-          type: "range",
-          name: "bannerBorderRadius",
-          label: "Banner border radius",
-          configs: {
-            min: 0,
-            max: 40,
-            step: 2,
-            unit: "px",
-          },
-          defaultValue: 0,
           condition: (data: CollectionFiltersData) => data.showBanner,
         },
       ],
@@ -329,6 +350,43 @@ export const schema = createSchema({
           label: "Load more text",
           defaultValue: "Load more ↓",
           placeholder: "Load more ↓",
+        },
+      ],
+    },
+    {
+      group: "Product card",
+      inputs: [
+        {
+          type: "select",
+          name: "titlePricesAlignment",
+          label: "Title & prices alignment",
+          configs: {
+            options: [
+              { value: "horizontal", label: "Horizontal" },
+              { value: "vertical", label: "Vertical" },
+            ],
+          },
+          defaultValue: "horizontal",
+        },
+        {
+          type: "toggle-group",
+          name: "contentAlignment",
+          label: "Content alignment",
+          configs: {
+            options: [
+              { value: "left", label: "Left", icon: "align-start-vertical" },
+              { value: "center", label: "Center", icon: "align-center-vertical" },
+              { value: "right", label: "Right", icon: "align-end-vertical" },
+            ],
+          },
+          defaultValue: "left",
+          condition: (data: CollectionFiltersData) => data.titlePricesAlignment === "vertical",
+        },
+        {
+          type: "switch",
+          name: "showViewProductButton",
+          label: "Show View Product button",
+          defaultValue: true,
         },
       ],
     },

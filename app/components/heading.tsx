@@ -85,7 +85,7 @@ const variants = cva("heading", {
 
 export interface HeadingProps
   extends VariantProps<typeof variants>,
-    VariantProps<typeof fontSizeVariants> {
+  VariantProps<typeof fontSizeVariants> {
   ref?: React.Ref<HTMLHeadingElement>;
   as?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
   content: string;
@@ -136,9 +136,8 @@ function Heading(props: HeadingProps & Partial<HydrogenComponentProps>) {
         size === "custom" && fontSizeVariants({ mobileSize, desktopSize }),
         variants({ size, weight, letterSpacing, alignment, className }),
       )}
-    >
-      {content}
-    </Tag>
+      dangerouslySetInnerHTML={{ __html: content }}
+    />
   );
 }
 
@@ -146,7 +145,7 @@ export default Heading;
 
 export const headingInputs: InspectorGroup["inputs"] = [
   {
-    type: "text",
+    type: "richtext",
     name: "content",
     label: "Content",
     defaultValue: "Section heading",

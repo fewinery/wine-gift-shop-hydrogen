@@ -23,10 +23,18 @@ import * as HeroImage from "~/sections/hero-image";
 import * as HeroVideo from "~/sections/hero-video";
 import * as Hotspots from "~/sections/hotspots";
 import * as HotspotsItem from "~/sections/hotspots/item";
+import * as StepsGuide from "~/sections/steps-guide";
+import * as StepsGuideItem from "~/sections/steps-guide/step";
 import * as ImageGallery from "~/sections/image-gallery";
 import * as ImageGalleryItem from "~/sections/image-gallery/image";
 import * as ImageGalleryItems from "~/sections/image-gallery/items";
+import * as BrandStory from "~/sections/brand-story";
+import * as BrandStoryImage from "~/sections/brand-story/image";
+import * as BrandStoryContent from "~/sections/brand-story/content";
 import * as ImageWithText from "~/sections/image-with-text";
+import * as ImageWithTextContent from "~/sections/image-with-text/content";
+import * as ImageWithTextImage from "~/sections/image-with-text/image";
+import * as ImageWithTextButtonsWrapper from "~/sections/image-with-text/buttons-wrapper";
 import * as JudgemeReview from "~/sections/judgeme-reviews";
 import * as JudgemeReviewList from "~/sections/judgeme-reviews/review-list";
 import * as JudgemeReviewSummary from "~/sections/judgeme-reviews/review-summary";
@@ -83,7 +91,13 @@ export const components: HydrogenComponent[] = [
   VideoEmbed,
   VideoEmbedItem,
   HeroImage,
+  BrandStory,
+  BrandStoryImage,
+  BrandStoryContent,
   ImageWithText,
+  ImageWithTextContent,
+  ImageWithTextImage,
+  ImageWithTextButtonsWrapper,
   ColumnsWithImages,
   ColumnsWithImagesItems,
   ColumnWithImageItem,
@@ -94,6 +108,8 @@ export const components: HydrogenComponent[] = [
   PromotionGridButtons,
   Hotspots,
   HotspotsItem,
+  StepsGuide,
+  StepsGuideItem,
   Countdown,
   CountDownTimer,
   NewsLetter,

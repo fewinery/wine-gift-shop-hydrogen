@@ -3,22 +3,28 @@ import {
   type HydrogenComponentProps,
   IMAGES_PLACEHOLDERS,
   type WeaverseImage,
+  useParentInstance,
 } from "@weaverse/hydrogen";
-import type { VariantProps } from "class-variance-authority";
-import { cva } from "class-variance-authority";
+import { cva, type VariantProps } from "class-variance-authority";
 import { BackgroundImage } from "~/components/background-image";
-import type { OverlayProps } from "~/components/overlay";
-import { Overlay, overlayInputs } from "~/components/overlay";
+import { Image } from "~/components/image";
+import { Overlay, overlayInputs, type OverlayProps } from "~/components/overlay";
+import type { ImageAspectRatio } from "~/types/others";
+import { calculateAspectRatio } from "~/utils/image";
 
 const variants = cva(
   [
     "promotion-grid-item",
     "group/overlay",
-    "relative flex aspect-square flex-col gap-4 overflow-hidden p-4",
+    "relative flex flex-col gap-4 overflow-hidden",
     "[&_.paragraph]:mx-[unset]",
   ],
   {
     variants: {
+      layout: {
+        overlay: "aspect-square p-4",
+        card: "aspect-auto p-0",
+      },
       contentPosition: {
         "top left": "items-start justify-start [&_.paragraph]:text-left",
         "top center": "items-center justify-start [&_.paragraph]:text-center",
@@ -55,21 +61,25 @@ const variants = cva(
         40: "rounded-[40px]",
       },
     },
+    defaultVariants: {
+      layout: "overlay",
+    },
   },
 );
 
 interface PromotionItemProps
   extends VariantProps<typeof variants>,
-    HydrogenComponentProps,
-    OverlayProps {
+  HydrogenComponentProps,
+  OverlayProps {
   backgroundImage: WeaverseImage | string;
+  imageAspectRatio: ImageAspectRatio;
   ref?: React.Ref<HTMLDivElement>;
 }
-
 function PromotionGridItem(props: PromotionItemProps) {
   const {
     contentPosition,
     backgroundImage,
+    imageAspectRatio,
     borderRadius,
     children,
     enableOverlay,
@@ -79,21 +89,54 @@ function PromotionGridItem(props: PromotionItemProps) {
     ref,
     ...rest
   } = props;
+
+  const parent = useParentInstance();
+  const layout = parent?.data?.layout || "overlay";
+
   return (
     <div
       ref={ref}
       {...rest}
       data-motion="slide-in"
-      className={variants({ contentPosition, borderRadius })}
+      className={variants({ contentPosition, borderRadius, layout })}
     >
-      <BackgroundImage backgroundImage={backgroundImage} />
-      <Overlay
-        enableOverlay={enableOverlay}
-        overlayColor={overlayColor}
-        overlayColorHover={overlayColorHover}
-        overlayOpacity={overlayOpacity}
-      />
-      {children}
+      {layout === "overlay" ? (
+        <>
+          <BackgroundImage backgroundImage={backgroundImage} />
+          <Overlay
+            enableOverlay={enableOverlay}
+            overlayColor={overlayColor}
+            overlayColorHover={overlayColorHover}
+            overlayOpacity={overlayOpacity}
+          />
+          {children}
+        </>
+      ) : (
+        <>
+          {backgroundImage && (
+            <div className="w-full shrink-0 overflow-hidden">
+              <Image
+                data={
+                  typeof backgroundImage === "string"
+                    ? { url: backgroundImage, altText: "Promotion" }
+                    : backgroundImage
+                }
+                sizes="auto"
+                className="h-full w-full object-cover transition-transform duration-500 group-hover/overlay:scale-105"
+                aspectRatio={calculateAspectRatio(
+                  typeof backgroundImage === "string"
+                    ? { url: backgroundImage }
+                    : backgroundImage,
+                  imageAspectRatio,
+                )}
+              />
+            </div>
+          )}
+          <div className="flex flex-1 flex-col gap-3 py-6">
+            {children}
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -124,6 +167,21 @@ export const schema = createSchema({
             unit: "px",
           },
           defaultValue: 0,
+        },
+        {
+          type: "select",
+          name: "imageAspectRatio",
+          label: "Image aspect ratio",
+          defaultValue: "adapt",
+          configs: {
+            options: [
+              { value: "adapt", label: "Adapt to image" },
+              { value: "1/1", label: "Square (1/1)" },
+              { value: "3/4", label: "Portrait (3/4)" },
+              { value: "4/3", label: "Landscape (4/3)" },
+              { value: "16/9", label: "Widescreen (16/9)" },
+            ],
+          },
         },
       ],
     },

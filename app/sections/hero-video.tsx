@@ -3,29 +3,76 @@ import {
   type HydrogenComponentProps,
   isBrowser,
 } from "@weaverse/hydrogen";
+import type { VariantProps } from "class-variance-authority";
+import { cva } from "class-variance-authority";
 import clsx from "clsx";
 import type { CSSProperties } from "react";
 import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
+import type { OverlayProps } from "~/components/overlay";
+import { Overlay, overlayInputs } from "~/components/overlay";
 import { useAnimation } from "~/hooks/use-animation";
-import { Link } from "~/components/link";
 
 
 
-interface HeroVideoData {
+const SECTION_HEIGHTS = {
+  small: {
+    desktop: "40vh",
+    mobile: "50vh",
+  },
+  medium: {
+    desktop: "50vh",
+    mobile: "60vh",
+  },
+  large: {
+    desktop: "70vh",
+    mobile: "80vh",
+  },
+  custom: null,
+};
+
+interface HeroVideoData extends OverlayProps, VariantProps<typeof variants> {
   videoURL: string;
-  heading: string;
-  paragraph: string;
-  buttonText: string;
-  buttonLink: string;
-  buttonTextColor: string;
-  buttonBgColor: string;
+  height: "small" | "medium" | "large" | "custom";
+  heightOnDesktop: number;
+  heightOnMobile: number;
+
+
+
 }
 
 export interface HeroVideoProps extends HeroVideoData, HydrogenComponentProps {
   ref: React.Ref<HTMLElement>;
 }
 
+const variants = cva(
+  "absolute inset-0 z-10 mx-auto flex max-w-screen flex-col items-center justify-center px-3 [&_.heading]:max-w-[668px] [&_.paragraph]:max-w-[668px]",
+  {
+    variants: {
+      gap: {
+        0: "",
+        4: "space-y-1",
+        8: "space-y-2",
+        12: "space-y-3",
+        16: "space-y-4",
+        20: "space-y-5",
+        24: "space-y-3 lg:space-y-6",
+        28: "space-y-3.5 lg:space-y-7",
+        32: "space-y-4 lg:space-y-8",
+        36: "space-y-4 lg:space-y-9",
+        40: "space-y-5 lg:space-y-10",
+        44: "space-y-5 lg:space-y-11",
+        48: "space-y-6 lg:space-y-12",
+        52: "space-y-6 lg:space-y-[52px]",
+        56: "space-y-7 lg:space-y-14",
+        60: "space-y-7 lg:space-y-[60px]",
+      },
+    },
+    defaultVariants: {
+      gap: 20,
+    },
+  },
+);
 
 function getPlayerSize(id: string) {
   if (isBrowser) {
@@ -47,20 +94,24 @@ export default function HeroVideo(props: HeroVideoProps) {
   const {
     ref,
     videoURL,
-    heading,
-    paragraph,
-    buttonText,
-    buttonLink,
-    buttonTextColor,
-    buttonBgColor,
+    gap,
+    height,
+    heightOnDesktop,
+    heightOnMobile,
+    enableOverlay,
+    overlayColor,
+    overlayColorHover,
+    overlayOpacity,
+    children,
     ...rest
   } = props;
 
   const id = rest["data-wv-id"];
   const [size, setSize] = useState(() => getPlayerSize(id));
 
-  const desktopHeight = "70vh";
-  const mobileHeight = "80vh";
+  const desktopHeight =
+    SECTION_HEIGHTS[height]?.desktop || `${heightOnDesktop}px`;
+  const mobileHeight = SECTION_HEIGHTS[height]?.mobile || `${heightOnMobile}px`;
   const sectionStyle: CSSProperties = {
     "--desktop-height": desktopHeight,
     "--mobile-height": mobileHeight,
@@ -96,7 +147,7 @@ export default function HeroVideo(props: HeroVideoProps) {
     return () => {
       window.removeEventListener("resize", handleResize);
     };
-  }, [inView]);
+  }, [inView, height, heightOnDesktop, heightOnMobile]);
 
   const [scope] = useAnimation();
 
@@ -130,33 +181,15 @@ export default function HeroVideo(props: HeroVideoProps) {
             />
           </Suspense>
         )}
-
-        <div ref={scope} className="absolute inset-0 z-10 mx-auto flex max-w-screen flex-col items-center justify-center px-3 text-center">
-          <div className="flex flex-col items-center w-full">
-            {heading && (
-              <div className="text-[48px] max-w-[668px] font-bold text-white mb-5" dangerouslySetInnerHTML={{ __html: heading }} />
-            )}
-            {paragraph && (
-              <div
-                className="text-lg leading-[1.6] max-w-[668px] tracking-normal text-white"
-                dangerouslySetInnerHTML={{ __html: paragraph }}
-              />
-            )}
-            {buttonText && (
-              <Link to={buttonLink}>
-                <button
-                  type="button"
-                  className="rounded py-[15px] px-[100px] mt-5"
-                  style={{
-                    color: buttonTextColor,
-                    backgroundColor: buttonBgColor,
-                  }}
-                >
-                  {buttonText}
-                </button>
-              </Link>
-            )}
-          </div>
+        <Overlay
+          enableOverlay={enableOverlay}
+          overlayColor={overlayColor}
+          overlayColorHover={overlayColorHover}
+          overlayOpacity={overlayOpacity}
+          className="z-0"
+        />
+        <div ref={scope} className={clsx(variants({ gap }))}>
+          {children}
         </div>
       </div>
     </section>
@@ -178,74 +211,102 @@ export const schema = createSchema({
           placeholder: "https://www.youtube.com/watch?v=Su-x4Mo5xmU",
           helpText: "Support YouTube, Vimeo, MP4, WebM, and HLS streams.",
         },
+        {
+          type: "heading",
+          label: "Layout",
+        },
+        {
+          type: "select",
+          name: "height",
+          label: "Section height",
+          configs: {
+            options: [
+              { value: "small", label: "Small" },
+              { value: "medium", label: "Medium" },
+              { value: "large", label: "Large" },
+              { value: "custom", label: "Custom" },
+            ],
+          },
+          defaultValue: "medium",
+        },
+        {
+          type: "range",
+          name: "heightOnDesktop",
+          label: "Height on desktop",
+          defaultValue: 650,
+          configs: {
+            min: 400,
+            max: 800,
+            step: 10,
+            unit: "px",
+          },
+          condition: (data: HeroVideoData) => data.height === "custom",
+        },
+        {
+          type: "range",
+          name: "heightOnMobile",
+          label: "Height on mobile",
+          defaultValue: 300,
+          configs: {
+            min: 250,
+            max: 500,
+            step: 10,
+            unit: "px",
+          },
+          condition: (data: HeroVideoData) => data.height === "custom",
+        },
+        {
+          type: "range",
+          name: "gap",
+          label: "Items spacing",
+          configs: {
+            min: 0,
+            max: 40,
+            step: 4,
+            unit: "px",
+          },
+          defaultValue: 20,
+
+
+
+
+
+
+
+        },
       ],
     },
     {
-      group: "Content",
-      inputs: [
-        {
-          type: "heading",
-          label: "Heading",
-        },
-        {
-          type: "richtext",
-          name: "heading",
-          label: "Heading text",
-          defaultValue: "Section heading",
-          placeholder: "Section heading",
-        },
-        {
-          type: "heading",
-          label: "Paragraph",
-        },
-        {
-          type: "richtext",
-          name: "paragraph",
-          label: "Paragraph text",
-          defaultValue:
-            "Pair large video with a compelling message to captivate your audience.",
-          placeholder: "Pair large video with a compelling message to captivate your audience.",
-        },
-        {
-          type: "heading",
-          label: "Button",
-        },
-        {
-          type: "text",
-          name: "buttonText",
-          label: "Button text",
-          defaultValue: "Text",
-          placeholder: "Text",
-        },
-        {
-          type: "url",
-          name: "buttonLink",
-          label: "Button link",
-          defaultValue: "/",
-          placeholder: "/",
-        },
-        {
-          type: "color",
-          name: "buttonTextColor",
-          label: "Button text color",
-          defaultValue: "#000000",
-        },
-        {
-          type: "color",
-          name: "buttonBgColor",
-          label: "Button background color",
-          defaultValue: "#ffffff",
-        },
-      ],
+      group: "Overlay",
+      inputs: overlayInputs,
     },
-
   ],
+  childTypes: ["subheading", "heading", "paragraph", "button"],
   presets: {
+    enableOverlay: true,
+    overlayColor: "#000000",
+    overlayOpacity: 40,
     videoURL: "https://www.youtube.com/watch?v=gbLmku5QACM",
-    heading: "Section heading",
-    paragraph:
-      "Pair large video with a compelling message to captivate your audience.",
-    buttonText: "Text",
-    buttonLink: "/",
+    height: "large",
+    gap: 20,
+    children: [
+      {
+        type: "subheading",
+        content: "Seamless hero videos",
+        color: "#fff",
+      },
+      {
+        type: "heading",
+        content: "Bring your brand to life.",
+        as: "h2",
+        color: "#fff",
+      },
+      {
+        type: "paragraph",
+        content:
+          "Pair large video with a compelling message to captivate your audience.",
+        color: "#fff",
+      },
+    ],
   },
 });

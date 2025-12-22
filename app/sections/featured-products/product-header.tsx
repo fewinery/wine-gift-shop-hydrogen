@@ -45,7 +45,7 @@ const HeaderContainer = (props: HeaderContainerProps) => {
       {showButton && buttonText && (
         <Link
           to={buttonLink}
-          className="flex items-center justify-center px-6 py-2 leading-none"
+          className="flex items-center justify-center px-6 py-2"
           style={{
             color: buttonTextColor,
             backgroundColor: buttonBgColor,

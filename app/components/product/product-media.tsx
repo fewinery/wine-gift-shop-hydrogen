@@ -107,9 +107,9 @@ export function ProductMedia(props: ProductMediaProps) {
                   onClick={
                     canClickImage
                       ? () => {
-                          setZoomMediaId(med.id);
-                          setZoomModalOpen(true);
-                        }
+                        setZoomMediaId(med.id);
+                        setZoomModalOpen(true);
+                      }
                       : undefined
                   }
                   className={canClickImage ? "cursor-zoom-in" : ""}
@@ -121,7 +121,7 @@ export function ProductMedia(props: ProductMediaProps) {
                     className={cn(
                       "w-[80vw] max-w-none object-cover lg:h-full lg:w-full",
                       idx === 0 &&
-                        "[&_img]:[view-transition-name:image-expand]",
+                      "[&_img]:[view-transition-name:image-expand]",
                     )}
                   />
                 </div>
@@ -130,7 +130,7 @@ export function ProductMedia(props: ProductMediaProps) {
                     className={clsx(
                       "absolute top-2 right-2 md:top-4 md:right-4",
                       zoomButtonVisibility === "hover" &&
-                        "opacity-0 group-hover:opacity-100",
+                      "opacity-0 group-hover:opacity-100",
                     )}
                     onClick={() => {
                       setZoomMediaId(med.id);
@@ -217,7 +217,7 @@ export function ProductMedia(props: ProductMediaProps) {
             </Swiper>
           </div>
         )}
-        <div className="relative w-[calc(100%-var(--thumbs-width,0px))]">
+        <div className="relative w-[calc(100%-var(--thumbs-width,0px))] border border-[#C1AF95]">
           <Swiper
             onSwiper={setSwiper}
             thumbs={{ swiper: thumbsSwiper }}
@@ -235,14 +235,14 @@ export function ProductMedia(props: ProductMediaProps) {
           >
             {media.map((med, idx) => {
               return (
-                <SwiperSlide key={med.id} className="group bg-gray-100">
+                <SwiperSlide key={med.id} className="group bg-transparent">
                   <div
                     onClick={
                       canClickImage
                         ? () => {
-                            setZoomMediaId(med.id);
-                            setZoomModalOpen(true);
-                          }
+                          setZoomMediaId(med.id);
+                          setZoomModalOpen(true);
+                        }
                         : undefined
                     }
                     className={canClickImage ? "cursor-zoom-in" : ""}
@@ -262,7 +262,7 @@ export function ProductMedia(props: ProductMediaProps) {
                       className={clsx(
                         "absolute top-2 right-2 md:top-6 md:right-6",
                         zoomButtonVisibility === "hover" &&
-                          "opacity-0 group-hover:opacity-100",
+                        "opacity-0 group-hover:opacity-100",
                       )}
                       onClick={() => {
                         setZoomMediaId(med.id);
@@ -274,7 +274,7 @@ export function ProductMedia(props: ProductMediaProps) {
               );
             })}
           </Swiper>
-          <div className="absolute right-6 bottom-6 z-1 hidden items-center gap-2 md:flex">
+          {/* <div className="absolute right-6 bottom-6 z-1 hidden items-center gap-2 md:flex">
             <button
               type="button"
               className="media_slider__prev left-6 border border-transparent bg-white p-2 text-center text-gray-900 transition-all duration-200 hover:bg-gray-800 hover:text-white disabled:cursor-not-allowed disabled:text-body-subtle"
@@ -287,7 +287,7 @@ export function ProductMedia(props: ProductMediaProps) {
             >
               <ArrowRightIcon className="h-4.5 w-4.5" />
             </button>
-          </div>
+          </div> */}
         </div>
       </div>
       {enableZoom && (

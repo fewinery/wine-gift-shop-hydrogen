@@ -9,25 +9,37 @@ import { ProductCard } from "~/components/product/product-card";
 
 interface ProductItemsProps {
   ref?: React.Ref<HTMLDivElement>;
+  titlePricesAlignment?: "horizontal" | "vertical";
+  contentAlignment?: "left" | "center" | "right";
+  showViewProductButton?: boolean;
 }
 
 function ProductItems(props: ProductItemsProps) {
-  const { ref, ...rest } = props;
+  const { ref, titlePricesAlignment, contentAlignment, showViewProductButton, ...rest } = props;
   const parent = useParentInstance();
   const products: FeaturedProductsQuery["featuredProducts"] =
     parent.data?.loaderData?.products;
 
   const [activeIndex, setActiveIndex] = useState(0);
+  const [snapCount, setSnapCount] = useState(0);
   const [swiper, setSwiper] = useState<SwiperClass | null>(null);
 
   const handlePrev = () => swiper?.slidePrev();
   const handleNext = () => swiper?.slideNext();
 
+  const handleSwiperInit = (s: SwiperClass) => {
+    setSwiper(s);
+    setSnapCount(s.snapGrid?.length || products?.nodes?.length || 0);
+  };
+
+  const dots = Array.from({ length: snapCount }, (_, i) => i);
+
   return (
-    <div ref={ref} {...rest}>
+    <div ref={ref} {...rest} className="overflow-hidden">
       <Swiper
-        onSwiper={setSwiper}
+        onSwiper={handleSwiperInit}
         onSlideChange={(s) => setActiveIndex(s.activeIndex)}
+        onResize={(s) => setSnapCount(s.snapGrid?.length || products?.nodes?.length || 0)}
         modules={[Navigation]}
         slidesPerView="auto"
         spaceBetween={30}
@@ -38,18 +50,24 @@ function ProductItems(props: ProductItemsProps) {
             key={product.id}
             className="w-[28vw] min-w-[280px] shrink-0 h-auto! flex"
           >
-            <ProductCard product={product} className="w-full" />
+            <ProductCard
+              product={product}
+              className="w-full"
+              titlePricesAlignment={titlePricesAlignment}
+              contentAlignment={contentAlignment}
+              showViewProductButton={showViewProductButton}
+            />
           </SwiperSlide>
         ))}
       </Swiper>
 
       <div className="pt-[30px] flex items-center justify-between">
         <div className="flex gap-2">
-          {products?.nodes?.map((_, index) => (
+          {dots.map((index) => (
             <button
               type="button"
               key={index}
-              aria-label={`Go to product ${index + 1}`}
+              aria-label={`Go to position ${index + 1}`}
               className={`h-2 w-2 rounded-full transition-colors ${index === activeIndex ? "bg-black" : "bg-[#ccc7c0]"
                 }`}
               onClick={() => swiper?.slideTo(index)}
@@ -85,5 +103,43 @@ export default ProductItems;
 export const schema = createSchema({
   type: "featured-products-items",
   title: "Product items",
-  settings: [],
+  settings: [
+    {
+      group: "Product card",
+      inputs: [
+        {
+          type: "select",
+          name: "titlePricesAlignment",
+          label: "Title & prices alignment",
+          configs: {
+            options: [
+              { value: "horizontal", label: "Horizontal" },
+              { value: "vertical", label: "Vertical" },
+            ],
+          },
+          defaultValue: "horizontal",
+        },
+        {
+          type: "toggle-group",
+          name: "contentAlignment",
+          label: "Content alignment",
+          configs: {
+            options: [
+              { value: "left", label: "Left", icon: "align-start-vertical" },
+              { value: "center", label: "Center", icon: "align-center-vertical" },
+              { value: "right", label: "Right", icon: "align-end-vertical" },
+            ],
+          },
+          defaultValue: "left",
+          condition: (data: ProductItemsProps) => data.titlePricesAlignment === "vertical",
+        },
+        {
+          type: "switch",
+          name: "showViewProductButton",
+          label: "Show View Product button",
+          defaultValue: true,
+        },
+      ],
+    },
+  ],
 });

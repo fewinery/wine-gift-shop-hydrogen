@@ -8,7 +8,7 @@ export function FooterMenu() {
   return (
     <div className="grid w-full lg:grid-cols-2 lg:gap-6">
       {items.map(({ id, to, title, items: childItems }) => (
-        <div key={id} className="font-henderson-slab flex flex-col gap-2 text-black text-sm">
+        <div key={id} className="font-henderson-slab flex flex-col items-start gap-2 text-black text-sm">
           {["#", "/"].includes(to) ? (
             <span>{title}</span>
           ) : (

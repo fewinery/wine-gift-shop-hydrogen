@@ -31,7 +31,7 @@ export default function ProductPrices(props: ProductPricesProps) {
   return (
     <div ref={ref} {...rest}>
       {combinedListing ? (
-        <div className="flex gap-2 text-2xl/none">
+        <div className="flex gap-2 font-henderson-slab text-[20px]/none">
           <span className="flex gap-1">
             From
             <VariantPrices
@@ -51,7 +51,7 @@ export default function ProductPrices(props: ProductPricesProps) {
         <VariantPrices
           variant={selectedVariant}
           showCompareAtPrice={showCompareAtPrice}
-          className="text-2xl/none"
+          className="font-henderson-slab text-[20px]/none"
         />
       )}
     </div>

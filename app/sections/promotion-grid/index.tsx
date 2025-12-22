@@ -8,49 +8,30 @@ import { layoutInputs, Section } from "~/components/section";
 
 interface PromotionGridProps
   extends VariantProps<typeof variants>,
-    SectionProps {
+  SectionProps {
   ref?: React.Ref<HTMLElement>;
 }
 
-const variants = cva("flex flex-col sm:grid", {
+const variants = cva("flex flex-col sm:grid gap-10 lg:gap-16", {
   variants: {
     gridSize: {
-      "2x2": "sm:grid-cols-2 sm:[&_.promotion-grid-item]:p-16",
-      "3x3": "sm:grid-cols-3 sm:[&_.promotion-grid-item]:p-12",
-      "4x4": "sm:grid-cols-4 sm:[&_.promotion-grid-item]:p-8",
-    },
-    gap: {
-      0: "",
-      4: "gap-1",
-      8: "gap-2",
-      12: "gap-3",
-      16: "gap-4",
-      20: "gap-5",
-      24: "gap-3 lg:gap-6",
-      28: "gap-3.5 lg:gap-7",
-      32: "gap-4 lg:gap-8",
-      36: "gap-4 lg:gap-9",
-      40: "gap-5 lg:gap-10",
-      44: "gap-5 lg:gap-11",
-      48: "gap-6 lg:gap-12",
-      52: "gap-6 lg:gap-[52px]",
-      56: "gap-7 lg:gap-14",
-      60: "gap-7 lg:gap-[60px]",
+      "2x2": "sm:grid-cols-2",
+      "3x3": "sm:grid-cols-3",
+      "4x4": "sm:grid-cols-4",
     },
   },
   defaultVariants: {
     gridSize: "2x2",
-    gap: 20,
   },
 });
 
 function PromotionGrid(props: PromotionGridProps) {
-  const { children, gridSize, gap, ref, ...rest } = props;
+  const { children, gridSize, ref, ...rest } = props;
   return (
     <Section
       ref={ref}
       {...rest}
-      containerClassName={variants({ gridSize, gap })}
+      containerClassName={variants({ gridSize })}
     >
       {children}
     </Section>
@@ -68,6 +49,18 @@ export const schema = createSchema({
       inputs: [
         {
           type: "toggle-group",
+          name: "layout",
+          label: "Item Layout",
+          configs: {
+            options: [
+              { value: "overlay", label: "Overlay" },
+              { value: "card", label: "Card" },
+            ],
+          },
+          defaultValue: "overlay",
+        },
+        {
+          type: "toggle-group",
           name: "gridSize",
           label: "Grid size",
           configs: {
@@ -79,18 +72,6 @@ export const schema = createSchema({
           },
           defaultValue: "2x2",
         },
-        {
-          type: "range",
-          name: "gap",
-          label: "Items gap",
-          configs: {
-            min: 0,
-            max: 60,
-            step: 4,
-            unit: "px",
-          },
-          defaultValue: 20,
-        },
       ],
     },
     { group: "Layout", inputs: layoutInputs },
@@ -100,31 +81,30 @@ export const schema = createSchema({
   childTypes: ["promotion-grid-item"],
   presets: {
     gridSize: "2x2",
-    gap: 20,
+    layout: "card",
     children: [
       {
         type: "promotion-grid-item",
-        contentPosition: "top left",
-        backgroundImage: IMAGES_PLACEHOLDERS.collection_1,
-        enableOverlay: true,
-        overlayColor: "#0c0c0c",
-        overlayOpacity: 20,
+        contentPosition: "center left",
+        backgroundImage: IMAGES_PLACEHOLDERS.collection_3,
+        enableOverlay: false,
         children: [
           {
             type: "heading",
-            content: "Announce your promotion",
+            content: "Explore Our Wine Collections",
           },
           {
             type: "paragraph",
             content:
-              "Include the smaller details of your promotion in text below the title.",
+              "Discover the perfect gift for any wine lover with our curated gift collections.",
           },
           {
             type: "promotion-item--buttons",
             children: [
               {
                 type: "button",
-                text: "Shop now",
+                variant: "underline",
+                text: "Shop >",
               },
             ],
           },
@@ -132,27 +112,26 @@ export const schema = createSchema({
       },
       {
         type: "promotion-grid-item",
-        contentPosition: "bottom right",
+        contentPosition: "center left",
         backgroundImage: IMAGES_PLACEHOLDERS.collection_2,
-        enableOverlay: true,
-        overlayColor: "#0c0c0c",
-        overlayOpacity: 20,
+        enableOverlay: false,
         children: [
           {
             type: "heading",
-            content: "Announce your promotion",
+            content: "Uncover Exclusive Merchandise",
           },
           {
             type: "paragraph",
             content:
-              "Include the smaller details of your promotion in text below the title.",
+              "From stylish apparel to unique collectibles, our merchandise is designed for true fans.",
           },
           {
             type: "promotion-item--buttons",
             children: [
               {
                 type: "button",
-                text: "Shop promotion",
+                variant: "underline",
+                text: "Browse >",
               },
             ],
           },

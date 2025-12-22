@@ -49,7 +49,7 @@ const COLLECTION_PRODUCTS_QUERY = `#graphql
   query collectionProducts($country: CountryCode, $language: LanguageCode, $handle: String!)
   @inContext(country: $country, language: $language) {
     collection(handle: $handle) {
-      products(first: 6) {
+      products(first: 8) {
         nodes {
           ...ProductCard
         }

@@ -30,9 +30,15 @@ import { VariantPrices } from "./variant-prices";
 export function ProductCard({
   product,
   className,
+  titlePricesAlignment,
+  contentAlignment,
+  showViewProductButton,
 }: {
   product: ProductCardFragment;
   className?: string;
+  titlePricesAlignment?: "horizontal" | "vertical";
+  contentAlignment?: "left" | "center" | "right";
+  showViewProductButton?: boolean;
 }) {
   const {
     pcardBorderRadius,
@@ -77,7 +83,8 @@ export function ProductCard({
     ),
   );
 
-  const isVertical = pcardTitlePricesAlignment === "vertical";
+  const isVertical = (titlePricesAlignment ?? pcardTitlePricesAlignment) === "vertical";
+  const alignment = contentAlignment ?? pcardAlignment;
   const isBestSellerProduct = badges
     .filter(Boolean)
     .some(({ key, value }) => key === "best_seller" && value === "true");
@@ -177,9 +184,9 @@ export function ProductCard({
           "flex flex-1 flex-col",
           pcardBackgroundColor && "px-2",
           isVertical && [
-            pcardAlignment === "left" && "text-left",
-            pcardAlignment === "center" && "text-center",
-            pcardAlignment === "right" && "text-right",
+            alignment === "left" && "text-left",
+            alignment === "center" && "text-center",
+            alignment === "right" && "text-right",
           ],
         )}
       >
@@ -198,11 +205,11 @@ export function ProductCard({
             "flex",
             isVertical
               ? [
-                "flex-col mb-5",
+                "flex-col",
                 [
-                  pcardAlignment === "left" && "items-start",
-                  pcardAlignment === "center" && "items-center",
-                  pcardAlignment === "right" && "items-end",
+                  alignment === "left" && "items-start",
+                  alignment === "center" && "items-center",
+                  alignment === "right" && "items-end",
                 ],
               ]
               : "justify-between gap-4",
@@ -255,18 +262,33 @@ export function ProductCard({
           )}
         />
       </div>
-      {pcardEnableQuickShop && pcardQuickShopButtonPlacement === "bottom" && (
-        <QuickShopTrigger
-          productHandle={product.handle}
-          showOnHover={pcardShowQuickShopOnHover}
-          buttonType={pcardQuickShopButtonType}
-          buttonText={pcardQuickShopButtonText}
-          panelType={pcardQuickShopPanelType}
-          placement="bottom"
-          backgroundColor={pcardQuickShopButtonBg}
-          textColor={pcardQuickShopButtonTextColor}
-        />
-      )}
+      {(showViewProductButton ||
+        (pcardEnableQuickShop &&
+          pcardQuickShopButtonPlacement === "bottom")) && (
+          <div className="mt-4 flex flex-col gap-2.5">
+            {showViewProductButton && (
+              <Link
+                to={`/products/${product.handle}?${params.toString()}`}
+                prefetch="intent"
+                className="font-henderson-slab flex w-full items-center justify-center border border-body py-2 px-4 uppercase"
+              >
+                View Product
+              </Link>
+            )}
+            {pcardEnableQuickShop && pcardQuickShopButtonPlacement === "bottom" && (
+              <QuickShopTrigger
+                productHandle={product.handle}
+                showOnHover={pcardShowQuickShopOnHover}
+                buttonType={pcardQuickShopButtonType}
+                buttonText={pcardQuickShopButtonText}
+                panelType={pcardQuickShopPanelType}
+                placement="bottom"
+                backgroundColor={pcardQuickShopButtonBg}
+                textColor={pcardQuickShopButtonTextColor}
+              />
+            )}
+          </div>
+        )}
     </div>
   );
 }

@@ -1,4 +1,3 @@
-import { MinusIcon, PlusIcon } from "@phosphor-icons/react";
 import * as Accordion from "@radix-ui/react-accordion";
 import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
 import clsx from "clsx";
@@ -11,49 +10,90 @@ function getExcerpt(text: string) {
   return match?.length ? match[0] : text;
 }
 
+interface AccoladeItem {
+  id: string;
+  handle: string;
+  fields: Array<{
+    key: string;
+    value: string;
+    reference?: {
+      image?: {
+        url: string;
+        altText?: string;
+        width?: number;
+        height?: number;
+      };
+    };
+  }>;
+}
+
 interface CollapsibleDetailsProps extends HydrogenComponentProps {
   ref: React.Ref<HTMLDivElement>;
+  showDescription: boolean;
   showShippingPolicy: boolean;
   showRefundPolicy: boolean;
+  showAccolades: boolean;
 }
 
 export default function CollapsibleDetails(props: CollapsibleDetailsProps) {
-  const { ref, showShippingPolicy, showRefundPolicy, ...rest } = props;
+  const { ref, showDescription, showShippingPolicy, showRefundPolicy, showAccolades, ...rest } = props;
   const { shop, product } = useLoaderData<typeof productLoader>();
-  const { description } = product;
+  const { descriptionHtml } = product;
   const { shippingPolicy, refundPolicy } = shop;
+
+  const accolades = (product?.accolades?.references?.nodes || []).map(
+    (node: any) => {
+      const fields = node.fields.reduce((acc: any, field: any) => {
+        acc[field.key] = field.reference || field.value;
+        return acc;
+      }, {});
+      return { id: node.id, ...fields };
+    },
+  );
+
   const details = [
-    { title: "Description", content: description },
+    showDescription && descriptionHtml && { title: "Description", content: descriptionHtml },
     showShippingPolicy &&
-      shippingPolicy?.body && {
-        title: "Shipping",
-        content: getExcerpt(shippingPolicy.body),
-        learnMore: `/policies/${shippingPolicy.handle}`,
-      },
+    shippingPolicy?.body && {
+      title: "Shipping",
+      content: getExcerpt(shippingPolicy.body),
+      learnMore: `/policies/${shippingPolicy.handle}`,
+    },
     showRefundPolicy &&
-      refundPolicy?.body && {
-        title: "Returns",
-        content: getExcerpt(refundPolicy.body),
-        learnMore: `/policies/${refundPolicy.handle}`,
-      },
+    refundPolicy?.body && {
+      title: "Returns",
+      content: getExcerpt(refundPolicy.body),
+      learnMore: `/policies/${refundPolicy.handle}`,
+    },
+    showAccolades &&
+    accolades.length > 0 && {
+      title: "Accolades",
+      isAccolades: true,
+      accolades,
+    },
   ].filter(Boolean);
 
   return (
     <div ref={ref} {...rest}>
       <Accordion.Root type="multiple">
-        {details.map(({ title, content, learnMore }) => (
-          <Accordion.Item key={title} value={title}>
+        {details.map((detail) => (
+          <Accordion.Item key={detail.title} value={detail.title}>
             <Accordion.Trigger
               className={clsx([
-                "flex w-full justify-between py-4 font-bold",
-                "border-line-subtle border-b",
-                "data-[state=open]:[&>.minus]:inline-block",
-                "data-[state=open]:[&>.plus]:hidden",
+                "flex w-full justify-between py-[15px] font-henderson-slab text-base font-medium uppercase",
+                "border-line border-t border-b",
+                "data-[state=open]:[&>.chevron]:rotate-180",
               ])}
             >
-              <span>{title}</span>
-              <MinusIcon className="minus hidden h-4 w-4" />
-              <PlusIcon className="plus h-4 w-4" />
+              <span>{detail.title}</span>
+              <svg
+                className="chevron size-4 transition-transform"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
             </Accordion.Trigger>
             <Accordion.Content
               className={clsx([
@@ -64,18 +104,44 @@ export default function CollapsibleDetails(props: CollapsibleDetailsProps) {
                 "data-[state=open]:animate-expand",
               ])}
             >
-              <div
-                suppressHydrationWarning
-                className="prose dark:prose-invert py-2.5"
-                dangerouslySetInnerHTML={{ __html: content }}
-              />
-              {learnMore && (
-                <Link
-                  className="border-line-subtle border-b pb-px text-body-subtle"
-                  to={learnMore}
-                >
-                  Learn more
-                </Link>
+              {detail.isAccolades ? (
+                <div className="space-y-6 py-4">
+                  {detail.accolades?.map((accolade: any) => (
+                    <div key={accolade.id} className="flex items-center gap-4">
+                      {accolade.image?.image?.url && (
+                        <img
+                          src={accolade.image.image.url}
+                          alt={accolade.image.image.altText || accolade.name}
+                          width={80}
+                          height={80}
+                          className="size-20 shrink-0 object-contain"
+                        />
+                      )}
+                      <div>
+                        <p className="text-base font-bold">
+                          {accolade.name}
+                        </p>
+                        <p className="text-base">{accolade.description}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <>
+                  <div
+                    suppressHydrationWarning
+                    className="prose dark:prose-invert py-2.5"
+                    dangerouslySetInnerHTML={{ __html: detail.content }}
+                  />
+                  {detail.learnMore && (
+                    <Link
+                      className="border-line-subtle border-b pb-px text-body-subtle"
+                      to={detail.learnMore}
+                    >
+                      Learn more
+                    </Link>
+                  )}
+                </>
               )}
             </Accordion.Content>
           </Accordion.Item>
@@ -98,6 +164,12 @@ export const schema = createSchema({
       inputs: [
         {
           type: "switch",
+          label: "Show description",
+          name: "showDescription",
+          defaultValue: true,
+        },
+        {
+          type: "switch",
           label: "Show shipping policy",
           name: "showShippingPolicy",
           defaultValue: true,
@@ -106,6 +178,12 @@ export const schema = createSchema({
           type: "switch",
           label: "Show refund policy",
           name: "showRefundPolicy",
+          defaultValue: true,
+        },
+        {
+          type: "switch",
+          label: "Show accolades",
+          name: "showAccolades",
           defaultValue: true,
         },
       ],

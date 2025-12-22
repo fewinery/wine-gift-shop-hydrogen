@@ -10,13 +10,13 @@ export default function ProductSummary(props: ProductSummaryProps) {
   const { ref, ...rest } = props;
   const { product } = useLoaderData<typeof productRouteLoader>();
 
-  if (!product?.summary) {
+  if (!product?.descriptionHtml) {
     return null;
   }
 
   return (
-    <div ref={ref} {...rest} className="empty:hidden">
-      <p className="leading-relaxed">{product.summary}</p>
+    <div ref={ref} {...rest} className="empty:hidden prose prose-base max-w-none text-black">
+      <div dangerouslySetInnerHTML={{ __html: product.descriptionHtml }} />
     </div>
   );
 }

@@ -14,7 +14,7 @@ import {
 import type { RootLoader } from "~/root";
 import { cn } from "~/utils/cn";
 
-export const variants = cva(["inline-flex transition-colors"], {
+export const variants = cva(["inline-flex justify-center transition-colors"], {
   variants: {
     variant: {
       primary: [
@@ -70,19 +70,21 @@ export interface LinkStyles {
   backgroundColorHover: string;
   textColorHover: string;
   borderColorHover: string;
+  customWidth: number;
+  borderRadius: number;
 }
 
 export interface LinkData
   extends RemixLinkProps,
-    Partial<LinkStyles>,
-    VariantProps<typeof variants> {
+  Partial<LinkStyles>,
+  VariantProps<typeof variants> {
   text?: string;
 }
 
 export interface LinkProps
   extends HTMLAttributes<HTMLAnchorElement>,
-    Partial<Omit<HydrogenComponentProps, "children">>,
-    LinkData {
+  Partial<Omit<HydrogenComponentProps, "children">>,
+  LinkData {
   ref?: React.Ref<HTMLAnchorElement>;
 }
 
@@ -148,6 +150,8 @@ export function Link(props: LinkProps) {
     textColorHover,
     backgroundColorHover,
     borderColorHover,
+    customWidth,
+    borderRadius,
     children,
     target,
     ...rest
@@ -164,6 +168,8 @@ export function Link(props: LinkProps) {
       "--btn-bg-hover": backgroundColorHover,
       "--btn-text-hover": textColorHover,
       "--btn-border-hover": borderColorHover,
+      width: customWidth ? `${customWidth}px` : undefined,
+      borderRadius: borderRadius ? `${borderRadius}px` : undefined,
     } as React.CSSProperties;
   }
 
@@ -219,6 +225,32 @@ export const linkContentInputs: InspectorGroup["inputs"] = [
       ],
     },
     defaultValue: "primary",
+  },
+  {
+    type: "range",
+    label: "Button width",
+    name: "customWidth",
+    configs: {
+      min: 100,
+      max: 400,
+      step: 10,
+      unit: "px",
+    },
+    helpText: "Leave at 0 for auto width",
+    condition: (data: LinkData) => data.variant === "custom",
+  },
+  {
+    type: "range",
+    label: "Border radius",
+    name: "borderRadius",
+    configs: {
+      min: 0,
+      max: 40,
+      step: 2,
+      unit: "px",
+    },
+    defaultValue: 0,
+    condition: (data: LinkData) => data.variant === "custom",
   },
 ];
 export const linkStylesInputs: InspectorGroup["inputs"] = [

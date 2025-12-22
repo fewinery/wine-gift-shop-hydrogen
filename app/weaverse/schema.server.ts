@@ -206,13 +206,13 @@ export const themeSchema: HydrogenThemeSchema = {
           type: "color",
           label: "Background",
           name: "colorBackground",
-          defaultValue: "#ffffff",
+          defaultValue: "#fff9f1",
         },
         {
           type: "color",
           label: "Text",
           name: "colorText",
-          defaultValue: "#0F0F0F",
+          defaultValue: "#000000",
         },
         {
           type: "color",
@@ -605,36 +605,6 @@ export const themeSchema: HydrogenThemeSchema = {
         {
           type: "heading",
           label: "Content",
-        },
-        {
-          type: "select",
-          label: "Title & prices alignment",
-          name: "pcardTitlePricesAlignment",
-          configs: {
-            options: [
-              { value: "horizontal", label: "Horizontal" },
-              { value: "vertical", label: "Vertical" },
-            ],
-          },
-          defaultValue: "horizontal",
-        },
-        {
-          type: "toggle-group",
-          name: "pcardAlignment",
-          label: "Content alignment",
-          configs: {
-            options: [
-              { value: "left", label: "Left", icon: "align-start-vertical" },
-              {
-                value: "center",
-                label: "Center",
-                icon: "align-center-vertical",
-              },
-              { value: "right", label: "Right", icon: "align-end-vertical" },
-            ],
-          },
-          defaultValue: "center",
-          condition: (theme) => theme.pcardTitlePricesAlignment === "vertical",
         },
         {
           type: "switch",

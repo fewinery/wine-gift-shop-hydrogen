@@ -54,7 +54,7 @@ function NewsLetterForm(props: NewsLetterInputProps) {
       </Form>
       {helpText && (
         <div
-          className="text-center px-[6px] py-2.5 text-sm"
+          className="text-center px-[6px] text-sm"
           data-motion="fade-up"
           dangerouslySetInnerHTML={{ __html: helpText }}
         />

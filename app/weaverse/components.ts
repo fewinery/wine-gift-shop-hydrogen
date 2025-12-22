@@ -74,6 +74,19 @@ import * as VideoEmbedItem from "~/sections/video-embed/video";
 import * as WineClubItem from "~/sections/wine-clubs/wine-club-item";
 import * as WineClubSelectionWizard from "~/sections/wine-clubs/wine-club-selection-wizard";
 import * as WineClubsSection from "~/sections/wine-clubs/wine-clubs-section";
+import * as FeaturedWineClubs from "~/sections/featured-wine-clubs";
+import * as FeaturedWineClubsHeader from "~/sections/featured-wine-clubs/header";
+import * as FeaturedWineClubsItems from "~/sections/featured-wine-clubs/items";
+import * as FaqSection from "~/sections/faq";
+import * as FaqItem from "~/sections/faq/item";
+import * as ComparisonTable from "~/sections/comparison-table";
+import * as ComparisonColumn from "~/sections/comparison-table/column";
+import * as AlternatingContent from "~/sections/alternating-content";
+import * as AlternatingContentItem from "~/sections/alternating-content/item";
+import * as QuoteCarousel from "~/sections/quote-carousel";
+import * as QuoteCarouselItem from "~/sections/quote-carousel/item";
+import * as TierMembership from "~/sections/tier-membership";
+import * as TierMembershipItem from "~/sections/tier-membership/item";
 
 export const components: HydrogenComponent[] = [
   SubHeading,
@@ -156,4 +169,17 @@ export const components: HydrogenComponent[] = [
   WineClubsSection,
   WineClubItem,
   WineClubSelectionWizard,
+  FeaturedWineClubs,
+  FeaturedWineClubsHeader,
+  FeaturedWineClubsItems,
+  FaqSection,
+  FaqItem,
+  ComparisonTable,
+  ComparisonColumn,
+  AlternatingContent,
+  AlternatingContentItem,
+  QuoteCarousel,
+  QuoteCarouselItem,
+  TierMembership,
+  TierMembershipItem,
 ];

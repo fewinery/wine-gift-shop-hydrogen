@@ -29,12 +29,11 @@ function StepsGuideItem(props: StepsGuideItemProps) {
 
   return (
     <div ref={ref} {...rest} className="flex flex-col items-center text-center">
-      <div className="mb-4 w-full">
+      <div className="mb-4 w-full flex justify-center">
         <Image
           data={imageData}
           sizes="auto"
-          className="h-auto w-full object-contain"
-          width={400}
+          className="h-auto w-full max-w-[200px] object-contain"
         />
       </div>
       {stepGuideItem && (

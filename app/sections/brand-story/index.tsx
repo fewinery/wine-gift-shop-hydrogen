@@ -1,20 +1,20 @@
-import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
+import { createSchema } from "@weaverse/hydrogen";
 import { IMAGES_PLACEHOLDERS } from "@weaverse/hydrogen";
+import { Section, type SectionProps, sectionSettings } from "~/components/section";
 
-interface BrandStoryProps extends HydrogenComponentProps {
-  backgroundColor: string;
+interface BrandStoryProps extends SectionProps {
   ref?: React.Ref<HTMLElement>;
 }
 
 function BrandStory(props: BrandStoryProps) {
-  const { ref, backgroundColor, children, ...rest } = props;
+  const { ref, children, ...rest } = props;
 
   return (
-    <section ref={ref} {...rest} className="py-16 md:py-[68px]" style={{ backgroundColor }}>
-      <div className="mx-auto flex max-w-[1300px] gap-20">
+    <Section ref={ref} {...rest}>
+      <div className="flex gap-20">
         {children}
       </div>
-    </section>
+    </Section>
   );
 }
 
@@ -25,20 +25,10 @@ export const schema = createSchema({
   title: "Brand Story",
   childTypes: ["brand-story--image", "brand-story--content"],
   settings: [
-    {
-      group: "Layout",
-      inputs: [
-        {
-          type: "color",
-          name: "backgroundColor",
-          label: "Background color",
-          defaultValue: "#FFFFFF",
-        },
-      ],
-    },
+    ...sectionSettings,
   ],
   presets: {
-    backgroundColor: "#FFFFFF",
+    gap: 80,
     children: [
       { type: "brand-story--image", image: IMAGES_PLACEHOLDERS.image },
       { type: "brand-story--content" },

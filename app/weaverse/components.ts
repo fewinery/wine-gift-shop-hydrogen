@@ -66,9 +66,8 @@ import * as SingleProduct from "~/sections/single-product";
 import * as SlideShow from "~/sections/slideshow";
 import * as SlideShowSlide from "~/sections/slideshow/slide";
 import * as Spacer from "~/sections/spacer";
-import * as Testimonial from "~/sections/testimonials";
+import * as Testimonials from "~/sections/testimonials";
 import * as TestimonialItem from "~/sections/testimonials/item";
-import * as TestimonialItems from "~/sections/testimonials/items";
 import * as VideoEmbed from "~/sections/video-embed";
 import * as VideoEmbedItem from "~/sections/video-embed/video";
 import * as WineClubItem from "~/sections/wine-clubs/wine-club-item";
@@ -89,6 +88,10 @@ import * as TierMembership from "~/sections/tier-membership";
 import * as TierMembershipItem from "~/sections/tier-membership/item";
 import * as ClubComparison from "~/sections/club-comparison";
 import * as ClubComparisonItem from "~/sections/club-comparison/item";
+import * as ReservationForm from "~/sections/reservation-form";
+import * as BrandShowcase from "~/sections/brand-showcase";
+import * as BrandShowcaseTab from "~/sections/brand-showcase/tab";
+import * as BrandShowcaseItem from "~/sections/brand-showcase/item";
 
 export const components: HydrogenComponent[] = [
   SubHeading,
@@ -135,9 +138,6 @@ export const components: HydrogenComponent[] = [
   FeaturedProducts,
   FeaturedProductItems,
   FeaturedProductHeader,
-  Testimonial,
-  TestimonialItems,
-  TestimonialItem,
   ImageGallery,
   ImageGalleryItems,
   ImageGalleryItem,
@@ -186,4 +186,10 @@ export const components: HydrogenComponent[] = [
   TierMembershipItem,
   ClubComparison,
   ClubComparisonItem,
+  Testimonials,
+  TestimonialItem,
+  ReservationForm,
+  BrandShowcase,
+  BrandShowcaseTab,
+  BrandShowcaseItem,
 ];

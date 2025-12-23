@@ -20,10 +20,10 @@ export type BackgroundProps = BackgroundImageProps & {
 
 export interface SectionProps<T = any>
   extends Omit<VariantProps<typeof variants>, "padding">,
-    Partial<Omit<HydrogenComponentProps<T>, "children">>,
-    Omit<HTMLAttributes<HTMLElement>, "children">,
-    Partial<BackgroundProps>,
-    Partial<OverlayProps> {
+  Partial<Omit<HydrogenComponentProps<T>, "children">>,
+  Omit<HTMLAttributes<HTMLElement>, "children">,
+  Partial<BackgroundProps>,
+  Partial<OverlayProps> {
   ref?: React.Ref<HTMLElement>;
   as?: React.ElementType;
   borderRadius?: number;
@@ -40,7 +40,7 @@ const variants = cva("relative", {
     },
     padding: {
       full: "",
-      stretch: "px-3 md:px-10 lg:px-16",
+      stretch: "px-3 md:px-4 lg:px-6",
       fixed: "mx-auto px-3 md:px-4 lg:px-6",
     },
     verticalPadding: {
@@ -119,8 +119,8 @@ export function Section(props: SectionProps) {
       className={cn(
         variants({ padding: width, overflow, className }),
         hasBackground &&
-          !isBgForContent &&
-          "rounded-(--section-radius) bg-(--section-bg-color)",
+        !isBgForContent &&
+        "rounded-(--section-radius) bg-(--section-bg-color)",
       )}
     >
       {!isBgForContent && <OverlayAndBackground {...props} />}
@@ -128,10 +128,10 @@ export function Section(props: SectionProps) {
         className={cn(
           variants({ gap, width, verticalPadding, overflow }),
           hasBackground &&
-            isBgForContent && [
-              "rounded-(--section-radius) bg-(--section-bg-color)",
-              "px-4 sm:px-8",
-            ],
+          isBgForContent && [
+            "rounded-(--section-radius) bg-(--section-bg-color)",
+            "px-4 sm:px-8",
+          ],
           containerClassName,
         )}
       >

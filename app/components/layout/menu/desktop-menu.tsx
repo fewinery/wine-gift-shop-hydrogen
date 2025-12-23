@@ -21,7 +21,7 @@ export function DesktopMenu() {
       <NavigationMenu.Root
         value={value}
         onValueChange={setValue}
-        className="font-henderson-slab ml-auto"
+        className="font-henderson-slab"
       >
         <NavigationMenu.List className="hidden h-full grow justify-center lg:flex">
           {items.map((menuItem) => {
@@ -48,7 +48,9 @@ export function DesktopMenu() {
                 >
                   {hasSubmenu ? (
                     <>
-                      <span>{title}</span>
+                      <Link to={to} className="transition-none">
+                        {title}
+                      </Link>
                       <CaretDownIcon className="h-3.5 w-3.5 transition-transform" />
                     </>
                   ) : (

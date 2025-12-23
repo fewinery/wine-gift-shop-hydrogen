@@ -61,7 +61,7 @@ function NewsLetterForm(props: NewsLetterInputProps) {
       )}
       <div
         className={clsx(
-          "mx-auto mt-4 text-center font-medium",
+          "mx-auto mt-4 text-center font-medium text-sm",
           state === "idle" && data ? "visible" : "invisible",
           ok ? "text-green-700" : "text-red-700",
         )}

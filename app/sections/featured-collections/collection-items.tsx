@@ -62,6 +62,7 @@ interface CollectionItemsData
   Omit<LinkStyles, "borderRadius"> {
   imageAspectRatio: ImageAspectRatio;
   collectionNameColor: string;
+  showButton: boolean;
   buttonText: string;
   ref?: React.Ref<HTMLDivElement>;
 }
@@ -79,6 +80,7 @@ function CollectionItems(props: CollectionItemsData & HydrogenComponentProps) {
     overlayColor,
     overlayColorHover,
     overlayOpacity,
+    showButton,
     buttonText,
     backgroundColor,
     textColor,
@@ -161,7 +163,7 @@ function CollectionItems(props: CollectionItemsData & HydrogenComponentProps) {
               ) : (
                 <h6>{collection.title}</h6>
               )}
-              {contentPosition === "over" && buttonText && (
+              {contentPosition === "over" && showButton && buttonText && (
                 <Link
                   to={`/collections/${collection.handle}`}
                   variant="custom"
@@ -306,7 +308,15 @@ export const schema = createSchema({
         })),
         {
           type: "heading",
-          label: "Button (optional)",
+          label: "Button",
+          condition: (data: CollectionItemsData) =>
+            data.contentPosition === "over",
+        },
+        {
+          type: "switch",
+          name: "showButton",
+          label: "Show button",
+          defaultValue: true,
           condition: (data: CollectionItemsData) =>
             data.contentPosition === "over",
         },
@@ -317,12 +327,12 @@ export const schema = createSchema({
           defaultValue: "Shop now",
           placeholder: "Shop now",
           condition: (data: CollectionItemsData) =>
-            data.contentPosition === "over",
+            data.contentPosition === "over" && data.showButton,
         },
         ...linkStylesInputs.map((inp) => ({
           ...inp,
           condition: (data: CollectionItemsData) =>
-            data.contentPosition === "over",
+            data.contentPosition === "over" && data.showButton,
         })),
       ],
     },

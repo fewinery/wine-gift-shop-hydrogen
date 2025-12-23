@@ -15,7 +15,7 @@ const variants = cva("h-auto w-full", {
   variants: {
     width: {
       small: "md:w-[40%]",
-      medium: "md:w-[50%]",
+      medium: "md:flex-1",
       large: "md:w-[60%]",
     },
     objectFit: {
@@ -84,7 +84,7 @@ function ImageWithTextImage(props: ImageWithTextImageProps) {
     <div ref={ref} {...rest} className={cn(variants({ width }))}>
       <div
         className={cn(
-          enableImageHover && "overflow-hidden",
+          "overflow-hidden",
           variants({ borderRadius }),
         )}
       >

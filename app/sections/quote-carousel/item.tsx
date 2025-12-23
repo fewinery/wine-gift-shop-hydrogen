@@ -17,7 +17,7 @@ function QuoteCarouselItem(props: QuoteCarouselItemProps) {
     typeof image === "string" ? { url: image, altText: authorName || "Quote author" } : image;
 
   return (
-    <div ref={ref} {...rest} className="grid grid-cols-1 md:grid-cols-2 gap-20 items-center">
+    <div ref={ref} {...rest} className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 lg:gap-20 items-start md:items-center">
       {/* Image */}
       <div className="flex justify-center">
         <Image
@@ -29,7 +29,7 @@ function QuoteCarouselItem(props: QuoteCarouselItemProps) {
       </div>
 
       {/* Quote Content */}
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-4 md:gap-6">
         {quote && (
           <blockquote
             className="text-[18px] leading-relaxed"

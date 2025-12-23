@@ -12,7 +12,7 @@ function ClubComparison(props: ClubComparisonProps) {
   return (
     <Section ref={ref} {...rest}>
       {heading && (
-        <h2 className="mb-12 text-center font-henderson-slab text-[32px] uppercase">
+        <h2 className="mb-12 text-center font-henderson-slab text-[37px] uppercase">
           {heading}
         </h2>
       )}

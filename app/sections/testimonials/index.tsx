@@ -31,7 +31,7 @@ function Testimonials(props: TestimonialsProps) {
       {/* Header */}
       <div className="mb-12">
         {heading && (
-          <h2 className="mb-2 font-henderson-slab text-[32px] uppercase">
+          <h2 className="mb-2 font-henderson-slab text-[37px] uppercase">
             {heading}
           </h2>
         )}

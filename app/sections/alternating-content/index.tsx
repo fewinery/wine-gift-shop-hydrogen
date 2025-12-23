@@ -16,11 +16,11 @@ function AlternatingContent(props: AlternatingContentProps) {
   return (
     <Section ref={ref} {...rest}>
       {heading && (
-        <h2 className="text-center text-[40px] font-medium font-henderson-slab">
+        <h2 className="text-center text-[37px] font-medium font-henderson-slab">
           {heading}
         </h2>
       )}
-      <div className="space-y-20">{children}</div>
+      <div className="space-y-10 md:space-y-16 lg:space-y-20">{children}</div>
     </Section>
   );
 }

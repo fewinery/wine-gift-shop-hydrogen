@@ -18,13 +18,13 @@ function ImageWithText(props: ImageWithTextProps) {
   return (
     <Section ref={ref} {...rest}>
       {heading && (
-        <h2 className="text-center font-henderson-slab text-[40px] uppercase">
+        <h2 className="text-center font-henderson-slab text-[37px] uppercase">
           {heading}
         </h2>
       )}
       <div
         className={cn(
-          "flex flex-col gap-20",
+          "flex flex-col gap-7 md:gap-10 lg:gap-20",
           reverseLayout ? "md:flex-row-reverse" : "md:flex-row",
         )}
       >

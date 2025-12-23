@@ -7,7 +7,7 @@ interface ButtonsWrapperProps extends HydrogenComponentProps {
 function ButtonsWrapper(props: ButtonsWrapperProps) {
   const { children, ref, ...rest } = props;
   return (
-    <div ref={ref} {...rest} className="flex flex-row gap-4">
+    <div ref={ref} {...rest} className="flex flex-row gap-4 justify-center md:justify-start">
       {children}
     </div>
   );

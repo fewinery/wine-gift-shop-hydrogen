@@ -24,11 +24,23 @@ function BrandShowcase(props: BrandShowcaseProps) {
   const childrenArray = React.Children.toArray(children);
 
   const registerTab = (id: string, label: string) => {
-    setTabs((prev) => new Map(prev).set(id, label));
+    setTabs((prev) => {
+      // Skip update if label hasn't changed
+      if (prev.get(id) === label) {
+        return prev;
+      }
+      const newMap = new Map(prev);
+      newMap.set(id, label);
+      return newMap;
+    });
   };
 
   const unregisterTab = (id: string) => {
     setTabs((prev) => {
+      // Skip update if id doesn't exist
+      if (!prev.has(id)) {
+        return prev;
+      }
       const newMap = new Map(prev);
       newMap.delete(id);
       return newMap;

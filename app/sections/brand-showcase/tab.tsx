@@ -20,7 +20,8 @@ function BrandShowcaseTab(props: BrandShowcaseTabProps) {
         tabContext.unregisterTab(`tab-${tabIndex}`);
       };
     }
-  }, [tabContext, tabIndex, label]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tabIndex, label]);
 
   return (
     <div ref={ref} {...rest}>

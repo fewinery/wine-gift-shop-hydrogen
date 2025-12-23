@@ -4,13 +4,13 @@ import { cva } from "class-variance-authority";
 import clsx from "clsx";
 
 const variants = cva(
-  "flex flex-1 flex-col justify-center gap-6 [&_.paragraph]:mx-[unset] [&_.paragraph]:w-auto",
+  "flex w-full flex-col justify-center gap-6 md:flex-1 [&_.paragraph]:mx-[unset] [&_.paragraph]:w-auto items-center",
   {
     variants: {
       alignment: {
-        left: "items-start",
-        center: "items-center",
-        right: "items-end",
+        left: "md:items-start",
+        center: "md:items-center",
+        right: "md:items-end",
       },
     },
     defaultVariants: {

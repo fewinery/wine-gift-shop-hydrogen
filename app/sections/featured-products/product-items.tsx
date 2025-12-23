@@ -41,14 +41,17 @@ function ProductItems(props: ProductItemsProps) {
         onSlideChange={(s) => setActiveIndex(s.activeIndex)}
         onResize={(s) => setSnapCount(s.snapGrid?.length || products?.nodes?.length || 0)}
         modules={[Navigation]}
-        slidesPerView="auto"
-        spaceBetween={30}
+        slidesPerView={2}
+        spaceBetween={16}
+        breakpoints={{
+          1024: { slidesPerView: 3 },
+        }}
         className="overflow-visible h-auto!"
       >
         {products?.nodes?.map((product) => (
           <SwiperSlide
             key={product.id}
-            className="w-[28vw] min-w-[280px] shrink-0 h-auto! flex"
+            className="h-auto! flex"
           >
             <ProductCard
               product={product}

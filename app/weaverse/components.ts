@@ -92,6 +92,8 @@ import * as ReservationForm from "~/sections/reservation-form";
 import * as BrandShowcase from "~/sections/brand-showcase";
 import * as BrandShowcaseTab from "~/sections/brand-showcase/tab";
 import * as BrandShowcaseItem from "~/sections/brand-showcase/item";
+import * as ShopByCategory from "~/sections/shop-by-category";
+import * as ShopByCategoryItems from "~/sections/shop-by-category/items";
 
 export const components: HydrogenComponent[] = [
   SubHeading,
@@ -192,4 +194,6 @@ export const components: HydrogenComponent[] = [
   BrandShowcase,
   BrandShowcaseTab,
   BrandShowcaseItem,
+  ShopByCategory,
+  ShopByCategoryItems,
 ];

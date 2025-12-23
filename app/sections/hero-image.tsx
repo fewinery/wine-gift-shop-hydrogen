@@ -12,12 +12,6 @@ import { layoutInputs, Section } from "~/components/section";
 
 export interface HeroImageProps extends VariantProps<typeof variants> {
   ref: React.Ref<HTMLElement>;
-
-
-
-
-
-
 }
 
 const variants = cva("flex flex-col [&_.paragraph]:mx-[unset] [&_.heading]:max-w-[700px] [&_.paragraph]:max-w-[700px]", {

@@ -78,6 +78,8 @@ export function Header() {
             "hover:[&_.cart-count]:text-(--color-transparent-header-text)",
             "[&_.main-logo]:opacity-0 hover:[&_.main-logo]:opacity-100",
             "[&_.transparent-logo]:opacity-100 hover:[&_.transparent-logo]:opacity-0",
+            "[&_.main-logo]:absolute [&_.main-logo]:inset-0",
+            "[&_.transparent-logo]:relative [&_.transparent-logo]:top-auto [&_.transparent-logo]:left-auto",
           ]
           : [
             "[&_.cart-count]:text-(--color-header-bg)",
@@ -89,7 +91,7 @@ export function Header() {
     >
       <div
         className={cn(
-          "flex h-(--height-nav) items-center justify-between",
+          "flex h-(--height-nav) items-center justify-between gap-2 py-1.5 lg:gap-8 lg:py-3",
           variants({ width: headerWidth }),
         )}
       >

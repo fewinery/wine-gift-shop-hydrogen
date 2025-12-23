@@ -22,9 +22,9 @@ const FaqSection = (props: FaqSectionProps) => {
 
   return (
     <Section ref={ref} {...rest}>
-      <div className="flex gap-12">
-        <div className="w-2/5 space-y-6">
-          <h2 className="font-henderson-slab text-4xl font-black uppercase tracking-tight text-black sm:text-5xl">
+      <div className="flex flex-col gap-8 lg:flex-row lg:gap-12">
+        <div className="w-full space-y-4 lg:w-2/5 lg:space-y-6">
+          <h2 className="font-henderson-slab text-[37px] font-black uppercase tracking-tight text-black">
             {heading}
           </h2>
           <div
@@ -43,7 +43,7 @@ const FaqSection = (props: FaqSectionProps) => {
           )}
         </div>
 
-        <div className="w-3/5">
+        <div className="w-full lg:w-3/5">
           <div className="border-t border-black">
             {children}
           </div>

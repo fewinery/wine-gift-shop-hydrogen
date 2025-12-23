@@ -17,16 +17,16 @@ import { useAnimation } from "~/hooks/use-animation";
 
 const SECTION_HEIGHTS = {
   small: {
-    desktop: "40vh",
-    mobile: "50vh",
+    desktop: "50vh",
+    mobile: "40vh",
   },
   medium: {
-    desktop: "50vh",
-    mobile: "60vh",
+    desktop: "60vh",
+    mobile: "50vh",
   },
   large: {
-    desktop: "70vh",
-    mobile: "80vh",
+    desktop: "80vh",
+    mobile: "70vh",
   },
   custom: null,
 };

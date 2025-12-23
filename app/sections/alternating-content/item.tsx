@@ -41,7 +41,7 @@ function AlternatingContentItem(props: AlternatingContentItemProps) {
     <div
       ref={ref}
       {...rest}
-      className="grid grid-cols-1 md:grid-cols-2 gap-20 items-center"
+      className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 lg:gap-20 items-start md:items-center"
     >
       {/* Image */}
       <div className={isImageLeft ? "md:order-1" : "md:order-2"}>

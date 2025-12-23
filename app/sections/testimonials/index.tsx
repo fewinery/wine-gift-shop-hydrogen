@@ -1,17 +1,100 @@
+import { useState } from "react";
 import { createSchema } from "@weaverse/hydrogen";
-import type { SectionProps } from "~/components/section";
-import { Section, sectionSettings } from "~/components/section";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination } from "swiper/modules";
+import type { Swiper as SwiperType } from "swiper";
+import { Section, type SectionProps, layoutInputs } from "~/components/section";
+import { backgroundInputs } from "~/components/background-image";
+import { ArrowLeft, ArrowRight } from "~/components/icons";
 
 interface TestimonialsProps extends SectionProps {
   ref?: React.Ref<HTMLElement>;
+  heading?: string;
+  subheading?: string;
 }
 
 function Testimonials(props: TestimonialsProps) {
-  const { children, ref, ...rest } = props;
+  const { children, ref, heading, subheading, ...rest } = props;
+  const [swiper, setSwiper] = useState<SwiperType | null>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [snapCount, setSnapCount] = useState(0);
+
+  const childrenArray = Array.isArray(children) ? children : children ? [children] : [];
+
+  const handleSwiperInit = (swiperInstance: SwiperType) => {
+    setSwiper(swiperInstance);
+    setSnapCount(swiperInstance.snapGrid.length);
+  };
 
   return (
     <Section ref={ref} {...rest}>
-      {children}
+      {/* Header */}
+      <div className="mb-12">
+        {heading && (
+          <h2 className="mb-2 font-henderson-slab text-[37px] uppercase">
+            {heading}
+          </h2>
+        )}
+        {subheading && (
+          <p className="font-henderson-slab uppercase">{subheading}</p>
+        )}
+      </div>
+
+      {/* Swiper */}
+      <Swiper
+        className="py-4"
+        modules={[Navigation, Pagination]}
+        slidesPerView={1}
+        spaceBetween={24}
+        onSwiper={handleSwiperInit}
+        onSlideChange={(s) => setActiveIndex(s.activeIndex)}
+        onResize={(s) => setSnapCount(s.snapGrid.length)}
+        breakpoints={{
+          640: { slidesPerView: 2 },
+          1024: { slidesPerView: 3 },
+        }}
+      >
+        {childrenArray.map((child, index) => (
+          <SwiperSlide key={index} className="h-auto! flex">{child as React.ReactNode}</SwiperSlide>
+        ))}
+      </Swiper>
+
+      {/* Navigation */}
+      <div className="pt-[30px] flex items-center justify-between">
+        {/* Dots */}
+        <div className="flex gap-2">
+          {Array.from({ length: snapCount }).map((_, index) => (
+            <button
+              key={index}
+              type="button"
+              onClick={() => swiper?.slideTo(index)}
+              aria-label={`Go to position ${index + 1}`}
+              className={`h-2 w-2 rounded-full transition-colors ${index === activeIndex ? "bg-black" : "bg-[#ccc7c0]"
+                }`}
+            />
+          ))}
+        </div>
+
+        {/* Arrows */}
+        <div className="flex gap-2.5">
+          <button
+            type="button"
+            aria-label="Previous"
+            onClick={() => swiper?.slidePrev()}
+            className="flex p-2.5 items-center justify-center rounded-full border border-black"
+          >
+            <ArrowLeft />
+          </button>
+          <button
+            type="button"
+            aria-label="Next"
+            onClick={() => swiper?.slideNext()}
+            className="flex p-2.5 items-center justify-center rounded-full border border-black"
+          >
+            <ArrowRight />
+          </button>
+        </div>
+      </div>
     </Section>
   );
 }
@@ -21,87 +104,73 @@ export default Testimonials;
 export const schema = createSchema({
   type: "testimonials",
   title: "Testimonials",
-  childTypes: ["subheading", "heading", "paragraph", "testimonials-items"],
-  settings: sectionSettings,
+  childTypes: ["testimonial--item"],
+  settings: [
+    {
+      group: "Content",
+      inputs: [
+        {
+          type: "text",
+          name: "heading",
+          label: "Heading",
+          defaultValue: "From Our Visitors",
+        },
+        {
+          type: "text",
+          name: "subheading",
+          label: "Subheading",
+          defaultValue: "Hear what some of our guests are saying about their visits!",
+        },
+      ],
+    },
+    {
+      group: "Layout",
+      inputs: layoutInputs.filter((i) => i.name !== "gap" && i.name !== "borderRadius"),
+    },
+    {
+      group: "Background",
+      inputs: backgroundInputs,
+    },
+  ],
   presets: {
+    heading: "From Our Visitors",
+    subheading: "Hear what some of our guests are saying about their visits!",
+    gap: 48,
     children: [
       {
-        type: "heading",
-        content: "Testimonials",
+        type: "testimonial--item",
+        rating: 5,
+        quote: "An unmissable spot in Napa Valley. Gorgeous property, amazing wine caves for tastings, and truly exceptional service.",
+        authorName: "Annie R.",
+        location: "Chicago, IL",
       },
       {
-        type: "paragraph",
-        content:
-          "We are a team of passionate people whose goal is to improve everyone's life through disruptive products. We build great products to solve your business problems.",
+        type: "testimonial--item",
+        rating: 5,
+        quote: "I felt like royalty during our visit. The hospitality was impeccable, the wines were delicious, and the setting was beautiful.",
+        authorName: "Angie C.",
+        location: "Oakland, CA",
       },
       {
-        type: "testimonials-items",
-        children: [
-          {
-            type: "testimonial--item",
-            authorName: "Glen P.",
-            authorTitle: "Founder, eCom Graduates",
-            authorImage:
-              "https://cdn.shopify.com/s/files/1/0838/0052/3057/files/glen_p.webp?v=1711343796",
-            heading: "Shopify Headless Game Changer",
-            content:
-              "I run a Shopify development agency and this is the kind of tool I've been looking for. Clients do not understand why headless is rather expensive to build but having a tool/option like this is a game changer. ",
-          },
-          {
-            type: "testimonial--item",
-            authorName: "Tom H.",
-            authorTitle: "Owner, On The Road UK",
-            authorImage:
-              "https://cdn.shopify.com/s/files/1/0838/0052/3057/files/tom_h.webp?v=1711343959",
-            heading: "Intuitive Tool with Big Plus",
-            content:
-              "I love how intuitive the tool is. It looks very promising for my potential clients, and being able to easily use meta objects with this is a big plus.",
-          },
-          {
-            type: "testimonial--item",
-            authorName: "Kenneth G.",
-            authorTitle: "Frontend Developer, DevInside Agency",
-            authorImage:
-              "https://cdn.shopify.com/s/files/1/0838/0052/3057/files/Kenneth_g.webp?v=1711359007",
-            heading: "Hydrogen Editor Mirrors Shopify",
-            content:
-              "We already love the Shopify theme editor, so having something similar for Hydrogen is so cool because now we can get hydrogen storefront setup similar to a liquid store.",
-            hideOnMobile: true,
-          },
-          {
-            type: "testimonial--item",
-            authorName: "Leonardo G.",
-            authorTitle: "Solo developer",
-            authorImage:
-              "https://cdn.shopify.com/s/files/1/0838/0052/3057/files/leo_1.webp?v=1711359106",
-            heading: "Hydrogen Shift Eases for Solo Dev",
-            content:
-              "As a solo dev with a small Shopify shop, this is something interesting to hear about. I'm migrating from a GatsbyJS headless to Hydrogen solution, and Weaverse makes it a lot easier because I want to avoid hydrogen-react with NextJS!",
-            hideOnMobile: true,
-          },
-          {
-            type: "testimonial--item",
-            authorName: "Micky M.",
-            authorTitle: "Owner, Joylery Silver",
-            authorImage:
-              "https://cdn.shopify.com/s/files/1/0838/0052/3057/files/micky_m.webp?v=1711359054",
-            heading: "Weaverse Makes Headless Accessible",
-            content:
-              "We struggled with site speed and as an ex-developer, I wanted to go headless but with only one in-house developer, it seemed impossible. Weaverse really made going headless a lot more accessible.",
-            hideOnMobile: true,
-          },
-          {
-            type: "testimonial--item",
-            authorName: "John D.",
-            authorTitle: "CEO, Tech Solutions",
-            authorImage:
-              "https://cdn.shopify.com/s/files/1/0838/0052/3057/files/glen_p.webp?v=1711343796",
-            heading: "Incredible Tool for Development",
-            content:
-              "As a tech company CEO, this tool has revolutionized how we approach development. It's intuitive, efficient, and has made our processes significantly more streamlined.",
-            hideOnMobile: true,
-          },
-        ],
+        type: "testimonial--item",
+        rating: 5,
+        quote: "Our tasting experience was wonderful, informative, and welcoming. Every detail, from the storytelling to the creative touches, made a lasting impression.",
+        authorName: "Anne O.",
+        location: "Ridgewood, NJ",
+      },
+      {
+        type: "testimonial--item",
+        rating: 5,
+        quote: "The wine club membership has been such a treat. Each shipment feels like a celebration.",
+        authorName: "Michael T.",
+        location: "Denver, CO",
+      },
+      {
+        type: "testimonial--item",
+        rating: 5,
+        quote: "Beautiful property with incredible wines. The staff made us feel so welcome.",
+        authorName: "Sarah L.",
+        location: "Austin, TX",
       },
     ],
   },

@@ -8,7 +8,7 @@ import type { SingleMenuItem } from "~/types/menu";
 
 export function DropdownMenu({ menuItem }: { menuItem: SingleMenuItem }) {
   const [open, setOpen] = useState(false);
-  const { items: childItems = [], title } = menuItem;
+  const { items: childItems = [], title, to } = menuItem;
   return (
     <div onMouseLeave={() => setOpen(false)} className="font-henderson-slab">
       <Root open={open} onOpenChange={setOpen} modal={false}>
@@ -22,7 +22,9 @@ export function DropdownMenu({ menuItem }: { menuItem: SingleMenuItem }) {
             setOpen(true);
           }}
         >
-          <span>{title}</span>
+          <Link to={to} className="transition-none">
+            {title}
+          </Link>
           <CaretDownIcon className="h-3.5 w-3.5 transition-transform" />
         </Trigger>
         <Content

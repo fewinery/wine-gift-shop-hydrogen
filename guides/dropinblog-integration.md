@@ -175,38 +175,20 @@ export function createDropInBlogClient(env: {
 }
 ```
 
-#### 1.3 Inject into App Context
-**File:** `app/.server/context.ts`
+#### 1.3 Usage Pattern (No Context Injection)
+Instead of injecting into the app context, we'll initialize the client directly in the loaders where needed. This keeps dependencies explicit and isolated.
 
-Add import:
+**Usage Example:**
 ```typescript
 import { createDropInBlogClient } from "~/utils/dropinblog";
-```
 
-In `createAppLoadContext` function, add:
-```typescript
-const dropinblog = createDropInBlogClient({
-  DROPINBLOG_ID: env.DROPINBLOG_ID,
-  DROPINBLOG_API_KEY: env.DROPINBLOG_API_KEY,
-});
-
-return {
-  ...hydrogenContext,
-  weaverse: new WeaverseClient({ ... }),
-  dropinblog, // Add this line
+export const loader = async ({ context }: LoaderFunctionArgs) => {
+  // Initialize client with env vars from context
+  const dropinblog = createDropInBlogClient(context.env);
+  
+  const posts = await dropinblog.getPosts();
+  // ...
 };
-```
-
-Update TypeScript types (same file or `env.d.ts`):
-```typescript
-import type { DropInBlogClient } from "~/utils/dropinblog";
-
-declare module "@shopify/remix-oxygen" {
-  export interface AppLoadContext {
-    // ... existing properties
-    dropinblog: DropInBlogClient;
-  }
-}
 ```
 
 ---
@@ -277,8 +259,11 @@ export const headers = routeHeaders;
 
 export const loader = async (args: LoaderFunctionArgs) => {
   const { request, context } = args;
-  const { storefront, dropinblog, weaverse } = context;
+  const { storefront, weaverse, env } = context;
   const { language, country } = storefront.i18n;
+
+  // Initialize DropInBlog client
+  const dropinblog = createDropInBlogClient(env);
 
   // Load blog posts and Weaverse data in parallel
   const [postsResponse, weaverseData] = await Promise.all([
@@ -333,8 +318,11 @@ export const headers = routeHeaders;
 
 export async function loader(args: RouteLoaderArgs) {
   const { request, params, context } = args;
-  const { storefront, dropinblog, weaverse } = context;
+  const { storefront, weaverse, env } = context;
   const { language, country } = storefront.i18n;
+
+  // Initialize DropInBlog client
+  const dropinblog = createDropInBlogClient(env);
 
   invariant(params.slug, "Missing article slug");
 
@@ -553,12 +541,15 @@ Update loader function:
 export async function loader({ request, context }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const searchTerm = String(url.searchParams.get("q") || "").trim();
-  const { storefront, dropinblog } = context; // Add dropinblog
+  const { storefront, env } = context;
   const { language, country } = storefront.i18n;
 
   if (!searchTerm) {
     return json({ searchResults: { results: null, totalResults: 0 } });
   }
+
+  // Initialize DropInBlog client
+  const dropinblog = createDropInBlogClient(env);
 
   // Parallel search: Shopify + DropInBlog
   const [shopifyData, blogData] = await Promise.all([
@@ -674,11 +665,10 @@ test.describe("DropInBlog Integration", () => {
 6. `guides/dropinblog-integration.md` - This documentation
 
 ### Modified Files
-1. `app/.server/context.ts` - Added DropInBlog client
-2. `app/routes/api/predictive-search.ts` - Added blog search
-3. `app/sections/blogs.tsx` - Removed blogHandle, updated URLs
-4. `app/sections/blog-post.tsx` - Updated URLs
-5. `app/sections/related-articles.tsx` - Removed blogHandle
+1. `app/routes/api/predictive-search.ts` - Added blog search
+2. `app/sections/blogs.tsx` - Removed blogHandle, updated URLs
+3. `app/sections/blog-post.tsx` - Updated URLs
+4. `app/sections/related-articles.tsx` - Removed blogHandle
 
 ### Deleted Files
 1. `app/routes/blogs/blog.tsx` - Replaced by `blog/index.tsx`

@@ -96,7 +96,7 @@ export default function CollectionFilters(props: CollectionFiltersProps) {
           {showBreadcrumb && (
             <BreadCrumb page={collection.title} className="mb-2.5" />
           )}
-          {(!showBanner || !banner) && <h3>{collection.title}</h3>}
+          {(!showBanner || !banner) && <h3 className="text-center py-10">{collection.title}</h3>}
           {showDescription && collection.description && (
             <p className="mt-2.5 text-body-subtle">{collection.description}</p>
           )}

@@ -1,5 +1,9 @@
 import { createSchema } from "@weaverse/hydrogen";
-import { Section, type SectionProps, sectionSettings } from "~/components/section";
+import {
+  Section,
+  type SectionProps,
+  sectionSettings,
+} from "~/components/section";
 
 interface FaqSectionProps extends SectionProps {
   ref?: React.Ref<HTMLElement>;
@@ -24,18 +28,20 @@ const FaqSection = (props: FaqSectionProps) => {
     <Section ref={ref} {...rest}>
       <div className="flex flex-col gap-8 lg:flex-row lg:gap-12">
         <div className="w-full space-y-4 lg:w-2/5 lg:space-y-6">
-          <h2 className="font-henderson-slab text-[37px] font-black uppercase tracking-tight text-black">
+          <h2 className="font-henderson-slab text-[37px] font-black text-black">
             {heading}
           </h2>
-          <div
-            className="prose prose-base text-black font-body"
-            dangerouslySetInnerHTML={{ __html: description }}
-          />
+          {description && (
+            <div
+              className="prose prose-base text-black font-body"
+              dangerouslySetInnerHTML={{ __html: description }}
+            />
+          )}
           {buttonLabel && (
             <div className="pt-2">
               <a
                 href={buttonLink || "#"}
-                className="inline-flex items-center justify-center border-2 border-black bg-transparent px-8 py-3 text-base font-bold uppercase tracking-wide text-black transition-colors hover:bg-black hover:text-white"
+                className="inline-flex items-center justify-center border-2 border-black bg-transparent px-8 py-3 text-base font-bold uppercase tracking-wide text-black"
               >
                 {buttonLabel}
               </a>
@@ -44,9 +50,7 @@ const FaqSection = (props: FaqSectionProps) => {
         </div>
 
         <div className="w-full lg:w-3/5">
-          <div className="border-t border-black">
-            {children}
-          </div>
+          <div className="border-t border-black">{children}</div>
         </div>
       </div>
     </Section>
@@ -59,7 +63,7 @@ export const schema = createSchema({
   type: "faq-accordion",
   title: "FAQ Accordion",
   childTypes: ["faq-accordion-item"],
-  inspector: [
+  settings: [
     {
       group: "Content",
       inputs: [

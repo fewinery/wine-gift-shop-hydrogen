@@ -34,7 +34,7 @@ function ReservationForm(props: ReservationFormProps) {
       {/* Header */}
       <div className="mb-12 text-center">
         {heading && (
-          <h2 className="mb-4 font-henderson-slab text-4xl uppercase tracking-wide lg:text-5xl">
+          <h2 className="mb-4 font-henderson-slab text-[37px] uppercase">
             {heading}
           </h2>
         )}

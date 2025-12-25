@@ -55,7 +55,7 @@ export function Filters({ className }: { className?: string }) {
               key={filter.id}
               ref={ref}
               value={filter.id}
-              className="w-full pb-4"
+              className="w-full pb-10"
             >
               <Accordion.Trigger className="group flex w-full items-center justify-start gap-2.5">
                 <span className="font-henderson-slab text-[19.2px] uppercase">

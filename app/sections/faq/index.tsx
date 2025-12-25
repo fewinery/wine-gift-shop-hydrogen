@@ -28,7 +28,7 @@ const FaqSection = (props: FaqSectionProps) => {
     <Section ref={ref} {...rest}>
       <div className="flex flex-col gap-8 lg:flex-row lg:gap-12">
         <div className="w-full space-y-4 lg:w-2/5 lg:space-y-6">
-          <h2 className="font-henderson-slab text-[37px] font-black uppercase tracking-tight text-black">
+          <h2 className="font-henderson-slab text-[37px] font-black text-black">
             {heading}
           </h2>
           {description && (
@@ -63,7 +63,7 @@ export const schema = createSchema({
   type: "faq-accordion",
   title: "FAQ Accordion",
   childTypes: ["faq-accordion-item"],
-  inspector: [
+  settings: [
     {
       group: "Content",
       inputs: [

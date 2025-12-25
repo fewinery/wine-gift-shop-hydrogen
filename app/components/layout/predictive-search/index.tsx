@@ -124,7 +124,7 @@ function PredictiveSearchResults() {
   }
   return (
     <div className="-translate-x-1/2 absolute top-full left-1/2 z-10 flex w-fit items-center justify-center">
-      <div className="grid max-h-[80vh] w-screen min-w-[430px] max-w-[720px] grid-cols-1 gap-6 overflow-y-auto bg-(--color-header-bg) p-6 lg:grid-cols-[1fr_2fr]">
+      <div className="grid max-h-[80vh] w-screen min-w-[430px] max-w-[720px] grid-cols-1 gap-12 overflow-y-auto bg-(--color-header-bg) p-6 lg:grid-cols-[1fr_2fr]">
         <div className="space-y-8">
           <div className="flex flex-col gap-4 divide-y divide-line">
             <PredictiveSearchResult type="queries" items={queries?.items} />

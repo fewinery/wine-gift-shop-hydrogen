@@ -123,9 +123,7 @@ export function Footer() {
                 >
                   <Icon
                     className="h-5 w-5"
-                    weight={
-                      ["Facebook", "LinkedIn"].includes(name) ? "fill" : "bold"
-                    }
+                    weight="regular"
                   />
                 </Link>
               ))}

@@ -64,7 +64,7 @@ function SearchResultItem({
   return (
     <li key={id}>
       <Link
-        className="flex gap-4"
+        className="flex justify-start gap-4"
         to={
           __typename === "SearchQuerySuggestion" || !url
             ? `/search?q=${id}`

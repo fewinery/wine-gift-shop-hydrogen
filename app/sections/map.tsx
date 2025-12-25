@@ -29,7 +29,7 @@ const variants = cva("", {
 interface MapSectionProps
   extends Omit<SectionProps, "backgroundColor">,
     VariantProps<typeof variants>,
-    LinkStyles {
+    Omit<LinkStyles, "borderRadius"> {
   ref: React.Ref<HTMLElement>;
   address: string;
   heading: string;

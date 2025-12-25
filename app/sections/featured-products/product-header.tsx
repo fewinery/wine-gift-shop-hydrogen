@@ -32,7 +32,7 @@ const HeaderContainer = (props: HeaderContainerProps) => {
     <div
       ref={ref}
       {...rest}
-      className="flex flex-col sm:flex-row sm:items-center sm:justify-between font-henderson-slab"
+      className="flex flex-col lg:flex-row lg:items-center lg:justify-between font-henderson-slab"
       style={{ gap: `${gap}px` }}
     >
       {heading && (
@@ -48,7 +48,7 @@ const HeaderContainer = (props: HeaderContainerProps) => {
           {/* Mobile button - underline with arrow */}
           <Link
             to={buttonLink}
-            className="flex items-center gap-1 underline underline-offset-4 self-start sm:hidden"
+            className="flex items-center justify-center gap-1 underline underline-offset-4 self-start lg:hidden"
             style={{ color: headingColor }}
           >
             {buttonText}
@@ -57,7 +57,7 @@ const HeaderContainer = (props: HeaderContainerProps) => {
           {/* Desktop button - solid background */}
           <Link
             to={buttonLink}
-            className="hidden sm:flex items-center justify-center px-6 py-2"
+            className="hidden lg:flex items-center justify-center px-6 py-2"
             style={{
               color: buttonTextColor,
               backgroundColor: buttonBgColor,

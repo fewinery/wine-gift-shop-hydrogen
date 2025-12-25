@@ -44,7 +44,8 @@ function ProductItems(props: ProductItemsProps) {
         slidesPerView={2}
         spaceBetween={16}
         breakpoints={{
-          1024: { slidesPerView: 3 },
+          640: { slidesPerView: 2, spaceBetween: 20 },
+          1024: { slidesPerView: 4, spaceBetween: 24 },
         }}
         className="overflow-visible h-auto!"
       >

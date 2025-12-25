@@ -318,10 +318,22 @@ export interface SignUpProductOffer {
   description: string | null;
 
   /** Free/discounted product */
-  productVariant: ProductVariant;
+  productVariant?: ProductVariant;
 
   /** ISO 8601 expiry date */
   expiryDate: string | null;
+
+  /** Bonus product IDs included in offer */
+  bonusProducts?: string[];
+
+  /** Discount percentage for first shipment */
+  discountPercentage?: number;
+
+  /** Whether free shipping is included */
+  freeShipping?: boolean;
+
+  /** Terms and conditions HTML content */
+  termsAndConditions?: string;
 }
 
 // ============================================================================

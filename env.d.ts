@@ -23,6 +23,10 @@ declare global {
     KLAVIYO_PRIVATE_API_TOKEN: string;
     PUBLIC_SHOPIFY_INBOX_SHOP_ID: string;
     WEAVERSE_HOST?: string;
+    DROPINBLOG_ID: string;
+    DROPINBLOG_API_KEY: string;
+    HEADER_MENU_HANDLE: string;
+    FOOTER_MENU_HANDLE: string;
   }
 }
 

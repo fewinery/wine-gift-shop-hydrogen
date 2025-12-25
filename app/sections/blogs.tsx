@@ -1,6 +1,5 @@
 import { createSchema } from "@weaverse/hydrogen";
 import { useLoaderData } from "react-router";
-import type { ArticleFragment, BlogQuery } from "storefront-api.generated";
 import { Image } from "~/components/image";
 import { Link } from "~/components/link";
 import { RevealUnderline } from "~/components/reveal-underline";
@@ -9,8 +8,28 @@ import type { ImageAspectRatio } from "~/types/others";
 import { cn } from "~/utils/cn";
 import { calculateAspectRatio, getImageLoadingPriority } from "~/utils/image";
 
+// Local interface matching transformed DropInBlog articles
+export interface ArticleItem {
+  id: string;
+  handle: string;
+  title: string;
+  excerpt?: string;
+  excerptHtml?: string;
+  contentHtml?: string;
+  publishedAt: string;
+  author?: { name: string };
+  image?: {
+    id?: string;
+    altText?: string | null;
+    url: string;
+    width?: number;
+    height?: number;
+  } | null;
+  tags?: string[];
+}
+
 interface BlogsProps
-  extends Omit<ArticleCardProps, "article" | "blogHandle" | "loading">,
+  extends Omit<ArticleCardProps, "article" | "loading">,
     SectionProps {
   ref: React.Ref<HTMLElement>;
   layout: "blog" | "default";
@@ -28,9 +47,10 @@ export default function Blogs(props: BlogsProps) {
     ...rest
   } = props;
 
-  const { blog, articles } = useLoaderData<
-    BlogQuery & { articles: ArticleFragment[] }
-  >();
+  const { blog, articles } = useLoaderData<{
+    blog: { title: string; handle: string };
+    articles: ArticleItem[];
+  }>();
 
   if (blog) {
     return (
@@ -40,7 +60,6 @@ export default function Blogs(props: BlogsProps) {
           {articles.map((article, i) => (
             <ArticleCard
               key={article.id}
-              blogHandle={blog.handle}
               article={article}
               loading={getImageLoadingPriority(i, 2)}
               showAuthor={showAuthor}
@@ -58,8 +77,7 @@ export default function Blogs(props: BlogsProps) {
 }
 
 export interface ArticleCardProps {
-  article: ArticleFragment;
-  blogHandle: string;
+  article: ArticleItem;
   loading?: HTMLImageElement["loading"];
   showDate: boolean;
   showExcerpt: boolean;
@@ -70,7 +88,6 @@ export interface ArticleCardProps {
 }
 
 export function ArticleCard({
-  blogHandle,
   article,
   loading,
   showExcerpt,
@@ -83,10 +100,7 @@ export function ArticleCard({
   return (
     <div className={cn("flex flex-col gap-5", className)}>
       {article.image && (
-        <Link
-          to={`/blogs/${blogHandle}/${article.handle}`}
-          className="flex flex-col gap-5"
-        >
+        <Link to={`/blog/${article.handle}`} className="flex flex-col gap-5">
           <Image
             alt={article.image.altText || article.title}
             data={article.image}
@@ -97,10 +111,7 @@ export function ArticleCard({
         </Link>
       )}
       <div className="space-y-2.5">
-        <Link
-          to={`/blogs/${blogHandle}/${article.handle}`}
-          className="inline-block"
-        >
+        <Link to={`/blog/${article.handle}`} className="inline-block">
           <RevealUnderline className="text-xl leading-6">
             {article.title}
           </RevealUnderline>
@@ -117,10 +128,7 @@ export function ArticleCard({
         )}
         {showReadmore && (
           <div>
-            <Link
-              to={`/blogs/${blogHandle}/${article.handle}`}
-              variant="underline"
-            >
+            <Link to={`/blog/${article.handle}`} variant="underline">
               Read more →
             </Link>
           </div>

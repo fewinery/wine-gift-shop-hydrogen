@@ -32,10 +32,6 @@ export default hydrogenRoutes([
       route(":version/graphql.json", "routes/api/graphql.json.ts"),
       route("product/:productHandle/reviews?", "routes/api/product.ts"),
     ]),
-    ...prefix("blogs", [
-      route(":blogHandle", "routes/blogs/blog.tsx"),
-      route(":blogHandle/:articleHandle", "routes/blogs/article.tsx"),
-    ]),
     ...prefix("policies", [
       index("routes/policies/list.tsx"),
       route(":policyHandle", "routes/policies/policy.tsx"),
@@ -55,6 +51,10 @@ export default hydrogenRoutes([
     ...prefix("wine-clubs", [
       index("routes/wine-clubs/list.tsx"),
       route(":clubId", "routes/wine-clubs/detail.tsx"),
+    ]),
+    ...prefix("blog", [
+      index("routes/blog/index.tsx"),
+      route(":slug", "routes/blog/$slug.tsx"),
     ]),
     ...prefix("account", [
       route("authorize", "routes/account/auth/authorize.ts"),

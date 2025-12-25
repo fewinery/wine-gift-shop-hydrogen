@@ -1,14 +1,13 @@
 import { createSchema } from "@weaverse/hydrogen";
 import { useLoaderData } from "react-router";
-import type { ArticleFragment } from "storefront-api.generated";
 import Heading from "~/components/heading";
 import { layoutInputs, Section, type SectionProps } from "~/components/section";
 import { Swimlane } from "~/components/swimlane";
 import { getImageLoadingPriority } from "~/utils/image";
-import { ArticleCard, type ArticleCardProps } from "./blogs";
+import { ArticleCard, type ArticleCardProps, type ArticleItem } from "./blogs";
 
 interface RelatedArticlesProps
-  extends Omit<ArticleCardProps, "article" | "blogHandle" | "loading">,
+  extends Omit<ArticleCardProps, "article" | "loading">,
     SectionProps {
   ref: React.Ref<HTMLElement>;
   heading: string;
@@ -26,7 +25,7 @@ export default function RelatedArticles(props: RelatedArticlesProps) {
     ...rest
   } = props;
   const { blog, relatedArticles } = useLoaderData<{
-    relatedArticles: ArticleFragment[];
+    relatedArticles: ArticleItem[];
     blog: { handle: string };
   }>();
 
@@ -38,7 +37,6 @@ export default function RelatedArticles(props: RelatedArticlesProps) {
           {relatedArticles.map((article, i) => (
             <ArticleCard
               key={article.id}
-              blogHandle={blog.handle}
               article={article}
               loading={getImageLoadingPriority(i, 2)}
               showAuthor={showAuthor}

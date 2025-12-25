@@ -14,6 +14,8 @@ import type {
   NormalizedPredictiveSearch,
   NormalizedPredictiveSearchResults,
 } from "~/types/predictive-search";
+import { createDropInBlogClient } from "~/utils/dropinblog";
+import { transformDropInBlogPost } from "~/utils/dropinblog-transform";
 
 type PredictiveSearchResultItem =
   | PredictiveArticleFragment
@@ -84,22 +86,36 @@ async function fetchPredictiveSearchResults({
     };
   }
 
-  const searchData = await context.storefront.query(PREDICTIVE_SEARCH_QUERY, {
-    variables: {
-      limit,
-      limitScope: "EACH",
-      searchTerm,
-      types: searchTypes,
-    },
-  });
+  // Initialize DropInBlog client
+  const dropinblog = createDropInBlogClient(context.env);
+
+  const [searchData, blogData] = await Promise.all([
+    context.storefront.query(PREDICTIVE_SEARCH_QUERY, {
+      variables: {
+        limit,
+        limitScope: "EACH",
+        searchTerm,
+        types: searchTypes,
+      },
+    }),
+    dropinblog
+      .searchPosts(searchTerm, { limit: 3 })
+      .catch(() => ({ data: { posts: [] } })),
+  ]);
 
   if (!searchData) {
     throw new Error("No data returned from Shopify API");
   }
 
+  // Get blog posts from DropInBlog
+  const { language, country } = context.storefront.i18n;
+  const blogPosts = blogData.data?.posts || [];
+
   const searchResults = normalizePredictiveSearchResults(
     searchData.predictiveSearch,
     params.locale,
+    blogPosts,
+    { language, country },
   );
 
   return { searchResults, searchTerm, searchTypes };
@@ -111,6 +127,11 @@ async function fetchPredictiveSearchResults({
 function normalizePredictiveSearchResults(
   predictiveSearch: PredictiveSearchQuery["predictiveSearch"],
   locale: LoaderFunctionArgs["params"]["locale"],
+  blogPosts: any[] = [],
+  localeInfo: { language: string; country: string } = {
+    language: "EN",
+    country: "US",
+  },
 ): NormalizedPredictiveSearch {
   let totalResults = 0;
   if (!predictiveSearch) {
@@ -145,7 +166,7 @@ function normalizePredictiveSearchResults(
         //   `q=${encodeURIComponent(query.text)}`,
         // );
 
-        totalResults++;
+        totalResults += 1;
         return {
           __typename: query.__typename,
           handle: "",
@@ -170,7 +191,7 @@ function normalizePredictiveSearchResults(
           );
           const firstVariantParams = new URLSearchParams(optionsObject);
 
-          totalResults++;
+          totalResults += 1;
           const trackingParams = applyTrackingParams(product);
           return {
             __typename: product.__typename,
@@ -194,7 +215,7 @@ function normalizePredictiveSearchResults(
       // @ts-expect-error
       items: predictiveSearch.collections.map(
         (collection: PredictiveCollectionFragment) => {
-          totalResults++;
+          totalResults += 1;
           const trackingParams = applyTrackingParams(collection);
           return {
             __typename: collection.__typename,
@@ -214,7 +235,7 @@ function normalizePredictiveSearchResults(
       type: "pages",
       // @ts-expect-error
       items: predictiveSearch.pages.map((page: PredictivePageFragment) => {
-        totalResults++;
+        totalResults += 1;
         const trackingParams = applyTrackingParams(page);
         return {
           __typename: page.__typename,
@@ -234,7 +255,7 @@ function normalizePredictiveSearchResults(
       // @ts-expect-error
       items: predictiveSearch.articles.map(
         (article: PredictiveArticleFragment) => {
-          totalResults++;
+          totalResults += 1;
           const trackingParams = applyTrackingParams(article);
           return {
             __typename: article.__typename,
@@ -242,11 +263,39 @@ function normalizePredictiveSearchResults(
             id: article.id,
             image: article.image,
             title: article.title,
-            url: `${localePrefix}/blogs/${article.blog.handle}/${article.handle}${trackingParams}`,
+            url: `${localePrefix}/blog/${article.handle}${trackingParams}`,
           };
         },
       ),
     });
+  }
+
+  // Add DropInBlog posts
+  if (blogPosts.length > 0) {
+    const dropinblogArticles = blogPosts.map((post) => {
+      totalResults += 1;
+      const transformed = transformDropInBlogPost(post, localeInfo);
+      return {
+        __typename: "Article" as const,
+        handle: transformed.handle,
+        id: transformed.id,
+        image: transformed.image,
+        title: transformed.title,
+        url: `${localePrefix}/blog/${transformed.handle}`,
+      };
+    });
+
+    const articlesSection = results.find((r) => r.type === "articles");
+    if (articlesSection) {
+      // @ts-expect-error
+      articlesSection.items.push(...dropinblogArticles);
+    } else {
+      results.push({
+        type: "articles",
+        // @ts-expect-error
+        items: dropinblogArticles,
+      });
+    }
   }
 
   return { results, totalResults };

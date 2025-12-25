@@ -10,10 +10,30 @@ import {
   PinterestShareButton,
   TwitterShareButton,
 } from "react-share";
-import type { ArticleQuery } from "storefront-api.generated";
 import { Image } from "~/components/image";
 import { layoutInputs, Section, type SectionProps } from "~/components/section";
 import type { RootLoader } from "~/root";
+
+// Local type for article data (compatible with DropInBlog)
+interface ArticleData {
+  title: string;
+  handle: string;
+  contentHtml: string;
+  publishedAt?: string;
+  tags?: string[];
+  author?: { name: string };
+  image?: {
+    id?: string;
+    altText?: string;
+    url: string;
+    width?: number;
+    height?: number;
+  } | null;
+  seo?: {
+    title?: string;
+    description?: string;
+  };
+}
 
 interface BlogPostProps extends SectionProps {
   ref: React.Ref<HTMLElement>;
@@ -25,11 +45,11 @@ export default function BlogPost(props: BlogPostProps) {
   const { ref, showTags, showShareButtons, ...rest } = props;
   const { layout } = useRouteLoaderData<RootLoader>("root");
   const { article, blog, formattedDate } = useLoaderData<{
-    article: ArticleQuery["blog"]["articleByHandle"];
-    blog: ArticleQuery["blog"];
+    article: ArticleData;
+    blog: { handle: string };
     formattedDate: string;
   }>();
-  const { title, handle, image, contentHtml, author, tags } = article;
+  const { title, handle, image, contentHtml, author, tags = [] } = article;
   if (article) {
     let domain = layout.shop.primaryDomain.url;
     if (isBrowser) {
@@ -39,7 +59,7 @@ export default function BlogPost(props: BlogPostProps) {
       }
     }
     const { handle: blogHandle } = blog;
-    const articleUrl = `${domain}/blogs/${blogHandle}/${handle}`;
+    const articleUrl = `${domain}/blog/${handle}`;
     return (
       <Section ref={ref} {...rest}>
         {image && (

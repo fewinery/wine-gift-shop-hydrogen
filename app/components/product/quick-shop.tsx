@@ -46,7 +46,7 @@ export function QuickShop({
     <div className="bg-background">
       <div
         className={clsx(
-          "grid grid-cols-1 items-start gap-5",
+          "grid grid-cols-1 items-start gap-5 p-6",
           panelType === "modal" ? "lg:grid-cols-2" : "grid-cols-1",
         )}
       >
@@ -56,7 +56,7 @@ export function QuickShop({
           selectedVariant={selectedVariant}
           showThumbnails={false}
         />
-        <div className="flex flex-col justify-start gap-5 py-6 pr-5">
+        <div className="flex flex-col justify-start gap-5">
           <div className="space-y-4">
             <ProductBadges
               product={product}

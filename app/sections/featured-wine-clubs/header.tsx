@@ -1,3 +1,4 @@
+import { ArrowRightIcon } from "@phosphor-icons/react";
 import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
 import { Link } from "~/components/link";
 
@@ -31,7 +32,7 @@ function WineClubsHeader(props: WineClubsHeaderProps) {
     <div
       ref={ref}
       {...rest}
-      className="flex flex-col sm:flex-row sm:items-center sm:justify-between font-henderson-slab"
+      className="flex flex-col lg:flex-row lg:items-center lg:justify-between font-henderson-slab"
       style={{ gap: `${gap}px` }}
     >
       {heading && (
@@ -43,16 +44,28 @@ function WineClubsHeader(props: WineClubsHeaderProps) {
         </h2>
       )}
       {showButton && buttonText && (
-        <Link
-          to={buttonLink}
-          className="flex items-center justify-center px-6 py-2"
-          style={{
-            color: buttonTextColor,
-            backgroundColor: buttonBgColor,
-          }}
-        >
-          {buttonText}
-        </Link>
+        <>
+          {/* Mobile button - underline with arrow */}
+          <Link
+            to={buttonLink}
+            className="flex items-center justify-center gap-1 underline underline-offset-4 self-start lg:hidden"
+            style={{ color: headingColor }}
+          >
+            {buttonText}
+            <ArrowRightIcon className="h-4 w-4" />
+          </Link>
+          {/* Desktop button - solid background */}
+          <Link
+            to={buttonLink}
+            className="hidden lg:flex items-center justify-center px-6 py-2"
+            style={{
+              color: buttonTextColor,
+              backgroundColor: buttonBgColor,
+            }}
+          >
+            {buttonText}
+          </Link>
+        </>
       )}
     </div>
   );

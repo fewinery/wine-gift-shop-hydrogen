@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createSchema } from "@weaverse/hydrogen";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination } from "swiper/modules";
+import { Navigation, Pagination, Autoplay } from "swiper/modules";
 import type { Swiper as SwiperType } from "swiper";
 import { Section, type SectionProps, layoutInputs } from "~/components/section";
 import { backgroundInputs } from "~/components/background-image";
@@ -31,7 +31,7 @@ function Testimonials(props: TestimonialsProps) {
       {/* Header */}
       <div className="mb-12">
         {heading && (
-          <h2 className="mb-2 font-henderson-slab text-[37px] uppercase">
+          <h2 className="mb-2 font-henderson-slab text-[30px] uppercase lg:text-[37px]">
             {heading}
           </h2>
         )}
@@ -43,9 +43,13 @@ function Testimonials(props: TestimonialsProps) {
       {/* Swiper */}
       <Swiper
         className="py-4"
-        modules={[Navigation, Pagination]}
+        modules={[Navigation, Pagination, Autoplay]}
         slidesPerView={1}
         spaceBetween={24}
+        autoplay={{
+          delay: 2500,
+          disableOnInteraction: false,
+        }}
         onSwiper={handleSwiperInit}
         onSlideChange={(s) => setActiveIndex(s.activeIndex)}
         onResize={(s) => setSnapCount(s.snapGrid.length)}
@@ -140,6 +144,41 @@ export const schema = createSchema({
       {
         type: "testimonial--item",
         rating: 5,
+        quote: "Our tasting experience was wonderful, informative, and welcoming. Every detail, from the storytelling to the creative touches, made a lasting impression.",
+        authorName: "Anne O.",
+        location: "Ridgewood, NJ",
+      },
+      {
+        type: "testimonial--item",
+        rating: 5,
+        quote: "It was the experience of a lifetime! The wine, the caves, and the entire atmosphere were absolutely unforgettable.",
+        authorName: "Susan T.",
+        location: "New Orleans, LA",
+      },
+      {
+        type: "testimonial--item",
+        rating: 5,
+        quote: "Amazing caves and tons of wines to choose from, all in a relaxed and beautiful setting. A very special place.",
+        authorName: "Greg B.",
+        location: "Dallas, TX",
+      },
+      {
+        type: "testimonial--item",
+        rating: 5,
+        quote: "Our family had the pleasure of tasting incredible wines during our visit. The experience made our daughter's 21st birthday extra special.",
+        authorName: "Laura C.",
+        location: "Larkspur, CA",
+      },
+      {
+        type: "testimonial--item",
+        rating: 5,
+        quote: "My fiancée and I visited for her birthday, and it was hands-down our favorite experience of the weekend. The wines were fantastic, and the wine cave tour was an unexpected highlight.",
+        authorName: "Andre T.",
+        location: "San Francisco, CA",
+      },
+      {
+        type: "testimonial--item",
+        rating: 5,
         quote: "An unmissable spot in Napa Valley. Gorgeous property, amazing wine caves for tastings, and truly exceptional service.",
         authorName: "Annie R.",
         location: "Chicago, IL",
@@ -150,27 +189,6 @@ export const schema = createSchema({
         quote: "I felt like royalty during our visit. The hospitality was impeccable, the wines were delicious, and the setting was beautiful.",
         authorName: "Angie C.",
         location: "Oakland, CA",
-      },
-      {
-        type: "testimonial--item",
-        rating: 5,
-        quote: "Our tasting experience was wonderful, informative, and welcoming. Every detail, from the storytelling to the creative touches, made a lasting impression.",
-        authorName: "Anne O.",
-        location: "Ridgewood, NJ",
-      },
-      {
-        type: "testimonial--item",
-        rating: 5,
-        quote: "The wine club membership has been such a treat. Each shipment feels like a celebration.",
-        authorName: "Michael T.",
-        location: "Denver, CO",
-      },
-      {
-        type: "testimonial--item",
-        rating: 5,
-        quote: "Beautiful property with incredible wines. The staff made us feel so welcome.",
-        authorName: "Sarah L.",
-        location: "Austin, TX",
       },
     ],
   },

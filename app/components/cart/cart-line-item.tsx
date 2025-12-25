@@ -63,11 +63,6 @@ export function CartLineItem({
     }
     url += `?${params.toString()}`;
   }
-  let isDefaultVariant = false;
-  if (selectedOptions?.length === 1) {
-    const { name, value } = selectedOptions[0];
-    isDefaultVariant = name === "Title" && value === "Default Title";
-  }
 
   return (
     <li
@@ -106,9 +101,34 @@ export function CartLineItem({
                 <p>{product?.title || ""}</p>
               )}
             </div>
-            {!isDefaultVariant && (
-              <div className="space-y-0.5 text-gray-500 text-sm">{title}</div>
-            )}
+            {/* Show selling plan (subscription) info if exists */}
+            {"sellingPlanAllocation" in line &&
+              line.sellingPlanAllocation?.sellingPlan?.name && (
+                <div className="space-y-0.5 text-gray-500 text-sm">
+                  <div>{line.sellingPlanAllocation.sellingPlan.name}</div>
+                </div>
+              )}
+            {/* Otherwise show variant options */}
+            {!("sellingPlanAllocation" in line && line.sellingPlanAllocation) &&
+              selectedOptions &&
+              selectedOptions.length > 0 && (
+                <div className="space-y-0.5 text-gray-500 text-sm">
+                  {selectedOptions.map((option) => {
+                    // Skip default variant
+                    if (
+                      option.name === "Title" &&
+                      option.value === "Default Title"
+                    ) {
+                      return null;
+                    }
+                    return (
+                      <div key={option.name}>
+                        {option.name}: {option.value}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
           </div>
           {layout === "drawer" && (
             <ItemRemoveButton lineId={id} className="-mt-1.5 -mr-2" />

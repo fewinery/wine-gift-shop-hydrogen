@@ -18,7 +18,7 @@ function ImageWithText(props: ImageWithTextProps) {
   return (
     <Section ref={ref} {...rest}>
       {heading && (
-        <h2 className="text-center font-henderson-slab text-[37px] uppercase">
+        <h2 className="text-center font-henderson-slab text-[30px] uppercase lg:text-[37px]">
           {heading}
         </h2>
       )}
@@ -78,9 +78,20 @@ export const schema = createSchema({
         type: "image-with-text--content",
         children: [
           {
+            type: "subheading",
+            content: "Subheading",
+          },
+          {
+            type: "heading",
+            content: "Heading for image",
+          },
+          {
             type: "paragraph",
             content:
-              "<p>Online or in-person, we bring the Napa Valley wine tasting experience to you wherever you are.</p>",
+              "<p>Pair large text with an image to tell a story.</p>",
+          },
+          {
+            type: "image-with-text--buttons-wrapper",
           },
         ],
       },

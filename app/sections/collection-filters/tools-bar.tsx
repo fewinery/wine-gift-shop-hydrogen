@@ -26,9 +26,6 @@ export function ToolsBar({
   enableFilter,
   filtersPosition,
   showProductsCount,
-  gridSizeDesktop,
-  gridSizeMobile,
-  onGridSizeChange,
   showSidebar,
   setShowSidebar,
 }: ToolsBarProps) {
@@ -46,7 +43,7 @@ export function ToolsBar({
             {filtersPosition === "sidebar" && (
               <button
                 type="button"
-                className="hidden h-[43px] items-center gap-2.5 border bg-white p-2.5 text-base rounded focus-visible:outline-hidden lg:flex"
+                className="hidden h-[43px] items-center justify-between gap-1.5 whitespace-nowrap rounded-none border border-(--btn-outline-text) bg-transparent px-4 py-3 text-base font-normal leading-tight text-(--btn-outline-text) transition-colors hover:border-(--btn-outline-text) hover:bg-(--btn-outline-text) hover:text-background focus-visible:outline-hidden lg:inline-flex"
                 onClick={() => setShowSidebar(!showSidebar)}
               >
                 <span>Filters</span>
@@ -75,7 +72,7 @@ function FiltersDrawer({
         <Button
           variant="outline"
           className={cn(
-            "flex h-12 items-center gap-1.5 border py-2",
+            "flex h-[43px] items-center gap-1.5 border py-2",
             filtersPosition === "sidebar" && "lg:hidden",
           )}
           animate={false}

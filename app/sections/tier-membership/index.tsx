@@ -12,7 +12,7 @@ function TierMembership(props: TierMembershipProps) {
   return (
     <Section ref={ref} {...rest}>
       {heading && (
-        <h2 className="mb-12 text-center font-henderson-slab text-[37px] uppercase">
+        <h2 className="mb-12 text-center font-henderson-slab text-[30px] uppercase lg:text-[37px]">
           {heading}
         </h2>
       )}

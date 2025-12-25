@@ -39,7 +39,7 @@ export function Sort() {
 
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Trigger className="flex h-[43px] min-w-44 items-center justify-between gap-2 border bg-white p-2.5 text-base focus-visible:outline-hidden rounded">
+      <DropdownMenu.Trigger className="inline-flex h-[43px] min-w-44 items-center justify-between gap-1.5 whitespace-nowrap rounded-none border border-(--btn-outline-text) bg-transparent px-4 py-3 text-base font-normal leading-tight text-(--btn-outline-text) transition-colors hover:border-(--btn-outline-text) hover:bg-(--btn-outline-text) hover:text-background focus-visible:outline-hidden">
         <span className="truncate">{currentSort.label}</span>
         <CaretDownIcon />
       </DropdownMenu.Trigger>

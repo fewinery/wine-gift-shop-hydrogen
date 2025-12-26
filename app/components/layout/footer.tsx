@@ -22,7 +22,7 @@ const variants = cva("", {
     },
     padding: {
       full: "",
-      stretch: "px-3 md:px-4 lg:px-6",
+      stretch: "px-3 md:px-10 lg:px-16",
       fixed: "mx-auto px-3 md:px-4 lg:px-6",
     },
   },

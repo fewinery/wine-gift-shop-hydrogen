@@ -1,7 +1,4 @@
-import {
-  createSchema,
-  IMAGES_PLACEHOLDERS,
-} from "@weaverse/hydrogen";
+import { createSchema, IMAGES_PLACEHOLDERS } from "@weaverse/hydrogen";
 import {
   Section,
   type SectionProps,

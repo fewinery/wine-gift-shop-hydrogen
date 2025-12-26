@@ -1,7 +1,7 @@
 import {
   createSchema,
-  IMAGES_PLACEHOLDERS,
   type HydrogenComponentProps,
+  IMAGES_PLACEHOLDERS,
   type WeaverseImage,
 } from "@weaverse/hydrogen";
 import { Image } from "~/components/image";

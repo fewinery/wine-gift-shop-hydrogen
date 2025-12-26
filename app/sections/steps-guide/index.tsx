@@ -1,6 +1,5 @@
-import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
-import { type SectionProps, layoutInputs } from "~/components/section";
-import { Section } from "~/components/section";
+import { createSchema } from "@weaverse/hydrogen";
+import { layoutInputs, Section, type SectionProps } from "~/components/section";
 
 interface StepsGuideProps extends SectionProps {
   ref?: React.Ref<HTMLElement>;

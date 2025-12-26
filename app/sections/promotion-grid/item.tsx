@@ -2,16 +2,16 @@ import {
   createSchema,
   type HydrogenComponentProps,
   IMAGES_PLACEHOLDERS,
-  type WeaverseImage,
   useParentInstance,
+  type WeaverseImage,
 } from "@weaverse/hydrogen";
 import { cva, type VariantProps } from "class-variance-authority";
 import { BackgroundImage } from "~/components/background-image";
 import { Image } from "~/components/image";
 import {
   Overlay,
-  overlayInputs,
   type OverlayProps,
+  overlayInputs,
 } from "~/components/overlay";
 import type { ImageAspectRatio } from "~/types/others";
 import { calculateAspectRatio } from "~/utils/image";
@@ -73,8 +73,8 @@ const variants = cva(
 
 interface PromotionItemProps
   extends VariantProps<typeof variants>,
-  HydrogenComponentProps,
-  OverlayProps {
+    HydrogenComponentProps,
+    OverlayProps {
   backgroundImage: WeaverseImage | string;
   imageAspectRatio: ImageAspectRatio;
   ref?: React.Ref<HTMLDivElement>;

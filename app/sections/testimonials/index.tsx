@@ -1,11 +1,11 @@
-import { useState } from "react";
 import { createSchema } from "@weaverse/hydrogen";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination, Autoplay } from "swiper/modules";
+import { useState } from "react";
 import type { Swiper as SwiperType } from "swiper";
-import { Section, type SectionProps, layoutInputs } from "~/components/section";
+import { Autoplay, Navigation, Pagination } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
 import { backgroundInputs } from "~/components/background-image";
 import { ArrowLeft, ArrowRight } from "~/components/icons";
+import { layoutInputs, Section, type SectionProps } from "~/components/section";
 
 interface TestimonialsProps extends SectionProps {
   ref?: React.Ref<HTMLElement>;

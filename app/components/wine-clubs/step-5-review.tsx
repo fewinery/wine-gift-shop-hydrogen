@@ -2,16 +2,16 @@ import { CartForm } from "@shopify/hydrogen";
 import React, { useState } from "react";
 import type { FetcherWithComponents } from "react-router";
 import { useCartDrawerStore } from "~/components/cart/store";
+import { EditIcon } from "~/components/icons";
 import {
   formatWineClubCart,
-  validateCartData,
   generateCartCreateMutation,
+  validateCartData,
 } from "~/utils/cart-utils";
 import { cn } from "~/utils/cn";
 import PromotionalOfferModal, {
   mockPromotionalOffer,
 } from "./promotional-offer-modal";
-import { EditIcon } from "~/components/icons";
 import type { WizardStepProps } from "./selection-wizard";
 import { calculateTotalPrice } from "./selection-wizard";
 import { getFrequencyInfo } from "./step-2-frequency";

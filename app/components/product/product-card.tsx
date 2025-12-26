@@ -44,6 +44,7 @@ export function ProductCard({
     pcardBorderRadius,
     pcardBackgroundColor,
     pcardShowImageOnHover,
+    pcardImageRatio,
     pcardTitlePricesAlignment,
     pcardAlignment,
     pcardShowVendor,
@@ -111,6 +112,7 @@ export function ProductCard({
         {
           backgroundColor: pcardBackgroundColor,
           "--pcard-radius": `${pcardBorderRadius}px`,
+          "--pcard-image-ratio": calculateAspectRatio(image, pcardImageRatio),
         } as React.CSSProperties
       }
     >
@@ -119,7 +121,7 @@ export function ProductCard({
           <Link
             to={`/products/${product.handle}?${params.toString()}`}
             prefetch="intent"
-            className="group relative block aspect-1200/1000 overflow-hidden bg-transparent p-8"
+            className="group relative block aspect-(--pcard-image-ratio) overflow-hidden bg-transparent p-8"
           >
             {/* Loading skeleton overlay */}
             {isImageLoading && <Spinner />}
@@ -128,7 +130,7 @@ export function ProductCard({
                 "absolute inset-0",
                 pcardShowImageOnHover &&
                   secondImage &&
-                  "transition-opacity duration-300 group-hover:opacity-50",
+                  "transition-opacity duration-300 group-hover:opacity-0",
                 isTransitioning &&
                   "[&_img]:[view-transition-name:image-expand]",
               ])}
@@ -180,6 +182,7 @@ export function ProductCard({
             placement="image"
             backgroundColor={pcardQuickShopButtonBg}
             textColor={pcardQuickShopButtonTextColor}
+            availableForSale={firstVariant?.availableForSale}
           />
         )}
       </div>
@@ -222,9 +225,9 @@ export function ProductCard({
           <Link
             to={`/products/${product.handle}?${params.toString()}`}
             prefetch="intent"
-            className="font-medium font-henderson-slab uppercase py-4"
+            className="inline-block font-medium font-henderson-slab uppercase py-4"
           >
-            <RevealUnderline className="bg-position-[left_calc(1em+3px)] leading-[1.2]">
+            <RevealUnderline className="bg-position-[left_calc(1em+3px)] leading-normal">
               {product.title}
             </RevealUnderline>
           </Link>
@@ -290,6 +293,7 @@ export function ProductCard({
                 placement="bottom"
                 backgroundColor={pcardQuickShopButtonBg}
                 textColor={pcardQuickShopButtonTextColor}
+                availableForSale={firstVariant?.availableForSale}
               />
             )}
         </div>

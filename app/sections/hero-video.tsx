@@ -2,7 +2,6 @@ import {
   createSchema,
   type HydrogenComponentProps,
   isBrowser,
-  useThemeSettings,
 } from "@weaverse/hydrogen";
 import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
@@ -27,13 +26,12 @@ const SECTION_HEIGHTS = {
     desktop: "80vh",
     mobile: "70vh",
   },
-  full: null,
   custom: null,
 };
 
 interface HeroVideoData extends OverlayProps, VariantProps<typeof variants> {
   videoURL: string;
-  height: "small" | "medium" | "large" | "full" | "custom";
+  height: "small" | "medium" | "large" | "custom";
   heightOnDesktop: number;
   heightOnMobile: number;
 }
@@ -106,23 +104,13 @@ export default function HeroVideo(props: HeroVideoProps) {
   const id = rest["data-wv-id"];
   const [size, setSize] = useState(() => getPlayerSize(id));
 
-  const { enableTransparentHeader } = useThemeSettings();
-
-  // Use CSS utility classes for fullscreen height
-  const isFullHeight = height === "full";
-  const desktopHeight = !isFullHeight
-    ? SECTION_HEIGHTS[height]?.desktop || `${heightOnDesktop}px`
-    : undefined;
-  const mobileHeight = !isFullHeight
-    ? SECTION_HEIGHTS[height]?.mobile || `${heightOnMobile}px`
-    : undefined;
-
-  const sectionStyle: CSSProperties = isFullHeight
-    ? {}
-    : ({
-        "--desktop-height": desktopHeight,
-        "--mobile-height": mobileHeight,
-      } as CSSProperties);
+  const desktopHeight =
+    SECTION_HEIGHTS[height]?.desktop || `${heightOnDesktop}px`;
+  const mobileHeight = SECTION_HEIGHTS[height]?.mobile || `${heightOnMobile}px`;
+  const sectionStyle: CSSProperties = {
+    "--desktop-height": desktopHeight,
+    "--mobile-height": mobileHeight,
+  } as CSSProperties;
 
   const { ref: inViewRef, inView } = useInView({
     triggerOnce: true,
@@ -168,16 +156,10 @@ export default function HeroVideo(props: HeroVideoProps) {
       <div
         className={clsx(
           "relative flex items-center justify-center overflow-hidden",
-          isFullHeight
-            ? enableTransparentHeader
-              ? "h-screen-no-topbar w-screen"
-              : "h-screen-dynamic w-screen"
-            : "h-(--mobile-height) sm:h-(--desktop-height)",
-          !isFullHeight && [
-            "w-[max(var(--mobile-height)/9*16,100vw)] sm:w-[max(var(--desktop-height)/9*16,100vw)]",
-            "translate-x-[min(0px,calc((var(--mobile-height)/9*16-100vw)/-2))]",
-            "sm:translate-x-[min(0px,calc((var(--desktop-height)/9*16-100vw)/-2))]",
-          ],
+          "h-(--mobile-height) sm:h-(--desktop-height)",
+          "w-[max(var(--mobile-height)/9*16,100vw)] sm:w-[max(var(--desktop-height)/9*16,100vw)]",
+          "translate-x-[min(0px,calc((var(--mobile-height)/9*16-100vw)/-2))]",
+          "sm:translate-x-[min(0px,calc((var(--desktop-height)/9*16-100vw)/-2))]",
         )}
       >
         {inView && (
@@ -237,7 +219,6 @@ export const schema = createSchema({
               { value: "small", label: "Small" },
               { value: "medium", label: "Medium" },
               { value: "large", label: "Large" },
-              { value: "full", label: "Fullscreen" },
               { value: "custom", label: "Custom" },
             ],
           },

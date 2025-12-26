@@ -137,7 +137,7 @@ export function Footer() {
             className="text-sm"
             dangerouslySetInnerHTML={{ __html: copyright }}
           />
-          <div className="flex w-full lg:w-auto justify-center lg:justify-end items-center gap-4 text-sm sm:gap-8">
+          <div className="flex flex-wrap w-full lg:w-auto justify-center lg:justify-end items-center gap-4 text-sm sm:gap-8">
             <Link to="/policies/privacy-policy" className="whitespace-nowrap">
               Privacy Policy
             </Link>

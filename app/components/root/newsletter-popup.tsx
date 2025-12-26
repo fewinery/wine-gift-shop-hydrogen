@@ -104,15 +104,15 @@ export function NewsletterPopup() {
             "[--slide-up-from:20px]",
             "data-[state=open]:animate-slide-up",
             newsletterPopupPosition === "center" &&
-            "items-center justify-center",
+              "items-center justify-center",
             newsletterPopupPosition === "top-left" &&
-            "items-start justify-start",
+              "items-start justify-start",
             newsletterPopupPosition === "top-right" &&
-            "items-start justify-end",
+              "items-start justify-end",
             newsletterPopupPosition === "bottom-left" &&
-            "items-end justify-start",
+              "items-end justify-start",
             newsletterPopupPosition === "bottom-right" &&
-            "items-end justify-end",
+              "items-end justify-end",
           )}
           aria-describedby={undefined}
         >
@@ -142,7 +142,7 @@ export function NewsletterPopup() {
                   ? "flex-col"
                   : "flex-col md:flex-row",
                 newsletterPopupImagePosition === "right" &&
-                "md:flex-row-reverse",
+                  "md:flex-row-reverse",
               )}
             >
               {newsletterPopupImage && (
@@ -195,7 +195,9 @@ export function NewsletterPopup() {
                     disabled={fetcher.state === "submitting"}
                     className="w-full py-3 px-4 font-bold text-white bg-[#e91220] hover:bg-[#c0101b] transition-colors disabled:opacity-70 uppercase text-lg"
                   >
-                    {fetcher.state === "submitting" ? "Submitting..." : newsletterPopupButtonText}
+                    {fetcher.state === "submitting"
+                      ? "Submitting..."
+                      : newsletterPopupButtonText}
                   </button>
                 </fetcher.Form>
 

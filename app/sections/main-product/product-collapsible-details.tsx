@@ -36,7 +36,14 @@ interface CollapsibleDetailsProps extends HydrogenComponentProps {
 }
 
 export default function CollapsibleDetails(props: CollapsibleDetailsProps) {
-  const { ref, showDescription, showShippingPolicy, showRefundPolicy, showAccolades, ...rest } = props;
+  const {
+    ref,
+    showDescription,
+    showShippingPolicy,
+    showRefundPolicy,
+    showAccolades,
+    ...rest
+  } = props;
   const { shop, product } = useLoaderData<typeof productLoader>();
   const { descriptionHtml } = product;
   const { shippingPolicy, refundPolicy } = shop;
@@ -52,25 +59,26 @@ export default function CollapsibleDetails(props: CollapsibleDetailsProps) {
   );
 
   const details = [
-    showDescription && descriptionHtml && { title: "Description", content: descriptionHtml },
+    showDescription &&
+      descriptionHtml && { title: "Description", content: descriptionHtml },
     showShippingPolicy &&
-    shippingPolicy?.body && {
-      title: "Shipping",
-      content: getExcerpt(shippingPolicy.body),
-      learnMore: `/policies/${shippingPolicy.handle}`,
-    },
+      shippingPolicy?.body && {
+        title: "Shipping",
+        content: getExcerpt(shippingPolicy.body),
+        learnMore: `/policies/${shippingPolicy.handle}`,
+      },
     showRefundPolicy &&
-    refundPolicy?.body && {
-      title: "Returns",
-      content: getExcerpt(refundPolicy.body),
-      learnMore: `/policies/${refundPolicy.handle}`,
-    },
+      refundPolicy?.body && {
+        title: "Returns",
+        content: getExcerpt(refundPolicy.body),
+        learnMore: `/policies/${refundPolicy.handle}`,
+      },
     showAccolades &&
-    accolades.length > 0 && {
-      title: "Accolades",
-      isAccolades: true,
-      accolades,
-    },
+      accolades.length > 0 && {
+        title: "Accolades",
+        isAccolades: true,
+        accolades,
+      },
   ].filter(Boolean);
 
   return (
@@ -92,7 +100,12 @@ export default function CollapsibleDetails(props: CollapsibleDetailsProps) {
                 viewBox="0 0 24 24"
                 stroke="currentColor"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
               </svg>
             </Accordion.Trigger>
             <Accordion.Content
@@ -118,9 +131,7 @@ export default function CollapsibleDetails(props: CollapsibleDetailsProps) {
                         />
                       )}
                       <div>
-                        <p className="text-base font-bold">
-                          {accolade.name}
-                        </p>
+                        <p className="text-base font-bold">{accolade.name}</p>
                         <p className="text-base">{accolade.description}</p>
                       </div>
                     </div>

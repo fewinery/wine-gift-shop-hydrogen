@@ -36,8 +36,6 @@ export function WineClubCard({
         className,
       )}
     >
-
-
       {/* Wine Club Content */}
       <div className="flex flex-1 flex-col p-6 md:p-8">
         {/* Club Name */}

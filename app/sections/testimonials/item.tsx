@@ -26,9 +26,7 @@ const TestimonialItem = (props: TestimonialItemProps) => {
       </div>
 
       {/* Quote */}
-      <p className="mb-6 flex-1 text-[18px]">
-        "{quote}"
-      </p>
+      <p className="mb-6 flex-1 text-[18px]">"{quote}"</p>
 
       {/* Author */}
       <div>
@@ -63,7 +61,8 @@ export const schema = createSchema({
           type: "textarea",
           name: "quote",
           label: "Quote",
-          defaultValue: "An unmissable spot in Napa Valley. Gorgeous property, amazing wine caves for tastings, and truly exceptional service.",
+          defaultValue:
+            "An unmissable spot in Napa Valley. Gorgeous property, amazing wine caves for tastings, and truly exceptional service.",
         },
         {
           type: "text",

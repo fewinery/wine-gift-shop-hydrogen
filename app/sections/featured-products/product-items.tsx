@@ -15,7 +15,13 @@ interface ProductItemsProps {
 }
 
 function ProductItems(props: ProductItemsProps) {
-  const { ref, titlePricesAlignment, contentAlignment, showViewProductButton, ...rest } = props;
+  const {
+    ref,
+    titlePricesAlignment,
+    contentAlignment,
+    showViewProductButton,
+    ...rest
+  } = props;
   const parent = useParentInstance();
   const products: FeaturedProductsQuery["featuredProducts"] =
     parent.data?.loaderData?.products;
@@ -39,7 +45,9 @@ function ProductItems(props: ProductItemsProps) {
       <Swiper
         onSwiper={handleSwiperInit}
         onSlideChange={(s) => setActiveIndex(s.activeIndex)}
-        onResize={(s) => setSnapCount(s.snapGrid?.length || products?.nodes?.length || 0)}
+        onResize={(s) =>
+          setSnapCount(s.snapGrid?.length || products?.nodes?.length || 0)
+        }
         modules={[Navigation]}
         slidesPerView={2}
         spaceBetween={16}
@@ -50,10 +58,7 @@ function ProductItems(props: ProductItemsProps) {
         className="overflow-visible h-auto!"
       >
         {products?.nodes?.map((product) => (
-          <SwiperSlide
-            key={product.id}
-            className="h-auto! flex"
-          >
+          <SwiperSlide key={product.id} className="h-auto! flex">
             <ProductCard
               product={product}
               className="w-full"
@@ -72,8 +77,9 @@ function ProductItems(props: ProductItemsProps) {
               type="button"
               key={index}
               aria-label={`Go to position ${index + 1}`}
-              className={`h-2 w-2 rounded-full transition-colors ${index === activeIndex ? "bg-black" : "bg-[#ccc7c0]"
-                }`}
+              className={`h-2 w-2 rounded-full transition-colors ${
+                index === activeIndex ? "bg-black" : "bg-[#ccc7c0]"
+              }`}
               onClick={() => swiper?.slideTo(index)}
             />
           ))}
@@ -130,12 +136,17 @@ export const schema = createSchema({
           configs: {
             options: [
               { value: "left", label: "Left", icon: "align-start-vertical" },
-              { value: "center", label: "Center", icon: "align-center-vertical" },
+              {
+                value: "center",
+                label: "Center",
+                icon: "align-center-vertical",
+              },
               { value: "right", label: "Right", icon: "align-end-vertical" },
             ],
           },
           defaultValue: "left",
-          condition: (data: ProductItemsProps) => data.titlePricesAlignment === "vertical",
+          condition: (data: ProductItemsProps) =>
+            data.titlePricesAlignment === "vertical",
         },
         {
           type: "switch",

@@ -37,19 +37,11 @@ function StepsGuideItem(props: StepsGuideItemProps) {
         />
       </div>
       {stepGuideItem && (
-        <p className="mb-4 text-2xl italic text-body-subtle">
-          {stepGuideItem}
-        </p>
+        <p className="mb-4 text-2xl italic text-body-subtle">{stepGuideItem}</p>
       )}
-      {title && (
-        <h3 className="mb-4 text-[26px]">
-          {title}
-        </h3>
-      )}
+      {title && <h3 className="mb-4 text-[26px]">{title}</h3>}
       {description && (
-        <p className="max-w-[280px] text-[16px]">
-          {description}
-        </p>
+        <p className="max-w-[280px] text-[16px]">{description}</p>
       )}
     </div>
   );
@@ -97,6 +89,7 @@ export const schema = createSchema({
     image: IMAGES_PLACEHOLDERS.image,
     stepGuideItem: "Step 1",
     title: "Choose Your Frequency",
-    description: "Choose between monthly, bi-monthly, quarterly, or bi-annually",
+    description:
+      "Choose between monthly, bi-monthly, quarterly, or bi-annually",
   },
 });

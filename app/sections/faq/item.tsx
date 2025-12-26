@@ -11,12 +11,14 @@ const FaqItem = (props: FaqItemProps) => {
   const { ref, question, answer, className, ...rest } = props;
 
   return (
-    <div ref={ref} {...rest} className={cn("border-b border-black last:border-b-0", className)}>
+    <div
+      ref={ref}
+      {...rest}
+      className={cn("border-b border-black last:border-b-0", className)}
+    >
       <details className="group">
         <summary className="flex cursor-pointer list-none items-center justify-between py-4 transition-colors text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2">
-          <h3 className="font-henderson-slab text-lg font-bold">
-            {question}
-          </h3>
+          <h3 className="font-henderson-slab text-lg font-bold">{question}</h3>
           <span className="ml-4 shrink-0 transition-transform duration-300 group-open:rotate-180">
             <svg
               width="24"

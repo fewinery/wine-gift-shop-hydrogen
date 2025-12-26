@@ -74,7 +74,9 @@ export default function CollectionFilters(props: CollectionFiltersProps) {
   const [gridSizeDesktop, setGridSizeDesktop] = useState(
     Number(productsPerRowDesktop) || 3,
   );
-  const [gridSizeMobile, setGridSizeMobile] = useState(props.productsPerRowMobile);
+  const [gridSizeMobile, setGridSizeMobile] = useState(
+    props.productsPerRowMobile,
+  );
   const [showSidebar, setShowSidebar] = useState(enableFilter);
 
   useEffect(() => {
@@ -96,7 +98,9 @@ export default function CollectionFilters(props: CollectionFiltersProps) {
           {showBreadcrumb && (
             <BreadCrumb page={collection.title} className="mb-2.5" />
           )}
-          {(!showBanner || !banner) && <h3 className="text-center py-10">{collection.title}</h3>}
+          {(!showBanner || !banner) && (
+            <h3 className="text-center py-10">{collection.title}</h3>
+          )}
           {showDescription && collection.description && (
             <p className="mt-2.5 text-body-subtle">{collection.description}</p>
           )}
@@ -134,7 +138,6 @@ export default function CollectionFilters(props: CollectionFiltersProps) {
           {filtersPosition === "sidebar" && showSidebar && (
             <div className="hidden w-72 shrink-0 px-8 my-16 border-r lg:block">
               <div className="sticky top-[calc(var(--height-nav)+40px)] space-y-4">
-
                 <Filters />
               </div>
             </div>
@@ -169,9 +172,7 @@ export default function CollectionFilters(props: CollectionFiltersProps) {
       </Section>
     );
   }
-  return (
-    <Section ref={ref} {...rest} />
-  );
+  return <Section ref={ref} {...rest} />;
 }
 
 export const schema = createSchema({
@@ -185,7 +186,6 @@ export const schema = createSchema({
     {
       group: "Content",
       inputs: [
-
         {
           type: "switch",
           name: "showBreadcrumb",
@@ -375,12 +375,17 @@ export const schema = createSchema({
           configs: {
             options: [
               { value: "left", label: "Left", icon: "align-start-vertical" },
-              { value: "center", label: "Center", icon: "align-center-vertical" },
+              {
+                value: "center",
+                label: "Center",
+                icon: "align-center-vertical",
+              },
               { value: "right", label: "Right", icon: "align-end-vertical" },
             ],
           },
           defaultValue: "left",
-          condition: (data: CollectionFiltersData) => data.titlePricesAlignment === "vertical",
+          condition: (data: CollectionFiltersData) =>
+            data.titlePricesAlignment === "vertical",
         },
         {
           type: "switch",

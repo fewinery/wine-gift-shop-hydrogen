@@ -83,7 +83,8 @@ export function ProductCard({
     ),
   );
 
-  const isVertical = (titlePricesAlignment ?? pcardTitlePricesAlignment) === "vertical";
+  const isVertical =
+    (titlePricesAlignment ?? pcardTitlePricesAlignment) === "vertical";
   const alignment = contentAlignment ?? pcardAlignment;
   const isBestSellerProduct = badges
     .filter(Boolean)
@@ -102,7 +103,10 @@ export function ProductCard({
 
   return (
     <div
-      className={clsx("flex h-full flex-col rounded-(--pcard-radius)", className)}
+      className={clsx(
+        "flex h-full flex-col rounded-(--pcard-radius)",
+        className,
+      )}
       style={
         {
           backgroundColor: pcardBackgroundColor,
@@ -123,10 +127,10 @@ export function ProductCard({
               className={clsx([
                 "absolute inset-0",
                 pcardShowImageOnHover &&
-                secondImage &&
-                "transition-opacity duration-300 group-hover:opacity-50",
+                  secondImage &&
+                  "transition-opacity duration-300 group-hover:opacity-50",
                 isTransitioning &&
-                "[&_img]:[view-transition-name:image-expand]",
+                  "[&_img]:[view-transition-name:image-expand]",
               ])}
               sizes="(min-width: 64em) 25vw, (min-width: 48em) 30vw, 45vw"
               data={image}
@@ -205,13 +209,13 @@ export function ProductCard({
             "flex",
             isVertical
               ? [
-                "flex-col",
-                [
-                  alignment === "left" && "items-start",
-                  alignment === "center" && "items-center",
-                  alignment === "right" && "items-end",
-                ],
-              ]
+                  "flex-col",
+                  [
+                    alignment === "left" && "items-start",
+                    alignment === "center" && "items-center",
+                    alignment === "right" && "items-end",
+                  ],
+                ]
               : "justify-between gap-4",
           )}
         >
@@ -265,17 +269,18 @@ export function ProductCard({
       {(showViewProductButton ||
         (pcardEnableQuickShop &&
           pcardQuickShopButtonPlacement === "bottom")) && (
-          <div className="mt-4 flex flex-col gap-2.5">
-            {showViewProductButton && (
-              <Link
-                to={`/products/${product.handle}?${params.toString()}`}
-                prefetch="intent"
-                className="font-henderson-slab flex w-full items-center justify-center border border-body py-2 px-4 uppercase"
-              >
-                View Product
-              </Link>
-            )}
-            {pcardEnableQuickShop && pcardQuickShopButtonPlacement === "bottom" && (
+        <div className="mt-4 flex flex-col gap-2.5">
+          {showViewProductButton && (
+            <Link
+              to={`/products/${product.handle}?${params.toString()}`}
+              prefetch="intent"
+              className="font-henderson-slab flex w-full items-center justify-center border border-body py-2 px-4 uppercase"
+            >
+              View Product
+            </Link>
+          )}
+          {pcardEnableQuickShop &&
+            pcardQuickShopButtonPlacement === "bottom" && (
               <QuickShopTrigger
                 productHandle={product.handle}
                 showOnHover={pcardShowQuickShopOnHover}
@@ -287,8 +292,8 @@ export function ProductCard({
                 textColor={pcardQuickShopButtonTextColor}
               />
             )}
-          </div>
-        )}
+        </div>
+      )}
     </div>
   );
 }

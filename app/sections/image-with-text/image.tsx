@@ -50,7 +50,7 @@ const variants = cva("h-auto w-full", {
 
 interface ImageWithTextImageProps
   extends VariantProps<typeof variants>,
-  HydrogenComponentProps {
+    HydrogenComponentProps {
   image: WeaverseImage | string;
   imageAspectRatio: ImageAspectRatio;
   ref?: React.Ref<HTMLDivElement>;
@@ -82,12 +82,7 @@ function ImageWithTextImage(props: ImageWithTextImageProps) {
 
   return (
     <div ref={ref} {...rest} className={cn(variants({ width }))}>
-      <div
-        className={cn(
-          "overflow-hidden",
-          variants({ borderRadius }),
-        )}
-      >
+      <div className={cn("overflow-hidden", variants({ borderRadius }))}>
         <Image
           data={imageData}
           data-motion="slide-in"
@@ -97,7 +92,7 @@ function ImageWithTextImage(props: ImageWithTextImageProps) {
             "h-auto w-full",
             variants({ objectFit }),
             enableImageHover &&
-            "transition-transform duration-300 ease-out group-hover:scale-105",
+              "transition-transform duration-300 ease-out group-hover:scale-105",
           )}
         />
       </div>

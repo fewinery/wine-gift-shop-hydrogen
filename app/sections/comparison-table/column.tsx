@@ -47,7 +47,7 @@ function ComparisonColumn(props: ComparisonColumnProps) {
             key={idx}
             className={cn(
               "h-16 px-4 py-2 flex items-center justify-center text-center text-sm md:text-base border-b border-gray-200",
-              idx % 2 === 0 ? "bg-white" : "bg-[#F9F9F9]"
+              idx % 2 === 0 ? "bg-white" : "bg-[#F9F9F9]",
             )}
           >
             <span>{feature}</span>

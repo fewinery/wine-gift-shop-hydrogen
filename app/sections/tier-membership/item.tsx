@@ -85,7 +85,8 @@ export const schema = createSchema({
           label: "Benefits List",
           defaultValue:
             "<ul><li>Access to wine tasting reservations at standard tasting fees</li><li>Standard shipping rates</li><li>5% off wines and gift sets across the brand portfolio</li><li>5% off merchandise across the brand portfolio</li></ul>",
-          helpText: "Use a bullet list for benefits. They will be styled with checkmarks automatically.",
+          helpText:
+            "Use a bullet list for benefits. They will be styled with checkmarks automatically.",
         },
       ],
     },

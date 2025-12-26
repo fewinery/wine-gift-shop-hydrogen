@@ -26,7 +26,7 @@ type PredictiveSearchResultItem =
 type PredictiveSearchTypes = "ARTICLE" | "PAGE" | "PRODUCT" | "QUERY";
 
 const DEFAULT_SEARCH_TYPES: PredictiveSearchTypes[] = [
-  "ARTICLE",
+  // "ARTICLE",
   // 'COLLECTION',
   // 'PAGE',
   "PRODUCT",
@@ -74,9 +74,9 @@ async function fetchPredictiveSearchResults({
     rawTypes === "ANY"
       ? DEFAULT_SEARCH_TYPES
       : rawTypes
-          .split(",")
-          .map((t) => t.toUpperCase() as PredictiveSearchTypes)
-          .filter((t) => DEFAULT_SEARCH_TYPES.includes(t));
+        .split(",")
+        .map((t) => t.toUpperCase() as PredictiveSearchTypes)
+        .filter((t) => DEFAULT_SEARCH_TYPES.includes(t));
 
   if (!searchTerm) {
     return {

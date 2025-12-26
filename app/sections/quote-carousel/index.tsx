@@ -61,8 +61,9 @@ function QuoteCarousel(props: QuoteCarouselProps) {
                 type="button"
                 key={index}
                 aria-label={`Go to quote ${index + 1}`}
-                className={`h-2 w-2 rounded-full ${index === activeIndex ? "bg-black" : "bg-[#ccc7c0]"
-                  }`}
+                className={`h-2 w-2 rounded-full ${
+                  index === activeIndex ? "bg-black" : "bg-[#ccc7c0]"
+                }`}
                 onClick={() => swiper?.slideTo(index)}
               />
             ))}
@@ -98,32 +99,35 @@ export const schema = createSchema({
   type: "quote-carousel",
   title: "Quote Carousel",
   childTypes: ["quote-carousel-item"],
-  settings: [
-    ...sectionSettings,
-  ],
+  settings: [...sectionSettings],
   presets: {
     children: [
       {
         type: "quote-carousel-item",
-        quote: "I was born and raised in Napa Valley. Wine and the community of Napa has been a big part of my youth and family life experience.",
+        quote:
+          "I was born and raised in Napa Valley. Wine and the community of Napa has been a big part of my youth and family life experience.",
         authorName: "Adam Henderson",
-        authorDescription: "<p>Partner</p><p>1883 Reserve Napa Valley<br/>Fairwinds Estate Winery</p>",
+        authorDescription:
+          "<p>Partner</p><p>1883 Reserve Napa Valley<br/>Fairwinds Estate Winery</p>",
       },
       {
         type: "quote-carousel-item",
-        quote: "Our winemaking philosophy is centered on achieving balance—between soil and rootstocks, fruit and canopy, structure and acidity.",
+        quote:
+          "Our winemaking philosophy is centered on achieving balance—between soil and rootstocks, fruit and canopy, structure and acidity.",
         authorName: "Sarah Miller",
         authorDescription: "<p>Lead Winemaker<br/>Estate Vineyards</p>",
       },
       {
         type: "quote-carousel-item",
-        quote: "Great winemaking begins in the vineyard, where we work in harmony with the land to create wines that reflect the terroir.",
+        quote:
+          "Great winemaking begins in the vineyard, where we work in harmony with the land to create wines that reflect the terroir.",
         authorName: "John Doe",
         authorDescription: "<p>Viticulturist<br/>Green Valley Farms</p>",
       },
       {
         type: "quote-carousel-item",
-        quote: "Preserving the environment that makes our wines possible has been at the core of our philosophy for over a decade.",
+        quote:
+          "Preserving the environment that makes our wines possible has been at the core of our philosophy for over a decade.",
         authorName: "Jane Smith",
         authorDescription: "<p>Sustainability Director<br/>Eco Wines Co.</p>",
       },

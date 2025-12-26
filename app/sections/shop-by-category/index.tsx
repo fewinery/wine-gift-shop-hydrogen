@@ -13,7 +13,7 @@ interface FeaturedCollectionsData {
 
 interface FeaturedCollectionsProps
   extends SectionProps<FeaturedCollectionsLoaderData>,
-  FeaturedCollectionsData {
+    FeaturedCollectionsData {
   ref: React.Ref<HTMLElement>;
 }
 
@@ -77,9 +77,7 @@ export const loader = async ({
 export const schema = createSchema({
   type: "shop-by-category",
   title: "Shop by Category",
-  childTypes: [
-    "shop-by-category-items",
-  ],
+  childTypes: ["shop-by-category-items"],
   settings: [
     {
       group: "Featured collections",

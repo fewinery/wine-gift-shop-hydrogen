@@ -1074,7 +1074,8 @@ export const themeSchema: HydrogenThemeSchema = {
           type: "richtext",
           name: "copyright",
           label: "Copyright text",
-          defaultValue: "© 2025 1883 Reserve Napa Valley. Drink Responsibly. Calistoga, CA.",
+          defaultValue:
+            "© 2025 1883 Reserve Napa Valley. Drink Responsibly. Calistoga, CA.",
         },
       ],
     },

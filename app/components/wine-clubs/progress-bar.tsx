@@ -85,10 +85,10 @@ export default function ProgressBar({
                     className={cn(
                       "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 relative z-[2]",
                       {
-                        "bg-[#f5a623] text-white shadow-md": isActive || isCompleted,
-                        "bg-background border-2 border-gray-300 text-gray-400": !(
-                          isActive || isCompleted
-                        ),
+                        "bg-[#f5a623] text-white shadow-md":
+                          isActive || isCompleted,
+                        "bg-background border-2 border-gray-300 text-gray-400":
+                          !(isActive || isCompleted),
                         "group-hover:border-[#f5a623] group-hover:text-[#f5a623]":
                           isClickable && !isActive && !isCompleted,
                       },
@@ -120,7 +120,8 @@ export default function ProgressBar({
                       {
                         "text-[#f5a623]": isActive || isCompleted,
                         "text-gray-500": !(isActive || isCompleted),
-                        "group-hover:text-[#f5a623]": isClickable && !isActive && !isCompleted,
+                        "group-hover:text-[#f5a623]":
+                          isClickable && !isActive && !isCompleted,
                       },
                     )}
                   >
@@ -149,11 +150,9 @@ export default function ProgressBar({
 
       {/* Guide Message */}
       <div className="mt-12 text-center">
-        <p className="text-sm">
-          {getProgressMessage(currentStep, totalSteps)}
-        </p>
+        <p className="text-sm">{getProgressMessage(currentStep, totalSteps)}</p>
       </div>
-    </div >
+    </div>
   );
 }
 

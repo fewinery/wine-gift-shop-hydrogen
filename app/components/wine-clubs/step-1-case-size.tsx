@@ -53,9 +53,7 @@ export default function Step1CaseSize({
     <div className="max-w-4xl mx-auto space-y-10">
       {/* Step Header */}
       <div className="text-center space-y-1">
-        <h2 className="text-[40px]">
-          Choose Your Case Size
-        </h2>
+        <h2 className="text-[40px]">Choose Your Case Size</h2>
         <p className="font-body text-[#5C5C5C] text-lg max-w-xl mx-auto">
           How many bottles would you like to receive?
         </p>
@@ -87,7 +85,6 @@ export default function Step1CaseSize({
 // Case Size Card Component
 // ============================================================================
 
-
 interface CaseSizeCardProps {
   caseSize: CaseSize;
   isSelected: boolean;
@@ -115,7 +112,6 @@ function CaseSizeCard({ caseSize, isSelected, onSelect }: CaseSizeCardProps) {
         }
       }}
     >
-
       {/* Selection Checkmark */}
       <div
         className={cn(
@@ -144,7 +140,9 @@ function CaseSizeCard({ caseSize, isSelected, onSelect }: CaseSizeCardProps) {
       <div
         className={cn(
           "mb-6 w-14 h-14 rounded-full flex items-center justify-center self-start transition-all duration-300",
-          isSelected ? "bg-[#f5a623]/10 text-[#f5a623]" : "bg-gray-50 text-gray-400",
+          isSelected
+            ? "bg-[#f5a623]/10 text-[#f5a623]"
+            : "bg-gray-50 text-gray-400",
         )}
       >
         <svg
@@ -164,16 +162,20 @@ function CaseSizeCard({ caseSize, isSelected, onSelect }: CaseSizeCardProps) {
 
       {/* Content */}
       <div className="space-y-3 flex-1 flex flex-col">
-        <h3 className={cn(
-          "leading-normal font-henderson-slab text-2xl uppercase transition-colors duration-300",
-          isSelected && "text-[#f5a623]"
-        )}>
+        <h3
+          className={cn(
+            "leading-normal font-henderson-slab text-2xl uppercase transition-colors duration-300",
+            isSelected && "text-[#f5a623]",
+          )}
+        >
           {caseSize.title}
         </h3>
 
         <div className="space-y-1 font-body text-[#5C5C5C]">
           <p>{caseSize.quantity} bottles</p>
-          <p>{caseSize.quantity <= 6 ? "Every few weeks" : "Monthly delivery"}</p>
+          <p>
+            {caseSize.quantity <= 6 ? "Every few weeks" : "Monthly delivery"}
+          </p>
         </div>
 
         {/* Price Placeholder */}

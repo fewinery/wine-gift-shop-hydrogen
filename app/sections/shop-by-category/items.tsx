@@ -50,10 +50,7 @@ function CategoryItems(props: CategoryItemsData & HydrogenComponentProps) {
     <div
       ref={scope}
       {...rest}
-      className={clsx(
-        "grid w-full",
-        variants({ gridSize, gap }),
-      )}
+      className={clsx("grid w-full", variants({ gridSize, gap }))}
     >
       {collections.map((collection, ind) => (
         <Link

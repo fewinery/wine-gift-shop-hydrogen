@@ -59,7 +59,10 @@ export default function Step3Quantity({
   };
 
   // Check if product is at minimum quantity
-  const isAtMinQuantity = (productData: ProductData, currentQuantity: number) => {
+  const isAtMinQuantity = (
+    productData: ProductData,
+    currentQuantity: number,
+  ) => {
     const restrictions = getCaseRestrictions(productData);
     if (!restrictions) return currentQuantity <= 0;
     return currentQuantity <= restrictions.min;
@@ -74,11 +77,17 @@ export default function Step3Quantity({
 
   // Get available products for this wine club
   // Use sellingPlanVariants (contains actual product data from Winehub API)
-  const availableProducts = (wineClub.sellingPlanVariants || wineClub.productData || []).map((spv) => ({
+  const availableProducts = (
+    wineClub.sellingPlanVariants ||
+    wineClub.productData ||
+    []
+  ).map((spv) => ({
     productVariant: {
       ...(spv.productVariant || spv),
       // API returns retailPrice as string, convert to number
-      retailPrice: Number.parseFloat((spv.productVariant?.retailPrice || (spv as any).retailPrice) as any),
+      retailPrice: Number.parseFloat(
+        (spv.productVariant?.retailPrice || (spv as any).retailPrice) as any,
+      ),
     },
     caseRestrictions: spv.caseRestrictions || [],
     customOrderingIndex: spv.customOrderingIndex || null,
@@ -113,20 +122,24 @@ export default function Step3Quantity({
     <div className="max-w-5xl mx-auto space-y-10">
       {/* Step Header */}
       <div className="text-center space-y-1">
-        <h2 className="text-[40px]">
-          Choose Your Wines
-        </h2>
+        <h2 className="text-[40px]">Choose Your Wines</h2>
         <p className="font-body text-[#5C5C5C] text-lg max-w-xl mx-auto">
           Select the wines and quantities for your case
         </p>
         {/* Compact Summary Badge */}
         <div className="flex items-center justify-center gap-2 pt-3">
           <span className="inline-flex items-center gap-3 px-5 py-2.5 bg-[#e8941d]/15 border border-[#e8941d]/40 rounded-full text-base">
-            <span className="font-semibold text-[#d4820a]">{selectedCaseSize.title}</span>
+            <span className="font-semibold text-[#d4820a]">
+              {selectedCaseSize.title}
+            </span>
             <span className="text-gray-400">•</span>
-            <span className="text-gray-700">{totalSelectedItems}/{selectedCaseSize.quantity} selected</span>
+            <span className="text-gray-700">
+              {totalSelectedItems}/{selectedCaseSize.quantity} selected
+            </span>
             <span className="text-gray-400">•</span>
-            <span className="text-gray-600">{selectedCaseSize.quantity - totalSelectedItems} remaining</span>
+            <span className="text-gray-600">
+              {selectedCaseSize.quantity - totalSelectedItems} remaining
+            </span>
           </span>
         </div>
         {/* Progress bar */}
@@ -207,8 +220,7 @@ export default function Step3Quantity({
             </p>
           </div>
         </div>
-      )
-      }
+      )}
 
       {/* Help Text */}
       <div className="text-center mt-8">
@@ -242,7 +254,7 @@ export default function Step3Quantity({
           </div>
         </div>
       )} */}
-    </div >
+    </div>
   );
 }
 
@@ -298,9 +310,7 @@ function ProductQuantityCard({
     <div
       className={cn(
         "border-2 rounded-lg p-4 transition-all duration-300 bg-white",
-        selectedQuantity > 0
-          ? "border-[#f5a623] shadow-md"
-          : "border-gray-200",
+        selectedQuantity > 0 ? "border-[#f5a623] shadow-md" : "border-gray-200",
       )}
     >
       {/* Product Image */}
@@ -381,11 +391,7 @@ function ProductQuantityCard({
             </svg>
           </button>
 
-          <span
-            className="font-medium px-1"
-          >
-            {selectedQuantity}
-          </span>
+          <span className="font-medium px-1">{selectedQuantity}</span>
 
           <button
             onClick={incrementQuantity}

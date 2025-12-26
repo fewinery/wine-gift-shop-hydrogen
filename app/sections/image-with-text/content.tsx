@@ -21,7 +21,7 @@ const variants = cva(
 
 interface ImageWithTextContentProps
   extends VariantProps<typeof variants>,
-  HydrogenComponentProps {
+    HydrogenComponentProps {
   ref?: React.Ref<HTMLDivElement>;
 }
 
@@ -61,7 +61,12 @@ export const schema = createSchema({
       ],
     },
   ],
-  childTypes: ["subheading", "heading", "paragraph", "image-with-text--buttons-wrapper"],
+  childTypes: [
+    "subheading",
+    "heading",
+    "paragraph",
+    "image-with-text--buttons-wrapper",
+  ],
   presets: {
     alignment: "center",
     children: [

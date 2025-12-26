@@ -92,18 +92,20 @@ export default function Step2Frequency({
     <div className="mx-auto space-y-10">
       {/* Step Header */}
       <div className="text-center space-y-1">
-        <h2 className="text-[40px]">
-          Choose Your Frequency
-        </h2>
+        <h2 className="text-[40px]">Choose Your Frequency</h2>
         <p className="font-body text-[#5C5C5C] text-lg max-w-xl mx-auto">
           How often would you like to receive your wines?
         </p>
         {/* Compact Summary Badge */}
         <div className="flex items-center justify-center gap-2 pt-3">
           <span className="inline-flex items-center gap-3 px-5 py-2.5 bg-[#e8941d]/15 border border-[#e8941d]/40 rounded-full text-base">
-            <span className="font-semibold text-[#d4820a]">{selectedCaseSize.title}</span>
+            <span className="font-semibold text-[#d4820a]">
+              {selectedCaseSize.title}
+            </span>
             <span className="text-gray-400">•</span>
-            <span className="text-gray-700">{selectedCaseSize.quantity} bottles</span>
+            <span className="text-gray-700">
+              {selectedCaseSize.quantity} bottles
+            </span>
             <button
               onClick={() => updateState({ currentStep: 1 })}
               className="ml-1 text-[#d4820a] hover:text-[#b5700a] font-semibold"
@@ -133,8 +135,6 @@ export default function Step2Frequency({
           />
         ))}
       </div>
-
-
     </div>
   );
 }
@@ -210,7 +210,9 @@ function FrequencyCard({
       <div
         className={cn(
           "mb-6 w-14 h-14 rounded-full flex items-center justify-center self-start transition-all duration-300",
-          isSelected ? "bg-[#f5a623]/10 text-[#f5a623]" : "bg-gray-50 text-gray-400",
+          isSelected
+            ? "bg-[#f5a623]/10 text-[#f5a623]"
+            : "bg-gray-50 text-gray-400",
         )}
       >
         <svg
@@ -230,10 +232,12 @@ function FrequencyCard({
 
       {/* Frequency Details */}
       <div className="space-y-3 flex-1 flex flex-col">
-        <h3 className={cn(
-          "leading-normal font-henderson-slab text-2xl uppercase transition-colors duration-300",
-          isSelected && "text-[#f5a623]"
-        )}>
+        <h3
+          className={cn(
+            "leading-normal font-henderson-slab text-2xl uppercase transition-colors duration-300",
+            isSelected && "text-[#f5a623]",
+          )}
+        >
           {sellingPlan.name}
         </h3>
 

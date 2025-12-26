@@ -1,7 +1,4 @@
-import {
-  type ComponentLoaderArgs,
-  createSchema,
-} from "@weaverse/hydrogen";
+import { type ComponentLoaderArgs, createSchema } from "@weaverse/hydrogen";
 import { useState } from "react";
 import { Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -24,7 +21,13 @@ export interface WineClubItemsLoaderData {
 }
 
 function WineClubItems(props: WineClubItemsProps) {
-  const { ref, clubsCount, showDescription = true, loaderData, ...rest } = props;
+  const {
+    ref,
+    clubsCount,
+    showDescription = true,
+    loaderData,
+    ...rest
+  } = props;
   const clubs = loaderData?.clubs || [];
 
   const [activeIndex, setActiveIndex] = useState(0);
@@ -42,7 +45,9 @@ function WineClubItems(props: WineClubItemsProps) {
   if (loaderData?.error) {
     return (
       <div ref={ref} {...rest} className="text-center py-8">
-        <p className="text-gray-500">Unable to load wine clubs. Please try again later.</p>
+        <p className="text-gray-500">
+          Unable to load wine clubs. Please try again later.
+        </p>
       </div>
     );
   }
@@ -74,10 +79,7 @@ function WineClubItems(props: WineClubItemsProps) {
         className="overflow-visible h-auto!"
       >
         {clubs.map((club) => (
-          <SwiperSlide
-            key={club.id}
-            className="h-auto! flex"
-          >
+          <SwiperSlide key={club.id} className="h-auto! flex">
             <WineClubCard
               club={club}
               showDescription={showDescription}
@@ -94,8 +96,9 @@ function WineClubItems(props: WineClubItemsProps) {
               type="button"
               key={index}
               aria-label={`Go to position ${index + 1}`}
-              className={`h-2 w-2 rounded-full transition-colors ${index === activeIndex ? "bg-black" : "bg-[#ccc7c0]"
-                }`}
+              className={`h-2 w-2 rounded-full transition-colors ${
+                index === activeIndex ? "bg-black" : "bg-[#ccc7c0]"
+              }`}
               onClick={() => swiper?.slideTo(index)}
             />
           ))}
@@ -129,7 +132,9 @@ export default WineClubItems;
 export const loader = async ({
   data,
   weaverse,
-}: ComponentLoaderArgs<{ clubsCount: number }>): Promise<WineClubItemsLoaderData> => {
+}: ComponentLoaderArgs<{
+  clubsCount: number;
+}>): Promise<WineClubItemsLoaderData> => {
   const clubsCount = data?.clubsCount || 8;
 
   try {

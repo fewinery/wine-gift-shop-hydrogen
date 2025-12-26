@@ -24,7 +24,7 @@ interface FeaturedProductsSectionData {
 
 interface FeaturedProductsProps
   extends SectionProps<FeaturedProductsLoaderData>,
-  FeaturedProductsSectionData {
+    FeaturedProductsSectionData {
   ref: React.Ref<HTMLElement>;
 }
 
@@ -129,7 +129,13 @@ export const loader = async ({
 export const schema = createSchema({
   type: "featured-products",
   title: "Featured products",
-  childTypes: ["featured-products--header", "featured-products-items", "heading", "subheading", "paragraph"],
+  childTypes: [
+    "featured-products--header",
+    "featured-products-items",
+    "heading",
+    "subheading",
+    "paragraph",
+  ],
   settings: [
     {
       group: "Product selection",

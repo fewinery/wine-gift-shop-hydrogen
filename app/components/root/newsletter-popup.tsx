@@ -162,7 +162,7 @@ export function NewsletterPopup() {
               )}
               <div
                 className={cn(
-                  "flex flex-col justify-center p-10",
+                  "flex flex-col justify-center pt-0 pr-8 pb-8 pl-8",
                   newsletterPopupImage
                     ? newsletterPopupImagePosition === "top"
                       ? "w-full"
@@ -170,10 +170,10 @@ export function NewsletterPopup() {
                     : "w-full",
                 )}
               >
-                <h3 className="mb-4 font-bold text-5xl leading-tight text-white">
+                <h3 className="mb-4 font-bold text-3xl md:text-5xl leading-tight text-white">
                   {newsletterPopupHeading}
                 </h3>
-                <p className="mb-6 text-white text-lg">
+                <p className="mb-6 text-white text-base md:text-lg">
                   {newsletterPopupDescription}
                 </p>
 
@@ -193,7 +193,7 @@ export function NewsletterPopup() {
                   <button
                     type="submit"
                     disabled={fetcher.state === "submitting"}
-                    className="w-full py-3 px-4 font-bold text-white bg-[#e91220] hover:bg-[#c0101b] transition-colors disabled:opacity-70 uppercase text-lg"
+                    className="w-full py-2 px-4 font-bold text-white bg-[#e91220] hover:bg-[#c0101b] transition-colors disabled:opacity-70 uppercase text-lg"
                   >
                     {fetcher.state === "submitting"
                       ? "Submitting..."
@@ -219,7 +219,7 @@ export function NewsletterPopup() {
                       localStorage.setItem(POPUP_DISMISSED_KEY, "true");
                       setOpen(false);
                     }}
-                    className="mt-4 w-full text-white bg-[#e91220] hover:bg-[#c0101b] transition-colors py-3 px-4 font-bold uppercase text-lg"
+                    className="mt-4 w-full text-white bg-[#e91220] hover:bg-[#c0101b] transition-colors py-2 px-4 font-bold uppercase text-lg"
                   >
                     NO, I'LL PAY FULL PRICE
                   </button>

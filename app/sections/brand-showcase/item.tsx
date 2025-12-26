@@ -31,11 +31,12 @@ function BrandShowcaseItem(props: BrandShowcaseItemProps) {
   const content = (
     <>
       {/* Image */}
-      <div className="mb-4 flex items-center justify-center">
+      <div className="mb-4 flex aspect-4/3 items-center justify-center">
         <Image
           data={imageData}
+          width={400}
           sizes="(max-width: 768px) 50vw, 25vw"
-          className="h-auto max-h-52 w-auto max-w-full object-contain"
+          className="h-auto max-h-full w-auto max-w-full object-contain"
         />
       </div>
 

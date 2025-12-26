@@ -603,6 +603,23 @@ export const themeSchema: HydrogenThemeSchema = {
           defaultValue: true,
         },
         {
+          type: "select",
+          name: "pcardImageRatio",
+          label: "Image aspect ratio",
+          defaultValue: "adapt",
+          configs: {
+            options: [
+              { value: "adapt", label: "Adapt to image" },
+              { value: "1/1", label: "Square (1/1)" },
+              { value: "3/4", label: "Portrait (3/4)" },
+              { value: "4/3", label: "Landscape (4/3)" },
+              { value: "16/9", label: "Widescreen (16/9)" },
+            ],
+          },
+          helpText:
+            'Learn more about image <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/aspect-ratio" target="_blank" rel="noopener noreferrer">aspect ratio</a> property.',
+        },
+        {
           type: "heading",
           label: "Content",
         },

@@ -132,6 +132,7 @@ export function QuickShopTrigger({
   placement = "bottom",
   backgroundColor,
   textColor,
+  availableForSale = true,
 }: {
   productHandle: string;
   showOnHover?: boolean;
@@ -141,6 +142,7 @@ export function QuickShopTrigger({
   placement?: "image" | "bottom";
   backgroundColor?: string;
   textColor?: string;
+  availableForSale?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const { load, data } = useFetcher<{ product: ProductQuery["product"] }>();
@@ -160,6 +162,7 @@ export function QuickShopTrigger({
           variant="custom"
           className={clsx(
             "font-henderson-slab font-medium",
+            !availableForSale && "pointer-events-none",
             placement === "image" && [
               "group/quick-shop absolute bottom-4 h-10.5 p-3 leading-4",
               buttonType === "icon"
@@ -185,7 +188,7 @@ export function QuickShopTrigger({
             </>
           ) : (
             <span className={placement === "image" ? "px-2" : ""}>
-              {buttonText}
+              {availableForSale ? buttonText : "SOLD OUT"}
             </span>
           )}
         </Button>

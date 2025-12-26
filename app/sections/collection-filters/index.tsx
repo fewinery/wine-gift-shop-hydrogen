@@ -127,7 +127,7 @@ export default function CollectionFilters(props: CollectionFiltersProps) {
               {showOverlay && (
                 <div className="absolute inset-0 bg-[#00000099]" />
               )}
-              <h3 className="relative z-10 text-center font-henderson-slab text-white text-[25.6px] font-medium uppercase">
+              <h3 className="relative z-[1] text-center font-henderson-slab text-white text-[25.6px] font-medium uppercase">
                 {collection.title}
               </h3>
             </div>

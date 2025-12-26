@@ -270,7 +270,7 @@ export default function Step5Review({
                     <img
                       src={selectedCaseSize.image}
                       alt={selectedCaseSize.title}
-                      className="w-20 h-20 object-cover rounded"
+                      className="w-20 h-20 object-contain rounded"
                     />
                   )} */}
                 </div>
@@ -330,7 +330,7 @@ export default function Step5Review({
                         <img
                           src={product.productVariant.productImage}
                           alt={product.productVariant.productTitle}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-contain"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-gray-300">

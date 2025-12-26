@@ -166,7 +166,7 @@ export function QuickShopTrigger({
                 ? "right-4 rounded-full shadow-xl"
                 : "inset-x-4 shadow-xs",
               showOnHover &&
-              "opacity-0 transition-opacity group-hover:opacity-100",
+                "opacity-0 transition-opacity group-hover:opacity-100",
             ],
             placement === "bottom" && "w-full py-[10px]",
           )}
@@ -184,7 +184,9 @@ export function QuickShopTrigger({
               </span>
             </>
           ) : (
-            <span className={placement === "image" ? "px-2" : ""}>{buttonText}</span>
+            <span className={placement === "image" ? "px-2" : ""}>
+              {buttonText}
+            </span>
           )}
         </Button>
       </Dialog.Trigger>
@@ -221,7 +223,7 @@ export function QuickShopTrigger({
               "relative mx-auto h-auto w-full max-w-(--breakpoint-xl) overflow-hidden",
               "animate-slide-up bg-white shadow-sm",
               panelType === "drawer" &&
-              "mr-0 ml-auto min-h-screen max-w-md p-4",
+                "mr-0 ml-auto min-h-screen max-w-md p-4",
             )}
           >
             <VisuallyHidden.Root asChild>

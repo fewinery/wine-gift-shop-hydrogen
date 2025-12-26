@@ -154,7 +154,16 @@ interface ProductsLoadedOnScrollProps {
 }
 
 function ProductsLoadedOnScroll(props: ProductsLoadedOnScrollProps) {
-  const { nodes, inView, nextPageUrl, hasNextPage, state, titlePricesAlignment, contentAlignment, showViewProductButton } = props;
+  const {
+    nodes,
+    inView,
+    nextPageUrl,
+    hasNextPage,
+    state,
+    titlePricesAlignment,
+    contentAlignment,
+    showViewProductButton,
+  } = props;
   const navigate = useNavigate();
 
   useEffect(() => {

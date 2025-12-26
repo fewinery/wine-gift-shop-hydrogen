@@ -24,11 +24,7 @@ function ContactForm(props: ContactFormProps) {
     <Section ref={ref} {...rest}>
       {/* Header */}
       <div className="mb-12 text-center">
-        {heading && (
-          <h2 className="mb-4 text-[37px] uppercase">
-            {heading}
-          </h2>
-        )}
+        {heading && <h2 className="mb-4 text-[37px] uppercase">{heading}</h2>}
         {description && (
           <p className="mx-auto max-w-2xl text-base text-[--color-text-subtle]">
             {description}

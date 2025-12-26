@@ -19,9 +19,7 @@ function ComparisonTable(props: ComparisonTableProps) {
   return (
     <Section ref={ref} {...rest}>
       {heading && (
-        <h2 className="text-center text-[37px] font-medium">
-          {heading}
-        </h2>
+        <h2 className="text-center text-[37px] font-medium">{heading}</h2>
       )}
 
       <div className="overflow-x-auto pb-4">

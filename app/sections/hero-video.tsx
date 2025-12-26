@@ -13,8 +13,6 @@ import type { OverlayProps } from "~/components/overlay";
 import { Overlay, overlayInputs } from "~/components/overlay";
 import { useAnimation } from "~/hooks/use-animation";
 
-
-
 const SECTION_HEIGHTS = {
   small: {
     desktop: "50vh",
@@ -36,9 +34,6 @@ interface HeroVideoData extends OverlayProps, VariantProps<typeof variants> {
   height: "small" | "medium" | "large" | "custom";
   heightOnDesktop: number;
   heightOnMobile: number;
-
-
-
 }
 
 export interface HeroVideoProps extends HeroVideoData, HydrogenComponentProps {
@@ -266,13 +261,6 @@ export const schema = createSchema({
             unit: "px",
           },
           defaultValue: 20,
-
-
-
-
-
-
-
         },
       ],
     },

@@ -15,7 +15,11 @@ export default function ProductSummary(props: ProductSummaryProps) {
   }
 
   return (
-    <div ref={ref} {...rest} className="empty:hidden prose prose-base max-w-none text-black">
+    <div
+      ref={ref}
+      {...rest}
+      className="empty:hidden prose prose-base max-w-none text-black"
+    >
       <div dangerouslySetInnerHTML={{ __html: product.descriptionHtml }} />
     </div>
   );

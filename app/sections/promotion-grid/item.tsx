@@ -8,7 +8,11 @@ import {
 import { cva, type VariantProps } from "class-variance-authority";
 import { BackgroundImage } from "~/components/background-image";
 import { Image } from "~/components/image";
-import { Overlay, overlayInputs, type OverlayProps } from "~/components/overlay";
+import {
+  Overlay,
+  overlayInputs,
+  type OverlayProps,
+} from "~/components/overlay";
 import type { ImageAspectRatio } from "~/types/others";
 import { calculateAspectRatio } from "~/utils/image";
 
@@ -132,9 +136,7 @@ function PromotionGridItem(props: PromotionItemProps) {
               />
             </div>
           )}
-          <div className="flex flex-1 flex-col gap-3 py-6">
-            {children}
-          </div>
+          <div className="flex flex-1 flex-col gap-3 py-6">{children}</div>
         </>
       )}
     </div>

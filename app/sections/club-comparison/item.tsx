@@ -1,4 +1,9 @@
-import { createSchema, type HydrogenComponentProps, type WeaverseImage, IMAGES_PLACEHOLDERS } from "@weaverse/hydrogen";
+import {
+  createSchema,
+  type HydrogenComponentProps,
+  type WeaverseImage,
+  IMAGES_PLACEHOLDERS,
+} from "@weaverse/hydrogen";
 import { CheckIcon } from "~/components/icons";
 import { Image } from "~/components/image";
 
@@ -19,7 +24,16 @@ function parseBenefits(html: string): string[] {
 }
 
 const ClubComparisonItem = (props: ClubComparisonItemProps) => {
-  const { ref, image = IMAGES_PLACEHOLDERS.image, frequency, clubName, benefits, buttonText, buttonLink, ...rest } = props;
+  const {
+    ref,
+    image = IMAGES_PLACEHOLDERS.image,
+    frequency,
+    clubName,
+    benefits,
+    buttonText,
+    buttonLink,
+    ...rest
+  } = props;
   const benefitItems = parseBenefits(benefits);
 
   const imageData: Partial<WeaverseImage> =

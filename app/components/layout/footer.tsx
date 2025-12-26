@@ -78,12 +78,7 @@ export function Footer() {
       )}
     >
       <BackgroundImage backgroundImage={footerBackgroundImage} />
-      <div
-        className={cn(
-          "h-full w-full",
-          variants({ width: footerWidth }),
-        )}
-      >
+      <div className={cn("h-full w-full", variants({ width: footerWidth }))}>
         <div className="grid w-full lg:grid-cols-2 gap-y-12">
           <div className="flex flex-col gap-6">
             <div className="space-y-4">
@@ -102,7 +97,10 @@ export function Footer() {
                 </div>
               )}
               {bio && bio !== "<p><br></p>" && (
-                <div className="w-3/4" dangerouslySetInnerHTML={{ __html: bio }} />
+                <div
+                  className="w-3/4"
+                  dangerouslySetInnerHTML={{ __html: bio }}
+                />
               )}
             </div>
             <div className="flex flex-col text-sm space-y-1.5">
@@ -121,10 +119,7 @@ export function Footer() {
                   target="_blank"
                   className="flex items-center gap-2 text-lg"
                 >
-                  <Icon
-                    className="h-5 w-5"
-                    weight="regular"
-                  />
+                  <Icon className="h-5 w-5" weight="regular" />
                 </Link>
               ))}
             </div>
@@ -138,14 +133,27 @@ export function Footer() {
         </div>
 
         <div className="flex flex-col lg:flex-row items-center justify-between gap-6 border-t-[3px] border-white pt-8 mt-20 font-henderson-slab text-center lg:text-left">
-          <div className="text-sm" dangerouslySetInnerHTML={{ __html: copyright }} />
+          <div
+            className="text-sm"
+            dangerouslySetInnerHTML={{ __html: copyright }}
+          />
           <div className="flex w-full lg:w-auto justify-center lg:justify-end items-center gap-4 text-sm sm:gap-8">
-            <Link to="/policies/privacy-policy" className="whitespace-nowrap">Privacy Policy</Link>
-            <Link to="/policies/terms-of-service" className="whitespace-nowrap">Terms of Service</Link>
-            <Link to="#" className="whitespace-nowrap">Cookies Settings</Link>
+            <Link to="/policies/privacy-policy" className="whitespace-nowrap">
+              Privacy Policy
+            </Link>
+            <Link to="/policies/terms-of-service" className="whitespace-nowrap">
+              Terms of Service
+            </Link>
+            <Link to="#" className="whitespace-nowrap">
+              Cookies Settings
+            </Link>
           </div>
         </div>
-        <img src="/paramount-network-copyright-2025.png" alt="Spike Cable Logo" className="w-[400px] object-contain mt-5" />
+        <img
+          src="/paramount-network-copyright-2025.png"
+          alt="Spike Cable Logo"
+          className="w-[400px] object-contain mt-5"
+        />
       </div>
     </footer>
   );

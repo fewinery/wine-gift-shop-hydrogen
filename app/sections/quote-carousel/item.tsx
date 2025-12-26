@@ -11,13 +11,26 @@ interface QuoteCarouselItemProps extends HydrogenComponentProps {
 }
 
 function QuoteCarouselItem(props: QuoteCarouselItemProps) {
-  const { image = IMAGES_PLACEHOLDERS.image, quote, authorName, authorDescription, ref, ...rest } = props;
+  const {
+    image = IMAGES_PLACEHOLDERS.image,
+    quote,
+    authorName,
+    authorDescription,
+    ref,
+    ...rest
+  } = props;
 
   const imageData: Partial<WeaverseImage> =
-    typeof image === "string" ? { url: image, altText: authorName || "Quote author" } : image;
+    typeof image === "string"
+      ? { url: image, altText: authorName || "Quote author" }
+      : image;
 
   return (
-    <div ref={ref} {...rest} className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 lg:gap-20 items-start md:items-center">
+    <div
+      ref={ref}
+      {...rest}
+      className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 lg:gap-20 items-start md:items-center"
+    >
       {/* Image */}
       <div className="flex justify-center">
         <Image

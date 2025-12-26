@@ -2,7 +2,11 @@ import { CartForm } from "@shopify/hydrogen";
 import React, { useState } from "react";
 import type { FetcherWithComponents } from "react-router";
 import { useCartDrawerStore } from "~/components/cart/store";
-import { formatWineClubCart, validateCartData, generateCartCreateMutation } from "~/utils/cart-utils";
+import {
+  formatWineClubCart,
+  validateCartData,
+  generateCartCreateMutation,
+} from "~/utils/cart-utils";
 import { cn } from "~/utils/cn";
 import PromotionalOfferModal, {
   mockPromotionalOffer,
@@ -205,9 +209,7 @@ export default function Step5Review({
     <div className="max-w-6xl mx-auto space-y-10 pb-12">
       {/* Step Header */}
       <div className="text-center space-y-1">
-        <h2 className="text-[40px]">
-          Review Your Selection
-        </h2>
+        <h2 className="text-[40px]">Review Your Selection</h2>
         <p className="font-body text-[#5C5C5C] text-lg max-w-xl mx-auto">
           Please review your wine club configuration before proceeding to
           checkout. You can edit any section by clicking the pencil icon.
@@ -227,12 +229,18 @@ export default function Step5Review({
           {/* Wine Club Info */}
           <div className="bg-white border border-gray-200 rounded-lg p-8 hover:border-[#f5a623]/40 transition-colors shadow-sm">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold uppercase tracking-widest text-gray-900">Wine Club</h3>
-              <span className="text-xs font-bold uppercase tracking-widest text-gray-400">Club Details</span>
+              <h3 className="text-2xl font-bold uppercase tracking-widest text-gray-900">
+                Wine Club
+              </h3>
+              <span className="text-xs font-bold uppercase tracking-widest text-gray-400">
+                Club Details
+              </span>
             </div>
             <div className="space-y-4">
               <div>
-                <h4 className="font-henderson-slab text-xl uppercase text-gray-900 mb-2">{wineClub.name}</h4>
+                <h4 className="font-henderson-slab text-xl uppercase text-gray-900 mb-2">
+                  {wineClub.name}
+                </h4>
                 {wineClub.description && (
                   <p className="text-base text-gray-600 leading-relaxed">
                     {wineClub.description.replace(/<[^>]*>/g, "").slice(0, 150)}
@@ -284,8 +292,16 @@ export default function Step5Review({
                     {selectedSellingPlan.name}
                   </div>
                   <div className="text-base text-gray-600">
-                    <p>{getFrequencyInfo(selectedSellingPlan).deliveriesPerYear} deliveries per year</p>
-                    <p>Every {getFrequencyInfo(selectedSellingPlan).intervalText.toLowerCase()}</p>
+                    <p>
+                      {getFrequencyInfo(selectedSellingPlan).deliveriesPerYear}{" "}
+                      deliveries per year
+                    </p>
+                    <p>
+                      Every{" "}
+                      {getFrequencyInfo(
+                        selectedSellingPlan,
+                      ).intervalText.toLowerCase()}
+                    </p>
                   </div>
                 </div>
               )}
@@ -318,8 +334,18 @@ export default function Step5Review({
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-gray-300">
-                          <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                          <svg
+                            className="w-8 h-8"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={1}
+                              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                            />
                           </svg>
                         </div>
                       )}
@@ -430,7 +456,9 @@ export default function Step5Review({
               {/* Billing Info */}
               <div className="mt-4 p-4 bg-[#f9f5f0] rounded-lg border border-[#e6dac9]">
                 <div className="text-sm text-[#4a4a4a] space-y-1 font-body">
-                  <p className="font-bold text-gray-900 uppercase tracking-wide text-xs mb-2">Billing Information</p>
+                  <p className="font-bold text-gray-900 uppercase tracking-wide text-xs mb-2">
+                    Billing Information
+                  </p>
                   <p>• Subscription billed per delivery</p>
                   <p>• Add-ons billed with first delivery</p>
                   <p>• Free shipping on all orders</p>
@@ -655,7 +683,7 @@ function AddToCartButton({ cartLines }: AddToCartButtonProps) {
                 "w-full py-3 px-6 font-bold text-base uppercase tracking-widest mt-6",
                 cartLines.length === 0 || fetcher.state !== "idle"
                   ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-[#f5a623] text-black hover:bg-[#d4820a] border border-transparent"
+                  : "bg-[#f5a623] text-black hover:bg-[#d4820a] border border-transparent",
               )}
             >
               {fetcher.state !== "idle" ? (

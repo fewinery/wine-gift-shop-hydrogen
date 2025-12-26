@@ -26,7 +26,9 @@ function AlternatingContentItem(props: AlternatingContentItemProps) {
   const isImageLeft = imagePosition === "left";
 
   const imageData: Partial<WeaverseImage> =
-    typeof image === "string" ? { url: image, altText: heading || "Image" } : image;
+    typeof image === "string"
+      ? { url: image, altText: heading || "Image" }
+      : image;
 
   let aspRt: string | undefined;
   if (imageAspectRatio === "adapt") {

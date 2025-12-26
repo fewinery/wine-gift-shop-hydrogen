@@ -87,8 +87,7 @@ export const schema = createSchema({
           },
           {
             type: "paragraph",
-            content:
-              "<p>Pair large text with an image to tell a story.</p>",
+            content: "<p>Pair large text with an image to tell a story.</p>",
           },
           {
             type: "image-with-text--buttons-wrapper",

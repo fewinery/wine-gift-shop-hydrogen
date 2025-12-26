@@ -28,11 +28,7 @@ const variants = cva("flex flex-col sm:grid gap-10 lg:gap-16", {
 function PromotionGrid(props: PromotionGridProps) {
   const { children, gridSize, ref, ...rest } = props;
   return (
-    <Section
-      ref={ref}
-      {...rest}
-      containerClassName={variants({ gridSize })}
-    >
+    <Section ref={ref} {...rest} containerClassName={variants({ gridSize })}>
       {children}
     </Section>
   );

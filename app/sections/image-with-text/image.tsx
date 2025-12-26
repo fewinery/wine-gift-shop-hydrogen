@@ -86,7 +86,7 @@ function ImageWithTextImage(props: ImageWithTextImageProps) {
         <Image
           data={imageData}
           data-motion="slide-in"
-          sizes="auto"
+          width={2000}
           aspectRatio={aspRt}
           className={cn(
             "h-auto w-full",

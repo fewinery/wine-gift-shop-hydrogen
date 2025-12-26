@@ -4,6 +4,7 @@ import {
   type SectionProps,
   sectionSettings,
 } from "~/components/section";
+import { Link } from "~/components/link";
 
 interface FaqSectionProps extends SectionProps {
   ref?: React.Ref<HTMLElement>;
@@ -39,12 +40,12 @@ const FaqSection = (props: FaqSectionProps) => {
           )}
           {buttonLabel && (
             <div className="pt-2">
-              <a
-                href={buttonLink || "#"}
+              <Link
+                to={buttonLink || "#"}
                 className="inline-flex items-center justify-center border-2 border-black bg-transparent px-8 py-3 text-base font-bold uppercase tracking-wide text-black"
               >
                 {buttonLabel}
-              </a>
+              </Link>
             </div>
           )}
         </div>

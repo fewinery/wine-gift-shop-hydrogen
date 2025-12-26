@@ -49,8 +49,13 @@ export default function Policies() {
 
   return (
     <Section verticalPadding="medium" width="fixed">
-      <BreadCrumb page="Policies" className="mb-4" />
-      <h4 className="mb-4 font-medium">Policies</h4>
+      <BreadCrumb
+        page="Policies"
+        subPage={policy.title}
+        parentLink="/policies"
+        className="mb-4"
+      />
+
       <Link variant="underline" to="/policies">
         &larr; Back to Policies
       </Link>

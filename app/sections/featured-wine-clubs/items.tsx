@@ -1,8 +1,8 @@
 import { type ComponentLoaderArgs, createSchema } from "@weaverse/hydrogen";
 import { useState } from "react";
 import { Navigation } from "swiper/modules";
-import { Swiper, SwiperSlide } from "swiper/react";
 import type { SwiperClass } from "swiper/react";
+import { Swiper, SwiperSlide } from "swiper/react";
 import { ArrowLeft, ArrowRight } from "~/components/icons";
 import { WineClubCard } from "~/components/wine-clubs/wine-club-card";
 import type { WineClub } from "~/types/winehub";

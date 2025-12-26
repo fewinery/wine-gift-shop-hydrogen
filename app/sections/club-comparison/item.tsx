@@ -1,8 +1,8 @@
 import {
   createSchema,
   type HydrogenComponentProps,
-  type WeaverseImage,
   IMAGES_PLACEHOLDERS,
+  type WeaverseImage,
 } from "@weaverse/hydrogen";
 import { CheckIcon } from "~/components/icons";
 import { Image } from "~/components/image";

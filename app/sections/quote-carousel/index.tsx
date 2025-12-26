@@ -1,14 +1,14 @@
 import { createSchema } from "@weaverse/hydrogen";
-import { useState, Children } from "react";
-import { Navigation, Autoplay } from "swiper/modules";
-import { Swiper, SwiperSlide } from "swiper/react";
+import { Children, useState } from "react";
+import { Autoplay, Navigation } from "swiper/modules";
 import type { SwiperClass } from "swiper/react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { ArrowLeft, ArrowRight } from "~/components/icons";
 import {
   Section,
   type SectionProps,
   sectionSettings,
 } from "~/components/section";
-import { ArrowLeft, ArrowRight } from "~/components/icons";
 
 interface QuoteCarouselProps extends SectionProps {
   ref?: React.Ref<HTMLElement>;

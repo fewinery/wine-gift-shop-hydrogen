@@ -2,8 +2,8 @@ import { createSchema, useParentInstance } from "@weaverse/hydrogen";
 import { useState } from "react";
 import type { FeaturedProductsQuery } from "storefront-api.generated";
 import { Navigation } from "swiper/modules";
-import { Swiper, SwiperSlide } from "swiper/react";
 import type { SwiperClass } from "swiper/react";
+import { Swiper, SwiperSlide } from "swiper/react";
 import { ArrowLeft, ArrowRight } from "~/components/icons";
 import { ProductCard } from "~/components/product/product-card";
 

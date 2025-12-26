@@ -1,4 +1,6 @@
 import {
+  ArrowUpIcon,
+  ArrowDownIcon,
   ArrowLeftIcon,
   ArrowRightIcon,
   MagnifyingGlassPlusIcon,
@@ -168,26 +170,28 @@ export function ZoomModal({
             <Dialog.Close className="absolute top-4 right-4 z-1">
               <XIcon className="h-6 w-6" />
             </Dialog.Close>
-            <div className="absolute right-10 bottom-10 left-10 flex items-center justify-center gap-2 md:left-auto">
+            <div className="absolute bottom-10 left-10 flex items-center gap-2 md:top-1/2 md:right-10 md:bottom-auto md:left-auto md:-translate-y-1/2 md:flex-col">
               <Button
                 variant="secondary"
-                className="border-line-subtle"
+                className="border-line-subtle p-5"
                 onClick={() => {
                   setZoomMediaId(prevMedia.id);
                   scrollToMedia(prevMedia.id);
                 }}
               >
-                <ArrowLeftIcon className="h-4.5 w-4.5" />
+                <ArrowUpIcon className="hidden h-6 w-6 md:block" />
+                <ArrowLeftIcon className="h-6 w-6 md:hidden" />
               </Button>
               <Button
                 variant="secondary"
-                className="border-line-subtle"
+                className="border-line-subtle p-5"
                 onClick={() => {
                   setZoomMediaId(nextMedia.id);
                   scrollToMedia(nextMedia.id);
                 }}
               >
-                <ArrowRightIcon className="h-4.5 w-4.5" />
+                <ArrowDownIcon className="hidden h-6 w-6 md:block" />
+                <ArrowRightIcon className="h-6 w-6 md:hidden" />
               </Button>
             </div>
           </div>
@@ -245,7 +249,7 @@ function isVisibleInParent(child: HTMLElement, parent: HTMLElement) {
 }
 
 export interface ZoomButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {}
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> { }
 
 export function ZoomButton({ className, ...props }: ZoomButtonProps) {
   return (

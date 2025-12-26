@@ -32,12 +32,12 @@ function QuoteCarouselItem(props: QuoteCarouselItemProps) {
       className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 lg:gap-20 items-start md:items-center"
     >
       {/* Image */}
-      <div className="flex justify-center">
+      <div className="flex justify-start">
         <Image
           data={imageData}
           sizes="auto"
           aspectRatio="1/1"
-          className="w-full max-w-md h-auto object-cover rounded"
+          className="w-full h-auto object-cover rounded"
         />
       </div>
 

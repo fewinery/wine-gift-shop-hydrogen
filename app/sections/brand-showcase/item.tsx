@@ -35,7 +35,7 @@ function BrandShowcaseItem(props: BrandShowcaseItemProps) {
         <Image
           data={imageData}
           sizes="(max-width: 768px) 50vw, 25vw"
-          className="h-auto max-h-40 w-auto max-w-full object-contain"
+          className="h-auto max-h-52 w-auto max-w-full object-contain"
         />
       </div>
 

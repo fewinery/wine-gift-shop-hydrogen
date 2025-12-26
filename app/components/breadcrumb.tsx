@@ -4,10 +4,14 @@ import { Link } from "./link";
 export function BreadCrumb({
   homeLabel = "Home",
   page,
+  subPage,
+  parentLink,
   className,
 }: {
   homeLabel?: string;
   page: string;
+  subPage?: string;
+  parentLink?: string;
   className?: string;
 }) {
   return (
@@ -16,7 +20,20 @@ export function BreadCrumb({
         {homeLabel}
       </Link>
       <span>/</span>
-      <span>{page}</span>
+      {subPage ? (
+        <>
+          <Link
+            to={parentLink || `/${page.toLowerCase()}`}
+            className="underline-offset-4 hover:underline"
+          >
+            {page}
+          </Link>
+          <span>/</span>
+          <span>{subPage}</span>
+        </>
+      ) : (
+        <span>{page}</span>
+      )}
     </div>
   );
 }

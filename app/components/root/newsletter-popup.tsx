@@ -4,7 +4,6 @@ import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { useThemeSettings } from "@weaverse/hydrogen";
 import { useEffect, useState } from "react";
 import { useFetcher, useLocation, useRouteLoaderData } from "react-router";
-import { Button } from "~/components/button";
 import { Image } from "~/components/image";
 import { useWeaverseStudioCheck } from "~/hooks/use-weaverse-studio-check";
 import type { RootLoader } from "~/root";
@@ -100,7 +99,8 @@ export function NewsletterPopup() {
         <Dialog.Content
           onCloseAutoFocus={(e) => e.preventDefault()}
           className={cn(
-            "fixed inset-0 z-50 flex p-4 backdrop-blur-xs",
+            "fixed inset-0 z-50 flex overflow-y-auto p-4 backdrop-blur-xs",
+            "pb-[max(1rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))]",
             "[--slide-up-from:20px]",
             "data-[state=open]:animate-slide-up",
             newsletterPopupPosition === "center" &&
@@ -118,14 +118,14 @@ export function NewsletterPopup() {
         >
           <div
             className={cn(
-              "relative w-full max-w-2xl overflow-hidden bg-black shadow-xl",
+              "relative my-auto w-full max-w-2xl max-h-[calc(100dvh-2rem)] overflow-y-auto bg-black shadow-xl",
               newsletterPopupImage && "lg:max-w-2xl",
             )}
           >
             <Dialog.Close asChild>
               <button
                 type="button"
-                className="absolute top-4 right-4 z-10 flex items-center justify-center text-white hover:text-white/70 transition-colors focus-visible:outline-0"
+                className="sticky top-0 right-0 z-10 ml-auto mr-4 mt-4 flex items-center justify-center text-white hover:text-white/70 transition-colors focus-visible:outline-0"
                 aria-label="Close"
               >
                 <XIcon size={24} weight="bold" />

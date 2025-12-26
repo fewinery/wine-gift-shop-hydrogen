@@ -319,7 +319,7 @@ function ProductQuantityCard({
           <img
             src={productVariant.productImage}
             alt={productVariant.productTitle}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain"
             loading="lazy"
           />
         </div>

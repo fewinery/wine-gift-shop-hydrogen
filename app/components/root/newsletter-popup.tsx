@@ -104,15 +104,15 @@ export function NewsletterPopup() {
             "[--slide-up-from:20px]",
             "data-[state=open]:animate-slide-up",
             newsletterPopupPosition === "center" &&
-              "items-center justify-center",
+            "items-center justify-center",
             newsletterPopupPosition === "top-left" &&
-              "items-start justify-start",
+            "items-start justify-start",
             newsletterPopupPosition === "top-right" &&
-              "items-start justify-end",
+            "items-start justify-end",
             newsletterPopupPosition === "bottom-left" &&
-              "items-end justify-start",
+            "items-end justify-start",
             newsletterPopupPosition === "bottom-right" &&
-              "items-end justify-end",
+            "items-end justify-end",
           )}
           aria-describedby={undefined}
         >
@@ -142,7 +142,7 @@ export function NewsletterPopup() {
                   ? "flex-col"
                   : "flex-col md:flex-row",
                 newsletterPopupImagePosition === "right" &&
-                  "md:flex-row-reverse",
+                "md:flex-row-reverse",
               )}
             >
               {newsletterPopupImage && (
@@ -170,10 +170,10 @@ export function NewsletterPopup() {
                     : "w-full",
                 )}
               >
-                <h3 className="mb-4 font-bold text-5xl leading-tight text-white">
+                <h3 className="mb-4 font-bold text-3xl md:text-5xl leading-tight text-white">
                   {newsletterPopupHeading}
                 </h3>
-                <p className="mb-6 text-white text-lg">
+                <p className="mb-6 text-white text-base md:text-lg">
                   {newsletterPopupDescription}
                 </p>
 
@@ -193,7 +193,7 @@ export function NewsletterPopup() {
                   <button
                     type="submit"
                     disabled={fetcher.state === "submitting"}
-                    className="w-full py-3 px-4 font-bold text-white bg-[#e91220] hover:bg-[#c0101b] transition-colors disabled:opacity-70 uppercase text-lg"
+                    className="w-full py-2 px-4 font-bold text-white bg-[#e91220] hover:bg-[#c0101b] transition-colors disabled:opacity-70 uppercase text-lg"
                   >
                     {fetcher.state === "submitting"
                       ? "Submitting..."
@@ -219,7 +219,7 @@ export function NewsletterPopup() {
                       localStorage.setItem(POPUP_DISMISSED_KEY, "true");
                       setOpen(false);
                     }}
-                    className="mt-4 w-full text-white bg-[#e91220] hover:bg-[#c0101b] transition-colors py-3 px-4 font-bold uppercase text-lg"
+                    className="mt-4 w-full text-white bg-[#e91220] hover:bg-[#c0101b] transition-colors py-2 px-4 font-bold uppercase text-lg"
                   >
                     NO, I'LL PAY FULL PRICE
                   </button>

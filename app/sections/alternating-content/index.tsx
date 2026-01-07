@@ -6,21 +6,15 @@ import {
 } from "~/components/section";
 
 interface AlternatingContentProps extends SectionProps {
-  heading: string;
   ref?: React.Ref<HTMLElement>;
 }
 
 function AlternatingContent(props: AlternatingContentProps) {
-  const { heading, children, ref, ...rest } = props;
+  const { children, ref, ...rest } = props;
 
   return (
     <Section ref={ref} {...rest}>
-      {heading && (
-        <h2 className="text-center text-[37px] font-medium font-henderson-slab">
-          {heading}
-        </h2>
-      )}
-      <div className="space-y-10 md:space-y-16 lg:space-y-20">{children}</div>
+      {children}
     </Section>
   );
 }
@@ -30,41 +24,36 @@ export default AlternatingContent;
 export const schema = createSchema({
   type: "alternating-content",
   title: "Alternating Content",
-  childTypes: ["alternating-content-item"],
-  settings: [
-    {
-      group: "Content",
-      inputs: [
-        {
-          type: "text",
-          name: "heading",
-          label: "Section Heading",
-          defaultValue: "Section Heading",
-        },
-      ],
-    },
-    ...sectionSettings,
-  ],
+  childTypes: ["alternating-content--header", "alternating-content--items"],
+  settings: [...sectionSettings],
   presets: {
-    heading: "Section Heading",
     children: [
       {
-        type: "alternating-content-item",
-        imagePosition: "left",
-        heading: "Heading 1",
-        description: "<p>Description</p>",
+        type: "alternating-content--header",
+        children: [
+          {
+            type: "heading",
+            content: "Section Heading",
+            as: "h2",
+          },
+        ],
       },
       {
-        type: "alternating-content-item",
-        imagePosition: "right",
-        heading: "Heading 2",
-        description: "<p>Description</p>",
-      },
-      {
-        type: "alternating-content-item",
-        imagePosition: "left",
-        heading: "Heading 3",
-        description: "<p>Description</p>",
+        type: "alternating-content--items",
+        children: [
+          {
+            type: "alternating-content-item",
+            imagePosition: "left",
+          },
+          {
+            type: "alternating-content-item",
+            imagePosition: "right",
+          },
+          {
+            type: "alternating-content-item",
+            imagePosition: "left",
+          },
+        ],
       },
     ],
   },

@@ -63,7 +63,7 @@ function NewsLetterForm(props: NewsLetterInputProps) {
         className={clsx(
           "mx-auto mt-4 text-center font-medium text-sm",
           state === "idle" && data ? "visible" : "invisible",
-          ok ? "text-green-700" : "text-red-700",
+          ok ? "text-green-400" : "text-red-700",
         )}
       >
         {ok ? successText : errorMessage || "Something went wrong"}

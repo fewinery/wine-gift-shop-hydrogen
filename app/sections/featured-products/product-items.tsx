@@ -151,7 +151,7 @@ export const schema = createSchema({
         {
           type: "switch",
           name: "showViewProductButton",
-          label: "Show View Product button",
+          label: "Show view product button",
           defaultValue: true,
         },
       ],

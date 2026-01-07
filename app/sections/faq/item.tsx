@@ -54,7 +54,7 @@ export default FaqItem;
 export const schema = createSchema({
   type: "faq-accordion-item",
   title: "FAQ Accordion Item",
-  inspector: [
+  settings: [
     {
       group: "Question",
       inputs: [

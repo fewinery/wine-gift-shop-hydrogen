@@ -1,5 +1,5 @@
 import { type ComponentLoaderArgs, createSchema } from "@weaverse/hydrogen";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Navigation } from "swiper/modules";
 import type { SwiperClass } from "swiper/react";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -11,6 +11,10 @@ import { fetchWineClubs } from "~/utils/winehub";
 interface WineClubItemsProps {
   ref?: React.Ref<HTMLDivElement>;
   clubsCount: number;
+  selectionMode?: "auto" | "manual";
+  showMonthly?: boolean;
+  showQuarterly?: boolean;
+  showBiannual?: boolean;
   showDescription?: boolean;
   loaderData?: WineClubItemsLoaderData;
 }
@@ -41,6 +45,13 @@ function WineClubItems(props: WineClubItemsProps) {
     setSwiper(s);
     setSnapCount(s.snapGrid?.length || clubs.length);
   };
+
+  // Update snap count when clubs change (e.g., after filtering)
+  useEffect(() => {
+    if (swiper) {
+      setSnapCount(swiper.snapGrid?.length || clubs.length);
+    }
+  }, [clubs.length, swiper]);
 
   if (loaderData?.error) {
     return (
@@ -134,12 +145,58 @@ export const loader = async ({
   weaverse,
 }: ComponentLoaderArgs<{
   clubsCount: number;
+  selectionMode?: "auto" | "manual";
+  showMonthly?: boolean;
+  showQuarterly?: boolean;
+  showBiannual?: boolean;
 }>): Promise<WineClubItemsLoaderData> => {
   const clubsCount = data?.clubsCount || 8;
+  const selectionMode = data?.selectionMode || "auto";
+  const showMonthly = data?.showMonthly ?? true;
+  const showQuarterly = data?.showQuarterly ?? true;
+  const showBiannual = data?.showBiannual ?? true;
 
   try {
     const allClubs = await fetchWineClubs({ context: weaverse as any });
-    const clubs = allClubs.slice(0, clubsCount);
+
+    // Filter clubs based on selection mode
+    let filteredClubs = allClubs;
+
+    if (selectionMode === "manual") {
+      const selectedFrequencies: string[] = [];
+      if (showMonthly) {
+        selectedFrequencies.push("monthly");
+      }
+      if (showQuarterly) {
+        selectedFrequencies.push("quarterly");
+      }
+      if (showBiannual) {
+        selectedFrequencies.push("biannual");
+      }
+
+      // Filter clubs if at least one frequency is selected
+      if (selectedFrequencies.length > 0) {
+        filteredClubs = allClubs.filter((club) =>
+          club.sellingPlans.some((plan) => {
+            // Normalize plan name for comparison
+            const normalizedPlanName = plan.name
+              .toLowerCase()
+              .replace(/-/g, "");
+
+            // Check if plan matches any selected frequency
+            return selectedFrequencies.some((frequency) => {
+              const normalizedFrequency = frequency
+                .toLowerCase()
+                .replace(/-/g, "");
+              return normalizedPlanName.includes(normalizedFrequency);
+            });
+          }),
+        );
+      }
+    }
+
+    const clubs = filteredClubs.slice(0, clubsCount);
+
     return { clubs, error: false };
   } catch (error) {
     console.error("[FeaturedWineClubsItems] Loader failed:", error);
@@ -149,11 +206,51 @@ export const loader = async ({
 
 export const schema = createSchema({
   type: "featured-wine-clubs--items",
-  title: "Wine Club Items",
+  title: "Wine club items",
   settings: [
     {
       group: "Selection",
       inputs: [
+        {
+          type: "select",
+          name: "selectionMode",
+          label: "Selection mode",
+          configs: {
+            options: [
+              { value: "auto", label: "Auto (all clubs)" },
+              { value: "manual", label: "Manual (custom frequencies)" },
+            ],
+          },
+          defaultValue: "auto",
+          shouldRevalidate: true,
+        },
+        {
+          type: "switch",
+          name: "showMonthly",
+          label: "Show monthly clubs",
+          defaultValue: true,
+          shouldRevalidate: true,
+          condition: (data: WineClubItemsProps) =>
+            data.selectionMode === "manual",
+        },
+        {
+          type: "switch",
+          name: "showQuarterly",
+          label: "Show quarterly clubs",
+          defaultValue: true,
+          shouldRevalidate: true,
+          condition: (data: WineClubItemsProps) =>
+            data.selectionMode === "manual",
+        },
+        {
+          type: "switch",
+          name: "showBiannual",
+          label: "Show biannual clubs",
+          defaultValue: true,
+          shouldRevalidate: true,
+          condition: (data: WineClubItemsProps) =>
+            data.selectionMode === "manual",
+        },
         {
           type: "range",
           name: "clubsCount",

@@ -11,6 +11,7 @@ import { cn } from "~/utils/cn";
 import { DEFAULT_LOCALE } from "~/utils/const";
 
 const POPUP_DISMISSED_KEY = "newsletter-popup-dismissed";
+const AGE_VERIFIED_KEY = "age-verified";
 
 export function useShouldRenderNewsletterPopup() {
   const location = useLocation();
@@ -37,6 +38,26 @@ export function NewsletterPopup() {
     newsletterPopupDescription,
     newsletterPopupButtonText,
     newsletterPopupPosition = "center",
+    newsletterPopupDismissButtonText,
+    newsletterPopupEmailPlaceholder,
+    newsletterPopupHeadingSize,
+    newsletterPopupHeadingSizeMobile,
+    newsletterPopupDescriptionSize,
+    newsletterPopupDescriptionSizeMobile,
+    newsletterPopupBgColor,
+    newsletterPopupHeadingColor,
+    newsletterPopupDescriptionColor,
+    newsletterPopupButtonBg,
+    newsletterPopupButtonBgHover,
+    newsletterPopupButtonTextColor,
+    newsletterPopupDismissButtonBg,
+    newsletterPopupDismissButtonBgHover,
+    newsletterPopupDismissButtonTextColor,
+    newsletterPopupEmailBg,
+    newsletterPopupEmailTextColor,
+    newsletterPopupEmailBorderColor,
+    newsletterPopupCloseIconColor,
+    ageVerificationEnabled,
   } = useThemeSettings();
 
   const [open, setOpen] = useState(false);
@@ -68,11 +89,34 @@ export function NewsletterPopup() {
       if (isDismissed) {
         return;
       }
-      timer = setTimeout(() => {
-        setOpen(true);
-      }, newsletterPopupDelay * 1000);
+
+      // If age verification is enabled, wait for user to verify first
+      if (ageVerificationEnabled) {
+        const checkAgeVerified = setInterval(() => {
+          const isAgeVerified =
+            localStorage.getItem(AGE_VERIFIED_KEY) === "true";
+          if (isAgeVerified) {
+            clearInterval(checkAgeVerified);
+            timer = setTimeout(() => {
+              setOpen(true);
+            }, newsletterPopupDelay * 1000);
+          }
+        }, 500); // Check every 500ms
+
+        return () => {
+          clearInterval(checkAgeVerified);
+          if (timer) clearTimeout(timer);
+        };
+      } else {
+        // No age verification, show newsletter popup normally
+        timer = setTimeout(() => {
+          setOpen(true);
+        }, newsletterPopupDelay * 1000);
+      }
     }
-    return () => clearTimeout(timer);
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
   }, []);
 
   // Re-open popup when settings change in design mode
@@ -82,14 +126,21 @@ export function NewsletterPopup() {
       setOpen(true);
     }
   }, [
-    newsletterPopupDelay,
-    newsletterPopupAllowDismiss,
-    newsletterPopupImage,
-    newsletterPopupImagePosition,
-    newsletterPopupHeading,
-    newsletterPopupDescription,
     newsletterPopupButtonText,
     newsletterPopupPosition,
+    newsletterPopupBgColor,
+    newsletterPopupHeadingColor,
+    newsletterPopupDescriptionColor,
+    newsletterPopupButtonBg,
+    newsletterPopupButtonBgHover,
+    newsletterPopupButtonTextColor,
+    newsletterPopupDismissButtonBg,
+    newsletterPopupDismissButtonBgHover,
+    newsletterPopupDismissButtonTextColor,
+    newsletterPopupEmailBg,
+    newsletterPopupEmailTextColor,
+    newsletterPopupEmailBorderColor,
+    newsletterPopupCloseIconColor,
   ]);
 
   return (
@@ -104,28 +155,36 @@ export function NewsletterPopup() {
             "[--slide-up-from:20px]",
             "data-[state=open]:animate-slide-up",
             newsletterPopupPosition === "center" &&
-              "items-center justify-center",
+            "items-center justify-center",
             newsletterPopupPosition === "top-left" &&
-              "items-start justify-start",
+            "items-start justify-start",
             newsletterPopupPosition === "top-right" &&
-              "items-start justify-end",
+            "items-start justify-end",
             newsletterPopupPosition === "bottom-left" &&
-              "items-end justify-start",
+            "items-end justify-start",
             newsletterPopupPosition === "bottom-right" &&
-              "items-end justify-end",
+            "items-end justify-end",
           )}
           aria-describedby={undefined}
         >
           <div
             className={cn(
-              "relative my-auto w-full max-w-2xl max-h-[calc(100dvh-2rem)] overflow-y-auto bg-black shadow-xl",
+              "relative my-auto w-full max-w-2xl max-h-[calc(100dvh-2rem)] overflow-y-auto shadow-xl",
               newsletterPopupImage && "lg:max-w-2xl",
             )}
+            style={{ backgroundColor: newsletterPopupBgColor || "#000000" }}
           >
             <Dialog.Close asChild>
               <button
                 type="button"
-                className="sticky top-0 right-0 z-10 ml-auto mr-4 mt-4 flex items-center justify-center text-white hover:text-white/70 transition-colors focus-visible:outline-0"
+                className="sticky top-0 right-0 z-10 ml-auto mr-4 mt-4 flex items-center justify-center transition-colors focus-visible:outline-0"
+                style={{ color: newsletterPopupCloseIconColor || "#ffffff" }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.opacity = "0.7";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.opacity = "1";
+                }}
                 aria-label="Close"
               >
                 <XIcon size={24} weight="bold" />
@@ -142,7 +201,7 @@ export function NewsletterPopup() {
                   ? "flex-col"
                   : "flex-col md:flex-row",
                 newsletterPopupImagePosition === "right" &&
-                  "md:flex-row-reverse",
+                "md:flex-row-reverse",
               )}
             >
               {newsletterPopupImage && (
@@ -170,10 +229,22 @@ export function NewsletterPopup() {
                     : "w-full",
                 )}
               >
-                <h3 className="mb-4 font-bold text-3xl md:text-5xl leading-tight text-white">
+                <h3
+                  className="mb-4 font-bold leading-tight uppercase"
+                  style={{
+                    fontSize: `clamp(${newsletterPopupHeadingSizeMobile || 32}px, 5vw, ${newsletterPopupHeadingSize || 48}px)`,
+                    color: newsletterPopupHeadingColor || "#ffffff",
+                  }}
+                >
                   {newsletterPopupHeading}
                 </h3>
-                <p className="mb-6 text-white text-base md:text-lg">
+                <p
+                  className="mb-6"
+                  style={{
+                    fontSize: `clamp(${newsletterPopupDescriptionSizeMobile || 14}px, 2vw, ${newsletterPopupDescriptionSize || 16}px)`,
+                    color: newsletterPopupDescriptionColor || "#ffffff",
+                  }}
+                >
                   {newsletterPopupDescription}
                 </p>
 
@@ -187,13 +258,32 @@ export function NewsletterPopup() {
                     name="email"
                     type="email"
                     required
-                    placeholder="Enter Address"
-                    className="w-full border bg-white border-gray-300 px-4 py-2.5 focus:border-gray-500 focus:outline-hidden placeholder:text-lg"
+                    placeholder={
+                      newsletterPopupEmailPlaceholder || "Enter Address"
+                    }
+                    className="w-full border px-4 py-2.5 focus:outline-hidden placeholder:text-lg"
+                    style={{
+                      backgroundColor: newsletterPopupEmailBg || "#ffffff",
+                      color: newsletterPopupEmailTextColor || "#000000",
+                      borderColor: newsletterPopupEmailBorderColor || "#d1d5db",
+                    }}
                   />
                   <button
                     type="submit"
                     disabled={fetcher.state === "submitting"}
-                    className="w-full py-2 px-4 font-bold text-white bg-[#e91220] hover:bg-[#c0101b] transition-colors disabled:opacity-70 uppercase text-lg"
+                    className="w-full py-2 px-4 font-bold transition-colors disabled:opacity-70 uppercase text-lg"
+                    style={{
+                      backgroundColor: newsletterPopupButtonBg || "#e91220",
+                      color: newsletterPopupButtonTextColor || "#ffffff",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor =
+                        newsletterPopupButtonBgHover || "#c0101b";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor =
+                        newsletterPopupButtonBg || "#e91220";
+                    }}
                   >
                     {fetcher.state === "submitting"
                       ? "Submitting..."
@@ -219,9 +309,23 @@ export function NewsletterPopup() {
                       localStorage.setItem(POPUP_DISMISSED_KEY, "true");
                       setOpen(false);
                     }}
-                    className="mt-4 w-full text-white bg-[#e91220] hover:bg-[#c0101b] transition-colors py-2 px-4 font-bold uppercase text-lg"
+                    className="mt-4 w-full transition-colors py-2 px-4 font-bold uppercase text-lg"
+                    style={{
+                      backgroundColor:
+                        newsletterPopupDismissButtonBg || "#e91220",
+                      color: newsletterPopupDismissButtonTextColor || "#ffffff",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor =
+                        newsletterPopupDismissButtonBgHover || "#c0101b";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor =
+                        newsletterPopupDismissButtonBg || "#e91220";
+                    }}
                   >
-                    NO, I'LL PAY FULL PRICE
+                    {newsletterPopupDismissButtonText ||
+                      "NO, I'LL PAY FULL PRICE"}
                   </button>
                 )}
               </div>

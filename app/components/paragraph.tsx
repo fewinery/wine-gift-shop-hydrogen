@@ -33,6 +33,22 @@ const variants = cva("paragraph", {
       full: "mx-auto w-full",
       narrow: "mx-auto w-full max-w-4xl md:w-1/2 lg:w-3/4",
     },
+    letterSpacing: {
+      tighter: "tracking-tighter",
+      tight: "tracking-tight",
+      normal: "",
+      wide: "tracking-wide",
+      wider: "tracking-wider",
+      widest: "tracking-widest",
+    },
+    lineHeight: {
+      none: "leading-none",
+      tight: "leading-tight",
+      snug: "leading-snug",
+      normal: "leading-normal",
+      relaxed: "leading-relaxed",
+      loose: "leading-loose",
+    },
     alignment: {
       left: "text-left",
       center: "text-center",
@@ -42,6 +58,8 @@ const variants = cva("paragraph", {
   defaultVariants: {
     width: "full",
     textSize: "base",
+    letterSpacing: "normal",
+    lineHeight: "normal",
   },
 });
 
@@ -53,6 +71,8 @@ function Paragraph(props: ParagraphProps) {
     content,
     textSize,
     color,
+    letterSpacing,
+    lineHeight,
     alignment,
     className,
     ...rest
@@ -63,7 +83,16 @@ function Paragraph(props: ParagraphProps) {
       data-motion="fade-up"
       {...rest}
       style={{ color }}
-      className={clsx(variants({ textSize, width, alignment, className }))}
+      className={clsx(
+        variants({
+          textSize,
+          width,
+          letterSpacing,
+          lineHeight,
+          alignment,
+          className,
+        }),
+      )}
       suppressHydrationWarning
       dangerouslySetInnerHTML={{ __html: content }}
     />
@@ -91,11 +120,11 @@ export const schema = createSchema({
         {
           type: "select",
           name: "as",
-          label: "HTML tag",
+          label: "Html tag",
           configs: {
             options: [
-              { value: "p", label: "<p> (Paragraph)" },
-              { value: "div", label: "<div> (Div)" },
+              { value: "p", label: "<p> (paragraph)" },
+              { value: "div", label: "<div> (div)" },
             ],
           },
           defaultValue: "p",
@@ -160,6 +189,38 @@ export const schema = createSchema({
             ],
           },
           defaultValue: "center",
+        },
+        {
+          type: "select",
+          label: "Letter spacing",
+          name: "letterSpacing",
+          configs: {
+            options: [
+              { label: "Tighter (-0.05em)", value: "tighter" },
+              { label: "Tight (-0.025em)", value: "tight" },
+              { label: "Normal (inherit)", value: "normal" },
+              { label: "Wide (0.025em)", value: "wide" },
+              { label: "Wider (0.05em)", value: "wider" },
+              { label: "Widest (0.1em)", value: "widest" },
+            ],
+          },
+          defaultValue: "normal",
+        },
+        {
+          type: "select",
+          label: "Line height",
+          name: "lineHeight",
+          configs: {
+            options: [
+              { label: "None (1)", value: "none" },
+              { label: "Tight (1.25)", value: "tight" },
+              { label: "Snug (1.375)", value: "snug" },
+              { label: "Normal (1.5)", value: "normal" },
+              { label: "Relaxed (1.625)", value: "relaxed" },
+              { label: "Loose (2)", value: "loose" },
+            ],
+          },
+          defaultValue: "normal",
         },
       ],
     },

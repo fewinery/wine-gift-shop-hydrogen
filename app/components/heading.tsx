@@ -69,6 +69,14 @@ const variants = cva("heading", {
       wider: "tracking-wider",
       widest: "tracking-widest",
     },
+    lineHeight: {
+      none: "leading-none",
+      tight: "leading-tight",
+      snug: "leading-snug",
+      normal: "leading-normal",
+      relaxed: "leading-relaxed",
+      loose: "leading-loose",
+    },
     alignment: {
       left: "text-left",
       center: "text-center",
@@ -79,6 +87,7 @@ const variants = cva("heading", {
     size: "default",
     weight: "400",
     letterSpacing: "normal",
+    lineHeight: "normal",
     alignment: "center",
   },
 });
@@ -108,6 +117,7 @@ function Heading(props: HeadingProps & Partial<HydrogenComponentProps>) {
     backgroundColor,
     weight,
     letterSpacing,
+    lineHeight,
     alignment,
     minSize,
     maxSize,
@@ -134,7 +144,14 @@ function Heading(props: HeadingProps & Partial<HydrogenComponentProps>) {
       style={style}
       className={cn(
         size === "custom" && fontSizeVariants({ mobileSize, desktopSize }),
-        variants({ size, weight, letterSpacing, alignment, className }),
+        variants({
+          size,
+          weight,
+          letterSpacing,
+          lineHeight,
+          alignment,
+          className,
+        }),
       )}
       dangerouslySetInnerHTML={{ __html: content }}
     />
@@ -154,15 +171,15 @@ export const headingInputs: InspectorGroup["inputs"] = [
   {
     type: "select",
     name: "as",
-    label: "HTML tag",
+    label: "Html tag",
     configs: {
       options: [
-        { value: "h1", label: "<h1> (Heading 1)" },
-        { value: "h2", label: "<h2> (Heading 2)" },
-        { value: "h3", label: "<h3> (Heading 3)" },
-        { value: "h4", label: "<h4> (Heading 4)" },
-        { value: "h5", label: "<h5> (Heading 5)" },
-        { value: "h6", label: "<h6> (Heading 6)" },
+        { value: "h1", label: "<h1> (heading 1)" },
+        { value: "h2", label: "<h2> (heading 2)" },
+        { value: "h3", label: "<h3> (heading 3)" },
+        { value: "h4", label: "<h4> (heading 4)" },
+        { value: "h5", label: "<h5> (heading 5)" },
+        { value: "h6", label: "<h6> (heading 6)" },
       ],
     },
     defaultValue: "h4",
@@ -267,15 +284,15 @@ export const headingInputs: InspectorGroup["inputs"] = [
     label: "Weight",
     configs: {
       options: [
-        { value: "100", label: "100 - Thin" },
-        { value: "200", label: "200 - Extra Light" },
-        { value: "300", label: "300 - Light" },
-        { value: "400", label: "400 - Normal" },
-        { value: "500", label: "500 - Medium" },
-        { value: "600", label: "600 - Semi Bold" },
-        { value: "700", label: "700 - Bold" },
-        { value: "800", label: "800 - Extra Bold" },
-        { value: "900", label: "900 - Black" },
+        { value: "100", label: "100 - thin" },
+        { value: "200", label: "200 - extra light" },
+        { value: "300", label: "300 - light" },
+        { value: "400", label: "400 - normal" },
+        { value: "500", label: "500 - medium" },
+        { value: "600", label: "600 - semi bold" },
+        { value: "700", label: "700 - bold" },
+        { value: "800", label: "800 - extra bold" },
+        { value: "900", label: "900 - black" },
       ],
     },
     defaultValue: "400",
@@ -288,10 +305,26 @@ export const headingInputs: InspectorGroup["inputs"] = [
       options: [
         { label: "Tighter (-0.05em)", value: "tighter" },
         { label: "Tight (-0.025em)", value: "tight" },
-        { label: "Normal (Inherit)", value: "normal" },
+        { label: "Normal (inherit)", value: "normal" },
         { label: "Wide (0.025em)", value: "wide" },
         { label: "Wider (0.05em)", value: "wider" },
         { label: "Widest (0.1em)", value: "widest" },
+      ],
+    },
+    defaultValue: "normal",
+  },
+  {
+    type: "select",
+    label: "Line height",
+    name: "lineHeight",
+    configs: {
+      options: [
+        { label: "None (1)", value: "none" },
+        { label: "Tight (1.25)", value: "tight" },
+        { label: "Snug (1.375)", value: "snug" },
+        { label: "Normal (1.5)", value: "normal" },
+        { label: "Relaxed (1.625)", value: "relaxed" },
+        { label: "Loose (2)", value: "loose" },
       ],
     },
     defaultValue: "normal",

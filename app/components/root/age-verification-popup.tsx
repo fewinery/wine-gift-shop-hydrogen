@@ -133,7 +133,7 @@ export function AgeVerificationPopup() {
               <button
                 type="button"
                 onClick={handleYes}
-                className="flex-1 py-3 px-6 font-bold transition-colors uppercase text-lg"
+                className="flex-1 py-3 px-6 font-bold transition-colors uppercase text-lg focus:outline-none"
                 style={{
                   backgroundColor: ageVerificationYesButtonBg || "#e91220",
                   color: ageVerificationYesButtonTextColor || "#ffffff",
@@ -152,7 +152,7 @@ export function AgeVerificationPopup() {
               <button
                 type="button"
                 onClick={handleNo}
-                className="flex-1 py-3 px-6 font-bold transition-colors uppercase text-lg"
+                className="flex-1 py-3 px-6 font-bold transition-colors uppercase text-lg focus:outline-none"
                 style={{
                   backgroundColor: ageVerificationNoButtonBg || "#ffffff",
                   color: ageVerificationNoButtonTextColor || "#000000",

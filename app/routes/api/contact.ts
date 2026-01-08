@@ -23,10 +23,8 @@ export const action: ActionFunction = async ({
   const firstName = formData.get("firstName");
   const lastName = formData.get("lastName");
   const phone = formData.get("phone");
-  const tastingType = formData.get("tastingType");
-  const membership = formData.get("membership");
-  const numberOfGuests = formData.get("numberOfGuests");
-  const comments = formData.get("comments");
+  const topic = formData.get("topic");
+  const message = formData.get("message");
 
   if (!email) {
     return data({ ok: false, error: "Email is required" }, 400);
@@ -50,12 +48,10 @@ export const action: ActionFunction = async ({
             last_name: lastName,
             phone_number: phone,
             properties: {
-              "Tasting Type": tastingType,
-              Membership: membership,
-              "Number of Guests": numberOfGuests,
-              Comments: comments,
-              "Reservation Date": new Date().toISOString(),
-              Source: "Reservation Form",
+              "Contact Topic": topic,
+              "Contact Message": message,
+              "Submitted At": new Date().toISOString(),
+              Source: "Contact Form",
             },
           },
         },
@@ -67,7 +63,11 @@ export const action: ActionFunction = async ({
 
     if (res.ok) {
       return data(
-        { ok: true, message: "Reservation submitted successfully" },
+        {
+          ok: true,
+          message:
+            "Thank you for contacting us! We'll get back to you soon.",
+        },
         status,
       );
     }
@@ -75,7 +75,7 @@ export const action: ActionFunction = async ({
     const errorDetail =
       klaviyoData?.errors?.[0]?.detail ||
       klaviyoData?.errors?.[0]?.title ||
-      "Unable to submit reservation";
+      "Unable to submit contact form";
 
     return data({ ok: false, error: errorDetail }, status);
   } catch (e) {

@@ -1,6 +1,9 @@
 import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
 import clsx from "clsx";
+import { useState } from "react";
 import { useFetcher } from "react-router";
+import PhoneInput from "react-phone-number-input";
+import "react-phone-number-input/style.css";
 
 interface ReservationFormContentProps extends HydrogenComponentProps {
   ref?: React.Ref<HTMLDivElement>;
@@ -32,6 +35,7 @@ function ReservationFormContent(props: ReservationFormContentProps) {
   } = props;
   const fetcher = useFetcher();
   const { state, Form } = fetcher;
+  const [phone, setPhone] = useState<string>();
   const data = fetcher.data as
     | { ok?: boolean; error?: string; message?: string }
     | undefined;
@@ -95,12 +99,15 @@ function ReservationFormContent(props: ReservationFormContentProps) {
               <span className="mb-2 block font-medium">
                 Phone Number<span className="text-red-600">*</span>:
               </span>
-              <input
-                name="phone"
-                type="tel"
-                className="w-full rounded border border-[--color-line-subtle] bg-white px-4 py-3 transition-colors focus:border-[--color-line] focus:outline-none focus:ring-1 focus:ring-[--color-line]"
+              <PhoneInput
+                international
+                defaultCountry="US"
+                value={phone}
+                onChange={setPhone}
+                className="w-full [&_.PhoneInputInput]:w-full [&_.PhoneInputInput]:rounded [&_.PhoneInputInput]:border [&_.PhoneInputInput]:border-[--color-line-subtle] [&_.PhoneInputInput]:bg-white [&_.PhoneInputInput]:px-4 [&_.PhoneInputInput]:py-3 [&_.PhoneInputInput]:transition-colors [&_.PhoneInputInput]:focus:border-[--color-line] [&_.PhoneInputInput]:focus:outline-none [&_.PhoneInputInput]:focus:ring-1 [&_.PhoneInputInput]:focus:ring-[--color-line]"
                 required
               />
+              <input type="hidden" name="phone" value={phone || ""} />
             </label>
           </div>
 

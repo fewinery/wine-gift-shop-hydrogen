@@ -23,6 +23,7 @@ export interface CollectionFiltersData {
   filtersPosition: "sidebar" | "drawer";
   expandFilters: boolean;
   showFiltersCount: boolean;
+  showFilterSeparator: boolean;
   enableSwatches: boolean;
   displayAsButtonFor: string;
   productsPerRowDesktop: number;
@@ -32,6 +33,11 @@ export interface CollectionFiltersData {
   titlePricesAlignment?: "horizontal" | "vertical";
   contentAlignment?: "left" | "center" | "right";
   showViewProductButton?: boolean;
+  filterTitleSize?: number;
+  filterOptionSize?: number;
+  filterCountSize?: number;
+  filterWidth?: number;
+  filterSectionSpacing?: number;
 }
 
 interface CollectionFiltersProps extends SectionProps, CollectionFiltersData {
@@ -62,6 +68,11 @@ export default function CollectionFilters(props: CollectionFiltersProps) {
     titlePricesAlignment,
     contentAlignment,
     showViewProductButton,
+    filterTitleSize,
+    filterOptionSize,
+    filterCountSize,
+    filterWidth,
+    filterSectionSpacing,
     ...rest
   } = props;
 
@@ -127,7 +138,7 @@ export default function CollectionFilters(props: CollectionFiltersProps) {
               {showOverlay && (
                 <div className="absolute inset-0 bg-[#00000099]" />
               )}
-              <h3 className="relative z-[1] text-center font-henderson-slab text-white text-[25.6px] font-medium uppercase">
+              <h3 className="relative z-1 text-center font-henderson-slab text-white text-[25.6px] font-medium uppercase">
                 {collection.title}
               </h3>
             </div>
@@ -136,9 +147,17 @@ export default function CollectionFilters(props: CollectionFiltersProps) {
 
         <div className="flex">
           {filtersPosition === "sidebar" && showSidebar && (
-            <div className="hidden w-72 shrink-0 px-8 my-16 border-r lg:block">
+            <div
+              className="hidden shrink-0 px-8 my-16 border-r lg:block"
+              style={{ width: `${filterWidth}px` }}
+            >
               <div className="sticky top-[calc(var(--height-nav)+40px)] space-y-4">
-                <Filters />
+                <Filters
+                  filterTitleSize={filterTitleSize}
+                  filterOptionSize={filterOptionSize}
+                  filterCountSize={filterCountSize}
+                  filterSectionSpacing={filterSectionSpacing}
+                />
               </div>
             </div>
           )}
@@ -156,6 +175,11 @@ export default function CollectionFilters(props: CollectionFiltersProps) {
               }}
               showSidebar={showSidebar}
               setShowSidebar={setShowSidebar}
+              filterWidth={filterWidth}
+              filterTitleSize={filterTitleSize}
+              filterOptionSize={filterOptionSize}
+              filterCountSize={filterCountSize}
+              filterSectionSpacing={filterSectionSpacing}
               {...props}
             />
             <ProductsPagination
@@ -294,6 +318,13 @@ export const schema = createSchema({
         },
         {
           type: "switch",
+          name: "showFilterSeparator",
+          label: "Show filter separator",
+          defaultValue: true,
+          condition: (data: CollectionFiltersData) => data.enableFilter,
+        },
+        {
+          type: "switch",
           name: "enableSwatches",
           label: "Enable color/image swatches",
           defaultValue: true,
@@ -306,6 +337,69 @@ export const schema = createSchema({
           defaultValue: "Size, More filters",
           condition: (data: CollectionFiltersData) => data.enableFilter,
           helpText: "Comma-separated list of filters to display as buttons",
+        },
+        {
+          type: "range",
+          name: "filterTitleSize",
+          label: "Filter title size (px)",
+          defaultValue: 19.2,
+          configs: {
+            min: 12,
+            max: 32,
+            step: 0.1,
+          },
+          condition: (data: CollectionFiltersData) => data.enableFilter,
+        },
+        {
+          type: "range",
+          name: "filterOptionSize",
+          label: "Filter option size (px)",
+          defaultValue: 16,
+          configs: {
+            min: 12,
+            max: 24,
+            step: 1,
+          },
+          condition: (data: CollectionFiltersData) => data.enableFilter,
+        },
+        {
+          type: "range",
+          name: "filterCountSize",
+          label: "Filter count size (px)",
+          defaultValue: 14,
+          configs: {
+            min: 10,
+            max: 20,
+            step: 1,
+          },
+          condition: (data: CollectionFiltersData) => data.enableFilter,
+        },
+        {
+          type: "range",
+          name: "filterWidth",
+          label: "Filter sidebar/drawer width (px)",
+          defaultValue: 288,
+          configs: {
+            min: 200,
+            max: 600,
+            step: 8,
+          },
+          condition: (data: CollectionFiltersData) => data.enableFilter,
+          helpText: "Sidebar width (desktop) or drawer max-width",
+        },
+        {
+          type: "range",
+          name: "filterSectionSpacing",
+          label: "Filter section spacing (px)",
+          defaultValue: 40,
+          configs: {
+            min: 16,
+            max: 80,
+            step: 4,
+          },
+          condition: (data: CollectionFiltersData) => data.enableFilter,
+          helpText:
+            "Vertical gap between filter groups (price, product type, etc.)",
         },
       ],
     },
@@ -342,7 +436,7 @@ export const schema = createSchema({
           name: "loadPrevText",
           label: "Load previous text",
           defaultValue: "↑ Load previous",
-          placeholder: "↑ Load previous",
+          placeholder: "↑ load previous",
         },
         {
           type: "text",
@@ -390,7 +484,7 @@ export const schema = createSchema({
         {
           type: "switch",
           name: "showViewProductButton",
-          label: "Show View Product button",
+          label: "Show view product button",
           defaultValue: true,
         },
       ],

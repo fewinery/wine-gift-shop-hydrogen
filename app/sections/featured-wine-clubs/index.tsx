@@ -19,7 +19,7 @@ export default function FeaturedWineClubs(props: FeaturedWineClubsProps) {
 
 export const schema = createSchema({
   type: "featured-wine-clubs",
-  title: "Featured Wine Clubs",
+  title: "Featured wine clubs",
   childTypes: ["featured-wine-clubs--header", "featured-wine-clubs--items"],
   settings: [
     {
@@ -39,4 +39,3 @@ export const schema = createSchema({
     ],
   },
 });
-

@@ -339,6 +339,21 @@ const LAYOUT_QUERY = `#graphql
           width
         }
       }
+      ... on Page {
+        menuImage: metafield(namespace: "custom", key: "menu_image") {
+          reference {
+            ... on MediaImage {
+              image {
+                altText
+                height
+                id
+                url
+                width
+              }
+            }
+          }
+        }
+      }
     }
     tags
     title

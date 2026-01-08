@@ -182,7 +182,16 @@ export const schema = createSchema({
     gap: 32,
     selectionMethod: "auto",
     children: [
-      { type: "featured-products--header" },
+      {
+        type: "featured-products--header",
+        children: [
+          {
+            type: "heading",
+            content: "Featured products",
+            as: "h2",
+          },
+        ],
+      },
       { type: "featured-products-items" },
     ],
   },

@@ -37,6 +37,17 @@ export function GlobalStyle() {
       bodyBaseSpacing,
       bodyBaseLineHeight,
       h1BaseSize,
+      h2BaseSize,
+      h3BaseSize,
+      h4BaseSize,
+      h5BaseSize,
+      h6BaseSize,
+      h1MobileSize,
+      h2MobileSize,
+      h3MobileSize,
+      h4MobileSize,
+      h5MobileSize,
+      h6MobileSize,
       headingBaseSpacing,
       headingBaseLineHeight,
       navHeightDesktop,
@@ -93,22 +104,21 @@ export function GlobalStyle() {
               --body-base-spacing: ${bodyBaseSpacing};
               --body-base-line-height: ${bodyBaseLineHeight};
 
-              --heading-scale-ratio: 1.2;
-              --heading-mobile-scale-ratio: 1.1;
-
+              /* Desktop heading sizes */
               --h1-base-size: ${h1BaseSize}px;
-              --h2-base-size: round(calc(var(--h1-base-size) / var(--heading-scale-ratio)), 1px);
-              --h3-base-size: round(calc(var(--h2-base-size) / var(--heading-scale-ratio)), 1px);
-              --h4-base-size: round(calc(var(--h3-base-size) / var(--heading-scale-ratio)), 1px);
-              --h5-base-size: round(calc(var(--h4-base-size) / var(--heading-scale-ratio)), 1px);
-              --h6-base-size: round(calc(var(--h5-base-size) / var(--heading-scale-ratio)), 1px);
+              --h2-base-size: ${h2BaseSize}px;
+              --h3-base-size: ${h3BaseSize}px;
+              --h4-base-size: ${h4BaseSize}px;
+              --h5-base-size: ${h5BaseSize}px;
+              --h6-base-size: ${h6BaseSize}px;
 
-              --h1-mobile-size: round(calc(var(--h1-base-size) / var(--heading-mobile-scale-ratio)), 1px);
-              --h2-mobile-size: round(calc(var(--h2-base-size) / var(--heading-mobile-scale-ratio)), 1px);
-              --h3-mobile-size: round(calc(var(--h3-base-size) / var(--heading-mobile-scale-ratio)), 1px);
-              --h4-mobile-size: round(calc(var(--h4-base-size) / var(--heading-mobile-scale-ratio)), 1px);
-              --h5-mobile-size: round(calc(var(--h5-base-size) / var(--heading-mobile-scale-ratio)), 1px);
-              --h6-mobile-size: round(calc(var(--h6-base-size) / var(--heading-mobile-scale-ratio)), 1px);
+              /* Mobile heading sizes */
+              --h1-mobile-size: ${h1MobileSize}px;
+              --h2-mobile-size: ${h2MobileSize}px;
+              --h3-mobile-size: ${h3MobileSize}px;
+              --h4-mobile-size: ${h4MobileSize}px;
+              --h5-mobile-size: ${h5MobileSize}px;
+              --h6-mobile-size: ${h6MobileSize}px;
 
               --heading-base-spacing: ${headingBaseSpacing};
               --heading-base-line-height: ${headingBaseLineHeight};

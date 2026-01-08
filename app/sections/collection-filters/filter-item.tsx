@@ -20,11 +20,15 @@ export function FilterItem({
   option,
   appliedFilters,
   showFiltersCount,
+  filterOptionSize,
+  filterCountSize,
 }: {
   displayAs: FilterDisplayAs;
   option: Filter["values"][0];
   appliedFilters: AppliedFilter[];
   showFiltersCount: boolean;
+  filterOptionSize?: number;
+  filterCountSize?: number;
 }) {
   const navigate = useNavigate();
   const [params] = useSearchParams();
@@ -81,7 +85,12 @@ export function FilterItem({
           </button>
         </TooltipTrigger>
         <TooltipContent>
-          <FilterLabel option={option} showFiltersCount={showFiltersCount} />
+          <FilterLabel
+            option={option}
+            showFiltersCount={showFiltersCount}
+            filterOptionSize={filterOptionSize}
+            filterCountSize={filterCountSize}
+          />
         </TooltipContent>
       </Tooltip>
     );
@@ -101,7 +110,12 @@ export function FilterItem({
         onClick={() => handleCheckedChange(!checked)}
         disabled={option.count === 0}
       >
-        <FilterLabel option={option} showFiltersCount={showFiltersCount} />
+        <FilterLabel
+          option={option}
+          showFiltersCount={showFiltersCount}
+          filterOptionSize={filterOptionSize}
+          filterCountSize={filterCountSize}
+        />
       </button>
     );
   }
@@ -127,23 +141,37 @@ export function FilterItem({
           <span className="inline-block h-3 w-3 bg-body" />
         </Checkbox.Indicator>
       </Checkbox.Root>
-      <FilterLabel option={option} showFiltersCount={showFiltersCount} />
+      <FilterLabel
+        option={option}
+        showFiltersCount={showFiltersCount}
+        filterOptionSize={filterOptionSize}
+        filterCountSize={filterCountSize}
+      />
     </div>
   );
 }
 function FilterLabel({
   option,
   showFiltersCount,
+  filterOptionSize,
+  filterCountSize,
 }: {
   option: Filter["values"][0];
   showFiltersCount: boolean;
+  filterOptionSize?: number;
+  filterCountSize?: number;
 }) {
   if (showFiltersCount) {
     return (
-      <span>
-        {option.label} <span>({option.count})</span>
+      <span style={{ fontSize: `${filterOptionSize}px` }}>
+        {option.label}{" "}
+        <span style={{ fontSize: `${filterCountSize}px` }}>
+          ({option.count})
+        </span>
       </span>
     );
   }
-  return option.label;
+  return (
+    <span style={{ fontSize: `${filterOptionSize}px` }}>{option.label}</span>
+  );
 }

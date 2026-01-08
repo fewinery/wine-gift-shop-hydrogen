@@ -19,6 +19,11 @@ interface ToolsBarProps extends LayoutSwitcherProps {
   showFiltersCount: boolean;
   showSidebar: boolean;
   setShowSidebar: (v: boolean) => void;
+  filterWidth?: number;
+  filterTitleSize?: number;
+  filterOptionSize?: number;
+  filterCountSize?: number;
+  filterSectionSpacing?: number;
 }
 
 export function ToolsBar({
@@ -28,6 +33,11 @@ export function ToolsBar({
   showProductsCount,
   showSidebar,
   setShowSidebar,
+  filterWidth,
+  filterTitleSize,
+  filterOptionSize,
+  filterCountSize,
+  filterSectionSpacing,
 }: ToolsBarProps) {
   const { collection } = useLoaderData<CollectionQuery>();
   return (
@@ -52,7 +62,14 @@ export function ToolsBar({
             )}
             {enableSort && <Sort />}
             {enableFilter && (
-              <FiltersDrawer filtersPosition={filtersPosition} />
+              <FiltersDrawer
+                filtersPosition={filtersPosition}
+                filterWidth={filterWidth}
+                filterTitleSize={filterTitleSize}
+                filterOptionSize={filterOptionSize}
+                filterCountSize={filterCountSize}
+                filterSectionSpacing={filterSectionSpacing}
+              />
             )}
           </div>
         )}
@@ -63,8 +80,18 @@ export function ToolsBar({
 
 function FiltersDrawer({
   filtersPosition,
+  filterWidth,
+  filterTitleSize,
+  filterOptionSize,
+  filterCountSize,
+  filterSectionSpacing,
 }: {
   filtersPosition: ToolsBarProps["filtersPosition"];
+  filterWidth?: number;
+  filterTitleSize?: number;
+  filterOptionSize?: number;
+  filterCountSize?: number;
+  filterSectionSpacing?: number;
 }) {
   return (
     <Dialog.Root>
@@ -86,9 +113,10 @@ function FiltersDrawer({
         <Dialog.Content
           onCloseAutoFocus={(e) => e.preventDefault()}
           className={clsx([
-            "fixed inset-y-0 z-10 w-full bg-background py-4 md:w-[360px]",
+            "fixed inset-y-0 z-10 w-full bg-background py-4 md:w-auto",
             "-translate-x-full left-0 data-[state=open]:translate-x-0 data-[state=open]:animate-enter-from-left",
           ])}
+          style={{ maxWidth: `${filterWidth}px` }}
           aria-describedby={undefined}
         >
           <div className="space-y-1">
@@ -107,7 +135,13 @@ function FiltersDrawer({
               </Dialog.Close>
             </div>
             <ScrollArea className="max-h-[calc(100vh-4.5rem)]" size="sm">
-              <Filters className="px-4" />
+              <Filters
+                className="px-4"
+                filterTitleSize={filterTitleSize}
+                filterOptionSize={filterOptionSize}
+                filterCountSize={filterCountSize}
+                filterSectionSpacing={filterSectionSpacing}
+              />
             </ScrollArea>
           </div>
         </Dialog.Content>

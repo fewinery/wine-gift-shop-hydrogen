@@ -1,32 +1,15 @@
-import { ArrowRightIcon } from "@phosphor-icons/react";
 import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
-import { Link } from "~/components/link";
+import type React from "react";
 
 interface WineClubsHeaderProps extends HydrogenComponentProps {
   ref?: React.Ref<HTMLDivElement>;
   gap?: number;
   heading?: string;
   headingColor?: string;
-  showButton?: boolean;
-  buttonText?: string;
-  buttonLink?: string;
-  buttonTextColor?: string;
-  buttonBgColor?: string;
 }
 
 function WineClubsHeader(props: WineClubsHeaderProps) {
-  const {
-    ref,
-    gap,
-    heading,
-    headingColor,
-    showButton,
-    buttonText,
-    buttonLink,
-    buttonTextColor,
-    buttonBgColor,
-    ...rest
-  } = props;
+  const { ref, gap, heading, headingColor, children, ...rest } = props;
 
   return (
     <div
@@ -43,30 +26,7 @@ function WineClubsHeader(props: WineClubsHeaderProps) {
           {heading}
         </h2>
       )}
-      {showButton && buttonText && (
-        <>
-          {/* Mobile button - underline with arrow */}
-          <Link
-            to={buttonLink}
-            className="flex items-center justify-center gap-1 underline underline-offset-4 self-start lg:hidden"
-            style={{ color: headingColor }}
-          >
-            {buttonText}
-            <ArrowRightIcon className="h-4 w-4" />
-          </Link>
-          {/* Desktop button - solid background */}
-          <Link
-            to={buttonLink}
-            className="hidden lg:flex items-center justify-center px-6 py-2"
-            style={{
-              color: buttonTextColor,
-              backgroundColor: buttonBgColor,
-            }}
-          >
-            {buttonText}
-          </Link>
-        </>
-      )}
+      {children}
     </div>
   );
 }
@@ -75,7 +35,8 @@ export default WineClubsHeader;
 
 export const schema = createSchema({
   type: "featured-wine-clubs--header",
-  title: "Wine Clubs Header",
+  title: "Wine clubs header",
+  childTypes: ["view-all-button"],
   settings: [
     {
       group: "Heading",
@@ -91,41 +52,6 @@ export const schema = createSchema({
           name: "headingColor",
           label: "Heading color",
           defaultValue: "#000000",
-        },
-      ],
-    },
-    {
-      group: "Button",
-      inputs: [
-        {
-          type: "switch",
-          name: "showButton",
-          label: "Show button",
-          defaultValue: true,
-        },
-        {
-          type: "text",
-          name: "buttonText",
-          label: "Button text",
-          defaultValue: "VIEW ALL",
-        },
-        {
-          type: "text",
-          name: "buttonLink",
-          label: "Button link",
-          defaultValue: "/wine-clubs",
-        },
-        {
-          type: "color",
-          name: "buttonBgColor",
-          label: "Background color",
-          defaultValue: "#000000",
-        },
-        {
-          type: "color",
-          name: "buttonTextColor",
-          label: "Text color",
-          defaultValue: "#ffffff",
         },
       ],
     },
@@ -147,4 +73,12 @@ export const schema = createSchema({
       ],
     },
   ],
+  presets: {
+    children: [
+      {
+        type: "view-all-button",
+        buttonLink: "/wine-clubs",
+      },
+    ],
+  },
 });

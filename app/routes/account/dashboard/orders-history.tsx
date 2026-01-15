@@ -19,12 +19,16 @@ type OrderCardsProps = {
 
 export function OrdersHistory({ orders }: OrderCardsProps) {
   return (
-    <div className="space-y-4">
-      <div className="font-bold">Orders</div>
+    <div className="space-y-0">
       {orders?.length ? (
         <Orders orders={orders} />
       ) : (
-        <div>You haven&apos;t placed any orders yet.</div>
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <p className="text-xl font-bold">No orders yet</p>
+          <p className="text-body-subtle mt-2">
+            You haven&apos;t placed any orders yet.
+          </p>
+        </div>
       )}
     </div>
   );
@@ -46,7 +50,7 @@ function Orders({ orders }: OrderCardsProps) {
           return (
             <li
               key={order.id}
-              className="flex items-center gap-5 border border-line-subtle p-5 text-center"
+              className="flex items-center gap-5 bg-body-subtle/4 p-5 text-center rounded-md"
             >
               {lineItems[0].image && (
                 <Link
@@ -64,9 +68,8 @@ function Orders({ orders }: OrderCardsProps) {
                 </Link>
               )}
               <div
-                className={`h-full flex-col justify-center text-left ${
-                  lineItems[0].image ? "" : "md:col-span-2"
-                }`}
+                className={`h-full flex-col justify-center text-left ${lineItems[0].image ? "" : "md:col-span-2"
+                  }`}
               >
                 <div className="line-clamp-1 font-medium">
                   {lineItems.length > 1

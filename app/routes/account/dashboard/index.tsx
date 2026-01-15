@@ -1,7 +1,8 @@
-import { SignOutIcon } from "@phosphor-icons/react";
+import { ArrowSquareOut, SignOutIcon } from "@phosphor-icons/react";
 import { flattenConnection } from "@shopify/hydrogen";
 import { Suspense } from "react";
 import { Await, Form, useLoaderData, useOutletContext } from "react-router";
+import Link from "~/components/link";
 import { ProductCard } from "~/components/product/product-card";
 import { Section } from "~/components/section";
 import { Swimlane } from "~/components/swimlane";
@@ -37,23 +38,60 @@ export default function AccountDashboard() {
       verticalPadding="medium"
       containerClassName="space-y-10"
     >
-      <div className="space-y-4">
-        <h1 className="h4 font-medium">{heading}</h1>
-        <Form method="post" action={signOutUrl}>
-          <button
-            type="submit"
-            className="group flex items-center gap-2 text-body-subtle"
+      <div className="flex flex-col gap-4 md:flex-row md:items-end justify-between border-b border-line-subtle pb-8 w-full">
+        <div className="space-y-2">
+          <p className="text-body-subtle uppercase tracking-widest text-[10px] font-semibold">
+            Customer Area
+          </p>
+          <h1 className="h2 tracking-tight">{heading}</h1>
+        </div>
+        <div className="flex items-center gap-6">
+          <Link
+            to="https://winegiftshop.com/apps/winehub?country=US"
+            className="group flex items-center gap-2 text-base font-medium"
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            <SignOutIcon className="h-4 w-4" />
-            <span className="underline-offset-4 group-hover:underline">
-              Sign out
+            <ArrowSquareOut className="h-5 w-5" />
+            <span className="underline-offset-8 group-hover:underline">
+              Customer Portal
             </span>
-          </button>
-        </Form>
+          </Link>
+          <Form method="post" action={signOutUrl}>
+            <button
+              type="submit"
+              className="group flex items-center gap-2 text-base font-medium text-red-700/80 hover:text-red-700 transition-colors"
+            >
+              <SignOutIcon className="h-5 w-5" />
+              <span className="underline-offset-8 group-hover:underline">
+                Sign out
+              </span>
+            </button>
+          </Form>
+        </div>
       </div>
-      {orders ? <OrdersHistory orders={orders} /> : null}
-      <AccountDetails customer={customer} />
-      <AddressBook addresses={addresses} customer={customer} />
+
+      <div className="space-y-4">
+        <h5 className="font-semibold tracking-tight">Orders</h5>
+        <div className="bg-body-subtle/4 p-6 rounded-xl border border-line-subtle/10">
+          <OrdersHistory orders={orders} />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-8">
+        <div className="space-y-4">
+          <h5 className="font-semibold tracking-tight">Account</h5>
+          <div className="bg-body-subtle/4 p-6 rounded-xl border border-line-subtle/10 md:h-full">
+            <AccountDetails customer={customer} />
+          </div>
+        </div>
+        <div className="space-y-4">
+          <h5 className="font-semibold tracking-tight">Address Book</h5>
+          <div className="bg-body-subtle/4 p-6 rounded-xl border border-line-subtle/10 md:h-full">
+            <AddressBook addresses={addresses} customer={customer} />
+          </div>
+        </div>
+      </div>
       {!orders.length && (
         <Suspense>
           <Await

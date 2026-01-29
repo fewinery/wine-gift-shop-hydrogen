@@ -144,12 +144,15 @@ export function formatWineClubCart(
     ],
   }));
 
-  // Format add-on items (one-time purchases)
+  // Format add-on items (one-time purchases with club discount)
   const addOnLines: CartLineItem[] = selectedAddOns.map((addOn) => ({
     merchandiseId: formatMerchandiseId(
       addOn.productVariant.shopifyId || addOn.productVariant.id,
     ),
     quantity: addOn.quantity,
+    sellingPlanId: formatSellingPlanId(
+      selectedSellingPlan.shopifyId || selectedSellingPlan.id,
+    ),
     attributes: [
       {
         key: "_wineClubId",

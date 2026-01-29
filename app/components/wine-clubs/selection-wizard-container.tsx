@@ -10,6 +10,7 @@ import { useWineClubWizard } from "./selection-wizard";
 import Step1CaseSize from "./step-1-case-size";
 import Step2Frequency from "./step-2-frequency";
 import Step3Quantity from "./step-3-quantity";
+import Step4AddOns from "./step-4-addons";
 import Step5Review from "./step-5-review";
 
 /**
@@ -53,8 +54,30 @@ export default function SelectionWizardContainer({
 }: SelectionWizardContainerProps) {
   const wizard = useWineClubWizard(wineClub);
   const prevStateRef = React.useRef<string>("");
+  const containerRef = React.useRef<HTMLDivElement>(null);
 
-  // Auto-save wizard state to session storage when state actually changes
+  const {
+    state,
+    goToStep,
+    goToNextStep,
+    goToPreviousStep,
+    validateCurrentStep,
+    canProceedToNext,
+  } = wizard;
+
+  // Scroll to top of wizard when step changes
+  React.useEffect(() => {
+    if (containerRef.current && typeof window !== "undefined") {
+      // Small delay to ensure the new step content is rendered
+      setTimeout(() => {
+        containerRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }, 50);
+    }
+  }, [state.currentStep]);
+
   React.useEffect(() => {
     const currentStateJson = JSON.stringify(wizard.state);
     if (currentStateJson !== prevStateRef.current) {
@@ -65,8 +88,8 @@ export default function SelectionWizardContainer({
 
   // Clear saved state when wizard is completed
   React.useEffect(() => {
-    if (wizard.state.currentStep === 5) {
-      // Completed state (after step 4 review)
+    if (wizard.state.currentStep === 6) {
+      // Completed state (after step 5 review)
       clearWizardState();
     }
   }, [wizard.state.currentStep]);
@@ -79,15 +102,6 @@ export default function SelectionWizardContainer({
       console.error("Failed to save selections:", error);
     }
   };
-
-  const {
-    state,
-    goToStep,
-    goToNextStep,
-    goToPreviousStep,
-    validateCurrentStep,
-    canProceedToNext,
-  } = wizard;
 
   // Handle step navigation with validation
   const handleStepClick = (step: number) => {
@@ -137,6 +151,8 @@ export default function SelectionWizardContainer({
       case 3:
         return <Step3Quantity {...stepProps} />;
       case 4:
+        return <Step4AddOns {...stepProps} />;
+      case 5:
         return (
           <Step5Review
             {...stepProps}
@@ -144,6 +160,7 @@ export default function SelectionWizardContainer({
             onEditCaseSize={() => goToStep(1)}
             onEditFrequency={() => goToStep(2)}
             onEditWines={() => goToStep(3)}
+            onEditAddOns={() => goToStep(4)}
           />
         );
       default:
@@ -167,12 +184,15 @@ export default function SelectionWizardContainer({
         }}
       />
 
-      <div className={cn("w-full max-w-6xl mx-auto", className)}>
+      <div
+        ref={containerRef}
+        className={cn("w-full max-w-6xl mx-auto scroll-mt-24", className)}
+      >
         {/* Progress Bar */}
         <div className="mb-4">
           <ProgressBar
             currentStep={state.currentStep}
-            totalSteps={4}
+            totalSteps={5}
             allowNavigation={allowStepNavigation}
             onStepClick={handleStepClick}
           />
@@ -182,7 +202,7 @@ export default function SelectionWizardContainer({
         <div className="min-h-[400px]">{renderCurrentStep()}</div>
 
         {/* Navigation Buttons */}
-        {state.currentStep !== 4 && (
+        {state.currentStep !== 5 && (
           <div className="flex justify-center items-center gap-4 mt-8 pt-6 border-t border-gray-200">
             {state.currentStep > 1 && (
               <button
@@ -209,7 +229,7 @@ export default function SelectionWizardContainer({
                   : "bg-gray-300 text-gray-500 cursor-not-allowed",
               )}
             >
-              {state.currentStep === 3 ? "Review Selection" : "Next Step →"}
+              {state.currentStep === 4 ? "Review Selection" : "Next Step →"}
             </button>
           </div>
         )}

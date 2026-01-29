@@ -32,11 +32,11 @@ export interface ProgressBarProps {
 
 export default function ProgressBar({
   currentStep,
-  totalSteps = 4,
+  totalSteps = 5,
   allowNavigation = true,
   onStepClick,
   className,
-  stepLabels = ["Case Size", "Frequency", "Quantity", "Review"],
+  stepLabels = ["Case Size", "Frequency", "Quantity", "Add-Ons", "Review"],
 }: ProgressBarProps) {
   return (
     <div className={cn("w-full", className)}>
@@ -53,7 +53,7 @@ export default function ProgressBar({
         </div>
 
         {/* Step Indicators */}
-        <div className="flex justify-between relative z-[1]">
+        <div className="flex justify-between relative z-1">
           {Array.from({ length: totalSteps }, (_, index) => {
             const stepNumber = index + 1;
             const isActive = stepNumber === currentStep;
@@ -83,7 +83,7 @@ export default function ProgressBar({
                   )}
                   <div
                     className={cn(
-                      "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 relative z-[2]",
+                      "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 relative z-2",
                       {
                         "bg-[#f5a623] text-white shadow-md":
                           isActive || isCompleted,
@@ -172,6 +172,9 @@ function getMobileLabel(label: string): string {
   }
   if (label.toLowerCase().includes("quantity")) {
     return "How many";
+  }
+  if (label.toLowerCase().includes("add-ons")) {
+    return "Extras";
   }
   if (label.toLowerCase().includes("review")) {
     return "Check";

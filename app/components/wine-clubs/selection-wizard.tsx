@@ -68,7 +68,7 @@ export interface FormErrors {
   caseSize?: string;
   sellingPlan?: string;
   quantity?: string;
-  addOns?: string;
+  addOnons?: string;
   review?: string;
 
   /** Product-specific errors */
@@ -127,11 +127,11 @@ export function useWineClubWizard(wineClub: WineClubDetails) {
   // Step navigation
   const goToStep = useCallback(
     (step: number) => {
-      if (step >= 1 && step <= 4) {
+      if (step >= 1 && step <= 5) {
         clearErrors();
         updateState({
           currentStep: step,
-          isReviewing: step === 4,
+          isReviewing: step === 5,
         });
       }
     },
@@ -140,11 +140,11 @@ export function useWineClubWizard(wineClub: WineClubDetails) {
 
   const goToNextStep = useCallback(() => {
     setState((prev) => {
-      if (prev.currentStep < 4) {
+      if (prev.currentStep < 5) {
         return {
           ...prev,
           currentStep: prev.currentStep + 1,
-          isReviewing: prev.currentStep + 1 === 4,
+          isReviewing: prev.currentStep + 1 === 5,
           errors: {},
         };
       }
@@ -215,14 +215,14 @@ export function useWineClubWizard(wineClub: WineClubDetails) {
             updatedProducts = products.map((p, index) =>
               index === existingIndex
                 ? {
-                    ...p,
+                  ...p,
+                  quantity,
+                  calculatedPrice: calculatePrice(
+                    p.productVariant,
                     quantity,
-                    calculatedPrice: calculatePrice(
-                      p.productVariant,
-                      quantity,
-                      prev,
-                    ),
-                  }
+                    prev,
+                  ),
+                }
                 : p,
             );
           }
@@ -282,11 +282,28 @@ export function useWineClubWizard(wineClub: WineClubDetails) {
           return false;
         }
 
-        // Validate case restrictions
+        // Validate exact bottle count matches case size
         if (state.selectedCaseSize) {
-          for (const product of state.selectedProducts) {
-            // Note: caseRestrictions is not in the ProductVariant type, so we'll skip this validation for now
-            // This would need to be added to the ProductData type instead
+          const totalBottles = state.selectedProducts.reduce(
+            (sum, product) => sum + product.quantity,
+            0,
+          );
+          const requiredBottles = state.selectedCaseSize.quantity;
+
+          if (totalBottles < requiredBottles) {
+            setError(
+              "quantity",
+              `Please select ${requiredBottles} bottles to complete your ${state.selectedCaseSize.title} case. Currently selected: ${totalBottles}/${requiredBottles}`,
+            );
+            return false;
+          }
+
+          if (totalBottles > requiredBottles) {
+            setError(
+              "quantity",
+              `You have selected too many bottles (${totalBottles}). Please reduce to ${requiredBottles} bottles for your ${state.selectedCaseSize.title} case.`,
+            );
+            return false;
           }
         }
 
@@ -324,6 +341,10 @@ export function useWineClubWizard(wineClub: WineClubDetails) {
       }
 
       case 4: {
+        return true;
+      }
+
+      case 5: {
         // Review step - ensure all previous steps are valid and check minimum order value again (T070)
         const reviewPricing = calculateTotalPrice(state);
         const reviewMov = wineClub.minimumOrderValue?.find(
@@ -372,9 +393,20 @@ export function useWineClubWizard(wineClub: WineClubDetails) {
         return state.selectedCaseSize !== null;
       case 2:
         return state.selectedSellingPlan !== null;
-      case 3:
-        return state.selectedProducts.length > 0;
+      case 3: {
+        // Must select exact number of bottles matching case size
+        if (!state.selectedCaseSize || state.selectedProducts.length === 0) {
+          return false;
+        }
+        const totalBottles = state.selectedProducts.reduce(
+          (sum, product) => sum + product.quantity,
+          0,
+        );
+        return totalBottles === state.selectedCaseSize.quantity;
+      }
       case 4:
+        return true;
+      case 5:
         return (
           state.selectedCaseSize !== null &&
           state.selectedSellingPlan !== null &&
@@ -387,7 +419,7 @@ export function useWineClubWizard(wineClub: WineClubDetails) {
     state.currentStep,
     state.selectedCaseSize,
     state.selectedSellingPlan,
-    state.selectedProducts.length,
+    state.selectedProducts,
   ]);
 
   return {
@@ -451,14 +483,31 @@ function calculatePrice(
     quantity = 0;
   }
 
-  // Note: individualPrices is not in ProductVariant type, using base price
-  // This would need to be added to the type definitions if case-specific pricing is needed
-
   // Apply selling plan discount if available (FR-018)
-  // Note: discountPercentage is not in SellingPlan type, using base price
-  // This would need to be added to the type definitions if discounts are supported
+  let discountMultiplier = 1;
+  const sellingPlan = state.selectedSellingPlan;
+  let discountPercentage = sellingPlan?.discountPercentage;
 
-  return basePrice * quantity;
+  // T071: Robust discount detection from nested objects
+  if (
+    (discountPercentage === undefined || discountPercentage === null || discountPercentage === 0) &&
+    sellingPlan?.sellingPlanClubDiscount
+  ) {
+    const clubDiscount = sellingPlan.sellingPlanClubDiscount;
+    if (clubDiscount.fixedType === "PERCENTAGE") {
+      discountPercentage = clubDiscount.fixedAmount;
+    }
+  }
+
+  if (
+    typeof discountPercentage === "number" &&
+    !Number.isNaN(discountPercentage) &&
+    discountPercentage > 0
+  ) {
+    discountMultiplier = (100 - discountPercentage) / 100;
+  }
+
+  return basePrice * discountMultiplier * quantity;
 }
 
 /**

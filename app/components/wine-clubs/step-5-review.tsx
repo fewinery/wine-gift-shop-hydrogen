@@ -417,8 +417,8 @@ export default function Step5Review({
               {/* Original Subtotal with Discount */}
               {pricing.discountAmount > 0 && (
                 <div className="flex justify-between items-center pb-2">
-                  <span className="text-sm text-gray-500">Original Price</span>
-                  <span className="text-sm text-gray-500 line-through">
+                  <span className="text-base text-gray-500">Original Price</span>
+                  <span className="text-base text-gray-500 line-through">
                     ${pricing.originalSubtotal.toFixed(2)}
                   </span>
                 </div>
@@ -427,10 +427,10 @@ export default function Step5Review({
               {/* Discount Amount */}
               {pricing.discountAmount > 0 && (
                 <div className="flex justify-between items-center pb-3 border-b border-gray-200">
-                  <span className="text-sm text-[#d4820a] font-medium">
+                  <span className="text-base text-[#d4820a] font-medium">
                     {selectedSellingPlan?.discountPercentage}% Discount
                   </span>
-                  <span className="text-sm font-medium text-[#d4820a]">
+                  <span className="text-base font-medium text-[#d4820a]">
                     -${pricing.discountAmount.toFixed(2)}
                   </span>
                 </div>
@@ -438,8 +438,8 @@ export default function Step5Review({
 
               {/* Subscription Total */}
               <div className="flex justify-between items-center pb-3 border-b border-gray-200">
-                <span className="text-sm text-gray-600">Wine Subscription</span>
-                <span className="font-medium text-gray-900">
+                <span className="text-base text-gray-600">Wine Subscription</span>
+                <span className="text-base font-medium text-gray-900">
                   ${pricing.subscriptionTotal.toFixed(2)}
                 </span>
               </div>
@@ -447,8 +447,8 @@ export default function Step5Review({
               {/* Add-ons Total */}
               {pricing.addOnTotal > 0 && (
                 <div className="flex justify-between items-center pb-3 border-b border-gray-200">
-                  <span className="text-sm text-gray-600">Add-ons</span>
-                  <span className="font-medium text-gray-900">
+                  <span className="text-base text-gray-600">Add-ons</span>
+                  <span className="text-base font-medium text-gray-900">
                     ${pricing.addOnTotal.toFixed(2)}
                   </span>
                 </div>
@@ -464,24 +464,11 @@ export default function Step5Review({
                 </span>
               </div>
 
-              {/* Savings Badge */}
-              {pricing.discountAmount > 0 && (
-                <div className="mt-3 p-2 bg-green-50 rounded-lg">
-                  <div className="text-xs text-green-800 text-center">
-                    <span className="font-medium">
-                      You save ${pricing.discountAmount.toFixed(2)}
-                    </span>
-                    <span className="block">
-                      with {selectedSellingPlan?.name} subscription
-                    </span>
-                  </div>
-                </div>
-              )}
 
               {/* Billing Info */}
               <div className="mt-4 p-4 bg-[#f9f5f0] rounded border border-[#e6dac9]">
-                <div className="text-sm text-[#4a4a4a] space-y-1 font-body">
-                  <p className="font-bold text-gray-900 uppercase tracking-wide text-xs mb-2">
+                <div className="text-base text-[#4a4a4a] space-y-1 font-body">
+                  <p className="font-bold text-gray-900 uppercase tracking-wide mb-2">
                     Billing Information
                   </p>
                   <p>• Subscription billed per delivery</p>

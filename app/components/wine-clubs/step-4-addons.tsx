@@ -9,7 +9,6 @@ import type { WizardStepProps } from "./selection-wizard";
  * Add-ons don't count toward case minimums and are billed separately
  *
  * User Story 2 (P2): Wine Club Selection Process
- * Acceptance Scenario 4: Step 4 shows add-ons that don't count toward minimums
  */
 
 export interface Step4AddOnsProps extends WizardStepProps {
@@ -30,20 +29,57 @@ export default function Step4AddOns({
   // Handle add-on selection
   const handleAddOnSelect = (product: ProductVariant, quantity: number) => {
     onAddOnSelect?.(product, quantity);
+
+    const sellingPlan = state.selectedSellingPlan;
+    let discountPercentage = sellingPlan?.discountPercentage || 0;
+
+    // Fallback logic for discount (T071)
+    if (discountPercentage === 0 && sellingPlan?.sellingPlanClubDiscount) {
+      const clubDiscount = sellingPlan.sellingPlanClubDiscount;
+      if (clubDiscount.fixedType === "PERCENTAGE") {
+        discountPercentage = clubDiscount.fixedAmount;
+      }
+    }
+
     updateState({
-      selectedAddOns: updateAddOnQuantity(selectedAddOns, product, quantity),
+      selectedAddOns: updateAddOnQuantity(
+        selectedAddOns,
+        product,
+        quantity,
+        discountPercentage,
+      ),
     });
   };
 
   // Get add-on products (products marked as addOnOnly)
-  const availableAddOns =
-    wineClub.productData?.filter((product) => product.addOnOnly) || [];
+  const availableAddOns = (
+    wineClub.sellingPlanVariants ||
+    wineClub.productData ||
+    []
+  )
+    .map((spv) => {
+      const variantData = spv.productVariant || spv;
 
-  // Calculate add-on subtotal
-  const addOnSubtotal = selectedAddOns.reduce(
-    (sum, addOn) => sum + (addOn.calculatedPrice || 0),
-    0,
-  );
+      return {
+        productVariant: {
+          ...variantData,
+          // CRITICAL FIX: Ensure correct Shopify ID for cart interactions
+          id: variantData.shopifyId || variantData.id,
+          shopifyId: variantData.shopifyId || variantData.id,
+
+          retailPrice: Number.parseFloat(
+            (variantData.retailPrice || (spv as any).retailPrice) as any,
+          ),
+        },
+        caseRestrictions: spv.caseRestrictions || [],
+        customOrderingIndex: spv.customOrderingIndex || null,
+        hidden: spv.hidden ?? false,
+        addOnOnly: spv.addOnOnly ?? false,
+        individualPrices: spv.individualPrices || [],
+        quantity: 0,
+      };
+    })
+    .filter((product) => product.addOnOnly && !product.hidden);
 
   if (!selectedCaseSize) {
     return (
@@ -56,6 +92,7 @@ export default function Step4AddOns({
             Please complete the previous steps before selecting add-ons.
           </p>
           <button
+            type="button"
             onClick={() => updateState({ currentStep: 1 })}
             className="mt-4 px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700"
           >
@@ -69,119 +106,77 @@ export default function Step4AddOns({
   return (
     <div className="space-y-6">
       {/* Step Header */}
-      <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          Add Extra Products (Optional)
-        </h2>
-        <p className="text-gray-600 max-w-2xl mx-auto">
+      <div className="text-center space-y-1">
+        <h2 className="text-[40px] text-gray-900">Add Extra Products</h2>
+        <p className="font-body text-[#5C5C5C] text-lg max-w-xl mx-auto">
           Enhance your wine club experience with these additional products.
-          These items are optional and billed separately from your subscription.
         </p>
       </div>
 
       {/* Selection Summary */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h4 className="font-medium text-blue-900">
-              Selected Case: {selectedCaseSize.title}
-            </h4>
-            <p className="text-sm text-blue-700 mt-1">
-              Main selection:{" "}
-              {state.selectedProducts.reduce((sum, p) => sum + p.quantity, 0)}{" "}
-              items
-            </p>
-          </div>
-          <button
-            onClick={() => updateState({ currentStep: 3 })}
-            className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-          >
-            Change Wines
-          </button>
-        </div>
+      <div className="flex items-center justify-center gap-2 pt-3">
+        <span className="inline-flex items-center gap-3 px-5 py-2.5 bg-[#e8941d]/15 border border-[#e8941d]/40 rounded-full text-base">
+          <span className="font-semibold text-[#d4820a]">
+            {selectedCaseSize.title}
+          </span>
+          <span className="text-gray-400">•</span>
+          <span className="text-gray-700">
+            {state.selectedProducts.reduce((sum, p) => sum + p.quantity, 0)}{" "}
+            items selected
+          </span>
+        </span>
       </div>
 
       {/* Error Display */}
-      {errors.addOns && (
+      {errors.addOnons && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-800 text-sm">{errors.addOns}</p>
+          <p className="text-red-800 text-sm">{errors.addOnons}</p>
         </div>
       )}
 
       {/* Add-ons Grid */}
       {availableAddOns.length > 0 ? (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {availableAddOns.map((productData) => {
-              const selectedQuantity =
-                selectedAddOns.find(
-                  (addOn) =>
-                    addOn.productVariant.id === productData.productVariant.id,
-                )?.quantity || 0;
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {availableAddOns.map((productData) => {
+            const selectedQuantity =
+              selectedAddOns.find(
+                (addOn) =>
+                  addOn.productVariant.id === productData.productVariant.id,
+              )?.quantity || 0;
 
-              return (
-                <AddOnCard
-                  key={productData.productVariant.id}
-                  productData={productData}
-                  selectedQuantity={selectedQuantity}
-                  onQuantityChange={(quantity) =>
-                    handleAddOnSelect(productData.productVariant, quantity)
+            return (
+              <AddOnCard
+                key={productData.productVariant.id}
+                productData={productData}
+                selectedQuantity={selectedQuantity}
+                onQuantityChange={(quantity) =>
+                  handleAddOnSelect(productData.productVariant, quantity)
+                }
+                discountPercentage={(() => {
+                  const sellingPlan = state.selectedSellingPlan;
+                  if (sellingPlan?.discountPercentage)
+                    return sellingPlan.discountPercentage;
+                  if (
+                    sellingPlan?.sellingPlanClubDiscount?.fixedType ===
+                    "PERCENTAGE"
+                  ) {
+                    return sellingPlan.sellingPlanClubDiscount.fixedAmount;
                   }
-                />
-              );
-            })}
-          </div>
-
-          {/* Add-on Summary */}
-          {selectedAddOns.length > 0 && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <h4 className="font-medium text-green-900 mb-3">
-                Selected Add-ons ({selectedAddOns.length} items)
-              </h4>
-              <div className="space-y-2">
-                {selectedAddOns.map((addOn) => (
-                  <div
-                    key={addOn.productVariant.id}
-                    className="flex justify-between items-center"
-                  >
-                    <div>
-                      <span className="text-green-700 text-sm">
-                        {addOn.productVariant.productTitle}
-                      </span>
-                      <span className="text-green-600 text-sm ml-2">
-                        ×{addOn.quantity}
-                      </span>
-                    </div>
-                    <span className="text-green-600 font-medium">
-                      ${(addOn.calculatedPrice || 0).toFixed(2)}
-                    </span>
-                  </div>
-                ))}
-                <div className="pt-2 mt-2 border-t border-green-200">
-                  <div className="flex justify-between items-center">
-                    <span className="text-green-800 font-medium">
-                      Add-on Subtotal:
-                    </span>
-                    <span className="text-green-700 font-bold">
-                      ${addOnSubtotal.toFixed(2)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </>
+                  return 0;
+                })()}
+              />
+            );
+          })}
+        </div>
       ) : (
-        <div className="text-center py-8">
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-            <h3 className="text-lg font-medium text-gray-800 mb-2">
-              No Add-ons Available
-            </h3>
-            <p className="text-gray-700">
-              This wine club doesn't have any additional products available at
-              the moment.
-            </p>
-          </div>
+        <div className="text-center py-12">
+          <h3 className="font-henderson-slab text-xl text-gray-900 mb-2">
+            No Add-ons Available
+          </h3>
+          <p className="text-gray-600 font-body">
+            This wine club doesn't have any additional products available at the
+            moment.
+          </p>
         </div>
       )}
 
@@ -191,18 +186,6 @@ export default function Step4AddOns({
           Add-ons are optional and can be skipped. Continue to review your
           selections.
         </p>
-      </div>
-
-      {/* Continue Button */}
-      <div className="text-center mt-8">
-        <button
-          onClick={() => updateState({ currentStep: 5 })}
-          className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium"
-        >
-          {selectedAddOns.length > 0
-            ? "Review Selections"
-            : "Skip Add-ons & Continue"}
-        </button>
       </div>
     </div>
   );
@@ -216,12 +199,14 @@ interface AddOnCardProps {
   productData: ProductData;
   selectedQuantity: number;
   onQuantityChange: (quantity: number) => void;
+  discountPercentage?: number;
 }
 
 function AddOnCard({
   productData,
   selectedQuantity,
   onQuantityChange,
+  discountPercentage = 0,
 }: AddOnCardProps) {
   const { productVariant } = productData;
 
@@ -238,55 +223,62 @@ function AddOnCard({
   return (
     <div
       className={cn(
-        "border-2 rounded-lg p-4 transition-all duration-200",
-        selectedQuantity > 0
-          ? "border-green-600 bg-green-50 shadow-md"
-          : "border-gray-200 bg-white",
+        "border-2 rounded-lg p-4 transition-all duration-300 bg-white flex flex-col h-full",
+        selectedQuantity > 0 ? "border-[#f5a623] shadow-md" : "border-gray-200",
       )}
     >
       {/* Product Image */}
-      {productVariant.productImage ? (
-        <div className="aspect-square mb-3 rounded-lg overflow-hidden bg-gray-100">
+      <div className="relative mb-3 rounded-lg overflow-hidden bg-gray-100 aspect-square">
+        {productVariant.productImage ? (
           <img
             src={productVariant.productImage}
             alt={productVariant.productTitle}
             className="w-full h-full object-contain"
             loading="lazy"
           />
-        </div>
-      ) : (
-        <div className="aspect-square mb-3 rounded-lg bg-gray-100 flex items-center justify-center">
-          <div className="text-gray-400">
-            <svg
-              className="w-8 h-8"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-              />
-            </svg>
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <div className="text-gray-400">
+              <svg
+                className="w-8 h-8"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                />
+              </svg>
+            </div>
           </div>
+        )}
+        {/* Add-on Tag Overlay */}
+        <div className="absolute top-2 right-2">
+          <span className="text-[10px] bg-white/90 backdrop-blur-sm text-[#d4820a] px-2 py-0.5 rounded-full border border-[#f5a623]/30 font-bold uppercase tracking-wider shadow-sm">
+            Add-on
+          </span>
         </div>
-      )}
+      </div>
 
       {/* Product Details */}
-      <div className="space-y-2 mb-4">
-        <h3 className="font-semibold text-gray-900 line-clamp-2">
+      <div className="space-y-3 mb-4 grow">
+        <h3 className="font-henderson-slab text-base uppercase line-clamp-3 min-h-18">
           {productVariant.productTitle}
         </h3>
 
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-gray-900">
-            ${productVariant.retailPrice.toFixed(2)}
-          </span>
-          <span className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-full">
-            Add-on
-          </span>
+        <div className="space-y-1">
+          {discountPercentage > 0 && (
+            <div className="text-xs font-medium text-gray-500 uppercase tracking-widest font-henderson-slab">
+              Retail Price: ${productVariant.retailPrice.toFixed(2)}
+            </div>
+          )}
+          <div className="text-sm font-henderson-slab font-medium">
+            ${(productVariant.retailPrice * (1 - discountPercentage / 100)).toFixed(2)}
+            {discountPercentage > 0 && "/EACH"}
+          </div>
         </div>
       </div>
 
@@ -295,6 +287,7 @@ function AddOnCard({
         <span className="text-sm text-gray-600">Quantity:</span>
         <div className="flex items-center space-x-2">
           <button
+            type="button"
             onClick={decrementQuantity}
             disabled={selectedQuantity === 0}
             className={cn(
@@ -323,13 +316,14 @@ function AddOnCard({
           <span
             className={cn(
               "w-8 text-center font-medium",
-              selectedQuantity > 0 ? "text-green-600" : "text-gray-700",
+              selectedQuantity > 0 ? "text-[#f5a623]" : "text-gray-700",
             )}
           >
             {selectedQuantity}
           </span>
 
           <button
+            type="button"
             onClick={incrementQuantity}
             className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors"
             aria-label="Increase quantity"
@@ -353,27 +347,25 @@ function AddOnCard({
 
       {/* Selection Indicator */}
       {selectedQuantity > 0 && (
-        <div className="mt-3 pt-3 border-t border-green-200">
-          <div className="flex items-center justify-between text-green-700 text-sm">
-            <div className="flex items-center">
-              <svg
-                className="w-4 h-4 mr-1"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-              Added to order
-            </div>
-            <span className="font-medium">
-              +${(productVariant.retailPrice * selectedQuantity).toFixed(2)}
-            </span>
+        <div className="mt-3 pt-3 border-t border-gray-200">
+          <div className="flex items-center gap-1.5 text-[#f5a623] text-sm font-medium">
+            <svg
+              className="w-4 h-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <circle cx="12" cy="12" r="10" fill="currentColor" />
+              <path
+                d="M8 12L11 15L16 9"
+                stroke="white"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            Added to order (+$
+            {(productVariant.retailPrice * (1 - discountPercentage / 100) * selectedQuantity).toFixed(2)})
           </div>
         </div>
       )}
@@ -385,36 +377,32 @@ function AddOnCard({
 // Helper Functions
 // ============================================================================
 
-/**
- * Update add-on quantity in the selected add-ons array
- */
 function updateAddOnQuantity(
   selectedAddOns: any[],
   product: ProductVariant,
   quantity: number,
+  discountPercentage = 0,
 ): any[] {
   const existingIndex = selectedAddOns.findIndex(
     (addOn) => addOn.productVariant.id === product.id,
   );
 
   if (quantity <= 0) {
-    // Remove add-on if quantity is 0 or less
     return selectedAddOns.filter((_, index) => index !== existingIndex);
   }
 
+  const discountMultiplier = (100 - discountPercentage) / 100;
   const updatedAddOn = {
     productVariant: product,
     quantity,
     isAddOn: true,
-    calculatedPrice: product.retailPrice * quantity,
+    calculatedPrice: product.retailPrice * discountMultiplier * quantity,
   };
 
   if (existingIndex >= 0) {
-    // Update existing add-on
     return selectedAddOns.map((addOn, index) =>
       index === existingIndex ? updatedAddOn : addOn,
     );
   }
-  // Add new add-on
   return [...selectedAddOns, updatedAddOn];
 }

@@ -2712,6 +2712,17 @@ export type StoreRobotsQueryVariables = StorefrontAPI.Exact<{
 
 export type StoreRobotsQuery = {shop: Pick<StorefrontAPI.Shop, 'id'>};
 
+export type CartCreateMutationVariables = StorefrontAPI.Exact<{
+  input: StorefrontAPI.CartInput;
+}>;
+
+export type CartCreateMutation = {
+  cartCreate?: StorefrontAPI.Maybe<{
+    cart?: StorefrontAPI.Maybe<Pick<StorefrontAPI.Cart, 'id' | 'checkoutUrl'>>;
+    userErrors: Array<Pick<StorefrontAPI.CartUserError, 'field' | 'message'>>;
+  }>;
+};
+
 export type ShopQueryQueryVariables = StorefrontAPI.Exact<{
   [key: string]: never;
 }>;
@@ -3353,6 +3364,10 @@ interface GeneratedMutationTypes {
   '#graphql\n  mutation customerCreate($input: CustomerCreateInput!) {\n    customerCreate(input: $input) {\n      customer {\n        firstName\n        lastName\n        email\n        phone\n        acceptsMarketing\n      }\n      customerUserErrors {\n        field\n        message\n        code\n      }\n    }\n  }\n': {
     return: CustomerCreateMutation;
     variables: CustomerCreateMutationVariables;
+  };
+  '#graphql\n      mutation cartCreate($input: CartInput!) {\n        cartCreate(input: $input) {\n          cart {\n            id\n            checkoutUrl\n          }\n          userErrors {\n            field\n            message\n          }\n        }\n      }\n    ': {
+    return: CartCreateMutation;
+    variables: CartCreateMutationVariables;
   };
 }
 

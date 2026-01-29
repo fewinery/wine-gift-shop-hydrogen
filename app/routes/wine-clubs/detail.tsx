@@ -18,6 +18,52 @@ import { fetchWineClubDetails, sanitizeHtml } from "~/utils/winehub";
  * - Renders selection wizard directly (not using Weaverse for this functional page)
  */
 
+export async function action({ request, context }: LoaderFunctionArgs) {
+  const { storefront } = context;
+  const formData = await request.formData();
+  const cartInputStr = formData.get("cartInput");
+
+  if (!cartInputStr || typeof cartInputStr !== "string") {
+    return { error: "Missing cart data" };
+  }
+
+  try {
+    const cartInput = JSON.parse(cartInputStr);
+
+    // Create a new cart with the selected items
+    const CART_CREATE_MUTATION = `#graphql
+      mutation cartCreate($input: CartInput!) {
+        cartCreate(input: $input) {
+          cart {
+            id
+            checkoutUrl
+          }
+          userErrors {
+            field
+            message
+          }
+        }
+      }
+    `;
+
+    const { cartCreate } = await storefront.mutate(CART_CREATE_MUTATION, {
+      variables: { input: cartInput },
+    });
+
+    if (cartCreate?.userErrors?.length > 0) {
+      return { error: cartCreate.userErrors[0].message };
+    }
+
+    if (!cartCreate?.cart?.checkoutUrl) {
+      return { error: "Failed to create checkout URL" };
+    }
+
+    return { checkoutUrl: cartCreate.cart.checkoutUrl };
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Unknown error occurred" };
+  }
+}
+
 export async function loader({ params, context, request }: LoaderFunctionArgs) {
   const { clubId } = params;
   const { storefront } = context;
@@ -27,21 +73,16 @@ export async function loader({ params, context, request }: LoaderFunctionArgs) {
   }
 
   // Check if this is a revalidation request (from fetcher submission)
-  // If so, return cached data or skip expensive API calls
   const url = new URL(request.url);
   const isRevalidation = url.searchParams.has("_data");
 
   // Parallel data loading (Constitutional Principle I)
   const [shopData, wineClubDetails] = await Promise.all([
     storefront.query(SHOP_QUERY),
-    // Skip expensive Winehub API call during revalidation
-    isRevalidation
-      ? Promise.resolve(null)
-      : fetchWineClubDetails({ context, clubId }),
+    fetchWineClubDetails({ context, clubId }),
   ]);
 
-  // Handle wine club not found (only on initial load)
-  if (!wineClubDetails && !isRevalidation) {
+  if (!wineClubDetails) {
     throw new Response("Wine club not found", { status: 404 });
   }
 

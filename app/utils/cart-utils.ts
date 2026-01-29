@@ -8,7 +8,6 @@ import type { WineClubDetails } from "~/types/winehub";
  * Handles merchandise IDs, selling plan IDs, and subscription configuration
  *
  * User Story 2 (P2): Wine Club Selection Process
- * Features: Cart line item formatting, subscription setup, add-on handling
  */
 
 // ============================================================================
@@ -292,24 +291,23 @@ export function generateCartAddMutation(cartInput: CartInput): string {
       merchandiseId: "${line.merchandiseId}"
       quantity: ${line.quantity}
       ${line.sellingPlanId ? `sellingPlanId: "${line.sellingPlanId}"` : ""}
-      ${
-        line.attributes && line.attributes.length > 0
+      ${line.attributes && line.attributes.length > 0
           ? `
       attributes: [
         ${line.attributes
-          .map(
-            (attr) => `
+            .map(
+              (attr) => `
         {
           key: "${attr.key}"
           value: "${attr.value}"
         }
         `,
-          )
-          .join("")}
+            )
+            .join("")}
       ]
       `
           : ""
-      }
+        }
     }
   `,
     )
@@ -401,24 +399,23 @@ export function generateCartCreateMutation(cartInput: CartInput): string {
       merchandiseId: "${line.merchandiseId}"
       quantity: ${line.quantity}
       ${line.sellingPlanId ? `sellingPlanId: "${line.sellingPlanId}"` : ""}
-      ${
-        line.attributes && line.attributes.length > 0
+      ${line.attributes && line.attributes.length > 0
           ? `
       attributes: [
         ${line.attributes
-          .map(
-            (attr) => `
+            .map(
+              (attr) => `
         {
           key: "${attr.key}"
           value: "${attr.value}"
         }
         `,
-          )
-          .join("")}
+            )
+            .join("")}
       ]
       `
           : ""
-      }
+        }
     }
   `,
     )

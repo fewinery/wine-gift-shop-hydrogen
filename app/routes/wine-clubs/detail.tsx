@@ -31,16 +31,19 @@ export async function action({ request, context }: LoaderFunctionArgs) {
     const cartInput = JSON.parse(cartInputStr);
 
     // Create a new cart with the selected items
+    // NOTE: Avoid querying product details in response as some variants may have null product
     const CART_CREATE_MUTATION = `#graphql
       mutation cartCreate($input: CartInput!) {
         cartCreate(input: $input) {
           cart {
             id
             checkoutUrl
+            totalQuantity
           }
           userErrors {
             field
             message
+            code
           }
         }
       }
@@ -51,6 +54,7 @@ export async function action({ request, context }: LoaderFunctionArgs) {
     });
 
     if (cartCreate?.userErrors?.length > 0) {
+      console.error("Checkout user error:", cartCreate.userErrors);
       return { error: cartCreate.userErrors[0].message };
     }
 
@@ -60,7 +64,10 @@ export async function action({ request, context }: LoaderFunctionArgs) {
 
     return { checkoutUrl: cartCreate.cart.checkoutUrl };
   } catch (error) {
-    return { error: error instanceof Error ? error.message : "Unknown error occurred" };
+    console.error("Checkout exception:", error);
+    return {
+      error: error instanceof Error ? error.message : "Unknown error occurred",
+    };
   }
 }
 
@@ -82,6 +89,7 @@ export async function loader({ params, context, request }: LoaderFunctionArgs) {
     fetchWineClubDetails({ context, clubId }),
   ]);
 
+
   if (!wineClubDetails) {
     throw new Response("Wine club not found", { status: 404 });
   }
@@ -99,6 +107,7 @@ export async function loader({ params, context, request }: LoaderFunctionArgs) {
     },
   );
 }
+
 
 export default function WineClubDetailPage() {
   const { wineClub } = useLoaderData<typeof loader>();

@@ -1,8 +1,8 @@
 import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
 import clsx from "clsx";
 import { useState } from "react";
-import { useFetcher } from "react-router";
 import PhoneInput from "react-phone-number-input";
+import { useFetcher } from "react-router";
 import "react-phone-number-input/style.css";
 
 interface ReservationFormContentProps extends HydrogenComponentProps {

@@ -55,6 +55,7 @@ export default function SelectionWizardContainer({
   const wizard = useWineClubWizard(wineClub);
   const prevStateRef = React.useRef<string>("");
   const containerRef = React.useRef<HTMLDivElement>(null);
+  const [isCheckingOut, setIsCheckingOut] = React.useState(false);
 
   const {
     state,
@@ -120,11 +121,13 @@ export default function SelectionWizardContainer({
 
   // Handle checkout process
   const handleCheckout = async () => {
+    setIsCheckingOut(true);
     try {
       await onCheckout?.(state);
       onComplete?.(state);
     } catch (error) {
       console.error("Checkout failed:", error);
+      setIsCheckingOut(false);
     }
   };
 
@@ -177,7 +180,7 @@ export default function SelectionWizardContainer({
       {/* Navigation Guard */}
       <NavigationGuard
         state={state}
-        enabled={true}
+        enabled={!isCheckingOut}
         onSave={handleSaveSelections}
         onNavigationBlocked={() => {
           console.log("Navigation blocked - user has unsaved selections");

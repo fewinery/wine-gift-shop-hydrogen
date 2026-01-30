@@ -1,6 +1,7 @@
 import type { ProductData, ProductVariant } from "~/types/winehub";
 import { cn } from "~/utils/cn";
 import type { WizardStepProps } from "./selection-wizard";
+import { updateProductQuantity } from "./selection-wizard";
 
 /**
  * Step 4: Add-ons Selection Component
@@ -26,28 +27,44 @@ export default function Step4AddOns({
   const selectedAddOns = state.selectedAddOns;
   const errors = state.errors;
 
-  // Handle add-on selection
-  const handleAddOnSelect = (product: ProductVariant, quantity: number) => {
-    onAddOnSelect?.(product, quantity);
-
+  // Helper to calculate discount for a specific product
+  const getProductDiscount = (productData: any) => {
     const sellingPlan = state.selectedSellingPlan;
-    let discountPercentage = sellingPlan?.discountPercentage || 0;
+    if (!sellingPlan) return 0;
 
-    // Fallback logic for discount (T071)
-    if (discountPercentage === 0 && sellingPlan?.sellingPlanClubDiscount) {
-      const clubDiscount = sellingPlan.sellingPlanClubDiscount;
-      if (clubDiscount.fixedType === "PERCENTAGE") {
-        discountPercentage = clubDiscount.fixedAmount;
-      }
+    // 1. Check for Individual Price override (Product Level)
+    const individualPrice = productData.individualPrices?.find(
+      (ip: any) => String(ip.sellingPlan) === String(sellingPlan.id),
+    );
+
+    if (individualPrice && individualPrice.discountType === "percentage") {
+      return parseFloat(individualPrice.individualPrice);
     }
 
+    // 2. Fallback to Selling Plan Level
+    if (sellingPlan.discountPercentage) return sellingPlan.discountPercentage;
+    if (sellingPlan.sellingPlanClubDiscount?.fixedType === "PERCENTAGE") {
+      return sellingPlan.sellingPlanClubDiscount.fixedAmount;
+    }
+
+    return 0;
+  };
+
+  // Handle add-on selection
+  const handleAddOnSelect = (productData: any, quantity: number) => {
+    const { productVariant } = productData;
+    const discountPercentage = getProductDiscount(productData);
+
+    onAddOnSelect?.(productVariant, quantity);
+
     updateState({
-      selectedAddOns: updateAddOnQuantity(
+      selectedAddOns: updateProductQuantity(
         selectedAddOns,
-        product,
+        productVariant,
         quantity,
         discountPercentage,
-      ),
+        productData.sellingPlanId,
+      ).map((p) => ({ ...p, isAddOn: true })), // Ensure isAddOn is true
     });
   };
 
@@ -57,29 +74,37 @@ export default function Step4AddOns({
     wineClub.productData ||
     []
   )
-    .map((spv) => {
-      const variantData = spv.productVariant || spv;
+    .map((spv: any) => {
+      // Robustly handle both ProductData and SellingPlanVariant shapes
+      const productData = spv.productData || spv;
+      const productVariant = productData.productVariant;
+
+      if (!productVariant) return null;
 
       return {
         productVariant: {
-          ...variantData,
+          ...productVariant,
           // CRITICAL FIX: Ensure correct Shopify ID for cart interactions
-          id: variantData.shopifyId || variantData.id,
-          shopifyId: variantData.shopifyId || variantData.id,
+          id: productVariant.shopifyId || productVariant.id,
+          shopifyId: productVariant.shopifyId || productVariant.id,
 
           retailPrice: Number.parseFloat(
-            (variantData.retailPrice || (spv as any).retailPrice) as any,
+            String(productVariant.retailPrice || 0),
           ),
         },
-        caseRestrictions: spv.caseRestrictions || [],
-        customOrderingIndex: spv.customOrderingIndex || null,
-        hidden: spv.hidden ?? false,
-        addOnOnly: spv.addOnOnly ?? false,
-        individualPrices: spv.individualPrices || [],
+        caseRestrictions: productData.caseRestrictions || [],
+        customOrderingIndex: productData.customOrderingIndex || null,
+        hidden: productData.hidden ?? false,
+        addOnOnly: productData.addOnOnly ?? false,
+        individualPrices: productData.individualPrices || [],
+        sellingPlanId: spv.sellingPlanId, // Preserved from SellingPlanVariant
         quantity: 0,
       };
     })
-    .filter((product) => product.addOnOnly && !product.hidden);
+    .filter(
+      (product): product is any =>
+        product !== null && product.addOnOnly && !product.hidden,
+    );
 
   if (!selectedCaseSize) {
     return (
@@ -150,20 +175,9 @@ export default function Step4AddOns({
                 productData={productData}
                 selectedQuantity={selectedQuantity}
                 onQuantityChange={(quantity) =>
-                  handleAddOnSelect(productData.productVariant, quantity)
+                  handleAddOnSelect(productData, quantity)
                 }
-                discountPercentage={(() => {
-                  const sellingPlan = state.selectedSellingPlan;
-                  if (sellingPlan?.discountPercentage)
-                    return sellingPlan.discountPercentage;
-                  if (
-                    sellingPlan?.sellingPlanClubDiscount?.fixedType ===
-                    "PERCENTAGE"
-                  ) {
-                    return sellingPlan.sellingPlanClubDiscount.fixedAmount;
-                  }
-                  return 0;
-                })()}
+                discountPercentage={getProductDiscount(productData)}
               />
             );
           })}
@@ -276,7 +290,11 @@ function AddOnCard({
             </div>
           )}
           <div className="text-sm font-henderson-slab font-medium">
-            ${(productVariant.retailPrice * (1 - discountPercentage / 100)).toFixed(2)}
+            $
+            {(
+              productVariant.retailPrice *
+              (1 - discountPercentage / 100)
+            ).toFixed(2)}
             {discountPercentage > 0 && "/EACH"}
           </div>
         </div>
@@ -365,44 +383,15 @@ function AddOnCard({
               />
             </svg>
             Added to order (+$
-            {(productVariant.retailPrice * (1 - discountPercentage / 100) * selectedQuantity).toFixed(2)})
+            {(
+              productVariant.retailPrice *
+              (1 - discountPercentage / 100) *
+              selectedQuantity
+            ).toFixed(2)}
+            )
           </div>
         </div>
       )}
     </div>
   );
-}
-
-// ============================================================================
-// Helper Functions
-// ============================================================================
-
-function updateAddOnQuantity(
-  selectedAddOns: any[],
-  product: ProductVariant,
-  quantity: number,
-  discountPercentage = 0,
-): any[] {
-  const existingIndex = selectedAddOns.findIndex(
-    (addOn) => addOn.productVariant.id === product.id,
-  );
-
-  if (quantity <= 0) {
-    return selectedAddOns.filter((_, index) => index !== existingIndex);
-  }
-
-  const discountMultiplier = (100 - discountPercentage) / 100;
-  const updatedAddOn = {
-    productVariant: product,
-    quantity,
-    isAddOn: true,
-    calculatedPrice: product.retailPrice * discountMultiplier * quantity,
-  };
-
-  if (existingIndex >= 0) {
-    return selectedAddOns.map((addOn, index) =>
-      index === existingIndex ? updatedAddOn : addOn,
-    );
-  }
-  return [...selectedAddOns, updatedAddOn];
 }

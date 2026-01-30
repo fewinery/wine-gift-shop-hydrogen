@@ -161,14 +161,6 @@ export async function fetchWineClubs({
       })
       .filter((club): club is WineClub => club !== null);
 
-    console.log(
-      "[Winehub] Loaded",
-      normalizedClubs.length,
-      "valid clubs from",
-      data.length,
-      "entries",
-    );
-
     // Sort by position
     return normalizedClubs.sort(
       (a, b) => (a.position || 999) - (b.position || 999),

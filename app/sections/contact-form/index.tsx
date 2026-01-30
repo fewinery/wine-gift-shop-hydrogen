@@ -1,9 +1,9 @@
 import { createSchema } from "@weaverse/hydrogen";
+import { useEffect, useRef, useState } from "react";
+import PhoneInput from "react-phone-number-input";
+import { useFetcher } from "react-router";
 import { backgroundInputs } from "~/components/background-image";
 import { layoutInputs, Section, type SectionProps } from "~/components/section";
-import { useEffect, useRef, useState } from "react";
-import { useFetcher } from "react-router";
-import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 
 interface ContactFormProps extends SectionProps {
@@ -17,7 +17,11 @@ interface ContactFormProps extends SectionProps {
 function ContactForm(props: ContactFormProps) {
   const { ref, heading, description, submitButtonText, topicOptions, ...rest } =
     props;
-  const fetcher = useFetcher<{ ok: boolean; message?: string; error?: string }>();
+  const fetcher = useFetcher<{
+    ok: boolean;
+    message?: string;
+    error?: string;
+  }>();
   const formRef = useRef<HTMLFormElement>(null);
   const [phone, setPhone] = useState<string>();
 
@@ -33,11 +37,10 @@ function ContactForm(props: ContactFormProps) {
   }, [isSuccess]);
 
   // Parse topic options from string
-  const topics =
-    topicOptions
-      ?.split(",")
-      .map((t) => t.trim())
-      .filter(Boolean) || ["General Inquiry", "Wine Club", "Events", "Other"];
+  const topics = topicOptions
+    ?.split(",")
+    .map((t) => t.trim())
+    .filter(Boolean) || ["General Inquiry", "Wine Club", "Events", "Other"];
 
   return (
     <Section ref={ref} {...rest}>

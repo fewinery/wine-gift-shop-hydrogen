@@ -1,12 +1,9 @@
 import React, { useState } from "react";
-import { EditIcon } from "~/components/icons";
-import {
-  formatWineClubCart,
-  validateCartData,
-} from "~/utils/cart-utils";
-import { cn } from "~/utils/cn";
 import { useFetcher } from "react-router";
 import { Button } from "~/components/button";
+import { EditIcon } from "~/components/icons";
+import { formatWineClubCart, validateCartData } from "~/utils/cart-utils";
+import { cn } from "~/utils/cn";
 import PromotionalOfferModal, {
   mockPromotionalOffer,
 } from "./promotional-offer-modal";
@@ -56,6 +53,52 @@ export default function Step5Review({
     errors,
   } = state;
 
+  const getDiscountPercentage = (product: any) => {
+    // 1. Prioritize stored discount (passed from Step 3/4)
+    if (typeof product.discountPercentage === "number") {
+      return product.discountPercentage;
+    }
+
+    // 2. Fallback: Lookup original product data to check for individualPrices
+    // This handles cases where state might be stale or missing discountPercentage
+    if (selectedSellingPlan) {
+      // Find the original product data source
+      const allProductData = [
+        ...(wineClub.sellingPlanVariants || []),
+        ...(wineClub.productData || []),
+      ].map((spv: any) => spv.productData || spv);
+
+      const originalProduct = allProductData.find(
+        (p: any) => p.productVariant?.id === product.productVariant.id,
+      );
+
+      if (originalProduct?.individualPrices) {
+        const individualPrice = originalProduct.individualPrices.find(
+          (ip: any) =>
+            String(ip.sellingPlan) === String(selectedSellingPlan.id),
+        );
+
+        if (individualPrice && individualPrice.discountType === "percentage") {
+          return parseFloat(individualPrice.individualPrice);
+        }
+      }
+    }
+
+    // 3. Fallback to global Selling Plan discount
+    const itemSellingPlanId = product.sellingPlanId;
+    const sellingPlan = itemSellingPlanId
+      ? selectedSellingPlan?.id === itemSellingPlanId
+        ? selectedSellingPlan
+        : null
+      : selectedSellingPlan;
+
+    if (sellingPlan?.discountPercentage) return sellingPlan.discountPercentage;
+    if (sellingPlan?.sellingPlanClubDiscount?.fixedType === "PERCENTAGE") {
+      return sellingPlan.sellingPlanClubDiscount.fixedAmount;
+    }
+    return 0;
+  };
+
   const pricing = calculateTotalPrice(state);
 
   // Format cart lines for Shopify CartForm
@@ -103,15 +146,18 @@ export default function Step5Review({
       // Validate cart data
       const validation = validateCartData(cartData);
       if (!validation.isValid) {
-        throw new Error(
-          `Selection error: ${validation.errors.join(", ")}`,
-        );
+        throw new Error(`Selection error: ${validation.errors.join(", ")}`);
       }
 
       // Submit to action for direct checkout
+
+      // Signal parent that we are checking out (disables navigation guard)
+      // Pass cartData or null, container's handleCheckout ignores arguments anyway
+      onCheckout?.(cartData);
+
       fetcher.submit(
         { cartInput: JSON.stringify(cartData.cartInput) },
-        { method: "POST" }
+        { method: "POST" },
       );
     } catch (error) {
       console.error("Checkout error:", error);
@@ -133,15 +179,14 @@ export default function Step5Review({
       window.location.href = fetcher.data.checkoutUrl;
     }
     if (fetcher.data?.error) {
+      // Use functional update to avoid depending on `errors` which causes infinite loop
       updateState({
         errors: {
-          ...errors,
           review: fetcher.data.error,
         },
       });
     }
-  }, [fetcher.data, updateState, errors]);
-
+  }, [fetcher.data, updateState]); // Removed `errors` from dependencies
 
   // Validate all selections
   const validateSelections = (): boolean => {
@@ -315,15 +360,37 @@ export default function Step5Review({
                         <div className="font-henderson-slab text-base text-gray-900">
                           {product.productVariant.productTitle}
                         </div>
-                        <div className="text-sm text-gray-500 mt-1">
-                          ${product.productVariant.retailPrice.toFixed(2)} each
+                        <div className="flex items-center gap-2 mt-1">
+                          {(() => {
+                            const discount = getDiscountPercentage(product);
+                            return (
+                              <>
+                                {discount > 0 && (
+                                  <span className="text-sm text-gray-400 line-through">
+                                    $
+                                    {product.productVariant.retailPrice.toFixed(
+                                      2,
+                                    )}
+                                  </span>
+                                )}
+                                <span className="text-base font-medium text-gray-900">
+                                  $
+                                  {(
+                                    (product.calculatedPrice || 0) /
+                                    product.quantity
+                                  ).toFixed(2)}
+                                  {discount > 0 && "/each"}
+                                </span>
+                              </>
+                            );
+                          })()}
                         </div>
                       </div>
                       <div className="text-right">
                         <div className="text-base font-medium text-gray-900">
                           ×{product.quantity}
                         </div>
-                        <div className="font-henderson-slab text-base text-gray-900 mt-1">
+                        <div className="text-lg text-gray-900 mt-1">
                           ${(product.calculatedPrice || 0).toFixed(2)}
                         </div>
                       </div>
@@ -382,15 +449,37 @@ export default function Step5Review({
                         <div className="font-henderson-slab text-base text-gray-900">
                           {product.productVariant.productTitle}
                         </div>
-                        <div className="text-sm text-gray-500 mt-1">
-                          ${product.productVariant.retailPrice.toFixed(2)} each
+                        <div className="flex items-center gap-2 mt-1">
+                          {(() => {
+                            const discount = getDiscountPercentage(product);
+                            return (
+                              <>
+                                {discount > 0 && (
+                                  <span className="text-sm text-gray-400 line-through">
+                                    $
+                                    {product.productVariant.retailPrice.toFixed(
+                                      2,
+                                    )}
+                                  </span>
+                                )}
+                                <span className="text-base font-medium text-gray-900">
+                                  $
+                                  {(
+                                    (product.calculatedPrice || 0) /
+                                    product.quantity
+                                  ).toFixed(2)}
+                                  {discount > 0 && "/each"}
+                                </span>
+                              </>
+                            );
+                          })()}
                         </div>
                       </div>
                       <div className="text-right">
                         <div className="text-base font-medium text-gray-900">
                           ×{product.quantity}
                         </div>
-                        <div className="font-henderson-slab text-base text-gray-900 mt-1">
+                        <div className="text-lg text-gray-900 mt-1">
                           ${(product.calculatedPrice || 0).toFixed(2)}
                         </div>
                       </div>
@@ -417,7 +506,9 @@ export default function Step5Review({
               {/* Original Subtotal with Discount */}
               {pricing.discountAmount > 0 && (
                 <div className="flex justify-between items-center pb-2">
-                  <span className="text-base text-gray-500">Original Price</span>
+                  <span className="text-base text-gray-500">
+                    Original Price
+                  </span>
                   <span className="text-base text-gray-500 line-through">
                     ${pricing.originalSubtotal.toFixed(2)}
                   </span>
@@ -428,7 +519,7 @@ export default function Step5Review({
               {pricing.discountAmount > 0 && (
                 <div className="flex justify-between items-center pb-3 border-b border-gray-200">
                   <span className="text-base text-[#d4820a] font-medium">
-                    {selectedSellingPlan?.discountPercentage}% Discount
+                    Discount
                   </span>
                   <span className="text-base font-medium text-[#d4820a]">
                     -${pricing.discountAmount.toFixed(2)}
@@ -438,7 +529,9 @@ export default function Step5Review({
 
               {/* Subscription Total */}
               <div className="flex justify-between items-center pb-3 border-b border-gray-200">
-                <span className="text-base text-gray-600">Wine Subscription</span>
+                <span className="text-base text-gray-600">
+                  Wine Subscription
+                </span>
                 <span className="text-base font-medium text-gray-900">
                   ${pricing.subscriptionTotal.toFixed(2)}
                 </span>
@@ -463,7 +556,6 @@ export default function Step5Review({
                   ${pricing.grandTotal.toFixed(2)}
                 </span>
               </div>
-
 
               {/* Billing Info */}
               <div className="mt-4 p-4 bg-[#f9f5f0] rounded border border-[#e6dac9]">
@@ -597,4 +689,3 @@ function AddOnIcon() {
     </svg>
   );
 }
-

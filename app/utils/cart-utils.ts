@@ -114,7 +114,9 @@ export function formatWineClubCart(
     ),
     quantity: product.quantity,
     sellingPlanId: formatSellingPlanId(
-      selectedSellingPlan.shopifyId || selectedSellingPlan.id,
+      product.sellingPlanId ||
+        selectedSellingPlan.shopifyId ||
+        selectedSellingPlan.id,
     ),
     attributes: [
       {
@@ -151,7 +153,9 @@ export function formatWineClubCart(
     ),
     quantity: addOn.quantity,
     sellingPlanId: formatSellingPlanId(
-      selectedSellingPlan.shopifyId || selectedSellingPlan.id,
+      addOn.sellingPlanId ||
+        selectedSellingPlan.shopifyId ||
+        selectedSellingPlan.id,
     ),
     attributes: [
       {
@@ -294,23 +298,24 @@ export function generateCartAddMutation(cartInput: CartInput): string {
       merchandiseId: "${line.merchandiseId}"
       quantity: ${line.quantity}
       ${line.sellingPlanId ? `sellingPlanId: "${line.sellingPlanId}"` : ""}
-      ${line.attributes && line.attributes.length > 0
+      ${
+        line.attributes && line.attributes.length > 0
           ? `
       attributes: [
         ${line.attributes
-            .map(
-              (attr) => `
+          .map(
+            (attr) => `
         {
           key: "${attr.key}"
           value: "${attr.value}"
         }
         `,
-            )
-            .join("")}
+          )
+          .join("")}
       ]
       `
           : ""
-        }
+      }
     }
   `,
     )
@@ -402,23 +407,24 @@ export function generateCartCreateMutation(cartInput: CartInput): string {
       merchandiseId: "${line.merchandiseId}"
       quantity: ${line.quantity}
       ${line.sellingPlanId ? `sellingPlanId: "${line.sellingPlanId}"` : ""}
-      ${line.attributes && line.attributes.length > 0
+      ${
+        line.attributes && line.attributes.length > 0
           ? `
       attributes: [
         ${line.attributes
-            .map(
-              (attr) => `
+          .map(
+            (attr) => `
         {
           key: "${attr.key}"
           value: "${attr.value}"
         }
         `,
-            )
-            .join("")}
+          )
+          .join("")}
       ]
       `
           : ""
-        }
+      }
     }
   `,
     )

@@ -90,7 +90,6 @@ export function DesktopMenu() {
   }
   return null;
 }
-
 function MegaMenu({ items }: { items: SingleMenuItem[] }) {
   return (
     <div className="mx-auto flex max-w-(--page-width) gap-4">

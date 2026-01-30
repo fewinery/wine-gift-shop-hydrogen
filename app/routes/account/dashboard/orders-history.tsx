@@ -68,8 +68,9 @@ function Orders({ orders }: OrderCardsProps) {
                 </Link>
               )}
               <div
-                className={`h-full flex-col justify-center text-left ${lineItems[0].image ? "" : "md:col-span-2"
-                  }`}
+                className={`h-full flex-col justify-center text-left ${
+                  lineItems[0].image ? "" : "md:col-span-2"
+                }`}
               >
                 <div className="line-clamp-1 font-medium">
                   {lineItems.length > 1

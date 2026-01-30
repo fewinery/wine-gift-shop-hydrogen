@@ -65,8 +65,7 @@ export const action: ActionFunction = async ({
       return data(
         {
           ok: true,
-          message:
-            "Thank you for contacting us! We'll get back to you soon.",
+          message: "Thank you for contacting us! We'll get back to you soon.",
         },
         status,
       );

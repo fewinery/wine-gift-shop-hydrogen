@@ -58,6 +58,12 @@ export interface SelectedProduct {
 
   /** Calculated price based on case size and selling plan */
   calculatedPrice: number;
+
+  /** Optional item-specific selling plan ID */
+  sellingPlanId?: string;
+
+  /** Applied discount percentage for this item */
+  discountPercentage?: number;
 }
 
 export interface FormErrors {
@@ -107,7 +113,29 @@ const initialState: WineClubFormState = {
 };
 
 export function useWineClubWizard(wineClub: WineClubDetails) {
-  const [state, setState] = useState<WineClubFormState>(initialState);
+  // Auto-skip Step 1 for Fixed clubs
+  const shouldSkipCaseSizeStep = wineClub.caseType === 'Fixed' && (!wineClub.caseSizes || wineClub.caseSizes.length === 0);
+
+  const getInitialState = (): WineClubFormState => {
+    if (shouldSkipCaseSizeStep) {
+      // Create virtual case size for Fixed clubs
+      const virtualCaseSize: CaseSize = {
+        id: 'fixed-bundle-virtual',
+        title: 'Fixed Bundle',
+        quantity: 0, // No fixed quantity - user chooses freely
+        image: null,
+      };
+
+      return {
+        ...initialState,
+        currentStep: 2, // Skip to frequency selection
+        selectedCaseSize: virtualCaseSize,
+      };
+    }
+    return initialState;
+  };
+
+  const [state, setState] = useState<WineClubFormState>(getInitialState);
 
   const updateState = useCallback((updates: Partial<WineClubFormState>) => {
     setState((prev) => ({ ...prev, ...updates }));
@@ -154,7 +182,9 @@ export function useWineClubWizard(wineClub: WineClubDetails) {
 
   const goToPreviousStep = useCallback(() => {
     setState((prev) => {
-      if (prev.currentStep > 1) {
+      // For Fixed clubs that started at Step 2, don't allow going back to Step 1
+      const minStep = shouldSkipCaseSizeStep ? 2 : 1;
+      if (prev.currentStep > minStep) {
         return {
           ...prev,
           currentStep: prev.currentStep - 1,
@@ -164,7 +194,7 @@ export function useWineClubWizard(wineClub: WineClubDetails) {
       }
       return prev;
     });
-  }, []);
+  }, [shouldSkipCaseSizeStep]);
 
   // Selection handlers
   const selectCaseSize = useCallback(
@@ -194,7 +224,12 @@ export function useWineClubWizard(wineClub: WineClubDetails) {
   );
 
   const updateProductQuantity = useCallback(
-    (productVariant: ProductVariant, quantity: number, isAddOn = false) => {
+    (
+      productVariant: ProductVariant,
+      quantity: number,
+      isAddOn = false,
+      sellingPlanId?: string,
+    ) => {
       setState((prev) => {
         const products = isAddOn ? prev.selectedAddOns : prev.selectedProducts;
 
@@ -221,6 +256,7 @@ export function useWineClubWizard(wineClub: WineClubDetails) {
                     p.productVariant,
                     quantity,
                     prev,
+                    p.sellingPlanId,
                   ),
                 }
                 : p,
@@ -232,6 +268,7 @@ export function useWineClubWizard(wineClub: WineClubDetails) {
             productVariant,
             quantity,
             prev,
+            sellingPlanId,
           );
           updatedProducts = [
             ...products,
@@ -240,6 +277,7 @@ export function useWineClubWizard(wineClub: WineClubDetails) {
               quantity,
               isAddOn,
               calculatedPrice,
+              sellingPlanId,
             },
           ];
         } else {
@@ -290,6 +328,13 @@ export function useWineClubWizard(wineClub: WineClubDetails) {
           );
           const requiredBottles = state.selectedCaseSize.quantity;
 
+          // For Fixed clubs (quantity = 0), we only require at least one item (already checked above)
+          // We can skip exact quantity validation
+          if (requiredBottles === 0) {
+            return true;
+          }
+
+          // Standard validation for Bottle clubs
           if (totalBottles < requiredBottles) {
             setError(
               "quantity",
@@ -398,6 +443,12 @@ export function useWineClubWizard(wineClub: WineClubDetails) {
         if (!state.selectedCaseSize || state.selectedProducts.length === 0) {
           return false;
         }
+
+        // For Fixed clubs, we only require at least one item
+        if (state.selectedCaseSize.quantity === 0) {
+          return true;
+        }
+
         const totalBottles = state.selectedProducts.reduce(
           (sum, product) => sum + product.quantity,
           0,
@@ -447,6 +498,39 @@ export function useWineClubWizard(wineClub: WineClubDetails) {
 // Helper Functions
 // ============================================================================
 
+export function updateProductQuantity(
+  selectedProducts: any[],
+  product: ProductVariant,
+  quantity: number,
+  discountPercentage = 0,
+  sellingPlanId?: string,
+): any[] {
+  const existingIndex = selectedProducts.findIndex(
+    (p) => p.productVariant.id === product.id,
+  );
+
+  if (quantity <= 0) {
+    return selectedProducts.filter((_, index) => index !== existingIndex);
+  }
+
+  const discountMultiplier = (100 - discountPercentage) / 100;
+  const updatedProduct = {
+    productVariant: product,
+    quantity,
+    isAddOn: false,
+    calculatedPrice: product.retailPrice * discountMultiplier * quantity,
+    sellingPlanId,
+    discountPercentage, // Persist discount for Step 5 display
+  };
+
+  if (existingIndex >= 0) {
+    return selectedProducts.map((p, index) =>
+      index === existingIndex ? updatedProduct : p,
+    );
+  }
+  return [...selectedProducts, updatedProduct];
+}
+
 /**
  * Calculate price for a product based on case size, quantity, and selling plan discounts
  * @description Validates pricing data and uses fallback prices for invalid data (T069)
@@ -455,6 +539,7 @@ function calculatePrice(
   productVariant: ProductVariant,
   quantity: number,
   state: WineClubFormState,
+  itemSellingPlanId?: string,
 ): number {
   // Validate retail price (T069: Handle invalid pricing data)
   let basePrice = productVariant.retailPrice;
@@ -485,12 +570,21 @@ function calculatePrice(
 
   // Apply selling plan discount if available (FR-018)
   let discountMultiplier = 1;
-  const sellingPlan = state.selectedSellingPlan;
+
+  // Use item-specific selling plan IF provided, otherwise fallback to global selection
+  const sellingPlan = itemSellingPlanId
+    ? state.selectedSellingPlan?.id === itemSellingPlanId
+      ? state.selectedSellingPlan
+      : null // If it differs, we can't easily find it here without the full list, but we'll try to find it in club data later if needed. For now, we fallback to the global one if it matches the item's intended plan.
+    : state.selectedSellingPlan;
+
   let discountPercentage = sellingPlan?.discountPercentage;
 
   // T071: Robust discount detection from nested objects
   if (
-    (discountPercentage === undefined || discountPercentage === null || discountPercentage === 0) &&
+    (discountPercentage === undefined ||
+      discountPercentage === null ||
+      discountPercentage === 0) &&
     sellingPlan?.sellingPlanClubDiscount
   ) {
     const clubDiscount = sellingPlan.sellingPlanClubDiscount;

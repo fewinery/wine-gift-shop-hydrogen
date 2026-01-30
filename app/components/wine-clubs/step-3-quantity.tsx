@@ -1,6 +1,7 @@
 import type { ProductData, ProductVariant } from "~/types/winehub";
 import { cn } from "~/utils/cn";
 import type { WizardStepProps } from "./selection-wizard";
+import { updateProductQuantity } from "./selection-wizard";
 
 /**
  * Step 3: Quantity Selection Component
@@ -26,27 +27,47 @@ export default function Step3Quantity({
   const selectedProducts = state.selectedProducts;
   const errors = state.errors;
 
-  // Handle quantity changes
-  const handleQuantityChange = (product: ProductVariant, quantity: number) => {
-    onQuantityChange?.(product, quantity);
-
+  // Helper to calculate discount for a specific product
+  const getProductDiscount = (productData: any) => {
     const sellingPlan = state.selectedSellingPlan;
-    let discountPercentage = sellingPlan?.discountPercentage || 0;
+    if (!sellingPlan) return 0;
 
-    // Fallback logic for discount
-    if (discountPercentage === 0 && sellingPlan?.sellingPlanClubDiscount) {
-      const clubDiscount = sellingPlan.sellingPlanClubDiscount;
-      if (clubDiscount.fixedType === "PERCENTAGE") {
-        discountPercentage = clubDiscount.fixedAmount;
-      }
+    // 1. Check for Individual Price override (Product Level)
+    // The log showed numeric sellingPlan, so we compare loosely or convert to string
+    const individualPrice = productData.individualPrices?.find(
+      (ip: any) => String(ip.sellingPlan) === String(sellingPlan.id),
+    );
+
+    if (individualPrice && individualPrice.discountType === "percentage") {
+      return parseFloat(individualPrice.individualPrice);
     }
+
+    // 2. Fallback to Selling Plan Level
+    if (sellingPlan.discountPercentage) return sellingPlan.discountPercentage;
+    if (sellingPlan.sellingPlanClubDiscount?.fixedType === "PERCENTAGE") {
+      return sellingPlan.sellingPlanClubDiscount.fixedAmount;
+    }
+
+    return 0;
+  };
+
+  // Handle quantity changes
+  const handleQuantityChange = (
+    productData: any, // Changed to receive full productData
+    quantity: number,
+  ) => {
+    const { productVariant } = productData;
+    const discountPercentage = getProductDiscount(productData);
+
+    onQuantityChange?.(productVariant, quantity);
 
     updateState({
       selectedProducts: updateProductQuantity(
         state.selectedProducts,
-        product,
+        productVariant,
         quantity,
         discountPercentage,
+        productData.sellingPlanId,
       ),
     });
   };
@@ -92,22 +113,34 @@ export default function Step3Quantity({
     wineClub.productData ||
     []
   )
-    .map((spv) => ({
-      productVariant: {
-        ...(spv.productVariant || spv),
-        // API returns retailPrice as string, convert to number
-        retailPrice: Number.parseFloat(
-          (spv.productVariant?.retailPrice || (spv as any).retailPrice) as any,
-        ),
-      },
-      caseRestrictions: spv.caseRestrictions || [],
-      customOrderingIndex: spv.customOrderingIndex || null,
-      hidden: spv.hidden ?? false,
-      addOnOnly: spv.addOnOnly ?? false,
-      individualPrices: spv.individualPrices || [],
-      quantity: 0,
-    }))
-    .filter((product) => !product.addOnOnly && !product.hidden);
+    .map((spv: any) => {
+      // Robustly handle both ProductData and SellingPlanVariant shapes
+      const productData = spv.productData || spv;
+      const productVariant = productData.productVariant;
+
+      if (!productVariant) return null;
+
+      return {
+        productVariant: {
+          ...productVariant,
+          // API returns retailPrice as string or number, convert to number
+          retailPrice: Number.parseFloat(
+            String(productVariant.retailPrice || 0),
+          ),
+        },
+        caseRestrictions: productData.caseRestrictions || [],
+        customOrderingIndex: productData.customOrderingIndex || null,
+        hidden: productData.hidden ?? false,
+        addOnOnly: productData.addOnOnly ?? false,
+        individualPrices: productData.individualPrices || [],
+        sellingPlanId: spv.sellingPlanId, // Preserved from SellingPlanVariant if it exists
+        quantity: 0,
+      };
+    })
+    .filter(
+      (product): product is any =>
+        product !== null && !product.addOnOnly && !product.hidden,
+    );
 
   if (!selectedCaseSize) {
     return (
@@ -137,35 +170,49 @@ export default function Step3Quantity({
       <div className="text-center space-y-1">
         <h2 className="text-[40px] text-gray-900">Choose Your Wines</h2>
         <p className="font-body text-[#5C5C5C] text-lg max-w-xl mx-auto">
-          Select the wines and quantities for your case
+          Select the wines and quantities for your {selectedCaseSize.quantity > 0 ? 'case' : 'subscription'}
         </p>
-        {/* Compact Summary Badge */}
-        <div className="flex items-center justify-center gap-2 pt-3">
-          <span className="inline-flex items-center gap-3 px-5 py-2.5 bg-[#e8941d]/15 border border-[#e8941d]/40 rounded-full text-base">
-            <span className="font-semibold text-[#d4820a]">
-              {selectedCaseSize.title}
+        {/* Compact Summary Badge - Only show for standard clubs with fixed quantity */}
+        {selectedCaseSize.quantity > 0 && (
+          <>
+            <div className="flex items-center justify-center gap-2 pt-3">
+              <span className="inline-flex items-center gap-3 px-5 py-2.5 bg-[#e8941d]/15 border border-[#e8941d]/40 rounded-full text-base">
+                <span className="font-semibold text-[#d4820a]">
+                  {selectedCaseSize.title}
+                </span>
+                <span className="text-gray-400">•</span>
+                <span className="text-gray-700">
+                  {totalSelectedItems}/{selectedCaseSize.quantity} selected
+                </span>
+                <span className="text-gray-400">•</span>
+                <span className="text-gray-600">
+                  {selectedCaseSize.quantity - totalSelectedItems} remaining
+                </span>
+              </span>
+            </div>
+            {/* Progress bar */}
+            <div className="max-w-md mx-auto pt-2">
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-[#f5a623] h-2 rounded-full transition-all duration-300"
+                  style={{
+                    width: `${Math.min((totalSelectedItems / selectedCaseSize.quantity) * 100, 100)}%`,
+                  }}
+                />
+              </div>
+            </div>
+          </>
+        )}
+        {/* For Fixed clubs, show simple selection count */}
+        {selectedCaseSize.quantity === 0 && totalSelectedItems > 0 && (
+          <div className="flex items-center justify-center gap-2 pt-3">
+            <span className="inline-flex items-center gap-3 px-5 py-2.5 bg-[#e8941d]/15 border border-[#e8941d]/40 rounded-full text-base">
+              <span className="text-gray-700">
+                {totalSelectedItems} item{totalSelectedItems !== 1 ? 's' : ''} selected
+              </span>
             </span>
-            <span className="text-gray-400">•</span>
-            <span className="text-gray-700">
-              {totalSelectedItems}/{selectedCaseSize.quantity} selected
-            </span>
-            <span className="text-gray-400">•</span>
-            <span className="text-gray-600">
-              {selectedCaseSize.quantity - totalSelectedItems} remaining
-            </span>
-          </span>
-        </div>
-        {/* Progress bar */}
-        <div className="max-w-md mx-auto pt-2">
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-              className="bg-[#f5a623] h-2 rounded-full transition-all duration-300"
-              style={{
-                width: `${Math.min((totalSelectedItems / selectedCaseSize.quantity) * 100, 100)}%`,
-              }}
-            />
           </div>
-        </div>
+        )}
       </div>
 
       {/* Error Display */}
@@ -179,9 +226,10 @@ export default function Step3Quantity({
       {availableProducts.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {availableProducts.map((productData) => {
-            const currentQty = selectedProducts.find(
-              (p) => p.productVariant.id === productData.productVariant.id,
-            )?.quantity || 0;
+            const currentQty =
+              selectedProducts.find(
+                (p) => p.productVariant.id === productData.productVariant.id,
+              )?.quantity || 0;
 
             return (
               <ProductQuantityCard
@@ -192,21 +240,10 @@ export default function Step3Quantity({
                 isAtMaxQuantity={isAtMaxQuantity(productData, currentQty)}
                 isAtMinQuantity={isAtMinQuantity(productData, currentQty)}
                 onQuantityChange={(quantity) =>
-                  handleQuantityChange(productData.productVariant, quantity)
+                  handleQuantityChange(productData, quantity)
                 }
-                canAddMore={totalSelectedItems < selectedCaseSize.quantity}
-                discountPercentage={(() => {
-                  const sellingPlan = state.selectedSellingPlan;
-                  if (sellingPlan?.discountPercentage)
-                    return sellingPlan.discountPercentage;
-                  if (
-                    sellingPlan?.sellingPlanClubDiscount?.fixedType ===
-                    "PERCENTAGE"
-                  ) {
-                    return sellingPlan.sellingPlanClubDiscount.fixedAmount;
-                  }
-                  return 0;
-                })()}
+                canAddMore={selectedCaseSize.quantity === 0 || totalSelectedItems < selectedCaseSize.quantity}
+                discountPercentage={getProductDiscount(productData)}
               />
             );
           })}
@@ -228,9 +265,11 @@ export default function Step3Quantity({
       {/* Help Text */}
       <div className="text-center mt-8">
         <p className="text-sm text-gray-500">
-          {selectedCaseSize.quantity > 1
-            ? `You must select at least one wine. Maximum ${selectedCaseSize.quantity} items total.`
-            : "Select one wine for your delivery."}
+          {selectedCaseSize.quantity === 0
+            ? "Select any wines you'd like for your subscription."
+            : selectedCaseSize.quantity > 1
+              ? `You must select at least one wine. Maximum ${selectedCaseSize.quantity} items total.`
+              : "Select one wine for your delivery."}
         </p>
       </div>
     </div>
@@ -337,7 +376,11 @@ function ProductQuantityCard({
             </div>
           )}
           <div className="text-sm font-henderson-slab font-medium">
-            ${(productVariant.retailPrice * (1 - discountPercentage / 100)).toFixed(2)}
+            $
+            {(
+              productVariant.retailPrice *
+              (1 - discountPercentage / 100)
+            ).toFixed(2)}
             {discountPercentage > 0 && "/EACH"}
           </div>
         </div>
@@ -437,38 +480,4 @@ function ProductQuantityCard({
       )}
     </div>
   );
-}
-
-// ============================================================================
-// Helper Functions
-// ============================================================================
-
-function updateProductQuantity(
-  selectedProducts: any[],
-  product: ProductVariant,
-  quantity: number,
-  discountPercentage = 0,
-): any[] {
-  const existingIndex = selectedProducts.findIndex(
-    (p) => p.productVariant.id === product.id,
-  );
-
-  if (quantity <= 0) {
-    return selectedProducts.filter((_, index) => index !== existingIndex);
-  }
-
-  const discountMultiplier = (100 - discountPercentage) / 100;
-  const updatedProduct = {
-    productVariant: product,
-    quantity,
-    isAddOn: false,
-    calculatedPrice: product.retailPrice * discountMultiplier * quantity,
-  };
-
-  if (existingIndex >= 0) {
-    return selectedProducts.map((p, index) =>
-      index === existingIndex ? updatedProduct : p,
-    );
-  }
-  return [...selectedProducts, updatedProduct];
 }

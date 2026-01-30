@@ -67,8 +67,9 @@ function Address({
       <ul className="flex-1 flex-row">
         {(address.firstName || address.lastName) && (
           <li className="mb-2">
-            {`${address.firstName && `${address.firstName} `}${address?.lastName
-              }`}
+            {`${address.firstName && `${address.firstName} `}${
+              address?.lastName
+            }`}
           </li>
         )}
         {address.formatted?.map((line: string) => (

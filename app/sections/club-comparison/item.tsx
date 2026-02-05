@@ -4,15 +4,24 @@ import {
   IMAGES_PLACEHOLDERS,
   type WeaverseImage,
 } from "@weaverse/hydrogen";
+import type { CSSProperties } from "react";
 import { CheckIcon } from "~/components/icons";
 import { Image } from "~/components/image";
+import { cn } from "~/utils/cn";
 
 interface ClubComparisonItemProps extends HydrogenComponentProps {
   ref?: React.Ref<HTMLDivElement>;
   image: WeaverseImage | string;
+  imageAspectRatio: "auto" | "square" | "landscape" | "portrait";
   frequency: string;
+  frequencySize: number;
+  frequencySizeMobile: number;
   clubName: string;
+  clubNameSize: number;
+  clubNameSizeMobile: number;
   benefits: string;
+  hideDivider: boolean;
+  hideCheckIcon: boolean;
   buttonText: string;
   buttonLink: string;
 }
@@ -27,9 +36,16 @@ const ClubComparisonItem = (props: ClubComparisonItemProps) => {
   const {
     ref,
     image = IMAGES_PLACEHOLDERS.image,
+    imageAspectRatio,
     frequency,
+    frequencySize,
+    frequencySizeMobile,
     clubName,
+    clubNameSize,
+    clubNameSizeMobile,
     benefits,
+    hideDivider = false,
+    hideCheckIcon = false,
     buttonText,
     buttonLink,
     ...rest
@@ -39,35 +55,56 @@ const ClubComparisonItem = (props: ClubComparisonItemProps) => {
   const imageData: Partial<WeaverseImage> =
     typeof image === "string" ? { url: image, altText: clubName } : image;
 
+  const style = {
+    "--freq-size-mobile": `${frequencySizeMobile}px`,
+    "--freq-size-desktop": `${frequencySize}px`,
+    "--name-size-mobile": `${clubNameSizeMobile}px`,
+    "--name-size-desktop": `${clubNameSize}px`,
+  } as CSSProperties;
+
   return (
     <div
       ref={ref}
       {...rest}
-      className="flex h-full flex-col border border-black p-8"
+      style={style}
+      className="flex w-full flex-col border border-black p-8 md:w-[calc((100%-(24px*(var(--columns-tablet)-1)))/var(--columns-tablet))] lg:w-[calc((100%-(24px*(var(--columns)-1)))/var(--columns))]"
     >
       {/* Image */}
-      <div className="mb-6 aspect-square overflow-hidden">
+      <div
+        className={cn("mb-6 w-full overflow-hidden relative", {
+          "aspect-square": imageAspectRatio === "square",
+          "aspect-3/2": imageAspectRatio === "landscape",
+          "aspect-3/4": imageAspectRatio === "portrait",
+          "aspect-auto": imageAspectRatio === "auto",
+        })}
+      >
         <Image
           data={imageData}
           sizes="(max-width: 768px) 100vw, 33vw"
-          className="h-full w-full object-cover"
+          className="h-full w-full [&>img]:object-contain"
         />
       </div>
 
       {/* Frequency + Club Name */}
       <div className="mb-6 space-y-1">
-        <p className="font-henderson-slab text-[20px] uppercase">{frequency}</p>
-        <h3 className="text-[30px] uppercase">{clubName}</h3>
+        <p className="font-henderson-slab uppercase text-(length:--freq-size-mobile) md:text-(length:--freq-size-desktop)">
+          {frequency}
+        </p>
+        <h3 className="uppercase leading-tight text-(length:--name-size-mobile) md:text-(length:--name-size-desktop)">
+          {clubName}
+        </h3>
       </div>
 
       {/* Divider */}
-      <div className="mb-6 w-full border-b border-black" />
+      {!hideDivider && <div className="mb-6 w-full border-b border-black" />}
 
       {/* Benefits List */}
       <ul className="mb-8 flex-1 space-y-3">
         {benefitItems.map((item, index) => (
           <li key={index} className="flex gap-2.5">
-            <CheckIcon className="w-5 h-5 mt-0.5 shrink-0" />
+            {!hideCheckIcon && (
+              <CheckIcon className="w-5 h-5 mt-0.5 shrink-0" />
+            )}
             <span dangerouslySetInnerHTML={{ __html: item }} />
           </li>
         ))}
@@ -100,6 +137,20 @@ export const schema = createSchema({
           name: "image",
           label: "Club Image",
         },
+        {
+          type: "select",
+          name: "imageAspectRatio",
+          label: "Aspect ratio",
+          defaultValue: "square",
+          configs: {
+            options: [
+              { value: "auto", label: "Auto (Original)" },
+              { value: "square", label: "Square (1:1)" },
+              { value: "landscape", label: "Landscape (3:2)" },
+              { value: "portrait", label: "Portrait (3:4)" },
+            ],
+          },
+        },
       ],
     },
     {
@@ -112,10 +163,54 @@ export const schema = createSchema({
           defaultValue: "MONTHLY",
         },
         {
+          type: "range",
+          name: "frequencySize",
+          label: "Frequency size (Desktop)",
+          defaultValue: 20,
+          configs: {
+            min: 12,
+            max: 60,
+            step: 1,
+          },
+        },
+        {
+          type: "range",
+          name: "frequencySizeMobile",
+          label: "Frequency size (Mobile)",
+          defaultValue: 16,
+          configs: {
+            min: 12,
+            max: 40,
+            step: 1,
+          },
+        },
+        {
           type: "text",
           name: "clubName",
-          label: "Club Name",
+          label: "Club name",
           defaultValue: "WINE LOVER",
+        },
+        {
+          type: "range",
+          name: "clubNameSize",
+          label: "Club name size (Desktop)",
+          defaultValue: 30,
+          configs: {
+            min: 16,
+            max: 60,
+            step: 1,
+          },
+        },
+        {
+          type: "range",
+          name: "clubNameSizeMobile",
+          label: "Club name size (Mobile)",
+          defaultValue: 24,
+          configs: {
+            min: 16,
+            max: 60,
+            step: 1,
+          },
         },
         {
           type: "richtext",
@@ -124,6 +219,18 @@ export const schema = createSchema({
           defaultValue:
             "<ul><li>Ships 12 times a year</li><li>Choose from 2, 3, or 4 bottles per shipment</li><li>10% off first club shipment</li></ul>",
           helpText: "Use a bullet list for benefits.",
+        },
+        {
+          type: "switch",
+          name: "hideDivider",
+          label: "Hide divider",
+          defaultValue: false,
+        },
+        {
+          type: "switch",
+          name: "hideCheckIcon",
+          label: "Hide check icon",
+          defaultValue: false,
         },
       ],
     },

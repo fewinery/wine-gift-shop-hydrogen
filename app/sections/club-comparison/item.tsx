@@ -13,6 +13,7 @@ interface ClubComparisonItemProps extends HydrogenComponentProps {
   ref?: React.Ref<HTMLDivElement>;
   image: WeaverseImage | string;
   imageAspectRatio: "auto" | "square" | "landscape" | "portrait";
+  imageObjectFit: "cover" | "contain";
   frequency: string;
   frequencySize: number;
   frequencySizeMobile: number;
@@ -36,7 +37,8 @@ const ClubComparisonItem = (props: ClubComparisonItemProps) => {
   const {
     ref,
     image = IMAGES_PLACEHOLDERS.image,
-    imageAspectRatio,
+    imageAspectRatio = "square",
+    imageObjectFit = "contain",
     frequency,
     frequencySize,
     frequencySizeMobile,
@@ -81,7 +83,10 @@ const ClubComparisonItem = (props: ClubComparisonItemProps) => {
         <Image
           data={imageData}
           sizes="(max-width: 768px) 100vw, 33vw"
-          className="h-full w-full [&>img]:object-contain"
+          className={cn("h-full w-full", {
+            "[&>img]:object-contain": imageObjectFit === "contain",
+            "[&>img]:object-cover": imageObjectFit === "cover",
+          })}
         />
       </div>
 
@@ -148,6 +153,18 @@ export const schema = createSchema({
               { value: "square", label: "Square (1:1)" },
               { value: "landscape", label: "Landscape (3:2)" },
               { value: "portrait", label: "Portrait (3:4)" },
+            ],
+          },
+        },
+        {
+          type: "select",
+          name: "imageObjectFit",
+          label: "Image fit",
+          defaultValue: "contain",
+          configs: {
+            options: [
+              { value: "cover", label: "Cover" },
+              { value: "contain", label: "Contain" },
             ],
           },
         },

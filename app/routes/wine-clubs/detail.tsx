@@ -89,7 +89,6 @@ export async function loader({ params, context, request }: LoaderFunctionArgs) {
     fetchWineClubDetails({ context, clubId }),
   ]);
 
-
   if (!wineClubDetails) {
     throw new Response("Wine club not found", { status: 404 });
   }
@@ -107,7 +106,6 @@ export async function loader({ params, context, request }: LoaderFunctionArgs) {
     },
   );
 }
-
 
 export default function WineClubDetailPage() {
   const { wineClub } = useLoaderData<typeof loader>();

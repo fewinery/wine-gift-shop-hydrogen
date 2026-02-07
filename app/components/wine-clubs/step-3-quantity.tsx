@@ -170,7 +170,8 @@ export default function Step3Quantity({
       <div className="text-center space-y-1">
         <h2 className="text-[40px] text-gray-900">Choose Your Wines</h2>
         <p className="font-body text-[#5C5C5C] text-lg max-w-xl mx-auto">
-          Select the wines and quantities for your {selectedCaseSize.quantity > 0 ? 'case' : 'subscription'}
+          Select the wines and quantities for your{" "}
+          {selectedCaseSize.quantity > 0 ? "case" : "subscription"}
         </p>
         {/* Compact Summary Badge - Only show for standard clubs with fixed quantity */}
         {selectedCaseSize.quantity > 0 && (
@@ -208,7 +209,8 @@ export default function Step3Quantity({
           <div className="flex items-center justify-center gap-2 pt-3">
             <span className="inline-flex items-center gap-3 px-5 py-2.5 bg-[#e8941d]/15 border border-[#e8941d]/40 rounded-full text-base">
               <span className="text-gray-700">
-                {totalSelectedItems} item{totalSelectedItems !== 1 ? 's' : ''} selected
+                {totalSelectedItems} item{totalSelectedItems !== 1 ? "s" : ""}{" "}
+                selected
               </span>
             </span>
           </div>
@@ -242,7 +244,10 @@ export default function Step3Quantity({
                 onQuantityChange={(quantity) =>
                   handleQuantityChange(productData, quantity)
                 }
-                canAddMore={selectedCaseSize.quantity === 0 || totalSelectedItems < selectedCaseSize.quantity}
+                canAddMore={
+                  selectedCaseSize.quantity === 0 ||
+                  totalSelectedItems < selectedCaseSize.quantity
+                }
                 discountPercentage={getProductDiscount(productData)}
               />
             );

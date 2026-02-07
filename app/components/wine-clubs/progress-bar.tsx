@@ -28,6 +28,9 @@ export interface ProgressBarProps {
 
   /** Custom step labels */
   stepLabels?: string[];
+
+  /** Steps to exclude from the progress bar */
+  excludedSteps?: number[];
 }
 
 export default function ProgressBar({
@@ -37,7 +40,25 @@ export default function ProgressBar({
   onStepClick,
   className,
   stepLabels = ["Case Size", "Frequency", "Quantity", "Add-Ons", "Review"],
+  excludedSteps = [],
 }: ProgressBarProps) {
+  // Filter steps and labels
+  const visibleSteps = Array.from(
+    { length: totalSteps },
+    (_, i) => i + 1,
+  ).filter((step) => !excludedSteps.includes(step));
+
+  const visibleLabels = stepLabels.filter(
+    (_, index) => !excludedSteps.includes(index + 1),
+  );
+
+  // Map absolute step to visible index
+  const getVisibleIndex = (absoluteStep: number) => {
+    return visibleSteps.indexOf(absoluteStep);
+  };
+
+  const currentVisibleIndex = getVisibleIndex(currentStep);
+
   return (
     <div className={cn("w-full", className)}>
       {/* Progress Bar Container */}
@@ -47,33 +68,29 @@ export default function ProgressBar({
           <div
             className="h-full bg-[#f5a623] transition-all duration-300 ease-in-out"
             style={{
-              width: `${((currentStep - 1) / (totalSteps - 1)) * 100}%`,
+              width:
+                visibleSteps.length > 1
+                  ? `${(currentVisibleIndex / (visibleSteps.length - 1)) * 100}%`
+                  : "100%",
             }}
           />
         </div>
 
         {/* Step Indicators */}
         <div className="flex justify-between relative z-1">
-          {Array.from({ length: totalSteps }, (_, index) => {
-            const stepNumber = index + 1;
+          {visibleSteps.map((stepNumber, index) => {
             const isActive = stepNumber === currentStep;
             const isCompleted = stepNumber < currentStep;
             const isClickable = allowNavigation && onStepClick;
 
             return (
-              <div
+              <button
                 key={stepNumber}
-                className="flex flex-col items-center cursor-pointer group"
+                type="button"
+                className="flex flex-col items-center cursor-pointer group border-none bg-transparent p-0"
                 onClick={() => isClickable && onStepClick?.(stepNumber)}
-                role={isClickable ? "button" : undefined}
-                tabIndex={isClickable ? 0 : undefined}
-                onKeyDown={(e) => {
-                  if (isClickable && (e.key === "Enter" || e.key === " ")) {
-                    e.preventDefault();
-                    onStepClick?.(stepNumber);
-                  }
-                }}
-                aria-label={`Go to step ${stepNumber}: ${stepLabels[index]}`}
+                disabled={!isClickable}
+                aria-label={`Go to step ${index + 1}: ${visibleLabels[index]}`}
                 aria-current={isActive ? "step" : undefined}
               >
                 <div className="relative flex items-center justify-center">
@@ -107,7 +124,7 @@ export default function ProgressBar({
                         <path d="M5 13l4 4L19 7" />
                       </svg>
                     ) : (
-                      <span className="text-sm font-bold">{stepNumber}</span>
+                      <span className="text-sm font-bold">{index + 1}</span>
                     )}
                   </div>
                 </div>
@@ -125,24 +142,24 @@ export default function ProgressBar({
                       },
                     )}
                   >
-                    {stepLabels[index]}
+                    {visibleLabels[index]}
                   </p>
 
                   {/* Mobile-friendly abbreviated label */}
                   <p className="text-xs text-gray-400 mt-1 sm:hidden">
-                    {getMobileLabel(stepLabels[index])}
+                    {getMobileLabel(visibleLabels[index])}
                   </p>
                 </div>
 
                 {/* Screen reader text for accessibility */}
                 <span className="sr-only">
                   {isActive
-                    ? `Current step: ${stepNumber} - ${stepLabels[index]}`
+                    ? `Current step: ${index + 1} - ${visibleLabels[index]}`
                     : isCompleted
-                      ? `Completed step: ${stepNumber} - ${stepLabels[index]}`
-                      : `Step ${stepNumber}: ${stepLabels[index]}`}
+                      ? `Completed step: ${index + 1} - ${visibleLabels[index]}`
+                      : `Step ${index + 1}: ${visibleLabels[index]}`}
                 </span>
-              </div>
+              </button>
             );
           })}
         </div>
@@ -150,7 +167,9 @@ export default function ProgressBar({
 
       {/* Guide Message */}
       <div className="mt-12 text-center">
-        <p className="text-sm">{getProgressMessage(currentStep, totalSteps)}</p>
+        <p className="text-sm">
+          {getProgressMessage(currentVisibleIndex + 1, visibleSteps.length)}
+        </p>
       </div>
     </div>
   );

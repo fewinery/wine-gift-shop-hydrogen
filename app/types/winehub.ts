@@ -130,6 +130,12 @@ export interface SellingPlan {
   /** Reference to case size (optional) */
   caseSizeId?: string;
 
+  /** IMAGE URL representing this selling plan */
+  image?: {
+    contentUrl: string;
+    altText?: string;
+  } | null;
+
   /** Whether this is a popular/recommended option */
   popular?: boolean;
 

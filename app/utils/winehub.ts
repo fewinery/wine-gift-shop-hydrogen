@@ -220,6 +220,7 @@ export async function fetchWineClubDetails({
 
   try {
     // Use fetchWithTimeout to prevent hanging on slow API (T068, Edge Case: API timeout)
+    // 1. Fetch main club details from headless API
     const response = await fetchWithTimeout(
       `${apiBase}/club/${encodeURIComponent(clubId)}/details?shop=${shopDomain}`,
       {
@@ -230,70 +231,78 @@ export async function fetchWineClubDetails({
           "User-Agent": "Hydrogen-Weaverse-Pilot/1.0",
         },
       },
-      5000, // 5 second timeout
+      5000,
     );
 
     if (!response.ok) {
       console.error(
         `[Winehub] API error: ${response.status} ${response.statusText}`,
       );
-      console.error(
-        "[Winehub] Request URL:",
-        `${apiBase}/club/${encodeURIComponent(clubId)}/details?shop=${shopDomain}`,
-      );
-      console.error(
-        "[Winehub] Response headers:",
-        Object.fromEntries(response.headers.entries()),
-      );
       return null;
     }
 
-    // Handle malformed JSON (FR-030, Edge Case: malformed API data)
+    // Handle malformed JSON
     let data: unknown;
     try {
       const text = await response.text();
-      if (!text || text.trim().length === 0) {
-        console.error("[Winehub] Empty response body for club:", clubId);
-        return null;
-      }
+      if (!text || text.trim().length === 0) return null;
       data = JSON.parse(text);
     } catch (parseError) {
-      console.error(
-        "[Winehub] Failed to parse JSON response for club:",
-        clubId,
-        parseError,
-      );
+      console.error("[Winehub] Failed to parse JSON:", parseError);
       return null;
     }
 
-    // Validate response structure (FR-030)
-    if (!data || typeof data !== "object") {
-      console.error("[Winehub] Invalid wine club data - not an object");
-      return null;
-    }
-
+    if (!data || typeof data !== "object") return null;
     const clubObj = data as Record<string, unknown>;
 
-    // Validate required fields
-    if (!(clubObj.id && clubObj.name)) {
-      console.error(
-        "[Winehub] Invalid wine club data - missing required fields (id, name)",
-      );
-      return null;
+    // 2. Fetch extra selling plan details (images) from main API
+    // The headless API strips images, so we need to fetch them from the core API
+    let sellingPlanImages: Record<string, any> = {};
+    try {
+      // We use the ID from the club object to fetch the selling plan group
+      // Note: The headless ID usually matches the selling_plan_group ID
+      const groupId = clubObj.id;
+      if (groupId) {
+        const imageResponse = await fetchWithTimeout(
+          `https://api.winehub.io/api/selling_plan_groups/${groupId}?shop=${shopDomain}&properties[]=sellingPlans&properties[]=image`,
+          { headers: { Accept: "application/json" } },
+          3000, // Short timeout for enhancement data
+        );
+
+        if (imageResponse.ok) {
+          const imageData = (await imageResponse.json()) as {
+            sellingPlans?: any[];
+          };
+          if (imageData && Array.isArray(imageData.sellingPlans)) {
+            imageData.sellingPlans.forEach((sp: any) => {
+              if (sp.id && sp.image) {
+                sellingPlanImages[sp.id] = sp.image;
+              }
+            });
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("[Winehub] Failed to fetch selling plan images", e);
+      // Continue without images
     }
 
-    // Normalize and validate (FR-030: handle missing/null fields safely)
+    // Normalize and validate
     const normalized = {
       ...clubObj,
-      id: String(clubObj.id), // Convert numeric ID to string
+      id: String(clubObj.id),
       shopifyId: String(clubObj.shopifyId || clubObj.shopify_id || ""),
-      type: clubObj.type || null, // Can be null in API
+      type: clubObj.type || null,
       position: typeof clubObj.position === "number" ? clubObj.position : 999,
       description: clubObj.description || null,
       image: clubObj.image || null,
       caseSizes: Array.isArray(clubObj.caseSizes) ? clubObj.caseSizes : [],
-      sellingPlans: Array.isArray(clubObj.sellingPlans)
-        ? clubObj.sellingPlans
+      sellingPlans: Array.isArray((clubObj as any).sellingPlans)
+        ? ((clubObj as any).sellingPlans as any[]).map((sp: any) => ({
+          ...sp,
+          // Inject image if we found one
+          image: sellingPlanImages[sp.id] || null,
+        }))
         : [],
       sellingPlanPerks: Array.isArray(clubObj.sellingPlanPerks)
         ? clubObj.sellingPlanPerks
@@ -315,30 +324,9 @@ export async function fetchWineClubDetails({
         typeof clubObj.useSeasons === "boolean" ? clubObj.useSeasons : false,
     };
 
-    // Validate using type guard
     if (!isWineClub(normalized)) {
-      console.error(
-        "[Winehub] Wine club failed validation:",
-        clubId,
-        "- missing required fields",
-      );
+      console.error("[Winehub] Invalid club data");
       return null;
-    }
-
-    // Edge Case: Handle wine club with no case sizes or selling plans (T067)
-    if (normalized.caseSizes.length === 0) {
-      console.warn(
-        "[Winehub] Wine club has no case sizes:",
-        clubId,
-        "- may not be purchasable",
-      );
-    }
-    if (normalized.sellingPlans.length === 0) {
-      console.warn(
-        "[Winehub] Wine club has no selling plans:",
-        clubId,
-        "- may not be purchasable",
-      );
     }
 
     return normalized as WineClubDetails;

@@ -164,11 +164,11 @@ function FrequencyCard({
     <div
       onClick={onSelect}
       className={cn(
-        "relative cursor-pointer flex flex-col p-8 transition-all duration-300 bg-white rounded-lg w-[350px]",
-        "border-2 hover:shadow-lg",
+        "relative cursor-pointer flex flex-col p-8 transition-all duration-300 bg-white rounded-xl w-[350px]",
+        "border-2 hover:shadow-xl hover:-translate-y-1",
         {
-          "border-[#f5a623] shadow-md": isSelected,
-          "border-gray-200 hover:border-gray-300": !isSelected,
+          "border-[#f5a623] shadow-lg ring-1 ring-[#f5a623]/20": isSelected,
+          "border-gray-100 hover:border-gray-200": !isSelected,
         },
       )}
       role="button"
@@ -185,80 +185,94 @@ function FrequencyCard({
       {/* Selection Checkmark */}
       <div
         className={cn(
-          "absolute top-4 right-4 transition-opacity duration-300",
-          isSelected ? "opacity-100" : "opacity-0",
+          "absolute top-4 right-4 z-10 transition-all duration-300 transform",
+          isSelected ? "opacity-100 scale-100" : "opacity-0 scale-90",
         )}
       >
-        <svg
-          className="w-6 h-6"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <circle cx="12" cy="12" r="10" fill="#f5a623" />
-          <path
-            d="M8 12L11 15L16 9"
-            stroke="white"
-            strokeWidth="2"
+        <div className="bg-[#f5a623] text-white rounded-full p-1 shadow-md">
+          <svg
+            className="w-5 h-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="3"
             strokeLinecap="round"
             strokeLinejoin="round"
-          />
-        </svg>
+          >
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </div>
       </div>
 
-      {/* Frequency Icon */}
-      <div
-        className={cn(
-          "mb-6 w-14 h-14 rounded-full flex items-center justify-center self-start transition-all duration-300",
-          isSelected
-            ? "bg-[#f5a623]/10 text-[#f5a623]"
-            : "bg-gray-50 text-gray-400",
+      {/* Popular Badge - Positioned Absolute Top Left */}
+      {sellingPlan.popular && (
+        <div className="absolute top-4 left-4 z-10">
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide bg-[#f5a623] text-white shadow-sm">
+            Most Popular
+          </span>
+        </div>
+      )}
+
+      {/* Frequency Image - Large & Centered */}
+      <div className="mb-6 h-48 w-full flex items-center justify-center mx-auto transition-transform duration-500 ease-out group-hover:scale-105">
+        {sellingPlan.image?.contentUrl ? (
+          <img
+            src={sellingPlan.image.contentUrl}
+            alt={sellingPlan.image.altText || sellingPlan.name}
+            className="h-full w-full object-contain drop-shadow-sm"
+          />
+        ) : (
+          <div
+            className={cn(
+              "w-24 h-24 rounded-full flex items-center justify-center transition-colors duration-300",
+              isSelected
+                ? "bg-[#f5a623]/10 text-[#f5a623]"
+                : "bg-gray-50 text-gray-300",
+            )}
+          >
+            <svg
+              className="w-12 h-12"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
+            </svg>
+          </div>
         )}
-      >
-        <svg
-          className="w-7 h-7"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-          />
-        </svg>
       </div>
 
-      {/* Frequency Details */}
-      <div className="space-y-3 flex-1 flex flex-col">
+      {/* Frequency Details - Centered */}
+      <div className="space-y-3 flex-1 flex flex-col text-center items-center">
         <h3
           className={cn(
-            "leading-normal font-henderson-slab text-2xl uppercase transition-colors duration-300",
-            isSelected && "text-[#f5a623]",
+            "leading-tight font-henderson-slab text-2xl uppercase tracking-wide transition-colors duration-300",
+            isSelected ? "text-[#f5a623]" : "text-gray-900",
           )}
         >
           {sellingPlan.name}
         </h3>
 
-        <div className="space-y-1 font-body text-[#5C5C5C]">
-          <p>{frequencyInfo.deliveriesPerYear} deliveries per year</p>
-          <p>Every {frequencyInfo.intervalText.toLowerCase()}</p>
-        </div>
-
-        {/* Pricing */}
-        <div className="pt-6 mt-auto">
-          <p className="font-body text-sm text-gray-500 italic">
-            Price calculated in next step
+        <div className="space-y-1 font-body text-gray-600">
+          <p className="font-medium text-lg">
+            {frequencyInfo.deliveriesPerYear} deliveries per year
+          </p>
+          <p className="text-sm text-gray-500">
+            Every {frequencyInfo.intervalText.toLowerCase()}
           </p>
         </div>
 
-        {/* Popular Badge */}
-        {sellingPlan.popular && (
-          <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide bg-[#f5a623]/10 text-[#f5a623]">
-            Most Popular
-          </div>
-        )}
+        {/* Pricing */}
+        <div className="pt-4 mt-auto">
+          <p className="font-body text-xs text-gray-400 italic px-4">
+            Price calculated in next step
+          </p>
+        </div>
       </div>
 
       {/* Screen reader description */}

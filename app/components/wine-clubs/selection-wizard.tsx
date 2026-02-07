@@ -114,25 +114,50 @@ const initialState: WineClubFormState = {
 
 export function useWineClubWizard(wineClub: WineClubDetails) {
   // Auto-skip Step 1 for Fixed clubs
-  const shouldSkipCaseSizeStep = wineClub.caseType === 'Fixed' && (!wineClub.caseSizes || wineClub.caseSizes.length === 0);
+  const shouldSkipCaseSizeStep =
+    wineClub.caseType === "Fixed" &&
+    (!wineClub.caseSizes || wineClub.caseSizes.length === 0);
+
+  // Auto-skip Step 2 if only one selling plan is available
+  const shouldSkipFrequencyStep = wineClub.sellingPlans?.length === 1;
 
   const getInitialState = (): WineClubFormState => {
+    let currentStep = 1;
+    let selectedCaseSize: CaseSize | null = null;
+    let selectedSellingPlan: SellingPlan | null = null;
+
     if (shouldSkipCaseSizeStep) {
       // Create virtual case size for Fixed clubs
-      const virtualCaseSize: CaseSize = {
-        id: 'fixed-bundle-virtual',
-        title: 'Fixed Bundle',
-        quantity: 0, // No fixed quantity - user chooses freely
+      selectedCaseSize = {
+        id: "fixed-bundle-virtual",
+        title: "Fixed Bundle",
+        quantity: 0, // No fixed quantity
         image: null,
       };
-
-      return {
-        ...initialState,
-        currentStep: 2, // Skip to frequency selection
-        selectedCaseSize: virtualCaseSize,
-      };
+      currentStep = 2; // Move to frequency
     }
-    return initialState;
+
+    if (shouldSkipFrequencyStep) {
+      selectedSellingPlan = wineClub.sellingPlans[0];
+      if (currentStep === 2) {
+        currentStep = 3; // Skip both 1 and 2
+      } else if (currentStep === 1 && shouldSkipFrequencyStep) {
+        // If we are at step 1 but frequency should be skipped, we still start at 1
+        // but when moving to next, it will skip 2.
+      }
+    }
+
+    // Special case: if both should be skipped, start at 3
+    if (shouldSkipCaseSizeStep && shouldSkipFrequencyStep) {
+      currentStep = 3;
+    }
+
+    return {
+      ...initialState,
+      currentStep,
+      selectedCaseSize,
+      selectedSellingPlan,
+    };
   };
 
   const [state, setState] = useState<WineClubFormState>(getInitialState);
@@ -155,46 +180,68 @@ export function useWineClubWizard(wineClub: WineClubDetails) {
   // Step navigation
   const goToStep = useCallback(
     (step: number) => {
-      if (step >= 1 && step <= 5) {
+      let targetStep = step;
+      if (targetStep === 1 && shouldSkipCaseSizeStep) targetStep = 2;
+      if (targetStep === 2 && shouldSkipFrequencyStep) {
+        targetStep = step > state.currentStep ? 3 : 1;
+      }
+
+      if (targetStep >= 1 && targetStep <= 5) {
         clearErrors();
         updateState({
-          currentStep: step,
-          isReviewing: step === 5,
+          currentStep: targetStep,
+          isReviewing: targetStep === 5,
         });
       }
     },
-    [clearErrors, updateState],
+    [
+      clearErrors,
+      updateState,
+      shouldSkipCaseSizeStep,
+      shouldSkipFrequencyStep,
+      state.currentStep,
+    ],
   );
 
   const goToNextStep = useCallback(() => {
     setState((prev) => {
-      if (prev.currentStep < 5) {
+      let nextStep = prev.currentStep + 1;
+      if (nextStep === 2 && shouldSkipFrequencyStep) {
+        nextStep = 3;
+      }
+
+      if (nextStep <= 5) {
         return {
           ...prev,
-          currentStep: prev.currentStep + 1,
-          isReviewing: prev.currentStep + 1 === 5,
+          currentStep: nextStep,
+          isReviewing: nextStep === 5,
           errors: {},
         };
       }
       return prev;
     });
-  }, []);
+  }, [shouldSkipFrequencyStep]);
 
   const goToPreviousStep = useCallback(() => {
     setState((prev) => {
-      // For Fixed clubs that started at Step 2, don't allow going back to Step 1
       const minStep = shouldSkipCaseSizeStep ? 2 : 1;
-      if (prev.currentStep > minStep) {
+      let prevStep = prev.currentStep - 1;
+
+      if (prevStep === 2 && shouldSkipFrequencyStep) {
+        prevStep = 1;
+      }
+
+      if (prevStep >= minStep) {
         return {
           ...prev,
-          currentStep: prev.currentStep - 1,
+          currentStep: prevStep,
           isReviewing: false,
           errors: {},
         };
       }
       return prev;
     });
-  }, [shouldSkipCaseSizeStep]);
+  }, [shouldSkipCaseSizeStep, shouldSkipFrequencyStep]);
 
   // Selection handlers
   const selectCaseSize = useCallback(
@@ -250,15 +297,15 @@ export function useWineClubWizard(wineClub: WineClubDetails) {
             updatedProducts = products.map((p, index) =>
               index === existingIndex
                 ? {
-                  ...p,
-                  quantity,
-                  calculatedPrice: calculatePrice(
-                    p.productVariant,
+                    ...p,
                     quantity,
-                    prev,
-                    p.sellingPlanId,
-                  ),
-                }
+                    calculatedPrice: calculatePrice(
+                      p.productVariant,
+                      quantity,
+                      prev,
+                      p.sellingPlanId,
+                    ),
+                  }
                 : p,
             );
           }

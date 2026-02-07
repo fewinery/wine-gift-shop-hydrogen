@@ -146,7 +146,7 @@ export function formatWineClubCart(
     ],
   }));
 
-  // Format add-on items (one-time purchases with club discount)
+  // Format add-on items (inherit selling plan for discount)
   const addOnLines: CartLineItem[] = selectedAddOns.map((addOn) => ({
     merchandiseId: formatMerchandiseId(
       addOn.productVariant.shopifyId || addOn.productVariant.id,

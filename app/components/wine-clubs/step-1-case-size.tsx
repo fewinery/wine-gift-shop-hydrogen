@@ -39,7 +39,6 @@ export default function Step1CaseSize({
     // Users will click "Next Step" button when ready
   };
 
-
   if (!caseSizes || caseSizes.length === 0) {
     return (
       <div className="text-center py-12">

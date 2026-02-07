@@ -287,21 +287,54 @@ export default function Step5Review({
               }}
             >
               {selectedSellingPlan && (
-                <div className="space-y-1">
-                  <div className="font-henderson-slab text-lg uppercase text-gray-900">
-                    {selectedSellingPlan.name}
+                <div className="flex items-start">
+                  {/* Frequency Image */}
+                  <div className="w-20 h-20 mr-4 shrink-0 bg-gray-50 rounded-md overflow-hidden border border-gray-200 flex items-center justify-center">
+                    {selectedSellingPlan.image?.contentUrl ? (
+                      <img
+                        src={selectedSellingPlan.image.contentUrl}
+                        alt={
+                          selectedSellingPlan.image.altText ||
+                          selectedSellingPlan.name
+                        }
+                        className="w-full h-full object-contain p-1"
+                      />
+                    ) : (
+                      <svg
+                        className="w-8 h-8 text-gray-300"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={1.5}
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
+                      </svg>
+                    )}
                   </div>
-                  <div className="text-base text-gray-600">
-                    <p>
-                      {getFrequencyInfo(selectedSellingPlan).deliveriesPerYear}{" "}
-                      deliveries per year
-                    </p>
-                    <p>
-                      Every{" "}
-                      {getFrequencyInfo(
-                        selectedSellingPlan,
-                      ).intervalText.toLowerCase()}
-                    </p>
+
+                  <div className="space-y-1 flex-1">
+                    <div className="font-henderson-slab text-lg uppercase text-gray-900 leading-tight">
+                      {selectedSellingPlan.name}
+                    </div>
+                    <div className="text-base text-gray-600">
+                      <p>
+                        {
+                          getFrequencyInfo(selectedSellingPlan)
+                            .deliveriesPerYear
+                        }{" "}
+                        deliveries per year
+                      </p>
+                      <p>
+                        Every{" "}
+                        {getFrequencyInfo(
+                          selectedSellingPlan,
+                        ).intervalText.toLowerCase()}
+                      </p>
+                    </div>
                   </div>
                 </div>
               )}

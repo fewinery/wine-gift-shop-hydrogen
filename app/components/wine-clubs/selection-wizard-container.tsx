@@ -182,9 +182,7 @@ export default function SelectionWizardContainer({
         state={state}
         enabled={!isCheckingOut}
         onSave={handleSaveSelections}
-        onNavigationBlocked={() => {
-          console.log("Navigation blocked - user has unsaved selections");
-        }}
+        onNavigationBlocked={() => {}}
       />
 
       <div
@@ -198,6 +196,13 @@ export default function SelectionWizardContainer({
             totalSteps={5}
             allowNavigation={allowStepNavigation}
             onStepClick={handleStepClick}
+            excludedSteps={[
+              wineClub.caseType === "Fixed" &&
+              (!wineClub.caseSizes || wineClub.caseSizes.length === 0)
+                ? 1
+                : null,
+              wineClub.sellingPlans?.length === 1 ? 2 : null,
+            ].filter((s): s is number => s !== null)}
           />
         </div>
 
@@ -395,7 +400,6 @@ export function StandaloneSelectionWizard() {
         <SelectionWizardContainer
           wineClub={mockWineClub}
           onComplete={(state) => {
-            console.log("Wizard completed:", state);
             alert("Selection complete! Check console for state details.");
           }}
         />

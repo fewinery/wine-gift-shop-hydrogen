@@ -255,16 +255,27 @@ export async function fetchWineClubDetails({
     if (!data || typeof data !== "object") return null;
     const clubObj = data as Record<string, unknown>;
 
-    // 2. Fetch extra selling plan details (images) from main API
+    // 2. Fetch extra details (images for selling plans and case sizes) from main API
     // The headless API strips images, so we need to fetch them from the core API
     let sellingPlanImages: Record<string, any> = {};
+    let caseSizeImages: Record<string, any> = {};
     try {
       // We use the ID from the club object to fetch the selling plan group
       // Note: The headless ID usually matches the selling_plan_group ID
       const groupId = clubObj.id;
       if (groupId) {
+        // Properties to fetch from core API to enhance headless data
+        const properties = [
+          "sellingPlans",
+          "image",
+          "caseSizes",
+          "case_sizes", // API might use snake_case
+        ]
+          .map((p) => `properties[]=${p}`)
+          .join("&");
+
         const imageResponse = await fetchWithTimeout(
-          `https://api.winehub.io/api/selling_plan_groups/${groupId}?shop=${shopDomain}&properties[]=sellingPlans&properties[]=image`,
+          `https://api.winehub.io/api/selling_plan_groups/${groupId}?shop=${shopDomain}&${properties}`,
           { headers: { Accept: "application/json" } },
           3000, // Short timeout for enhancement data
         );
@@ -272,7 +283,11 @@ export async function fetchWineClubDetails({
         if (imageResponse.ok) {
           const imageData = (await imageResponse.json()) as {
             sellingPlans?: any[];
+            caseSizes?: any[];
+            case_sizes?: any[];
           };
+
+          // Map selling plan images
           if (imageData && Array.isArray(imageData.sellingPlans)) {
             imageData.sellingPlans.forEach((sp: any) => {
               if (sp.id && sp.image) {
@@ -280,10 +295,21 @@ export async function fetchWineClubDetails({
               }
             });
           }
+
+          // Map case size images (T069 mitigation)
+          const sizes = imageData.caseSizes || imageData.case_sizes;
+          if (sizes && Array.isArray(sizes)) {
+            sizes.forEach((cs: any) => {
+              const id = String(cs.id);
+              if (id && cs.image) {
+                caseSizeImages[id] = cs.image;
+              }
+            });
+          }
         }
       }
     } catch (e) {
-      console.warn("[Winehub] Failed to fetch selling plan images", e);
+      console.warn("[Winehub] Failed to fetch enhancement images", e);
       // Continue without images
     }
 
@@ -296,7 +322,21 @@ export async function fetchWineClubDetails({
       position: typeof clubObj.position === "number" ? clubObj.position : 999,
       description: clubObj.description || null,
       image: clubObj.image || null,
-      caseSizes: Array.isArray(clubObj.caseSizes) ? clubObj.caseSizes : [],
+      caseSizes: Array.isArray(clubObj.caseSizes)
+        ? clubObj.caseSizes.map((cs: any) => {
+          const id = String(cs.id);
+          // Handle image structure difference between APIs
+          const image = caseSizeImages[id] || cs.image || null;
+          const imageUrl =
+            typeof image === "object" ? image?.contentUrl : image;
+
+          return {
+            ...cs,
+            id,
+            image: imageUrl || null,
+          };
+        })
+        : [],
       sellingPlans: Array.isArray((clubObj as any).sellingPlans)
         ? ((clubObj as any).sellingPlans as any[]).map((sp: any) => ({
           ...sp,

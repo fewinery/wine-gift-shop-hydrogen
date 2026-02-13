@@ -58,6 +58,12 @@ export interface SelectedProduct {
 
   /** Calculated price based on case size and selling plan */
   calculatedPrice: number;
+
+  /** Optional item-specific selling plan ID */
+  sellingPlanId?: string;
+
+  /** Applied discount percentage for this item */
+  discountPercentage?: number;
 }
 
 export interface FormErrors {
@@ -68,7 +74,7 @@ export interface FormErrors {
   caseSize?: string;
   sellingPlan?: string;
   quantity?: string;
-  addOns?: string;
+  addOnons?: string;
   review?: string;
 
   /** Product-specific errors */
@@ -107,7 +113,54 @@ const initialState: WineClubFormState = {
 };
 
 export function useWineClubWizard(wineClub: WineClubDetails) {
-  const [state, setState] = useState<WineClubFormState>(initialState);
+  // Auto-skip Step 1 for Fixed clubs
+  const shouldSkipCaseSizeStep =
+    wineClub.caseType === "Fixed" &&
+    (!wineClub.caseSizes || wineClub.caseSizes.length === 0);
+
+  // Auto-skip Step 2 if only one selling plan is available
+  const shouldSkipFrequencyStep = wineClub.sellingPlans?.length === 1;
+
+  const getInitialState = (): WineClubFormState => {
+    let currentStep = 1;
+    let selectedCaseSize: CaseSize | null = null;
+    let selectedSellingPlan: SellingPlan | null = null;
+
+    if (shouldSkipCaseSizeStep) {
+      // Create virtual case size for Fixed clubs
+      selectedCaseSize = {
+        id: "fixed-bundle-virtual",
+        title: "Fixed Bundle",
+        quantity: 0, // No fixed quantity
+        image: null,
+      };
+      currentStep = 2; // Move to frequency
+    }
+
+    if (shouldSkipFrequencyStep) {
+      selectedSellingPlan = wineClub.sellingPlans[0];
+      if (currentStep === 2) {
+        currentStep = 3; // Skip both 1 and 2
+      } else if (currentStep === 1 && shouldSkipFrequencyStep) {
+        // If we are at step 1 but frequency should be skipped, we still start at 1
+        // but when moving to next, it will skip 2.
+      }
+    }
+
+    // Special case: if both should be skipped, start at 3
+    if (shouldSkipCaseSizeStep && shouldSkipFrequencyStep) {
+      currentStep = 3;
+    }
+
+    return {
+      ...initialState,
+      currentStep,
+      selectedCaseSize,
+      selectedSellingPlan,
+    };
+  };
+
+  const [state, setState] = useState<WineClubFormState>(getInitialState);
 
   const updateState = useCallback((updates: Partial<WineClubFormState>) => {
     setState((prev) => ({ ...prev, ...updates }));
@@ -127,44 +180,68 @@ export function useWineClubWizard(wineClub: WineClubDetails) {
   // Step navigation
   const goToStep = useCallback(
     (step: number) => {
-      if (step >= 1 && step <= 4) {
+      let targetStep = step;
+      if (targetStep === 1 && shouldSkipCaseSizeStep) targetStep = 2;
+      if (targetStep === 2 && shouldSkipFrequencyStep) {
+        targetStep = step > state.currentStep ? 3 : 1;
+      }
+
+      if (targetStep >= 1 && targetStep <= 5) {
         clearErrors();
         updateState({
-          currentStep: step,
-          isReviewing: step === 4,
+          currentStep: targetStep,
+          isReviewing: targetStep === 5,
         });
       }
     },
-    [clearErrors, updateState],
+    [
+      clearErrors,
+      updateState,
+      shouldSkipCaseSizeStep,
+      shouldSkipFrequencyStep,
+      state.currentStep,
+    ],
   );
 
   const goToNextStep = useCallback(() => {
     setState((prev) => {
-      if (prev.currentStep < 4) {
+      let nextStep = prev.currentStep + 1;
+      if (nextStep === 2 && shouldSkipFrequencyStep) {
+        nextStep = 3;
+      }
+
+      if (nextStep <= 5) {
         return {
           ...prev,
-          currentStep: prev.currentStep + 1,
-          isReviewing: prev.currentStep + 1 === 4,
+          currentStep: nextStep,
+          isReviewing: nextStep === 5,
           errors: {},
         };
       }
       return prev;
     });
-  }, []);
+  }, [shouldSkipFrequencyStep]);
 
   const goToPreviousStep = useCallback(() => {
     setState((prev) => {
-      if (prev.currentStep > 1) {
+      const minStep = shouldSkipCaseSizeStep ? 2 : 1;
+      let prevStep = prev.currentStep - 1;
+
+      if (prevStep === 2 && shouldSkipFrequencyStep) {
+        prevStep = 1;
+      }
+
+      if (prevStep >= minStep) {
         return {
           ...prev,
-          currentStep: prev.currentStep - 1,
+          currentStep: prevStep,
           isReviewing: false,
           errors: {},
         };
       }
       return prev;
     });
-  }, []);
+  }, [shouldSkipCaseSizeStep, shouldSkipFrequencyStep]);
 
   // Selection handlers
   const selectCaseSize = useCallback(
@@ -194,7 +271,12 @@ export function useWineClubWizard(wineClub: WineClubDetails) {
   );
 
   const updateProductQuantity = useCallback(
-    (productVariant: ProductVariant, quantity: number, isAddOn = false) => {
+    (
+      productVariant: ProductVariant,
+      quantity: number,
+      isAddOn = false,
+      sellingPlanId?: string,
+    ) => {
       setState((prev) => {
         const products = isAddOn ? prev.selectedAddOns : prev.selectedProducts;
 
@@ -221,6 +303,7 @@ export function useWineClubWizard(wineClub: WineClubDetails) {
                       p.productVariant,
                       quantity,
                       prev,
+                      p.sellingPlanId,
                     ),
                   }
                 : p,
@@ -232,6 +315,7 @@ export function useWineClubWizard(wineClub: WineClubDetails) {
             productVariant,
             quantity,
             prev,
+            sellingPlanId,
           );
           updatedProducts = [
             ...products,
@@ -240,6 +324,7 @@ export function useWineClubWizard(wineClub: WineClubDetails) {
               quantity,
               isAddOn,
               calculatedPrice,
+              sellingPlanId,
             },
           ];
         } else {
@@ -282,11 +367,35 @@ export function useWineClubWizard(wineClub: WineClubDetails) {
           return false;
         }
 
-        // Validate case restrictions
+        // Validate exact bottle count matches case size
         if (state.selectedCaseSize) {
-          for (const product of state.selectedProducts) {
-            // Note: caseRestrictions is not in the ProductVariant type, so we'll skip this validation for now
-            // This would need to be added to the ProductData type instead
+          const totalBottles = state.selectedProducts.reduce(
+            (sum, product) => sum + product.quantity,
+            0,
+          );
+          const requiredBottles = state.selectedCaseSize.quantity;
+
+          // For Fixed clubs (quantity = 0), we only require at least one item (already checked above)
+          // We can skip exact quantity validation
+          if (requiredBottles === 0) {
+            return true;
+          }
+
+          // Standard validation for Bottle clubs
+          if (totalBottles < requiredBottles) {
+            setError(
+              "quantity",
+              `Please select ${requiredBottles} bottles to complete your ${state.selectedCaseSize.title} case. Currently selected: ${totalBottles}/${requiredBottles}`,
+            );
+            return false;
+          }
+
+          if (totalBottles > requiredBottles) {
+            setError(
+              "quantity",
+              `You have selected too many bottles (${totalBottles}). Please reduce to ${requiredBottles} bottles for your ${state.selectedCaseSize.title} case.`,
+            );
+            return false;
           }
         }
 
@@ -324,6 +433,10 @@ export function useWineClubWizard(wineClub: WineClubDetails) {
       }
 
       case 4: {
+        return true;
+      }
+
+      case 5: {
         // Review step - ensure all previous steps are valid and check minimum order value again (T070)
         const reviewPricing = calculateTotalPrice(state);
         const reviewMov = wineClub.minimumOrderValue?.find(
@@ -372,9 +485,26 @@ export function useWineClubWizard(wineClub: WineClubDetails) {
         return state.selectedCaseSize !== null;
       case 2:
         return state.selectedSellingPlan !== null;
-      case 3:
-        return state.selectedProducts.length > 0;
+      case 3: {
+        // Must select exact number of bottles matching case size
+        if (!state.selectedCaseSize || state.selectedProducts.length === 0) {
+          return false;
+        }
+
+        // For Fixed clubs, we only require at least one item
+        if (state.selectedCaseSize.quantity === 0) {
+          return true;
+        }
+
+        const totalBottles = state.selectedProducts.reduce(
+          (sum, product) => sum + product.quantity,
+          0,
+        );
+        return totalBottles === state.selectedCaseSize.quantity;
+      }
       case 4:
+        return true;
+      case 5:
         return (
           state.selectedCaseSize !== null &&
           state.selectedSellingPlan !== null &&
@@ -387,7 +517,7 @@ export function useWineClubWizard(wineClub: WineClubDetails) {
     state.currentStep,
     state.selectedCaseSize,
     state.selectedSellingPlan,
-    state.selectedProducts.length,
+    state.selectedProducts,
   ]);
 
   return {
@@ -415,6 +545,39 @@ export function useWineClubWizard(wineClub: WineClubDetails) {
 // Helper Functions
 // ============================================================================
 
+export function updateProductQuantity(
+  selectedProducts: any[],
+  product: ProductVariant,
+  quantity: number,
+  discountPercentage = 0,
+  sellingPlanId?: string,
+): any[] {
+  const existingIndex = selectedProducts.findIndex(
+    (p) => p.productVariant.id === product.id,
+  );
+
+  if (quantity <= 0) {
+    return selectedProducts.filter((_, index) => index !== existingIndex);
+  }
+
+  const discountMultiplier = (100 - discountPercentage) / 100;
+  const updatedProduct = {
+    productVariant: product,
+    quantity,
+    isAddOn: false,
+    calculatedPrice: product.retailPrice * discountMultiplier * quantity,
+    sellingPlanId,
+    discountPercentage, // Persist discount for Step 5 display
+  };
+
+  if (existingIndex >= 0) {
+    return selectedProducts.map((p, index) =>
+      index === existingIndex ? updatedProduct : p,
+    );
+  }
+  return [...selectedProducts, updatedProduct];
+}
+
 /**
  * Calculate price for a product based on case size, quantity, and selling plan discounts
  * @description Validates pricing data and uses fallback prices for invalid data (T069)
@@ -423,6 +586,7 @@ function calculatePrice(
   productVariant: ProductVariant,
   quantity: number,
   state: WineClubFormState,
+  itemSellingPlanId?: string,
 ): number {
   // Validate retail price (T069: Handle invalid pricing data)
   let basePrice = productVariant.retailPrice;
@@ -451,14 +615,40 @@ function calculatePrice(
     quantity = 0;
   }
 
-  // Note: individualPrices is not in ProductVariant type, using base price
-  // This would need to be added to the type definitions if case-specific pricing is needed
-
   // Apply selling plan discount if available (FR-018)
-  // Note: discountPercentage is not in SellingPlan type, using base price
-  // This would need to be added to the type definitions if discounts are supported
+  let discountMultiplier = 1;
 
-  return basePrice * quantity;
+  // Use item-specific selling plan IF provided, otherwise fallback to global selection
+  const sellingPlan = itemSellingPlanId
+    ? state.selectedSellingPlan?.id === itemSellingPlanId
+      ? state.selectedSellingPlan
+      : null // If it differs, we can't easily find it here without the full list, but we'll try to find it in club data later if needed. For now, we fallback to the global one if it matches the item's intended plan.
+    : state.selectedSellingPlan;
+
+  let discountPercentage = sellingPlan?.discountPercentage;
+
+  // T071: Robust discount detection from nested objects
+  if (
+    (discountPercentage === undefined ||
+      discountPercentage === null ||
+      discountPercentage === 0) &&
+    sellingPlan?.sellingPlanClubDiscount
+  ) {
+    const clubDiscount = sellingPlan.sellingPlanClubDiscount;
+    if (clubDiscount.fixedType === "PERCENTAGE") {
+      discountPercentage = clubDiscount.fixedAmount;
+    }
+  }
+
+  if (
+    typeof discountPercentage === "number" &&
+    !Number.isNaN(discountPercentage) &&
+    discountPercentage > 0
+  ) {
+    discountMultiplier = (100 - discountPercentage) / 100;
+  }
+
+  return basePrice * discountMultiplier * quantity;
 }
 
 /**

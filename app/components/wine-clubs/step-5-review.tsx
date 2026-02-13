@@ -1,13 +1,8 @@
-import { CartForm } from "@shopify/hydrogen";
 import React, { useState } from "react";
-import type { FetcherWithComponents } from "react-router";
-import { useCartDrawerStore } from "~/components/cart/store";
+import { useFetcher } from "react-router";
+import { Button } from "~/components/button";
 import { EditIcon } from "~/components/icons";
-import {
-  formatWineClubCart,
-  generateCartCreateMutation,
-  validateCartData,
-} from "~/utils/cart-utils";
+import { formatWineClubCart, validateCartData } from "~/utils/cart-utils";
 import { cn } from "~/utils/cn";
 import PromotionalOfferModal, {
   mockPromotionalOffer,
@@ -23,7 +18,6 @@ import { getFrequencyInfo } from "./step-2-frequency";
  * Allows editing selections and proceeding to checkout
  *
  * User Story 2 (P2): Wine Club Selection Process
- * Acceptance Scenario 5: Step 5 displays all selections with accurate pricing and allows editing
  */
 
 export interface Step5ReviewProps extends WizardStepProps {
@@ -34,6 +28,7 @@ export interface Step5ReviewProps extends WizardStepProps {
   onEditCaseSize?: () => void;
   onEditFrequency?: () => void;
   onEditWines?: () => void;
+  onEditAddOns?: () => void;
 }
 
 export default function Step5Review({
@@ -44,12 +39,65 @@ export default function Step5Review({
   onEditCaseSize,
   onEditFrequency,
   onEditWines,
+  onEditAddOns,
 }: Step5ReviewProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPromoModal, setShowPromoModal] = useState(false);
+  const fetcher = useFetcher();
+  const isSubmitting = fetcher.state !== "idle";
 
-  const { selectedCaseSize, selectedSellingPlan, selectedProducts, errors } =
-    state;
+  const {
+    selectedCaseSize,
+    selectedSellingPlan,
+    selectedProducts,
+    selectedAddOns,
+    errors,
+  } = state;
+
+  const getDiscountPercentage = (product: any) => {
+    // 1. Prioritize stored discount (passed from Step 3/4)
+    if (typeof product.discountPercentage === "number") {
+      return product.discountPercentage;
+    }
+
+    // 2. Fallback: Lookup original product data to check for individualPrices
+    // This handles cases where state might be stale or missing discountPercentage
+    if (selectedSellingPlan) {
+      // Find the original product data source
+      const allProductData = [
+        ...(wineClub.sellingPlanVariants || []),
+        ...(wineClub.productData || []),
+      ].map((spv: any) => spv.productData || spv);
+
+      const originalProduct = allProductData.find(
+        (p: any) => p.productVariant?.id === product.productVariant.id,
+      );
+
+      if (originalProduct?.individualPrices) {
+        const individualPrice = originalProduct.individualPrices.find(
+          (ip: any) =>
+            String(ip.sellingPlan) === String(selectedSellingPlan.id),
+        );
+
+        if (individualPrice && individualPrice.discountType === "percentage") {
+          return parseFloat(individualPrice.individualPrice);
+        }
+      }
+    }
+
+    // 3. Fallback to global Selling Plan discount
+    const itemSellingPlanId = product.sellingPlanId;
+    const sellingPlan = itemSellingPlanId
+      ? selectedSellingPlan?.id === itemSellingPlanId
+        ? selectedSellingPlan
+        : null
+      : selectedSellingPlan;
+
+    if (sellingPlan?.discountPercentage) return sellingPlan.discountPercentage;
+    if (sellingPlan?.sellingPlanClubDiscount?.fixedType === "PERCENTAGE") {
+      return sellingPlan.sellingPlanClubDiscount.fixedAmount;
+    }
+    return 0;
+  };
 
   const pricing = calculateTotalPrice(state);
 
@@ -71,12 +119,6 @@ export default function Step5Review({
         return [];
       }
 
-      // Debug: Log cart lines to see what's being sent
-      console.log(
-        "[Wine Club] Cart lines:",
-        JSON.stringify(cartData.cartInput.lines, null, 2),
-      );
-
       return cartData.cartInput.lines;
     } catch (error) {
       console.error("Error formatting cart:", error);
@@ -94,14 +136,9 @@ export default function Step5Review({
   const handleCheckout = async () => {
     if (isSubmitting) return;
 
-    setIsSubmitting(true);
-    updateState({ isSubmitting: true });
-
     try {
-      // Validate all selections before checkout
-      if (!validateSelections()) {
-        return;
-      }
+      // Validate all or specific selections
+      if (!validateSelections()) return;
 
       // Format cart data for Shopify
       const cartData = formatWineClubCart(wineClub, state);
@@ -109,16 +146,19 @@ export default function Step5Review({
       // Validate cart data
       const validation = validateCartData(cartData);
       if (!validation.isValid) {
-        throw new Error(
-          `Cart validation failed: ${validation.errors.join(", ")}`,
-        );
+        throw new Error(`Selection error: ${validation.errors.join(", ")}`);
       }
 
-      // Call custom checkout handler or default behavior
-      await onCheckout?.(cartData);
+      // Submit to action for direct checkout
 
-      // Default behavior: Create cart and redirect to checkout
-      await createCartAndRedirect(cartData);
+      // Signal parent that we are checking out (disables navigation guard)
+      // Pass cartData or null, container's handleCheckout ignores arguments anyway
+      onCheckout?.(cartData);
+
+      fetcher.submit(
+        { cartInput: JSON.stringify(cartData.cartInput) },
+        { method: "POST" },
+      );
     } catch (error) {
       console.error("Checkout error:", error);
       updateState({
@@ -130,56 +170,23 @@ export default function Step5Review({
               : "Unable to proceed to checkout. Please try again.",
         },
       });
-    } finally {
-      setIsSubmitting(false);
-      updateState({ isSubmitting: false });
     }
   };
 
-  // Create Shopify cart and redirect to checkout
-  const createCartAndRedirect = async (cartData: any) => {
-    try {
-      // Generate GraphQL mutation
-      const mutation = generateCartCreateMutation(cartData.cartInput);
-
-      // This would typically be called via the Shopify Storefront API
-      // For now, we'll simulate the cart creation process
-      console.log("Creating cart with data:", cartData);
-      console.log("GraphQL mutation:", mutation);
-
-      // In a real implementation, you would:
-      // 1. Call Shopify Storefront API with the mutation
-      // 2. Get the cart object with checkoutUrl
-      // 3. Redirect user to checkoutUrl
-
-      // Simulated response for development
-      const mockCartResponse = {
-        cart: {
-          id: "mock-cart-id",
-          checkoutUrl: `/checkout?cart=${cartData.metadata.wineClubId}`,
-          totalQuantity: cartData.metadata.totalItems,
+  // Handle redirect on success
+  React.useEffect(() => {
+    if (fetcher.data?.checkoutUrl && typeof window !== "undefined") {
+      window.location.href = fetcher.data.checkoutUrl;
+    }
+    if (fetcher.data?.error) {
+      // Use functional update to avoid depending on `errors` which causes infinite loop
+      updateState({
+        errors: {
+          review: fetcher.data.error,
         },
-      };
-
-      // Redirect to checkout
-      if (typeof window !== "undefined") {
-        // For development, show the cart data instead of redirecting
-        if (process.env.NODE_ENV === "development") {
-          console.log("Cart created successfully:", mockCartResponse);
-          alert(
-            `Cart created with ${cartData.metadata.totalItems} items. Check console for details.`,
-          );
-        } else {
-          // In production, redirect to actual checkout
-          window.location.href = mockCartResponse.cart.checkoutUrl;
-        }
-      }
-    } catch (error) {
-      throw new Error(
-        `Failed to create cart: ${error instanceof Error ? error.message : "Unknown error"}`,
-      );
+      });
     }
-  };
+  }, [fetcher.data, updateState]); // Removed `errors` from dependencies
 
   // Validate all selections
   const validateSelections = (): boolean => {
@@ -203,13 +210,13 @@ export default function Step5Review({
     (wineClub.signUpProductOffer &&
       (!wineClub.signUpProductOffer.expiryDate ||
         new Date(wineClub.signUpProductOffer.expiryDate) > new Date())) ||
-    process.env.NODE_ENV === "development"; // Show mock offer in development
+    process.env.NODE_ENV === "development";
 
   return (
     <div className="max-w-6xl mx-auto space-y-10 pb-12">
       {/* Step Header */}
       <div className="text-center space-y-1">
-        <h2 className="text-[40px]">Review Your Selection</h2>
+        <h2 className="text-[40px] text-gray-900">Review Your Selection</h2>
         <p className="font-body text-[#5C5C5C] text-lg max-w-xl mx-auto">
           Please review your wine club configuration before proceeding to
           checkout. You can edit any section by clicking the pencil icon.
@@ -229,7 +236,7 @@ export default function Step5Review({
           {/* Wine Club Info */}
           <div className="bg-white border border-gray-200 rounded-lg p-8 hover:border-[#f5a623]/40 transition-colors shadow-sm">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold uppercase tracking-widest text-gray-900">
+              <h3 className="text-xl font-bold uppercase tracking-widest text-gray-900">
                 Wine Club
               </h3>
               <span className="text-xs font-bold uppercase tracking-widest text-gray-400">
@@ -262,17 +269,40 @@ export default function Step5Review({
               }}
             >
               {selectedCaseSize && (
-                <div className="space-y-2">
-                  <div className="text-base font-medium text-gray-900">
-                    {selectedCaseSize.quantity} bottles per delivery
+                <div className="flex items-start">
+                  {/* Case Size Image */}
+                  <div className="w-20 h-20 mr-4 shrink-0 bg-gray-50 rounded-md overflow-hidden border border-gray-200 flex items-center justify-center">
+                    {selectedCaseSize.image ? (
+                      <img
+                        src={selectedCaseSize.image}
+                        alt={selectedCaseSize.title}
+                        className="w-full h-full object-contain p-1"
+                      />
+                    ) : (
+                      <svg
+                        className="w-8 h-8 text-gray-300"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={1.5}
+                          d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                        />
+                      </svg>
+                    )}
                   </div>
-                  {/* {selectedCaseSize.image && (
-                    <img
-                      src={selectedCaseSize.image}
-                      alt={selectedCaseSize.title}
-                      className="w-20 h-20 object-contain rounded"
-                    />
-                  )} */}
+
+                  <div className="space-y-1 flex-1">
+                    <div className="font-henderson-slab text-lg uppercase text-gray-900 leading-tight">
+                      {selectedCaseSize.title}
+                    </div>
+                    <div className="text-base text-gray-600">
+                      {selectedCaseSize.quantity} bottles per delivery
+                    </div>
+                  </div>
                 </div>
               )}
             </SelectionSummaryCard>
@@ -287,21 +317,54 @@ export default function Step5Review({
               }}
             >
               {selectedSellingPlan && (
-                <div className="space-y-1">
-                  <div className="font-henderson-slab text-lg uppercase text-gray-900">
-                    {selectedSellingPlan.name}
+                <div className="flex items-start">
+                  {/* Frequency Image */}
+                  <div className="w-20 h-20 mr-4 shrink-0 bg-gray-50 rounded-md overflow-hidden border border-gray-200 flex items-center justify-center">
+                    {selectedSellingPlan.image?.contentUrl ? (
+                      <img
+                        src={selectedSellingPlan.image.contentUrl}
+                        alt={
+                          selectedSellingPlan.image.altText ||
+                          selectedSellingPlan.name
+                        }
+                        className="w-full h-full object-contain p-1"
+                      />
+                    ) : (
+                      <svg
+                        className="w-8 h-8 text-gray-300"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={1.5}
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
+                      </svg>
+                    )}
                   </div>
-                  <div className="text-base text-gray-600">
-                    <p>
-                      {getFrequencyInfo(selectedSellingPlan).deliveriesPerYear}{" "}
-                      deliveries per year
-                    </p>
-                    <p>
-                      Every{" "}
-                      {getFrequencyInfo(
-                        selectedSellingPlan,
-                      ).intervalText.toLowerCase()}
-                    </p>
+
+                  <div className="space-y-1 flex-1">
+                    <div className="font-henderson-slab text-lg uppercase text-gray-900 leading-tight">
+                      {selectedSellingPlan.name}
+                    </div>
+                    <div className="text-base text-gray-600">
+                      <p>
+                        {
+                          getFrequencyInfo(selectedSellingPlan)
+                            .deliveriesPerYear
+                        }{" "}
+                        deliveries per year
+                      </p>
+                      <p>
+                        Every{" "}
+                        {getFrequencyInfo(
+                          selectedSellingPlan,
+                        ).intervalText.toLowerCase()}
+                      </p>
+                    </div>
                   </div>
                 </div>
               )}
@@ -319,56 +382,84 @@ export default function Step5Review({
           >
             {selectedProducts.length > 0 ? (
               <div className="space-y-2">
-                {selectedProducts.map((product) => (
-                  <div
-                    key={product.productVariant.id}
-                    className="flex items-center py-4 border-b border-gray-100 last:border-0"
-                  >
-                    {/* Thumbnail */}
-                    <div className="w-16 h-16 mr-4 flex-shrink-0 bg-gray-50 rounded-md overflow-hidden border border-gray-200">
-                      {product.productVariant.productImage ? (
-                        <img
-                          src={product.productVariant.productImage}
-                          alt={product.productVariant.productTitle}
-                          className="w-full h-full object-contain"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-300">
-                          <svg
-                            className="w-8 h-8"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={1}
-                              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                <div>
+                  {selectedProducts.map((product) => (
+                    <div
+                      key={product.productVariant.id}
+                      className="flex items-center py-4 border-b border-gray-100 last:border-0"
+                    >
+                      {/* Thumbnail */}
+                      <div className="w-16 h-16 mr-4 shrink-0 bg-gray-50 rounded-md overflow-hidden border border-gray-200">
+                        {product.productVariant.productImage ? (
+                          <>
+                            {/* biome-ignore lint/performance/noImgElement: External image URL */}
+                            {/* biome-ignore lint/correctness/useImageSize: Dynamic image size */}
+                            <img
+                              src={product.productVariant.productImage}
+                              alt={product.productVariant.productTitle}
+                              className="w-full h-full object-contain"
                             />
-                          </svg>
-                        </div>
-                      )}
-                    </div>
+                          </>
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-300">
+                            <svg
+                              className="w-8 h-8"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={1}
+                                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                              />
+                            </svg>
+                          </div>
+                        )}
+                      </div>
 
-                    <div className="flex-1 pr-4">
-                      <div className="font-henderson-slab text-base text-gray-900">
-                        {product.productVariant.productTitle}
+                      <div className="flex-1 pr-4">
+                        <div className="font-henderson-slab text-base text-gray-900">
+                          {product.productVariant.productTitle}
+                        </div>
+                        <div className="flex items-center gap-2 mt-1">
+                          {(() => {
+                            const discount = getDiscountPercentage(product);
+                            return (
+                              <>
+                                {discount > 0 && (
+                                  <span className="text-sm text-gray-400 line-through">
+                                    $
+                                    {product.productVariant.retailPrice.toFixed(
+                                      2,
+                                    )}
+                                  </span>
+                                )}
+                                <span className="text-base font-medium text-gray-900">
+                                  $
+                                  {(
+                                    (product.calculatedPrice || 0) /
+                                    product.quantity
+                                  ).toFixed(2)}
+                                  {discount > 0 && "/each"}
+                                </span>
+                              </>
+                            );
+                          })()}
+                        </div>
                       </div>
-                      <div className="text-sm text-gray-500 mt-1">
-                        ${product.productVariant.retailPrice.toFixed(2)} each
+                      <div className="text-right">
+                        <div className="text-base font-medium text-gray-900">
+                          ×{product.quantity}
+                        </div>
+                        <div className="text-lg text-gray-900 mt-1">
+                          ${(product.calculatedPrice || 0).toFixed(2)}
+                        </div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-base font-medium text-gray-900">
-                        ×{product.quantity}
-                      </div>
-                      <div className="font-henderson-slab text-base text-gray-900 mt-1">
-                        ${(product.calculatedPrice || 0).toFixed(2)}
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
                 <div className="pt-6 mt-2 text-base text-gray-900 border-t border-gray-100 font-medium">
                   Total items:{" "}
                   {selectedProducts.reduce((sum, p) => sum + p.quantity, 0)}{" "}
@@ -379,11 +470,97 @@ export default function Step5Review({
               <p className="text-sm text-gray-500">No wines selected</p>
             )}
           </SelectionSummaryCard>
+
+          {/* Add-ons Selection */}
+          {selectedAddOns.length > 0 && (
+            <SelectionSummaryCard
+              title="Add-on Products"
+              selection={selectedAddOns}
+              onEdit={() => {
+                onEditAddOns?.();
+                updateState({ currentStep: 4 });
+              }}
+              optional={true}
+            >
+              <div className="space-y-2">
+                <div>
+                  {selectedAddOns.map((product) => (
+                    <div
+                      key={product.productVariant.id}
+                      className="flex items-center py-4 border-b border-gray-100 last:border-0"
+                    >
+                      {/* Thumbnail */}
+                      <div className="w-16 h-16 mr-4 shrink-0 bg-gray-50 rounded-md overflow-hidden border border-gray-200">
+                        {product.productVariant.productImage ? (
+                          <>
+                            {/* biome-ignore lint/performance/noImgElement: External image URL */}
+                            {/* biome-ignore lint/correctness/useImageSize: Dynamic image size */}
+                            <img
+                              src={product.productVariant.productImage}
+                              alt={product.productVariant.productTitle}
+                              className="w-full h-full object-contain"
+                            />
+                          </>
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-300">
+                            <AddOnIcon />
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex-1 pr-4">
+                        <div className="font-henderson-slab text-base text-gray-900">
+                          {product.productVariant.productTitle}
+                        </div>
+                        <div className="flex items-center gap-2 mt-1">
+                          {(() => {
+                            const discount = getDiscountPercentage(product);
+                            return (
+                              <>
+                                {discount > 0 && (
+                                  <span className="text-sm text-gray-400 line-through">
+                                    $
+                                    {product.productVariant.retailPrice.toFixed(
+                                      2,
+                                    )}
+                                  </span>
+                                )}
+                                <span className="text-base font-medium text-gray-900">
+                                  $
+                                  {(
+                                    (product.calculatedPrice || 0) /
+                                    product.quantity
+                                  ).toFixed(2)}
+                                  {discount > 0 && "/each"}
+                                </span>
+                              </>
+                            );
+                          })()}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-base font-medium text-gray-900">
+                          ×{product.quantity}
+                        </div>
+                        <div className="text-lg text-gray-900 mt-1">
+                          ${(product.calculatedPrice || 0).toFixed(2)}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="pt-6 mt-2 text-base text-gray-900 border-t border-gray-100 font-medium">
+                  Total add-ons:{" "}
+                  {selectedAddOns.reduce((sum, p) => sum + p.quantity, 0)} items
+                </div>
+              </div>
+            </SelectionSummaryCard>
+          )}
         </div>
 
         {/* Pricing Summary */}
         <div className="lg:col-span-1">
-          <div className="bg-white border border-gray-200 rounded-lg p-8 sticky top-6 shadow-sm">
+          <div className="bg-white border border-gray-200 rounded-lg p-8 sticky top-24 shadow-sm">
             <h3 className="text-xl font-bold uppercase tracking-widest text-gray-900 mb-8 border-b pb-4">
               Pricing Summary
             </h3>
@@ -392,8 +569,10 @@ export default function Step5Review({
               {/* Original Subtotal with Discount */}
               {pricing.discountAmount > 0 && (
                 <div className="flex justify-between items-center pb-2">
-                  <span className="text-sm text-gray-500">Original Price</span>
-                  <span className="text-sm text-gray-500 line-through">
+                  <span className="text-base text-gray-500">
+                    Original Price
+                  </span>
+                  <span className="text-base text-gray-500 line-through">
                     ${pricing.originalSubtotal.toFixed(2)}
                   </span>
                 </div>
@@ -402,10 +581,10 @@ export default function Step5Review({
               {/* Discount Amount */}
               {pricing.discountAmount > 0 && (
                 <div className="flex justify-between items-center pb-3 border-b border-gray-200">
-                  <span className="text-sm text-[#d4820a] font-medium">
-                    {selectedSellingPlan?.discountPercentage}% Discount
+                  <span className="text-base text-[#d4820a] font-medium">
+                    Discount
                   </span>
-                  <span className="text-sm font-medium text-[#d4820a]">
+                  <span className="text-base font-medium text-[#d4820a]">
                     -${pricing.discountAmount.toFixed(2)}
                   </span>
                 </div>
@@ -413,8 +592,10 @@ export default function Step5Review({
 
               {/* Subscription Total */}
               <div className="flex justify-between items-center pb-3 border-b border-gray-200">
-                <span className="text-sm text-gray-600">Wine Subscription</span>
-                <span className="font-medium text-gray-900">
+                <span className="text-base text-gray-600">
+                  Wine Subscription
+                </span>
+                <span className="text-base font-medium text-gray-900">
                   ${pricing.subscriptionTotal.toFixed(2)}
                 </span>
               </div>
@@ -422,8 +603,8 @@ export default function Step5Review({
               {/* Add-ons Total */}
               {pricing.addOnTotal > 0 && (
                 <div className="flex justify-between items-center pb-3 border-b border-gray-200">
-                  <span className="text-sm text-gray-600">Add-ons</span>
-                  <span className="font-medium text-gray-900">
+                  <span className="text-base text-gray-600">Add-ons</span>
+                  <span className="text-base font-medium text-gray-900">
                     ${pricing.addOnTotal.toFixed(2)}
                   </span>
                 </div>
@@ -439,24 +620,10 @@ export default function Step5Review({
                 </span>
               </div>
 
-              {/* Savings Badge */}
-              {pricing.discountAmount > 0 && (
-                <div className="mt-3 p-2 bg-green-50 rounded-lg">
-                  <div className="text-xs text-green-800 text-center">
-                    <span className="font-medium">
-                      You save ${pricing.discountAmount.toFixed(2)}
-                    </span>
-                    <span className="block">
-                      with {selectedSellingPlan?.name} subscription
-                    </span>
-                  </div>
-                </div>
-              )}
-
               {/* Billing Info */}
-              <div className="mt-4 p-4 bg-[#f9f5f0] rounded-lg border border-[#e6dac9]">
-                <div className="text-sm text-[#4a4a4a] space-y-1 font-body">
-                  <p className="font-bold text-gray-900 uppercase tracking-wide text-xs mb-2">
+              <div className="mt-4 p-4 bg-[#f9f5f0] rounded border border-[#e6dac9]">
+                <div className="text-base text-[#4a4a4a] space-y-1 font-body">
+                  <p className="font-bold text-gray-900 uppercase tracking-wide mb-2">
                     Billing Information
                   </p>
                   <p>• Subscription billed per delivery</p>
@@ -466,17 +633,30 @@ export default function Step5Review({
               </div>
 
               {/* Checkout Button */}
-              <AddToCartButton cartLines={cartLines} />
+              <Button
+                variant="primary"
+                onClick={handleCheckout}
+                disabled={isSubmitting}
+                loading={isSubmitting}
+                animate={false}
+                className={cn(
+                  "w-full p-2.5 text-lg tracking-normal mt-3 shadow-sm font-henderson-slab rounded",
+                  !isSubmitting && "hover:scale-[1.01] active:scale-[0.99]",
+                )}
+              >
+                Checkout
+              </Button>
 
               {/* Sign-up Offer */}
-              {showSignUpOffer && (
+              {/* {showSignUpOffer && (
                 <button
+                  type="button"
                   onClick={() => setShowPromoModal(true)}
                   className="w-full mt-3 py-3 px-6 bg-[#f5a623]/10 text-[#d4820a] text-sm font-bold uppercase tracking-wide hover:bg-[#f5a623]/20 transition-colors flex items-center justify-center gap-2"
                 >
                   <span>🎉</span> View Special Offer
                 </button>
-              )}
+              )} */}
             </div>
           </div>
         </div>
@@ -489,11 +669,10 @@ export default function Step5Review({
           isVisible={showPromoModal}
           onClose={() => setShowPromoModal(false)}
           onAcceptOffer={() => {
-            console.log("Promotional offer accepted");
-            // Add offer to state or handle acceptance logic
+            // console.log("Promotional offer accepted");
           }}
           onDeclineOffer={() => {
-            console.log("Promotional offer declined");
+            // console.log("Promotional offer declined");
           }}
         />
       )}
@@ -534,6 +713,7 @@ function SelectionSummaryCard({
           </h3>
         </div>
         <button
+          type="button"
           onClick={onEdit}
           className="text-[#d4820a] hover:text-[#b5700a] transition-colors"
           aria-label="Edit"
@@ -555,61 +735,6 @@ function SelectionSummaryCard({
   );
 }
 
-// Icon Components
-function CaseSizeIcon() {
-  return (
-    <svg
-      className="w-5 h-5"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-      />
-    </svg>
-  );
-}
-
-function FrequencyIcon() {
-  return (
-    <svg
-      className="w-5 h-5"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-      />
-    </svg>
-  );
-}
-
-function WineIcon() {
-  return (
-    <svg
-      className="w-5 h-5"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-      />
-    </svg>
-  );
-}
-
 function AddOnIcon() {
   return (
     <svg
@@ -625,108 +750,5 @@ function AddOnIcon() {
         d="M12 6v6m0 0v6m0-6h6m-6 0H6"
       />
     </svg>
-  );
-}
-
-/**
- * Add to Cart Button with CartForm integration
- */
-interface AddToCartButtonProps {
-  cartLines: any[];
-}
-
-function AddToCartButton({ cartLines }: AddToCartButtonProps) {
-  const { open: openCartDrawer } = useCartDrawerStore();
-
-  return (
-    <CartForm
-      route="/cart"
-      inputs={{ lines: cartLines }}
-      action={CartForm.ACTIONS.LinesAdd}
-    >
-      {(fetcher: FetcherWithComponents<any>) => {
-        const prevStateRef = React.useRef(fetcher.state);
-
-        // Open cart drawer when fetcher completes successfully
-        React.useEffect(() => {
-          const hasErrors =
-            (fetcher.data?.errors && fetcher.data.errors.length > 0) ||
-            (fetcher.data?.userErrors && fetcher.data.userErrors.length > 0);
-          const isCompleting =
-            (prevStateRef.current === "submitting" ||
-              prevStateRef.current === "loading") &&
-            fetcher.state === "idle";
-
-          // Log for debugging
-          console.log("[AddToCart] State transition:", {
-            prevState: prevStateRef.current,
-            currentState: fetcher.state,
-            hasData: Boolean(fetcher.data),
-            hasErrors,
-            isCompleting,
-          });
-
-          if (isCompleting && !hasErrors) {
-            console.log("[AddToCart] Opening cart drawer");
-            openCartDrawer();
-          }
-
-          prevStateRef.current = fetcher.state;
-        }, [fetcher.state, fetcher.data]);
-
-        return (
-          <>
-            <button
-              type="submit"
-              disabled={cartLines.length === 0 || fetcher.state !== "idle"}
-              className={cn(
-                "w-full py-3 px-6 font-bold text-base uppercase tracking-widest mt-6",
-                cartLines.length === 0 || fetcher.state !== "idle"
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-[#f5a623] text-black hover:bg-[#d4820a] border border-transparent",
-              )}
-            >
-              {fetcher.state !== "idle" ? (
-                <span className="flex items-center justify-center">
-                  <svg
-                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    />
-                  </svg>
-                  Adding to Cart...
-                </span>
-              ) : (
-                "Add to Cart"
-              )}
-            </button>
-            {/* Show error message if cart mutation failed */}
-            {fetcher.data?.errors && fetcher.state === "idle" && (
-              <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-red-800 text-sm font-medium">
-                  Failed to add to cart
-                </p>
-                <p className="text-red-700 text-xs mt-1">
-                  {fetcher.data.errors[0] || "Please try again"}
-                </p>
-              </div>
-            )}
-          </>
-        );
-      }}
-    </CartForm>
   );
 }

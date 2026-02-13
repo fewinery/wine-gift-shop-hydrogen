@@ -12,29 +12,37 @@ export function AddressBook({
   addresses: CustomerAddress[];
 }) {
   return (
-    <div className="space-y-4">
-      <div className="font-bold">Address Book</div>
-      <div className="space-y-3">
-        {!addresses?.length && (
-          <div>You haven&apos;t saved any addresses yet.</div>
-        )}
-        <div className="">
-          <Link to="address/add" className="mb-5" variant="outline">
-            Add an Address
-          </Link>
-        </div>
-        {addresses?.length > 0 ? (
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-            {customer.defaultAddress && (
-              <Address address={customer.defaultAddress} defaultAddress />
-            )}
-            {addresses
-              .filter((address) => address.id !== customer.defaultAddress?.id)
-              .map((address) => (
-                <Address key={address.id} address={address} />
-              ))}
+    <div className="h-full">
+      <div className="h-full">
+        {!addresses?.length ? (
+          <div className="flex flex-col items-center justify-center h-full text-center">
+            <p className="text-xl font-bold">No addresses yet</p>
+            <p className="text-body-subtle mt-2 px-8 mb-6">
+              You haven&apos;t saved any addresses yet.
+            </p>
+            <Link to="address/add" variant="outline">
+              Add an Address
+            </Link>
           </div>
-        ) : null}
+        ) : (
+          <div className="space-y-6">
+            <div>
+              <Link to="address/add" variant="outline">
+                Add an Address
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+              {customer.defaultAddress && (
+                <Address address={customer.defaultAddress} defaultAddress />
+              )}
+              {addresses
+                .filter((address) => address.id !== customer.defaultAddress?.id)
+                .map((address) => (
+                  <Address key={address.id} address={address} />
+                ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -48,7 +56,7 @@ function Address({
   defaultAddress?: boolean;
 }) {
   return (
-    <div className="flex flex-col border border-line-subtle p-5">
+    <div className="flex flex-col bg-body-subtle/4 p-5 rounded-md">
       {defaultAddress && (
         <div className="mb-3 flex flex-row">
           <span className="bg-body-subtle px-3 py-1 font-medium text-body-inverse text-sm">

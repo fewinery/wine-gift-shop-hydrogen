@@ -8,7 +8,6 @@ import type { WineClubDetails } from "~/types/winehub";
  * Handles merchandise IDs, selling plan IDs, and subscription configuration
  *
  * User Story 2 (P2): Wine Club Selection Process
- * Features: Cart line item formatting, subscription setup, add-on handling
  */
 
 // ============================================================================
@@ -115,7 +114,9 @@ export function formatWineClubCart(
     ),
     quantity: product.quantity,
     sellingPlanId: formatSellingPlanId(
-      selectedSellingPlan.shopifyId || selectedSellingPlan.id,
+      product.sellingPlanId ||
+        selectedSellingPlan.shopifyId ||
+        selectedSellingPlan.id,
     ),
     attributes: [
       {
@@ -145,12 +146,17 @@ export function formatWineClubCart(
     ],
   }));
 
-  // Format add-on items (one-time purchases)
+  // Format add-on items (inherit selling plan for discount)
   const addOnLines: CartLineItem[] = selectedAddOns.map((addOn) => ({
     merchandiseId: formatMerchandiseId(
       addOn.productVariant.shopifyId || addOn.productVariant.id,
     ),
     quantity: addOn.quantity,
+    sellingPlanId: formatSellingPlanId(
+      addOn.sellingPlanId ||
+        selectedSellingPlan.shopifyId ||
+        selectedSellingPlan.id,
+    ),
     attributes: [
       {
         key: "_wineClubId",

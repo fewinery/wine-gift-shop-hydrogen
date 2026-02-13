@@ -41,7 +41,7 @@ export interface WineClub {
   type: "Manual" | "Automatic" | null;
 
   /** Packaging type */
-  caseType: "Bottle" | "Case" | "Mixed";
+  caseType: "Bottle" | "Case" | "Mixed" | "Fixed";
 
   /** Available package sizes (can be empty) */
   caseSizes: CaseSize[];
@@ -129,6 +129,12 @@ export interface SellingPlan {
 
   /** Reference to case size (optional) */
   caseSizeId?: string;
+
+  /** IMAGE URL representing this selling plan */
+  image?: {
+    contentUrl: string;
+    altText?: string;
+  } | null;
 
   /** Whether this is a popular/recommended option */
   popular?: boolean;
@@ -470,7 +476,8 @@ export function isWineClub(value: unknown): value is WineClub {
     (obj.type === "Manual" || obj.type === "Automatic" || obj.type === null) &&
     (obj.caseType === "Bottle" ||
       obj.caseType === "Case" ||
-      obj.caseType === "Mixed") &&
+      obj.caseType === "Mixed" ||
+      obj.caseType === "Fixed") &&
     Array.isArray(obj.caseSizes) &&
     Array.isArray(obj.sellingPlans)
     // Removed strict checks for optional fields that may not exist in API response

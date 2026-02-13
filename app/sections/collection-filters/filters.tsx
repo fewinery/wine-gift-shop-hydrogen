@@ -13,13 +13,26 @@ import type { CollectionFiltersData } from ".";
 import { FilterItem } from "./filter-item";
 import { PriceRangeFilter } from "./price-range-filter";
 
-export function Filters({ className }: { className?: string }) {
+export function Filters({
+  className,
+  filterTitleSize,
+  filterOptionSize,
+  filterCountSize,
+  filterSectionSpacing,
+}: {
+  className?: string;
+  filterTitleSize?: number;
+  filterOptionSize?: number;
+  filterCountSize?: number;
+  filterSectionSpacing?: number;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const parentInstance = useClosestWeaverseItem(ref);
   const parentData = parentInstance.data as unknown as CollectionFiltersData;
   const {
     expandFilters,
     showFiltersCount,
+    showFilterSeparator,
     enableSwatches,
     displayAsButtonFor,
   } = parentData;
@@ -44,7 +57,7 @@ export function Filters({ className }: { className?: string }) {
         }
         defaultValue={expandFilters ? filters.map((filter) => filter.id) : []}
       >
-        {filters.map((filter: Filter) => {
+        {filters.map((filter: Filter, index: number) => {
           const asSwatch =
             enableSwatches && OPTIONS_AS_SWATCH.includes(filter.label);
           const asButton = displayAsButtonFor.includes(filter.label);
@@ -54,10 +67,25 @@ export function Filters({ className }: { className?: string }) {
               key={filter.id}
               ref={ref}
               value={filter.id}
-              className="w-full pb-10"
+              className={cn(
+                "w-full",
+                showFilterSeparator && index !== 0 && "border-t border-line",
+              )}
+              style={
+                {
+                  paddingBottom: `${filterSectionSpacing}px`,
+                  paddingTop:
+                    showFilterSeparator && index !== 0
+                      ? `${filterSectionSpacing}px`
+                      : 0,
+                } as React.CSSProperties
+              }
             >
               <Accordion.Trigger className="group flex w-full items-center justify-start gap-2.5">
-                <span className="font-henderson-slab text-[19.2px] uppercase">
+                <span
+                  className="font-henderson-slab uppercase"
+                  style={{ fontSize: `${filterTitleSize}px` }}
+                >
                   {filter.label}
                 </span>
                 <span className="h-full leading-none group-data-[state=open]:rotate-180">
@@ -99,6 +127,8 @@ export function Filters({ className }: { className?: string }) {
                         appliedFilters={appliedFilters as AppliedFilter[]}
                         option={option}
                         showFiltersCount={showFiltersCount}
+                        filterOptionSize={filterOptionSize}
+                        filterCountSize={filterCountSize}
                       />
                     ))
                   )}

@@ -1,8 +1,8 @@
 import {
-  ArrowUpIcon,
   ArrowDownIcon,
   ArrowLeftIcon,
   ArrowRightIcon,
+  ArrowUpIcon,
   MagnifyingGlassPlusIcon,
   VideoCameraIcon,
   XIcon,
@@ -249,7 +249,7 @@ function isVisibleInParent(child: HTMLElement, parent: HTMLElement) {
 }
 
 export interface ZoomButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> { }
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {}
 
 export function ZoomButton({ className, ...props }: ZoomButtonProps) {
   return (

@@ -3,9 +3,12 @@ import * as Heading from "~/components/heading";
 import * as Link from "~/components/link";
 import * as Paragraph from "~/components/paragraph";
 import * as SubHeading from "~/components/subheading";
+import * as ViewAllButton from "~/components/view-all-button";
 import * as AllProducts from "~/sections/all-products";
 import * as AlternatingContent from "~/sections/alternating-content";
+import * as AlternatingContentHeader from "~/sections/alternating-content/header";
 import * as AlternatingContentItem from "~/sections/alternating-content/item";
+import * as AlternatingContentItems from "~/sections/alternating-content/items";
 import * as BlogPost from "~/sections/blog-post";
 import * as Blogs from "~/sections/blogs";
 import * as BrandShowcase from "~/sections/brand-showcase";
@@ -15,7 +18,9 @@ import * as BrandStory from "~/sections/brand-story";
 import * as BrandStoryContent from "~/sections/brand-story/content";
 import * as BrandStoryImage from "~/sections/brand-story/image";
 import * as ClubComparison from "~/sections/club-comparison";
+import * as ClubComparisonHeader from "~/sections/club-comparison/header";
 import * as ClubComparisonItem from "~/sections/club-comparison/item";
+import * as ClubComparisonItems from "~/sections/club-comparison/items";
 import * as CollectionFilters from "~/sections/collection-filters";
 import * as CollectionList from "~/sections/collection-list";
 import * as CollectionListItems from "~/sections/collection-list/collections-items";
@@ -47,7 +52,9 @@ import * as ImageGalleryItems from "~/sections/image-gallery/items";
 import * as ImageWithText from "~/sections/image-with-text";
 import * as ImageWithTextButtonsWrapper from "~/sections/image-with-text/buttons-wrapper";
 import * as ImageWithTextContent from "~/sections/image-with-text/content";
+import * as ImageWithTextHeader from "~/sections/image-with-text/header";
 import * as ImageWithTextImage from "~/sections/image-with-text/image";
+import * as ImageWithTextItems from "~/sections/image-with-text/items";
 import * as JudgemeReview from "~/sections/judgeme-reviews";
 import * as JudgemeReviewList from "~/sections/judgeme-reviews/review-list";
 import * as JudgemeReviewSummary from "~/sections/judgeme-reviews/review-summary";
@@ -78,6 +85,8 @@ import * as QuoteCarouselItem from "~/sections/quote-carousel/item";
 import * as RelatedArticles from "~/sections/related-articles";
 import * as RelatedProducts from "~/sections/related-products";
 import * as ReservationForm from "~/sections/reservation-form";
+import * as ReservationFormContent from "~/sections/reservation-form/content";
+import * as ReservationFormHeader from "~/sections/reservation-form/header";
 import * as ShopByCategory from "~/sections/shop-by-category";
 import * as ShopByCategoryItems from "~/sections/shop-by-category/items";
 import * as SingleProduct from "~/sections/single-product";
@@ -85,11 +94,17 @@ import * as SlideShow from "~/sections/slideshow";
 import * as SlideShowSlide from "~/sections/slideshow/slide";
 import * as Spacer from "~/sections/spacer";
 import * as StepsGuide from "~/sections/steps-guide";
+import * as StepsGuideHeader from "~/sections/steps-guide/header";
+import * as StepsGuideItems from "~/sections/steps-guide/items";
 import * as StepsGuideItem from "~/sections/steps-guide/step";
 import * as Testimonials from "~/sections/testimonials";
+import * as TestimonialsHeader from "~/sections/testimonials/header";
 import * as TestimonialItem from "~/sections/testimonials/item";
+import * as TestimonialsItems from "~/sections/testimonials/items";
 import * as TierMembership from "~/sections/tier-membership";
+import * as TierMembershipHeader from "~/sections/tier-membership/header";
 import * as TierMembershipItem from "~/sections/tier-membership/item";
+import * as TierMembershipItems from "~/sections/tier-membership/items";
 import * as VideoEmbed from "~/sections/video-embed";
 import * as VideoEmbedItem from "~/sections/video-embed/video";
 import * as WineClubItem from "~/sections/wine-clubs/wine-club-item";
@@ -116,6 +131,8 @@ export const components: HydrogenComponent[] = [
   BrandStoryImage,
   BrandStoryContent,
   ImageWithText,
+  ImageWithTextHeader,
+  ImageWithTextItems,
   ImageWithTextContent,
   ImageWithTextImage,
   ImageWithTextButtonsWrapper,
@@ -130,6 +147,8 @@ export const components: HydrogenComponent[] = [
   Hotspots,
   HotspotsItem,
   StepsGuide,
+  StepsGuideHeader,
+  StepsGuideItems,
   StepsGuideItem,
   Countdown,
   CountDownTimer,
@@ -182,20 +201,31 @@ export const components: HydrogenComponent[] = [
   ComparisonTable,
   ComparisonColumn,
   AlternatingContent,
+  AlternatingContentHeader,
+  AlternatingContentItems,
   AlternatingContentItem,
   QuoteCarousel,
   QuoteCarouselItem,
   TierMembership,
+  TierMembershipHeader,
+  TierMembershipItems,
   TierMembershipItem,
   ClubComparison,
+  ClubComparisonHeader,
+  ClubComparisonItems,
   ClubComparisonItem,
   Testimonials,
+  TestimonialsHeader,
+  TestimonialsItems,
   TestimonialItem,
   ReservationForm,
+  ReservationFormHeader,
+  ReservationFormContent,
   BrandShowcase,
   BrandShowcaseTab,
   BrandShowcaseItem,
   ShopByCategory,
   ShopByCategoryItems,
   ContactForm,
+  ViewAllButton,
 ];

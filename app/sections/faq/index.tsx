@@ -1,10 +1,10 @@
 import { createSchema } from "@weaverse/hydrogen";
+import { Link } from "~/components/link";
 import {
   Section,
   type SectionProps,
   sectionSettings,
 } from "~/components/section";
-import { Link } from "~/components/link";
 
 interface FaqSectionProps extends SectionProps {
   ref?: React.Ref<HTMLElement>;

@@ -90,12 +90,15 @@ export function DesktopMenu() {
   }
   return null;
 }
-
 function MegaMenu({ items }: { items: SingleMenuItem[] }) {
   return (
     <div className="mx-auto flex max-w-(--page-width) gap-4">
-      {items.map(({ id, title, to, items: children, resource }, idx) =>
-        resource?.image && children.length === 0 ? (
+      {items.map(({ id, title, to, items: children, resource }, idx) => {
+        // Get image from Collection/Product or Page metafield
+        const itemImage =
+          resource?.image || resource?.menuImage?.reference?.image;
+
+        return itemImage && children.length === 0 ? (
           <SlideIn
             key={id}
             className="group/item relative aspect-square w-72 max-w-72 grow overflow-hidden bg-gray-100"
@@ -103,7 +106,7 @@ function MegaMenu({ items }: { items: SingleMenuItem[] }) {
           >
             <Image
               sizes="auto"
-              data={resource.image}
+              data={itemImage}
               className="transition-transform duration-300 group-hover/item:scale-[1.03]"
               width={300}
             />
@@ -157,8 +160,8 @@ function MegaMenu({ items }: { items: SingleMenuItem[] }) {
               ))}
             </div>
           </SlideIn>
-        ),
-      )}
+        );
+      })}
     </div>
   );
 }

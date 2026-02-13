@@ -1,6 +1,10 @@
 import { createSchema } from "@weaverse/hydrogen";
+import { useEffect, useRef, useState } from "react";
+import PhoneInput from "react-phone-number-input";
+import { useFetcher } from "react-router";
 import { backgroundInputs } from "~/components/background-image";
 import { layoutInputs, Section, type SectionProps } from "~/components/section";
+import "react-phone-number-input/style.css";
 
 interface ContactFormProps extends SectionProps {
   ref?: React.Ref<HTMLElement>;
@@ -13,6 +17,24 @@ interface ContactFormProps extends SectionProps {
 function ContactForm(props: ContactFormProps) {
   const { ref, heading, description, submitButtonText, topicOptions, ...rest } =
     props;
+  const fetcher = useFetcher<{
+    ok: boolean;
+    message?: string;
+    error?: string;
+  }>();
+  const formRef = useRef<HTMLFormElement>(null);
+  const [phone, setPhone] = useState<string>();
+
+  const isSubmitting = fetcher.state !== "idle";
+  const isSuccess = fetcher.data?.ok;
+  const errorMessage = fetcher.data?.error;
+
+  useEffect(() => {
+    if (isSuccess && formRef.current) {
+      formRef.current.reset();
+      setPhone(undefined);
+    }
+  }, [isSuccess]);
 
   // Parse topic options from string
   const topics = topicOptions
@@ -33,59 +55,74 @@ function ContactForm(props: ContactFormProps) {
       </div>
 
       {/* Form */}
-      <form className="mx-auto max-w-3xl">
+      <fetcher.Form
+        method="post"
+        action="/api/contact"
+        ref={formRef}
+        className="mx-auto max-w-3xl"
+      >
         <div className="space-y-6">
-          {/* First Name */}
-          <label className="block">
-            <span className="mb-2 block text-sm font-medium">
-              First Name <span className="text-red-600">*</span>
-            </span>
-            <input
-              type="text"
-              name="firstName"
-              className="w-full rounded border border-[--color-line-subtle] bg-white px-4 py-3 transition-colors focus:border-[--color-line] focus:outline-none focus:ring-1 focus:ring-[--color-line]"
-              required
-            />
-          </label>
+          <div className="grid gap-6 md:grid-cols-2">
+            {/* First Name */}
+            <label className="block">
+              <span className="mb-2 block text-sm font-medium">
+                First Name <span className="text-red-600">*</span>
+              </span>
+              <input
+                type="text"
+                name="firstName"
+                placeholder="First Name"
+                className="w-full rounded border border-[--color-line-subtle] bg-white px-4 py-3 transition-colors focus:border-[--color-line] focus:outline-none focus:ring-1 focus:ring-[--color-line]"
+                required
+              />
+            </label>
 
-          {/* Last Name */}
-          <label className="block">
-            <span className="mb-2 block text-sm font-medium">
-              Last Name <span className="text-red-600">*</span>
-            </span>
-            <input
-              type="text"
-              name="lastName"
-              className="w-full rounded border border-[--color-line-subtle] bg-white px-4 py-3 transition-colors focus:border-[--color-line] focus:outline-none focus:ring-1 focus:ring-[--color-line]"
-              required
-            />
-          </label>
+            {/* Last Name */}
+            <label className="block">
+              <span className="mb-2 block text-sm font-medium">
+                Last Name <span className="text-red-600">*</span>
+              </span>
+              <input
+                type="text"
+                name="lastName"
+                placeholder="Last Name"
+                className="w-full rounded border border-[--color-line-subtle] bg-white px-4 py-3 transition-colors focus:border-[--color-line] focus:outline-none focus:ring-1 focus:ring-[--color-line]"
+                required
+              />
+            </label>
+          </div>
 
-          {/* Phone Number */}
-          <label className="block">
-            <span className="mb-2 block text-sm font-medium">
-              Phone Number <span className="text-red-600">*</span>
-            </span>
-            <input
-              type="tel"
-              name="phone"
-              className="w-full rounded border border-[--color-line-subtle] bg-white px-4 py-3 transition-colors focus:border-[--color-line] focus:outline-none focus:ring-1 focus:ring-[--color-line]"
-              required
-            />
-          </label>
+          <div className="grid gap-6 md:grid-cols-2">
+            {/* Phone Number */}
+            <label className="block">
+              <span className="mb-2 block text-sm font-medium">
+                Phone Number <span className="text-red-600">*</span>
+              </span>
+              <PhoneInput
+                international
+                defaultCountry="US"
+                value={phone}
+                onChange={setPhone}
+                className="w-full [&_.PhoneInputInput]:w-full [&_.PhoneInputInput]:rounded [&_.PhoneInputInput]:border [&_.PhoneInputInput]:border-[--color-line-subtle] [&_.PhoneInputInput]:bg-white [&_.PhoneInputInput]:px-4 [&_.PhoneInputInput]:py-3 [&_.PhoneInputInput]:transition-colors [&_.PhoneInputInput]:focus:border-[--color-line] [&_.PhoneInputInput]:focus:outline-none [&_.PhoneInputInput]:focus:ring-1 [&_.PhoneInputInput]:focus:ring-[--color-line]"
+                required
+              />
+              <input type="hidden" name="phone" value={phone || ""} />
+            </label>
 
-          {/* Email Address */}
-          <label className="block">
-            <span className="mb-2 block text-sm font-medium">
-              Email Address <span className="text-red-600">*</span>
-            </span>
-            <input
-              type="email"
-              name="email"
-              className="w-full rounded border border-[--color-line-subtle] bg-white px-4 py-3 transition-colors focus:border-[--color-line] focus:outline-none focus:ring-1 focus:ring-[--color-line]"
-              required
-            />
-          </label>
+            {/* Email Address */}
+            <label className="block">
+              <span className="mb-2 block text-sm font-medium">
+                Email Address <span className="text-red-600">*</span>
+              </span>
+              <input
+                type="email"
+                name="email"
+                placeholder="Email Address"
+                className="w-full rounded border border-[--color-line-subtle] bg-white px-4 py-3 transition-colors focus:border-[--color-line] focus:outline-none focus:ring-1 focus:ring-[--color-line]"
+                required
+              />
+            </label>
+          </div>
 
           {/* Topic */}
           <label className="block">
@@ -121,16 +158,29 @@ function ContactForm(props: ContactFormProps) {
           </label>
         </div>
 
+        {/* Feedback Messages */}
+        {isSuccess && (
+          <div className="mt-6 rounded bg-green-50 p-4 text-center text-green-800">
+            {fetcher.data?.message}
+          </div>
+        )}
+        {errorMessage && (
+          <div className="mt-6 rounded bg-red-50 p-4 text-center text-red-800">
+            {errorMessage}
+          </div>
+        )}
+
         {/* Submit Button */}
         <div className="mt-10 text-center">
           <button
             type="submit"
-            className="inline-block min-w-[280px] bg-black px-8 py-3 font-henderson-slab font-bold uppercase tracking-wide text-white"
+            disabled={isSubmitting}
+            className="inline-block min-w-[280px] bg-black px-8 py-3 font-henderson-slab font-bold uppercase tracking-wide text-white transition-opacity disabled:opacity-50"
           >
-            {submitButtonText}
+            {isSubmitting ? "Submitting..." : submitButtonText}
           </button>
         </div>
-      </form>
+      </fetcher.Form>
     </Section>
   );
 }

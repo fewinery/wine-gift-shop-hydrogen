@@ -65,8 +65,14 @@
 }
 
 @theme {
-  --font-henderson-slab: henderson-slab-basic, serif;
-  --font-rockwell: rockwell, sans-serif;
+  /* Dynamic font tokens coming from root.tsx */
+  --font-body: var(--body-font-family);
+  --font-heading: var(--heading-font-family);
+
+  /* Map all Tailwind font utilities to dynamic tokens */
+  --font-rockwell: var(--font-body);
+  --font-henderson-slab: var(--font-heading);
+
   --font-sans: var(--font-body);
   --font-serif: var(--font-heading);
 

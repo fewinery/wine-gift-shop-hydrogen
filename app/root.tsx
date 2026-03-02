@@ -38,7 +38,7 @@ import { GlobalStyle } from "./weaverse/style";
 export type RootLoader = typeof loader;
 
 export const links: LinksFunction = () => {
-  return [
+  const links = [
     {
       rel: "preconnect",
       href: "https://cdn.shopify.com",
@@ -49,6 +49,15 @@ export const links: LinksFunction = () => {
     },
     { rel: "icon", type: "image/svg+xml", href: "/favicon.ico" },
   ];
+
+  if (process.env.ADOBE_PROJECT_ID) {
+    links.push({
+      rel: "stylesheet",
+      href: `https://use.typekit.net/${process.env.ADOBE_PROJECT_ID}.css`,
+    });
+  }
+
+  return links;
 };
 
 export async function loader(args: LoaderFunctionArgs) {
@@ -130,12 +139,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <GlobalStyle />
       </head>
       <body
-        style={
-          {
-            opacity: 0,
-            "--initial-topbar-height": `${topbarText ? topbarHeight : 0}px`,
-          } as CSSProperties
-        }
+  style={
+    {
+      opacity: 0,
+      "--initial-topbar-height": `${topbarText ? topbarHeight : 0}px`,
+      fontFamily: process.env.FONT_FAMILY
+        ? process.env.FONT_FAMILY
+        : undefined,
+    } as CSSProperties
+  }
         className="bg-background text-body antialiased opacity-100! transition-opacity duration-300"
       >
         {data ? (

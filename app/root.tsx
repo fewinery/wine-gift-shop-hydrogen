@@ -54,6 +54,7 @@ export async function loader(args: LoaderFunctionArgs) {
     ...criticalData,
     env: {
       FONT_FAMILY: args.context.env.FONT_FAMILY,
+      HEADING_FONT_FAMILY: args.context.env.HEADING_FONT_FAMILY,
       ADOBE_PROJECT_ID: args.context.env.ADOBE_PROJECT_ID,
     },
   };
@@ -136,9 +137,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
     {
       opacity: 0,
       "--initial-topbar-height": `${topbarText ? topbarHeight : 0}px`,
-      ...(data?.env?.FONT_FAMILY && {
-        fontFamily: data.env.FONT_FAMILY,
-      }),
+      "--body-font-family": data?.env?.FONT_FAMILY,
+      "--heading-font-family": data?.env?.HEADING_FONT_FAMILY,
     } as CSSProperties
   }
   className="bg-background text-body antialiased opacity-100! transition-opacity duration-300"

@@ -38,26 +38,11 @@ import { GlobalStyle } from "./weaverse/style";
 export type RootLoader = typeof loader;
 
 export const links: LinksFunction = () => {
-  const links = [
-    {
-      rel: "preconnect",
-      href: "https://cdn.shopify.com",
-    },
-    {
-      rel: "preconnect",
-      href: "https://shop.app",
-    },
+  return [
+    { rel: "preconnect", href: "https://cdn.shopify.com" },
+    { rel: "preconnect", href: "https://shop.app" },
     { rel: "icon", type: "image/svg+xml", href: "/favicon.ico" },
   ];
-
-  if (process.env.ADOBE_PROJECT_ID) {
-    links.push({
-      rel: "stylesheet",
-      href: `https://use.typekit.net/${process.env.ADOBE_PROJECT_ID}.css`,
-    });
-  }
-
-  return links;
 };
 
 export async function loader(args: LoaderFunctionArgs) {
@@ -68,7 +53,8 @@ export async function loader(args: LoaderFunctionArgs) {
     ...deferredData,
     ...criticalData,
     env: {
-      FONT_FAMILY: process.env.FONT_FAMILY,
+      FONT_FAMILY: args.context.env.FONT_FAMILY,
+      ADOBE_PROJECT_ID: args.context.env.ADOBE_PROJECT_ID,
     },
   };
 }
@@ -131,13 +117,20 @@ export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang={locale.language}>
       <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <link rel="stylesheet" href={styles} />
-        <Meta />
-        <Links />
-        <GlobalStyle />
-      </head>
+  <meta charSet="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href={styles} />
+  <Meta />
+  <Links />
+  <GlobalStyle />
+
+  {data?.env?.ADOBE_PROJECT_ID && (
+    <link
+      rel="stylesheet"
+      href={`https://use.typekit.net/${data.env.ADOBE_PROJECT_ID}.css`}
+    />
+  )}
+</head>
      <body
   style={
     {

@@ -67,7 +67,8 @@
 @theme {
   --font-henderson-slab: henderson-slab-basic, serif;
   --font-rockwell: rockwell, sans-serif;
-  --font-serif: Arial, IBMPlexSerif, Palatino, ui-serif;
+  --font-sans: var(--font-body);
+  --font-serif: var(--font-heading);
 
   --breakpoint-sm: 32em;
   --breakpoint-md: 48em;
@@ -484,9 +485,9 @@
   }
 
   html {
-    @apply font-rockwell;
-    scroll-padding-top: 10rem;
-  }
+  @apply font-sans;
+  scroll-padding-top: 10rem;
+}
 
   model-viewer::part(default-progress-mask) {
     display: none;

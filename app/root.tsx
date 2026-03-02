@@ -61,15 +61,15 @@ export const links: LinksFunction = () => {
 };
 
 export async function loader(args: LoaderFunctionArgs) {
-  // Start fetching non-critical data without blocking time to first byte
   const deferredData = loadDeferredData(args);
-
-  // Await the critical data required to render initial state of the page
   const criticalData = await loadCriticalData(args);
 
   return {
     ...deferredData,
     ...criticalData,
+    env: {
+      FONT_FAMILY: process.env.FONT_FAMILY,
+    },
   };
 }
 
@@ -138,18 +138,18 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
         <GlobalStyle />
       </head>
-      <body
+     <body
   style={
     {
       opacity: 0,
       "--initial-topbar-height": `${topbarText ? topbarHeight : 0}px`,
-      fontFamily: process.env.FONT_FAMILY
-        ? process.env.FONT_FAMILY
-        : undefined,
+      ...(data?.env?.FONT_FAMILY && {
+        fontFamily: data.env.FONT_FAMILY,
+      }),
     } as CSSProperties
   }
-        className="bg-background text-body antialiased opacity-100! transition-opacity duration-300"
-      >
+  className="bg-background text-body antialiased opacity-100! transition-opacity duration-300"
+>
         {data ? (
           <Analytics.Provider
             cart={data.cart}

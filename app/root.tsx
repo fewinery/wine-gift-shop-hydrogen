@@ -41,7 +41,6 @@ export const links: LinksFunction = () => {
   return [
     { rel: "preconnect", href: "https://cdn.shopify.com" },
     { rel: "preconnect", href: "https://shop.app" },
-    { rel: "icon", type: "image/svg+xml", href: "/favicon.ico" },
   ];
 };
 
@@ -107,7 +106,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const nonce = useNonce();
   const data = useRouteLoaderData<RootLoader>("root");
   const locale = data?.selectedLocale ?? DEFAULT_LOCALE;
-  const { topbarHeight, topbarText } = useThemeSettings();
+  const { topbarHeight, topbarText, favicon } = useThemeSettings();
   const shouldShowNewsletterPopup = useShouldRenderNewsletterPopup();
   if (
     location.pathname === "/subrequest-profiler" ||
@@ -122,6 +121,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <link rel="stylesheet" href={styles} />
         <Meta />
+        <link rel="icon" href={favicon?.url || "/favicon.ico"} />
         <Links />
         <GlobalStyle />
 

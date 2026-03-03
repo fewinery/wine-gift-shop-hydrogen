@@ -20,14 +20,15 @@ export async function loader(args: LoaderFunctionArgs) {
     type = "CUSTOM";
   }
 
-  // Calculate seo payload synchronously
-  const seo = seoPayload.home();
-
   // Load async data in parallel for better performance
-  const [weaverseData, { shop }] = await Promise.all([
+  const [weaverseData, { shop }, themeSettings] = await Promise.all([
     context.weaverse.loadPage({ type }),
     context.storefront.query<ShopQuery>(SHOP_QUERY),
+    context.weaverse.loadThemeSettings(),
   ]);
+
+  const siteTitle = themeSettings?.theme?.siteTitle as string | undefined;
+  const seo = seoPayload.home({ siteTitle });
 
   // Check weaverseData after parallel loading
   validateWeaverseData(weaverseData);

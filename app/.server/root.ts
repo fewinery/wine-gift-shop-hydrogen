@@ -24,7 +24,12 @@ export async function loadCriticalData({
     context.weaverse.loadThemeSettings(),
   ]);
 
-  const seo = seoPayload.root({ shop: layout.shop, url: request.url });
+  const siteTitle = weaverseTheme?.theme?.siteTitle as string | undefined;
+  const seo = seoPayload.root({
+    shop: layout.shop,
+    url: request.url,
+    siteTitle,
+  });
 
   const { storefront, env } = context;
   return {

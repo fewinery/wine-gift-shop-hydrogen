@@ -16,13 +16,15 @@ import type {
 function root({
   shop,
   url,
+  siteTitle = "My Store",
 }: {
   shop: ShopFragment;
   url: Request["url"];
+  siteTitle?: string;
 }): SeoConfig {
   return {
     title: shop?.name,
-    titleTemplate: "%s | Weaverse Hydrogen Demo Store",
+    titleTemplate: `%s | ${siteTitle}`,
     description: truncate(shop?.description ?? ""),
     handle: "@weaverse",
     url,
@@ -51,10 +53,14 @@ function root({
   };
 }
 
-function home(): SeoConfig {
+function home({
+  siteTitle = "My Store",
+}: {
+  siteTitle?: string;
+} = {}): SeoConfig {
   return {
     title: "Home",
-    titleTemplate: "%s | Weaverse Hydrogen Demo Store",
+    titleTemplate: `%s | ${siteTitle}`,
     description: "The best Shopify Hydrogen Theme Customizer",
     robots: {
       noIndex: false,

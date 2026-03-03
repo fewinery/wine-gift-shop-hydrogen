@@ -75,7 +75,7 @@ function CategoryItems(props: CategoryItemsData & HydrogenComponentProps) {
             </div>
           )}
           {/* Collection Name */}
-          <span className="font-henderson-slab text-sm uppercase tracking-wide">
+          <span className="font-heading text-sm uppercase tracking-wide">
             {collection.title}
           </span>
         </Link>

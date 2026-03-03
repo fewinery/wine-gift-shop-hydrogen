@@ -184,7 +184,7 @@ export default function Step4AddOns({
         </div>
       ) : (
         <div className="text-center py-12">
-          <h3 className="font-henderson-slab text-xl text-gray-900 mb-2">
+          <h3 className="font-heading text-xl text-gray-900 mb-2">
             No Add-ons Available
           </h3>
           <p className="text-gray-600 font-body">
@@ -279,17 +279,17 @@ function AddOnCard({
 
       {/* Product Details */}
       <div className="space-y-3 mb-4 grow">
-        <h3 className="font-henderson-slab text-base uppercase line-clamp-3 min-h-18">
+        <h3 className="font-heading text-base uppercase line-clamp-3 min-h-18">
           {productVariant.productTitle}
         </h3>
 
         <div className="space-y-1">
           {discountPercentage > 0 && (
-            <div className="text-xs font-medium text-gray-500 uppercase tracking-widest font-henderson-slab">
+            <div className="text-xs font-medium text-gray-500 uppercase tracking-widest font-heading">
               Retail Price: ${productVariant.retailPrice.toFixed(2)}
             </div>
           )}
-          <div className="text-sm font-henderson-slab font-medium">
+          <div className="text-sm font-heading font-medium">
             $
             {(
               productVariant.retailPrice *

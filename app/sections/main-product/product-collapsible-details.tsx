@@ -88,7 +88,7 @@ export default function CollapsibleDetails(props: CollapsibleDetailsProps) {
           <Accordion.Item key={detail.title} value={detail.title}>
             <Accordion.Trigger
               className={clsx([
-                "flex w-full justify-between py-[15px] font-henderson-slab text-base font-medium uppercase",
+                "flex w-full justify-between py-[15px] font-heading text-base font-medium uppercase",
                 "border-line border-t border-b",
                 "data-[state=open]:[&>.chevron]:rotate-180",
               ])}

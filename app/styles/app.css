@@ -65,14 +65,11 @@
 }
 
 @theme {
-  /* Dynamic font tokens coming from root.tsx */
+  /* Use dynamic tokens from :root */
   --font-body: var(--body-font-family);
   --font-heading: var(--heading-font-family);
 
-  /* Map all Tailwind font utilities to dynamic tokens */
-  --font-rockwell: var(--font-body);
-  --font-henderson-slab: var(--font-heading);
-
+  /* Map standard Tailwind font families to dynamic tokens */
   --font-sans: var(--font-body);
   --font-serif: var(--font-heading);
 
@@ -542,7 +539,8 @@
 
 @layer base {
   html {
-    font-family: var(--body-font-family) !important;
+    scroll-padding-top: 10rem;
+    font-family: var(--font-body);
   }
 }
 

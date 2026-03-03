@@ -92,7 +92,7 @@ const ClubComparisonItem = (props: ClubComparisonItemProps) => {
 
       {/* Frequency + Club Name */}
       <div className="mb-6 space-y-1">
-        <p className="font-henderson-slab uppercase text-(length:--freq-size-mobile) md:text-(length:--freq-size-desktop)">
+        <p className="font-heading uppercase text-(length:--freq-size-mobile) md:text-(length:--freq-size-desktop)">
           {frequency}
         </p>
         <h3 className="uppercase leading-tight text-(length:--name-size-mobile) md:text-(length:--name-size-desktop)">

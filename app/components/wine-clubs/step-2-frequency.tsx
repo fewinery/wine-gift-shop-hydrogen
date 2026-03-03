@@ -251,7 +251,7 @@ function FrequencyCard({
       <div className="space-y-3 flex-1 flex flex-col text-center items-center">
         <h3
           className={cn(
-            "leading-tight font-henderson-slab text-2xl uppercase tracking-wide transition-colors duration-300",
+            "leading-tight font-heading text-2xl uppercase tracking-wide transition-colors duration-300",
             isSelected ? "text-[#f5a623]" : "text-gray-900",
           )}
         >

@@ -83,7 +83,7 @@ export function Filters({
             >
               <Accordion.Trigger className="group flex w-full items-center justify-start gap-2.5">
                 <span
-                  className="font-henderson-slab uppercase"
+                  className="font-heading uppercase"
                   style={{ fontSize: `${filterTitleSize}px` }}
                 >
                   {filter.label}

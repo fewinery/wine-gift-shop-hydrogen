@@ -92,7 +92,7 @@ export function Footer() {
                   />
                 </div>
               ) : (
-                <div className="font-bold text-lg uppercase font-henderson-slab">
+                <div className="font-bold text-lg uppercase font-heading">
                   {shopName}
                 </div>
               )}
@@ -104,7 +104,7 @@ export function Footer() {
               )}
             </div>
             <div className="flex flex-col text-sm space-y-1.5">
-              <div className="font-bold font-henderson-slab uppercase">
+              <div className="font-bold font-heading uppercase">
                 {addressTitle}
               </div>
               {storeAddress && <p>{storeAddress}</p>}
@@ -132,7 +132,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-6 border-t-[3px] border-white pt-8 mt-20 font-henderson-slab text-center lg:text-left">
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-6 border-t-[3px] border-white pt-8 mt-20 font-heading text-center lg:text-left">
           <div
             className="text-sm"
             dangerouslySetInnerHTML={{ __html: copyright }}

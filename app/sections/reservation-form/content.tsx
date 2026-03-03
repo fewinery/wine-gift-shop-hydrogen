@@ -51,7 +51,7 @@ function ReservationFormContent(props: ReservationFormContentProps) {
         <div className="grid gap-8 lg:grid-cols-2">
           {/* Left Column - Personal Information */}
           <div className="space-y-6">
-            <h3 className="mb-6 border-b border-[--color-line-subtle] pb-3 font-henderson-slab text-xl uppercase tracking-wide">
+            <h3 className="mb-6 border-b border-[--color-line-subtle] pb-3 font-heading text-xl uppercase tracking-wide">
               Personal Information
             </h3>
 
@@ -113,7 +113,7 @@ function ReservationFormContent(props: ReservationFormContentProps) {
 
           {/* Right Column - Booking Details */}
           <div className="space-y-6">
-            <h3 className="mb-6 border-b border-[--color-line-subtle] pb-3 font-henderson-slab text-xl uppercase tracking-wide">
+            <h3 className="mb-6 border-b border-[--color-line-subtle] pb-3 font-heading text-xl uppercase tracking-wide">
               Booking Details
             </h3>
 
@@ -197,7 +197,7 @@ function ReservationFormContent(props: ReservationFormContentProps) {
           <button
             type="submit"
             disabled={state === "submitting"}
-            className="inline-block min-w-[280px] bg-black px-8 py-3 font-henderson-slab font-bold uppercase tracking-wide text-white transition-opacity disabled:opacity-50"
+            className="inline-block min-w-[280px] bg-black px-8 py-3 font-heading font-bold uppercase tracking-wide text-white transition-opacity disabled:opacity-50"
           >
             {state === "submitting" ? "Submitting..." : submitButtonText}
           </button>

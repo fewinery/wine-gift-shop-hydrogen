@@ -540,6 +540,12 @@
   }
 }
 
+@layer base {
+  html {
+    font-family: var(--body-font-family) !important;
+  }
+}
+
 /* .animated-scope [data-motion] {
   opacity: 0;
 } */

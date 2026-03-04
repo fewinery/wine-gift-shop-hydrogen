@@ -24,7 +24,12 @@ export async function loadCriticalData({
     context.weaverse.loadThemeSettings(),
   ]);
 
-  const seo = seoPayload.root({ shop: layout.shop, url: request.url });
+  const siteTitle = weaverseTheme?.theme?.siteTitle as string | undefined;
+  const seo = seoPayload.root({
+    shop: layout.shop,
+    url: request.url,
+    siteTitle,
+  });
 
   const { storefront, env } = context;
   return {
@@ -46,6 +51,11 @@ export async function loadCriticalData({
     weaverseTheme,
     googleGtmID: env.PUBLIC_GOOGLE_GTM_ID,
     swatchesConfigs,
+    env: {
+      ADOBE_PROJECT_ID: env.ADOBE_PROJECT_ID,
+      FONT_FAMILY: env.FONT_FAMILY,
+      HEADING_FONT_FAMILY: env.HEADING_FONT_FAMILY,
+    },
   };
 }
 
@@ -95,20 +105,20 @@ async function getLayoutData({ storefront, env }: AppLoadContext) {
 
   const headerMenu = data?.headerMenu
     ? parseMenu(
-        data.headerMenu,
-        data.shop.primaryDomain.url,
-        env,
-        customPrefixes,
-      )
+      data.headerMenu,
+      data.shop.primaryDomain.url,
+      env,
+      customPrefixes,
+    )
     : undefined;
 
   const footerMenu = data?.footerMenu
     ? parseMenu(
-        data.footerMenu,
-        data.shop.primaryDomain.url,
-        env,
-        customPrefixes,
-      )
+      data.footerMenu,
+      data.shop.primaryDomain.url,
+      env,
+      customPrefixes,
+    )
     : undefined;
 
   return { shop: data.shop, headerMenu, footerMenu };
@@ -195,19 +205,19 @@ function parseItem(primaryDomain: string, env: Env, customPrefixes = {}) {
       host === new URL(primaryDomain).host || host === env.PUBLIC_STORE_DOMAIN;
     const parsedItem = isInternalLink
       ? // internal links
-        {
-          ...item,
-          isExternal: false,
-          target: "_self",
-          to: resolveToFromType({ type: item.type, customPrefixes, pathname }),
-        }
+      {
+        ...item,
+        isExternal: false,
+        target: "_self",
+        to: resolveToFromType({ type: item.type, customPrefixes, pathname }),
+      }
       : // external links
-        {
-          ...item,
-          isExternal: true,
-          target: "_blank",
-          to: item.url,
-        };
+      {
+        ...item,
+        isExternal: true,
+        target: "_blank",
+        to: item.url,
+      };
 
     if ("items" in item) {
       return {
@@ -231,8 +241,8 @@ function resolveToFromType(
     pathname?: string;
     type?: string;
   } = {
-    customPrefixes: {},
-  },
+      customPrefixes: {},
+    },
 ) {
   if (!(pathname && type)) {
     return "";

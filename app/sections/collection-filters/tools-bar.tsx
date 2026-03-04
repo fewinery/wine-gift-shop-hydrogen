@@ -44,7 +44,7 @@ export function ToolsBar({
     <div className="pt-4 pb-12">
       <div className="flex w-full items-center justify-between gap-4 md:gap-8">
         {showProductsCount && (
-          <span className="hidden text-center uppercase md:inline font-henderson-slab my-4">
+          <span className="hidden text-center uppercase md:inline font-heading my-4">
             PRODUCTS {collection?.products.nodes.length}
           </span>
         )}

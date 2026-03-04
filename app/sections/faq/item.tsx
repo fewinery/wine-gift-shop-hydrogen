@@ -18,7 +18,7 @@ const FaqItem = (props: FaqItemProps) => {
     >
       <details className="group">
         <summary className="flex cursor-pointer list-none items-center justify-between py-4 transition-colors text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 [&::-webkit-details-marker]:hidden">
-          <h3 className="font-henderson-slab text-lg font-bold">{question}</h3>
+          <h3 className="font-heading text-lg font-bold">{question}</h3>
           <span className="ml-4 shrink-0 transition-transform duration-300 group-open:rotate-180">
             <svg
               width="24"

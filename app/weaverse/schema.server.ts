@@ -34,6 +34,24 @@ export const themeSchema: HydrogenThemeSchema = {
   },
   settings: [
     {
+      group: "Branding",
+      inputs: [
+        {
+          type: "image",
+          name: "favicon",
+          label: "Favicon",
+          helpText: "Icon displayed in the browser tab. Recommended size: 32x32px.",
+        },
+        {
+          type: "text",
+          name: "siteTitle",
+          label: "Site title",
+          defaultValue: "My Store",
+          helpText: "Appears in browser tab as: Page Name | Site title",
+        },
+      ],
+    },
+    {
       group: "Layout",
       inputs: [
         {

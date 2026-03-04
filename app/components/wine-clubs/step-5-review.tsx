@@ -245,7 +245,7 @@ export default function Step5Review({
             </div>
             <div className="space-y-4">
               <div>
-                <h4 className="font-henderson-slab text-xl uppercase text-gray-900 mb-2">
+                <h4 className="font-heading text-xl uppercase text-gray-900 mb-2">
                   {wineClub.name}
                 </h4>
                 {wineClub.description && (
@@ -296,7 +296,7 @@ export default function Step5Review({
                   </div>
 
                   <div className="space-y-1 flex-1">
-                    <div className="font-henderson-slab text-lg uppercase text-gray-900 leading-tight">
+                    <div className="font-heading text-lg uppercase text-gray-900 leading-tight">
                       {selectedCaseSize.title}
                     </div>
                     <div className="text-base text-gray-600">
@@ -347,7 +347,7 @@ export default function Step5Review({
                   </div>
 
                   <div className="space-y-1 flex-1">
-                    <div className="font-henderson-slab text-lg uppercase text-gray-900 leading-tight">
+                    <div className="font-heading text-lg uppercase text-gray-900 leading-tight">
                       {selectedSellingPlan.name}
                     </div>
                     <div className="text-base text-gray-600">
@@ -420,7 +420,7 @@ export default function Step5Review({
                       </div>
 
                       <div className="flex-1 pr-4">
-                        <div className="font-henderson-slab text-base text-gray-900">
+                        <div className="font-heading text-base text-gray-900">
                           {product.productVariant.productTitle}
                         </div>
                         <div className="flex items-center gap-2 mt-1">
@@ -509,7 +509,7 @@ export default function Step5Review({
                       </div>
 
                       <div className="flex-1 pr-4">
-                        <div className="font-henderson-slab text-base text-gray-900">
+                        <div className="font-heading text-base text-gray-900">
                           {product.productVariant.productTitle}
                         </div>
                         <div className="flex items-center gap-2 mt-1">
@@ -612,10 +612,10 @@ export default function Step5Review({
 
               {/* Grand Total */}
               <div className="flex justify-between items-end pt-3">
-                <span className="font-henderson-slab text-xl text-gray-900">
+                <span className="font-heading text-xl text-gray-900">
                   Total
                 </span>
-                <span className="font-henderson-slab text-3xl text-gray-900 leading-normal">
+                <span className="font-heading text-3xl text-gray-900 leading-normal">
                   ${pricing.grandTotal.toFixed(2)}
                 </span>
               </div>
@@ -640,7 +640,7 @@ export default function Step5Review({
                 loading={isSubmitting}
                 animate={false}
                 className={cn(
-                  "w-full p-2.5 text-lg tracking-normal mt-3 shadow-sm font-henderson-slab rounded",
+                  "w-full p-2.5 text-lg tracking-normal mt-3 shadow-sm font-heading rounded",
                   !isSubmitting && "hover:scale-[1.01] active:scale-[0.99]",
                 )}
               >

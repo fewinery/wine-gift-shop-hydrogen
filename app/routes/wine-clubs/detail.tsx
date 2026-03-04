@@ -120,7 +120,7 @@ export default function WineClubDetailPage() {
       <div className="container mx-auto px-4 py-16 max-w-6xl">
         {/* Wine club header */}
         <div className="text-center mb-12 space-y-2">
-          <h1 className="text-5xl font-henderson-slab font-bold uppercase">
+          <h1 className="text-5xl font-heading font-bold uppercase">
             {wineClub.name}
           </h1>
           {wineClub.description && (

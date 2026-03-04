@@ -174,7 +174,7 @@ function CaseSizeCard({ caseSize, isSelected, onSelect }: CaseSizeCardProps) {
       <div className="space-y-3 flex-1 flex flex-col text-center items-center">
         <h3
           className={cn(
-            "leading-normal font-henderson-slab text-2xl uppercase tracking-wide transition-colors duration-300",
+            "leading-normal font-heading text-2xl uppercase tracking-wide transition-colors duration-300",
             isSelected && "text-[#f5a623]",
           )}
         >

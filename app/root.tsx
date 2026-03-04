@@ -41,7 +41,6 @@ export const links: LinksFunction = () => {
   return [
     { rel: "preconnect", href: "https://cdn.shopify.com" },
     { rel: "preconnect", href: "https://shop.app" },
-    { rel: "icon", type: "image/svg+xml", href: "/favicon.ico" },
   ];
 };
 
@@ -107,7 +106,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const nonce = useNonce();
   const data = useRouteLoaderData<RootLoader>("root");
   const locale = data?.selectedLocale ?? DEFAULT_LOCALE;
-  const { topbarHeight, topbarText } = useThemeSettings();
+  const { topbarHeight, topbarText, favicon } = useThemeSettings();
   const shouldShowNewsletterPopup = useShouldRenderNewsletterPopup();
   if (
     location.pathname === "/subrequest-profiler" ||
@@ -118,31 +117,41 @@ export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang={locale.language}>
       <head>
-  <meta charSet="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <link rel="stylesheet" href={styles} />
-  <Meta />
-  <Links />
-  <GlobalStyle />
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <link rel="stylesheet" href={styles} />
+        <Meta />
+        <link rel="icon" href={favicon?.url || "/favicon.ico"} />
+        <Links />
+        <GlobalStyle />
 
-  {data?.env?.ADOBE_PROJECT_ID && (
-    <link
-      rel="stylesheet"
-      href={`https://use.typekit.net/${data.env.ADOBE_PROJECT_ID}.css`}
-    />
-  )}
-</head>
-     <body
-  style={
-    {
-      opacity: 0,
-      "--initial-topbar-height": `${topbarText ? topbarHeight : 0}px`,
-      "--body-font-family": data?.env?.FONT_FAMILY,
-      "--heading-font-family": data?.env?.HEADING_FONT_FAMILY,
-    } as CSSProperties
-  }
-  className="bg-background text-body antialiased opacity-100! transition-opacity duration-300"
->
+        {data?.env?.ADOBE_PROJECT_ID && (
+          <link
+            rel="stylesheet"
+            href={`https://use.typekit.net/${data.env.ADOBE_PROJECT_ID}.css`}
+          />
+        )}
+
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+        :root {
+          --body-font-family: ${data?.env?.FONT_FAMILY || "ui-sans-serif, system-ui, sans-serif"};
+          --heading-font-family: ${data?.env?.HEADING_FONT_FAMILY || "ui-serif, Georgia, serif"};
+        }
+      `,
+          }}
+        />
+      </head>
+      <body
+        style={
+          {
+            opacity: 0,
+            "--initial-topbar-height": `${topbarText ? topbarHeight : 0}px`,
+          } as CSSProperties
+        }
+        className="bg-background text-body antialiased opacity-100! transition-opacity duration-300"
+      >
         {data ? (
           <Analytics.Provider
             cart={data.cart}

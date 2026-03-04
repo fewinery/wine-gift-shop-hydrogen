@@ -26,10 +26,10 @@ const TierMembershipItem = (props: TierMembershipItemProps) => {
       className="flex h-full flex-col border border-black p-8 text-black"
     >
       <div className="pb-8 mb-8 h-[170px] space-y-2 border-b">
-        <h4 className="font-henderson-slab text-[20px] font-medium uppercase">
+        <h4 className="font-heading text-[20px] font-medium uppercase">
           {title}
         </h4>
-        <h3 className="font-henderson-slab text-[30px] uppercase">
+        <h3 className="font-heading text-[30px] uppercase">
           {tierName}
         </h3>
         <div dangerouslySetInnerHTML={{ __html: description }} />

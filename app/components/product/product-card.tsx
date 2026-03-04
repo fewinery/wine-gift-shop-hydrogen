@@ -225,14 +225,14 @@ export function ProductCard({
           <Link
             to={`/products/${product.handle}?${params.toString()}`}
             prefetch="intent"
-            className="inline-block font-medium font-henderson-slab uppercase py-4"
+            className="inline-block font-medium font-heading uppercase py-4"
           >
             <RevealUnderline className="bg-position-[left_calc(1em+3px)] leading-normal">
               {product.title}
             </RevealUnderline>
           </Link>
           {pcardShowLowestPrice || isCombinedListing(product) ? (
-            <div className="flex gap-1 font-henderson-slab">
+            <div className="flex gap-1 font-heading">
               <span>From</span>
               <Money withoutTrailingZeros data={minVariantPrice} />
               {isCombinedListing(product) && (
@@ -246,7 +246,7 @@ export function ProductCard({
             <VariantPrices
               variant={selectedVariant || firstVariant}
               showCompareAtPrice={pcardShowSalePrice}
-              className="font-henderson-slab text-base"
+              className="font-heading text-base"
             />
           )}
         </div>
@@ -277,7 +277,7 @@ export function ProductCard({
             <Link
               to={`/products/${product.handle}?${params.toString()}`}
               prefetch="intent"
-              className="font-henderson-slab flex w-full items-center justify-center border border-body py-2 px-4 uppercase"
+              className="font-heading flex w-full items-center justify-center border border-body py-2 px-4 uppercase"
             >
               View Product
             </Link>

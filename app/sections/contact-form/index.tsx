@@ -175,7 +175,7 @@ function ContactForm(props: ContactFormProps) {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="inline-block min-w-[280px] bg-black px-8 py-3 font-henderson-slab font-bold uppercase tracking-wide text-white transition-opacity disabled:opacity-50"
+            className="inline-block min-w-[280px] bg-black px-8 py-3 font-heading font-bold uppercase tracking-wide text-white transition-opacity disabled:opacity-50"
           >
             {isSubmitting ? "Submitting..." : submitButtonText}
           </button>

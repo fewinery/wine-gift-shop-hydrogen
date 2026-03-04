@@ -21,7 +21,7 @@ export function DesktopMenu() {
       <NavigationMenu.Root
         value={value}
         onValueChange={setValue}
-        className="font-henderson-slab"
+        className="font-heading"
       >
         <NavigationMenu.List className="hidden h-full grow justify-center lg:flex">
           {items.map((menuItem) => {

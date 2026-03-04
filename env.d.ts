@@ -28,6 +28,9 @@ declare global {
     DROPINBLOG_API_KEY: string;
     HEADER_MENU_HANDLE: string;
     FOOTER_MENU_HANDLE: string;
+    FONT_FAMILY: string;
+    HEADING_FONT_FAMILY: string;
+    ADOBE_PROJECT_ID: string;
   }
 }
 

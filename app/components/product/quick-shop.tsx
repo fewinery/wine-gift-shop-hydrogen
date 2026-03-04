@@ -161,7 +161,7 @@ export function QuickShopTrigger({
           animate={false}
           variant="custom"
           className={clsx(
-            "font-henderson-slab font-medium",
+            "font-heading font-medium",
             !availableForSale && "pointer-events-none",
             placement === "image" && [
               "group/quick-shop absolute bottom-4 h-10.5 p-3 leading-4",

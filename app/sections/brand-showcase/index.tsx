@@ -61,7 +61,7 @@ function BrandShowcase(props: BrandShowcaseProps) {
     return (
       <Section ref={ref} {...rest}>
         {heading && (
-          <p className="mb-10 text-center font-henderson-slab uppercase">
+          <p className="mb-10 text-center font-heading uppercase">
             {heading}
           </p>
         )}
@@ -75,7 +75,7 @@ function BrandShowcase(props: BrandShowcaseProps) {
       <Section ref={ref} {...rest}>
         {/* Heading */}
         {heading && (
-          <p className="mb-10 text-center font-henderson-slab uppercase">
+          <p className="mb-10 text-center font-heading uppercase">
             {heading}
           </p>
         )}
@@ -87,7 +87,7 @@ function BrandShowcase(props: BrandShowcaseProps) {
               <Tabs.Trigger
                 key={tab.value}
                 value={tab.value}
-                className="shrink-0 px-4 py-2 whitespace-nowrap data-[state=active]:bg-[#E8E4DB] font-henderson-slab"
+                className="shrink-0 px-4 py-2 whitespace-nowrap data-[state=active]:bg-[#E8E4DB] font-heading"
               >
                 {tab.label}
               </Tabs.Trigger>

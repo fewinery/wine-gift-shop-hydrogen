@@ -45,6 +45,8 @@ export function Footer() {
     storeEmail,
     storePhone,
     footerBackgroundImage,
+    showFooterBranding,
+    footerBrandingImage,
   } = useThemeSettings();
 
   const SOCIAL_ACCOUNTS = [
@@ -149,11 +151,13 @@ export function Footer() {
             </Link>
           </div>
         </div>
-        <img
-          src="/paramount-network-copyright-2025.png"
-          alt="Spike Cable Logo"
-          className="w-[400px] object-contain mt-5"
-        />
+        {showFooterBranding && footerBrandingImage && (
+          <Image
+            data={footerBrandingImage}
+            width={400}
+            className="object-contain mt-5"
+          />
+        )}
       </div>
     </footer>
   );

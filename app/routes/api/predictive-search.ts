@@ -109,13 +109,16 @@ async function fetchPredictiveSearchResults({
 
   // Get blog posts from DropInBlog
   const { language, country } = context.storefront.i18n;
-  const blogPosts = blogData.data?.posts || [];
+  const blogPosts = blogData?.data?.posts || [];
+
+  const blogProvider = context.env.BLOG_PROVIDER || "dropinblog";
 
   const searchResults = normalizePredictiveSearchResults(
     searchData.predictiveSearch,
     params.locale,
     blogPosts,
     { language, country },
+    blogProvider,
   );
 
   return { searchResults, searchTerm, searchTypes };
@@ -132,6 +135,7 @@ function normalizePredictiveSearchResults(
     language: "EN",
     country: "US",
   },
+  blogProvider: "shopify" | "dropinblog" = "dropinblog",
 ): NormalizedPredictiveSearch {
   let totalResults = 0;
   if (!predictiveSearch) {
@@ -249,7 +253,7 @@ function normalizePredictiveSearchResults(
     });
   }
 
-  if (predictiveSearch.articles.length) {
+  if (predictiveSearch.articles.length && blogProvider === "shopify") {
     results.push({
       type: "articles",
       // @ts-expect-error
@@ -263,7 +267,7 @@ function normalizePredictiveSearchResults(
             id: article.id,
             image: article.image,
             title: article.title,
-            url: `${localePrefix}/blog/${article.handle}${trackingParams}`,
+            url: `${localePrefix}/blogs/${article.blog.handle}/${article.handle}${trackingParams}`,
           };
         },
       ),
@@ -271,7 +275,7 @@ function normalizePredictiveSearchResults(
   }
 
   // Add DropInBlog posts
-  if (blogPosts.length > 0) {
+  if (blogPosts.length > 0 && blogProvider === "dropinblog") {
     const dropinblogArticles = blogPosts.map((post) => {
       totalResults += 1;
       const transformed = transformDropInBlogPost(post, localeInfo);
@@ -281,7 +285,7 @@ function normalizePredictiveSearchResults(
         id: transformed.id,
         image: transformed.image,
         title: transformed.title,
-        url: `${localePrefix}/blog/${transformed.handle}`,
+        url: `${localePrefix}/blogs/${transformed.handle}`,
       };
     });
 

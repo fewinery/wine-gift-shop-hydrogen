@@ -54,9 +54,10 @@ export default hydrogenRoutes([
       index("routes/wine-clubs/list.tsx"),
       route(":clubId", "routes/wine-clubs/detail.tsx"),
     ]),
-    ...prefix("blog", [
-      index("routes/blog/index.tsx"),
-      route(":slug", "routes/blog/$slug.tsx"),
+    ...prefix("blogs", [
+      index("routes/blogs/index.tsx"),
+      route(":handle", "routes/blogs/handle.tsx"),
+      route(":blogHandle/:articleHandle", "routes/blogs/article.tsx"),
     ]),
     ...prefix("account", [
       route("authorize", "routes/account/auth/authorize.ts"),

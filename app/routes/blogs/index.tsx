@@ -10,45 +10,42 @@ import { WeaverseContent } from "~/weaverse";
 
 export const headers = routeHeaders;
 
-export const loader = async (args: LoaderFunctionArgs) => {
+export async function loader(args: LoaderFunctionArgs) {
   const { request, context } = args;
-  const { storefront, weaverse } = context;
+  const { storefront, weaverse, env } = context;
   const { language, country } = storefront.i18n;
 
-  // Initialize DropInBlog client
-  const dropinblog = createDropInBlogClient(context.env);
+  if (env.BLOG_PROVIDER === "shopify") {
+    throw new Response("blog", { status: 404 });
+  }
 
-  // Load blog posts and Weaverse data in parallel
+  const dropinblog = createDropInBlogClient(env);
   const [postsResponse, weaverseData] = await Promise.all([
     dropinblog.getPosts({ perPage: 16 }),
     weaverse.loadPage({ type: "BLOG", handle: "blog" }),
   ]);
 
-  // Transform posts to match existing ArticleFragment interface
   const posts = postsResponse.data?.posts || [];
   const articles = posts.map((post) =>
     transformDropInBlogPost(post, { language, country }),
   );
 
-  // Create blog object for compatibility with existing sections
   const blog = {
     title: "Blog",
     handle: "blog",
-    seo: {
-      title: "Blog",
-      description: "Read our latest articles and updates",
-    },
+    seo: { title: "Blog", description: "Read our latest articles and updates" },
   };
 
   const seo = seoPayload.blog({ blog, url: request.url });
-
   return data({ blog, articles, seo, weaverseData });
-};
+}
 
-export const meta: MetaFunction<typeof loader> = ({ data: loaderData }) => {
+export function meta({ data: loaderData }: any) {
   return getSeoMeta(loaderData?.seo as SeoConfig);
-};
+}
 
-export default function Blog() {
+export function BlogIndex() {
   return <WeaverseContent />;
 }
+
+export default BlogIndex;

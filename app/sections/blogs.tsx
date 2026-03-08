@@ -7,6 +7,7 @@ import { layoutInputs, Section, type SectionProps } from "~/components/section";
 import type { ImageAspectRatio } from "~/types/others";
 import { cn } from "~/utils/cn";
 import { calculateAspectRatio, getImageLoadingPriority } from "~/utils/image";
+import { getBlogBaseUrl } from "~/utils/blog";
 
 // Local interface matching transformed DropInBlog articles
 export interface ArticleItem {
@@ -30,12 +31,12 @@ export interface ArticleItem {
 
 interface BlogsProps
   extends Omit<ArticleCardProps, "article" | "loading">,
-    SectionProps {
+  SectionProps {
   ref: React.Ref<HTMLElement>;
   layout: "blog" | "default";
 }
 
-export default function Blogs(props: BlogsProps) {
+export function Blogs(props: BlogsProps) {
   const {
     ref,
     layout,
@@ -52,6 +53,8 @@ export default function Blogs(props: BlogsProps) {
     articles: ArticleItem[];
   }>();
 
+  const articleBaseUrl = getBlogBaseUrl(blog.handle);
+
   if (blog) {
     return (
       <Section ref={ref} {...rest}>
@@ -61,6 +64,7 @@ export default function Blogs(props: BlogsProps) {
             <ArticleCard
               key={article.id}
               article={article}
+              articleBaseUrl={articleBaseUrl}
               loading={getImageLoadingPriority(i, 2)}
               showAuthor={showAuthor}
               showExcerpt={showExcerpt}
@@ -76,8 +80,11 @@ export default function Blogs(props: BlogsProps) {
   return <Section ref={ref} {...rest} />;
 }
 
+export default Blogs;
+
 export interface ArticleCardProps {
   article: ArticleItem;
+  articleBaseUrl: string;
   loading?: HTMLImageElement["loading"];
   showDate: boolean;
   showExcerpt: boolean;
@@ -89,6 +96,7 @@ export interface ArticleCardProps {
 
 export function ArticleCard({
   article,
+  articleBaseUrl,
   loading,
   showExcerpt,
   showAuthor,
@@ -97,10 +105,11 @@ export function ArticleCard({
   imageAspectRatio,
   className,
 }: ArticleCardProps) {
+  const articleUrl = `${articleBaseUrl}/${article.handle}`;
   return (
     <div className={cn("flex flex-col gap-5", className)}>
       {article.image && (
-        <Link to={`/blog/${article.handle}`} className="flex flex-col gap-5">
+        <Link to={articleUrl} className="flex flex-col gap-5">
           <Image
             alt={article.image.altText || article.title}
             data={article.image}
@@ -111,7 +120,7 @@ export function ArticleCard({
         </Link>
       )}
       <div className="space-y-2.5">
-        <Link to={`/blog/${article.handle}`} className="inline-block">
+        <Link to={articleUrl} className="inline-block">
           <RevealUnderline className="text-xl leading-6">
             {article.title}
           </RevealUnderline>
@@ -128,7 +137,7 @@ export function ArticleCard({
         )}
         {showReadmore && (
           <div>
-            <Link to={`/blog/${article.handle}`} variant="underline">
+            <Link to={articleUrl} variant="underline">
               Read more →
             </Link>
           </div>

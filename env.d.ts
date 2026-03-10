@@ -32,6 +32,7 @@ declare global {
     FONT_FAMILY: string;
     HEADING_FONT_FAMILY: string;
     ADOBE_PROJECT_ID: string;
+    PUBLIC_GORGIAS_CHAT_BUNDLE_ID: string;
   }
 }
 

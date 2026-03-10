@@ -55,6 +55,7 @@ export async function loadCriticalData({
       ADOBE_PROJECT_ID: env.ADOBE_PROJECT_ID,
       FONT_FAMILY: env.FONT_FAMILY,
       HEADING_FONT_FAMILY: env.HEADING_FONT_FAMILY,
+      PUBLIC_GORGIAS_CHAT_BUNDLE_ID: env.PUBLIC_GORGIAS_CHAT_BUNDLE_ID,
     },
   };
 }

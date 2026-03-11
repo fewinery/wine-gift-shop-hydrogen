@@ -1,4 +1,7 @@
-import { MEDIA_FRAGMENT, PRODUCT_OPTION_FRAGMENT } from "~/graphql/fragments";
+import {
+  MEDIA_FRAGMENT,
+  PRODUCT_CARD_FRAGMENT,
+} from "~/graphql/fragments";
 
 export const PRODUCT_QUERY = `#graphql
   query product(
@@ -13,6 +16,7 @@ export const PRODUCT_QUERY = `#graphql
       vendor
       handle
       publishedAt
+      description
       summary: description
       descriptionHtml
       encodedVariantExistence
@@ -61,6 +65,15 @@ export const PRODUCT_QUERY = `#graphql
                   }
                 }
               }
+            }
+          }
+        }
+      }
+      goesWellWith: metafield(namespace: "custom", key: "goes_well_with") {
+        references(first: 10) {
+          nodes {
+            ... on Product {
+              ...ProductCard
             }
           }
         }
@@ -119,5 +132,5 @@ export const PRODUCT_QUERY = `#graphql
     }
   }
   ${MEDIA_FRAGMENT}
-  ${PRODUCT_OPTION_FRAGMENT}
+  ${PRODUCT_CARD_FRAGMENT}
 ` as const;

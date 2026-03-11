@@ -24,6 +24,7 @@ declare global {
     KLAVIYO_LIST_ID: string;
     PUBLIC_SHOPIFY_INBOX_SHOP_ID: string;
     WEAVERSE_HOST?: string;
+    BLOG_PROVIDER?: "shopify" | "dropinblog";
     DROPINBLOG_ID: string;
     DROPINBLOG_API_KEY: string;
     HEADER_MENU_HANDLE: string;
@@ -31,6 +32,7 @@ declare global {
     FONT_FAMILY: string;
     HEADING_FONT_FAMILY: string;
     ADOBE_PROJECT_ID: string;
+    PUBLIC_GORGIAS_CHAT_BUNDLE_ID: string;
   }
 }
 

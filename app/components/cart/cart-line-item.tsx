@@ -79,7 +79,7 @@ export function CartLineItem({
             width={250}
             height={250}
             data={image}
-            className="w-24 aspect-square object-contain"
+            className="h-24 w-24 object-cover object-center"
             alt={title}
             aspectRatio="1/1"
           />
@@ -129,6 +129,16 @@ export function CartLineItem({
                   })}
                 </div>
               )}
+            {/* Show line item properties (attributes) */}
+            {line.attributes && line.attributes.length > 0 && (
+              <div className="mt-1 space-y-0.5 text-gray-500 text-sm italic">
+                {line.attributes.map((attr) => (
+                  <div key={attr.key}>
+                    {attr.key}: {attr.value}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           {layout === "drawer" && (
             <ItemRemoveButton lineId={id} className="-mt-1.5 -mr-2" />

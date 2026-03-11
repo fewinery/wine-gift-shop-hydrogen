@@ -55,6 +55,7 @@ export async function loader(args: LoaderFunctionArgs) {
       FONT_FAMILY: args.context.env.FONT_FAMILY,
       HEADING_FONT_FAMILY: args.context.env.HEADING_FONT_FAMILY,
       ADOBE_PROJECT_ID: args.context.env.ADOBE_PROJECT_ID,
+      PUBLIC_GORGIAS_CHAT_BUNDLE_ID: args.context.env.PUBLIC_GORGIAS_CHAT_BUNDLE_ID,
     },
   };
 }
@@ -64,16 +65,20 @@ export const meta = ({ data }: MetaArgs<typeof loader>) => {
 };
 
 function App() {
+  const data = useRouteLoaderData<RootLoader>("root");
+  const gorgiasBundleId = data?.env?.PUBLIC_GORGIAS_CHAT_BUNDLE_ID;
+
   useEffect(() => {
-    const script = document.createElement("script");
-    script.src =
-      "https://config.gorgias.chat/bundle-loader/01J1WS5NTEF1HASX03YV9R22NA";
-    script.async = true;
-    document.body.appendChild(script);
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []);
+    if (gorgiasBundleId) {
+      const script = document.createElement("script");
+      script.src = `https://config.gorgias.chat/bundle-loader/${gorgiasBundleId}`;
+      script.async = true;
+      document.body.appendChild(script);
+      return () => {
+        document.body.removeChild(script);
+      };
+    }
+  }, [gorgiasBundleId]);
 
   return <Outlet />;
 }

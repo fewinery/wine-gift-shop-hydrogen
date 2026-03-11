@@ -70,6 +70,7 @@ import * as ProductQuantitySelector from "~/sections/main-product/product-quanti
 import * as ProductSummary from "~/sections/main-product/product-summary";
 import * as ProductTitle from "~/sections/main-product/product-title";
 import * as ProductVariantSelector from "~/sections/main-product/product-variant-selector";
+import * as ProductUpsell from "~/sections/main-product/product-upsell";
 import * as ProductVendor from "~/sections/main-product/product-vendor";
 import * as MapSection from "~/sections/map";
 import * as NewsLetter from "~/sections/newsletter";
@@ -174,6 +175,7 @@ export const components: HydrogenComponent[] = [
   ProductVariantSelector,
   ProductQuantitySelector,
   ProductATCButtons,
+  ProductUpsell,
   ProductCollapsibleDetails,
   RelatedProducts,
   RelatedArticles,

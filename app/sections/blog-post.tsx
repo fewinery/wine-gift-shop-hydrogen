@@ -13,6 +13,7 @@ import {
 import { Image } from "~/components/image";
 import { layoutInputs, Section, type SectionProps } from "~/components/section";
 import type { RootLoader } from "~/root";
+import { getBlogBaseUrl } from "~/utils/blog";
 
 // Local type for article data (compatible with DropInBlog)
 interface ArticleData {
@@ -41,7 +42,7 @@ interface BlogPostProps extends SectionProps {
   showShareButtons: boolean;
 }
 
-export default function BlogPost(props: BlogPostProps) {
+export function BlogPost(props: BlogPostProps) {
   const { ref, showTags, showShareButtons, ...rest } = props;
   const { layout } = useRouteLoaderData<RootLoader>("root");
   const { article, blog, formattedDate } = useLoaderData<{
@@ -59,7 +60,10 @@ export default function BlogPost(props: BlogPostProps) {
       }
     }
     const { handle: blogHandle } = blog;
-    const articleUrl = `${domain}/blog/${handle}`;
+    // DropInBlog: /blogs/article-slug
+    // Shopify:    /blogs/blog-handle/article-slug
+    const articleBaseUrl = getBlogBaseUrl(blogHandle);
+    const articleUrl = `${domain}${articleBaseUrl}/${handle}`;
     return (
       <Section ref={ref} {...rest}>
         {image && (
@@ -113,6 +117,8 @@ export default function BlogPost(props: BlogPostProps) {
   }
   return <Section ref={ref} {...rest} />;
 }
+
+export default BlogPost;
 
 export const schema = createSchema({
   type: "blog-post",

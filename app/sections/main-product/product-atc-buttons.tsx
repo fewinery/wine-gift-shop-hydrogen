@@ -135,7 +135,7 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
                     onChange={(e) =>
                       setGiftFields((f) => ({ ...f, to: e.target.value }))
                     }
-                    className="w-full border border-neutral-400 px-3 py-2 text-sm text-neutral-900 outline-none transition-colors focus:border-black placeholder:text-neutral-400"
+                    className="w-full border border-neutral-400 px-3 py-2 text-sm text-neutral-900 outline-none transition-colors focus:border-black placeholder:text-neutral-500"
                   />
                   <div className="text-sm text-neutral-500 text-right">
                     {giftFields.to.length}/20
@@ -157,7 +157,7 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
                     onChange={(e) =>
                       setGiftFields((f) => ({ ...f, from: e.target.value }))
                     }
-                    className="w-full border border-neutral-400 px-3 py-2 text-sm text-neutral-900 outline-none transition-colors focus:border-black placeholder:text-neutral-400"
+                    className="w-full border border-neutral-400 px-3 py-2 text-sm text-neutral-900 outline-none transition-colors focus:border-black placeholder:text-neutral-500"
                   />
                   <div className="text-sm text-neutral-500 text-right">
                     {giftFields.from.length}/20
@@ -180,7 +180,7 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
                   onChange={(e) =>
                     setGiftFields((f) => ({ ...f, message: e.target.value }))
                   }
-                  className="w-full resize-none border border-neutral-400 px-3 py-2 text-sm text-neutral-900 outline-none transition-colors focus:border-black placeholder:text-neutral-400"
+                  className="w-full resize-none border border-neutral-400 px-3 py-2 text-sm text-neutral-900 outline-none transition-colors focus:border-black placeholder:text-neutral-500"
                 />
                 <div className="text-right text-sm text-neutral-500">
                   <span>{giftFields.message.length}/25</span>

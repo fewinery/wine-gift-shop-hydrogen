@@ -7,6 +7,7 @@ import {
 import * as Dialog from "@radix-ui/react-dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { ShopPayButton } from "@shopify/hydrogen";
+import { useThemeSettings } from "@weaverse/hydrogen";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
 import { useFetcher } from "react-router";
@@ -30,6 +31,14 @@ interface QuickViewData {
   storeDomain: string;
 }
 
+const GIFT_PACKAGE_TAG = "gift-package";
+
+interface GiftFields {
+  to: string;
+  from: string;
+  message: string;
+}
+
 export function QuickShop({
   data,
   panelType = "modal",
@@ -41,6 +50,33 @@ export function QuickShop({
   const [quantity, setQuantity] = useState<number>(1);
   const [selectedVariant, setSelectedVariant] =
     useState<ProductVariantFragment>(product?.selectedOrFirstAvailableVariant);
+  const themeSettings = useThemeSettings();
+  const { giftNoteText = "" } = themeSettings;
+
+  const [isGift, setIsGift] = useState(false);
+  const [giftFields, setGiftFields] = useState<GiftFields>({
+    to: "",
+    from: "",
+    message: "",
+  });
+
+  const isGiftPackage = product?.tags?.includes(GIFT_PACKAGE_TAG);
+
+  const giftProperties =
+    isGiftPackage && isGift
+      ? [
+          { key: "To", value: giftFields.to },
+          { key: "From", value: giftFields.from },
+          { key: "Message", value: giftFields.message },
+        ]
+      : undefined;
+
+  const isGiftFieldsValid =
+    !isGiftPackage ||
+    !isGift ||
+    (giftFields.to.trim() &&
+      giftFields.from.trim() &&
+      giftFields.message.trim());
 
   return (
     <div className="bg-background">
@@ -80,19 +116,120 @@ export function QuickShop({
               setSelectedVariant={setSelectedVariant}
             />
           </div>
+          {isGiftPackage && (
+            <div className="space-y-4">
+              <label className="flex cursor-pointer select-none items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={isGift}
+                  onChange={(e) => setIsGift(e.target.checked)}
+                  className="h-4 w-4 rounded-none border border-neutral-400 accent-black focus:ring-0 focus:ring-offset-0"
+                />
+                <span className="text-sm font-semibold uppercase tracking-wide text-neutral-900">
+                  Is this a gift?
+                </span>
+              </label>
+              {isGift && (
+                <div className="space-y-4 border border-neutral-400 p-4">
+                  <p className="text-sm font-bold uppercase tracking-wide text-neutral-900">
+                    GIFT MESSAGE
+                  </p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label
+                        htmlFor="gift-to"
+                        className="block text-xs font-bold uppercase tracking-wide text-neutral-900"
+                      >
+                        TO <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        id="gift-to"
+                        type="text"
+                        maxLength={20}
+                        placeholder="Recipient name"
+                        value={giftFields.to}
+                        onChange={(e) =>
+                          setGiftFields((f) => ({ ...f, to: e.target.value }))
+                        }
+                        className="w-full border border-neutral-400 px-3 py-2 text-sm text-neutral-900 outline-none transition-colors focus:border-black placeholder:text-neutral-500"
+                      />
+                      <div className="text-right text-sm text-neutral-500">
+                        {giftFields.to.length}/20
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <label
+                        htmlFor="gift-from"
+                        className="block text-xs font-bold uppercase tracking-wide text-neutral-900"
+                      >
+                        FROM <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        id="gift-from"
+                        type="text"
+                        maxLength={20}
+                        placeholder="Your name"
+                        value={giftFields.from}
+                        onChange={(e) =>
+                          setGiftFields((f) => ({ ...f, from: e.target.value }))
+                        }
+                        className="w-full border border-neutral-400 px-3 py-2 text-sm text-neutral-900 outline-none transition-colors focus:border-black placeholder:text-neutral-500"
+                      />
+                      <div className="text-right text-sm text-neutral-500">
+                        {giftFields.from.length}/20
+                      </div>
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <label
+                      htmlFor="gift-message"
+                      className="block text-xs font-bold uppercase tracking-wide text-neutral-900"
+                    >
+                      MESSAGE <span className="text-red-500">*</span>
+                    </label>
+                    <textarea
+                      id="gift-message"
+                      rows={3}
+                      maxLength={25}
+                      placeholder="Write a personal message..."
+                      value={giftFields.message}
+                      onChange={(e) =>
+                        setGiftFields((f) => ({
+                          ...f,
+                          message: e.target.value,
+                        }))
+                      }
+                      className="w-full resize-none border border-neutral-400 px-3 py-2 text-sm text-neutral-900 outline-none transition-colors focus:border-black placeholder:text-neutral-500"
+                    />
+                    <div className="text-right text-sm text-neutral-500">
+                      <span>{giftFields.message.length}/25</span>
+                    </div>
+                  </div>
+                  {giftNoteText && (
+                    <div className="border-t border-neutral-200 pt-3 italic text-neutral-700">
+                      {giftNoteText}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
           <Quantity value={quantity} onChange={setQuantity} />
           {/* TODO: fix quick-shop modal & cart drawer overlap each other */}
           <AddToCartButton
-            disabled={!selectedVariant?.availableForSale}
+            disabled={!selectedVariant?.availableForSale || !isGiftFieldsValid}
             lines={[
               {
                 merchandiseId: selectedVariant?.id,
                 quantity,
                 selectedVariant,
+                ...(giftProperties && {
+                  attributes: giftProperties,
+                }),
               },
             ]}
             data-test="add-to-cart"
-            className="w-full"
+            className="w-full transition-all duration-300 disabled:bg-neutral-500 disabled:opacity-50 disabled:border-neutral-500 disabled:cursor-not-allowed uppercase bg-black text-white border-black text-base"
           >
             {selectedVariant?.availableForSale ? "Add to cart" : "Sold out"}
           </AddToCartButton>
@@ -169,7 +306,7 @@ export function QuickShopTrigger({
                 ? "right-4 rounded-full shadow-xl"
                 : "inset-x-4 shadow-xs",
               showOnHover &&
-              "opacity-0 transition-opacity group-hover:opacity-100",
+                "opacity-0 transition-opacity group-hover:opacity-100",
             ],
             placement === "bottom" && "w-full py-[10px]",
           )}
@@ -226,7 +363,7 @@ export function QuickShopTrigger({
               "relative mx-auto h-auto w-full max-w-(--breakpoint-xl) overflow-hidden",
               "animate-slide-up bg-white shadow-sm",
               panelType === "drawer" &&
-              "mr-0 ml-auto min-h-screen max-w-md p-4",
+                "mr-0 ml-auto min-h-screen max-w-md p-4",
             )}
           >
             <VisuallyHidden.Root asChild>

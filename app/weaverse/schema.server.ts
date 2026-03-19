@@ -40,7 +40,8 @@ export const themeSchema: HydrogenThemeSchema = {
           type: "image",
           name: "favicon",
           label: "Favicon",
-          helpText: "Icon displayed in the browser tab. Recommended size: 32x32px.",
+          helpText:
+            "Icon displayed in the browser tab. Recommended size: 32x32px.",
         },
         {
           type: "text",
@@ -401,6 +402,19 @@ export const themeSchema: HydrogenThemeSchema = {
           label: "Product reviews",
           name: "productReviewsColor",
           defaultValue: "#108474",
+        },
+      ],
+    },
+    {
+      group: "Gift message",
+      inputs: [
+        {
+          type: "textarea",
+          name: "giftNoteText",
+          label: "Gift note instructions",
+          defaultValue:
+            "If your order includes a 3D wood card, your message will be printed on it. Otherwise, it will be included as a paper note.",
+          placeholder: "Enter instructions for the customer...",
         },
       ],
     },
@@ -966,7 +980,7 @@ export const themeSchema: HydrogenThemeSchema = {
       ],
     },
     {
-      group: "Age Verification Popup",
+      group: "Age verification popup",
       inputs: [
         {
           type: "text",
@@ -1111,7 +1125,7 @@ export const themeSchema: HydrogenThemeSchema = {
       ],
     },
     {
-      group: "Newsletter Popup",
+      group: "Newsletter popup",
       inputs: [
         {
           type: "switch",

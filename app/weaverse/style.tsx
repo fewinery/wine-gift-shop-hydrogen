@@ -23,8 +23,16 @@ export function GlobalStyle() {
       footerText,
       buttonPrimaryBg,
       buttonPrimaryColor,
+      buttonPrimaryBorder,
+      buttonPrimaryBgHover,
+      buttonPrimaryColorHover,
+      buttonPrimaryBorderHover,
       buttonSecondaryBg,
       buttonSecondaryColor,
+      buttonSecondaryBorder,
+      buttonSecondaryBgHover,
+      buttonSecondaryColorHover,
+      buttonSecondaryBorderHover,
       buttonOutlineTextAndBorder,
       comparePriceTextColor,
       discountBadge,
@@ -86,8 +94,16 @@ export function GlobalStyle() {
               /* Colors (buttons & links) */
               --btn-primary-bg: ${buttonPrimaryBg};
               --btn-primary-text: ${buttonPrimaryColor};
+              --btn-primary-border: ${buttonPrimaryBorder || buttonPrimaryBg};
+              --btn-primary-bg-hover: ${buttonPrimaryBgHover || buttonPrimaryColor};
+              --btn-primary-text-hover: ${buttonPrimaryColorHover || buttonPrimaryBg};
+              --btn-primary-border-hover: ${buttonPrimaryBorderHover || buttonPrimaryBg};
               --btn-secondary-bg: ${buttonSecondaryBg};
               --btn-secondary-text: ${buttonSecondaryColor};
+              --btn-secondary-border: ${buttonSecondaryBorder || "#000000"};
+              --btn-secondary-bg-hover: ${buttonSecondaryBgHover || "#000000"};
+              --btn-secondary-text-hover: ${buttonSecondaryColorHover || "#ffffff"};
+              --btn-secondary-border-hover: ${buttonSecondaryBorderHover || "#000000"};
               --btn-outline-text: ${buttonOutlineTextAndBorder};
 
               /* Colors (product) */

@@ -328,6 +328,30 @@ export const themeSchema: HydrogenThemeSchema = {
           defaultValue: "#ffffff",
         },
         {
+          type: "color",
+          label: "Border color",
+          name: "buttonPrimaryBorder",
+          defaultValue: "#000000",
+        },
+        {
+          type: "color",
+          label: "Background color (hover)",
+          name: "buttonPrimaryBgHover",
+          defaultValue: "#ffffff",
+        },
+        {
+          type: "color",
+          label: "Text color (hover)",
+          name: "buttonPrimaryColorHover",
+          defaultValue: "#000000",
+        },
+        {
+          type: "color",
+          label: "Border color (hover)",
+          name: "buttonPrimaryBorderHover",
+          defaultValue: "#000000",
+        },
+        {
           type: "heading",
           label: "Button (secondary)",
         },
@@ -341,6 +365,30 @@ export const themeSchema: HydrogenThemeSchema = {
           type: "color",
           label: "Text color",
           name: "buttonSecondaryColor",
+          defaultValue: "#000000",
+        },
+        {
+          type: "color",
+          label: "Border color",
+          name: "buttonSecondaryBorder",
+          defaultValue: "#000000",
+        },
+        {
+          type: "color",
+          label: "Background color (hover)",
+          name: "buttonSecondaryBgHover",
+          defaultValue: "#000000",
+        },
+        {
+          type: "color",
+          label: "Text color (hover)",
+          name: "buttonSecondaryColorHover",
+          defaultValue: "#ffffff",
+        },
+        {
+          type: "color",
+          label: "Border color (hover)",
+          name: "buttonSecondaryBorderHover",
           defaultValue: "#000000",
         },
         {

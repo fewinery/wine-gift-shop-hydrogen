@@ -22,7 +22,7 @@ export function DropdownMenu({ menuItem }: { menuItem: SingleMenuItem }) {
             setOpen(true);
           }}
         >
-          <Link to={to} className="transition-none">
+          <Link to={to} className="transition-none font-heading!">
             {title}
           </Link>
           <CaretDownIcon className="h-3.5 w-3.5 transition-transform" />
@@ -38,7 +38,7 @@ export function DropdownMenu({ menuItem }: { menuItem: SingleMenuItem }) {
                 <Link
                   to={itemTo}
                   prefetch="intent"
-                  className="transition-none items-center gap-2 group outline-hidden"
+                  className="transition-none items-center gap-2 group outline-hidden font-heading!"
                 >
                   <RevealUnderline>{itemTitle}</RevealUnderline>
                   {isExternal && (

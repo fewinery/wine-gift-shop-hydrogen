@@ -104,7 +104,7 @@ export function QuickShop({
               selectedVariant={selectedVariant}
             />
             <div className="flex flex-col gap-2">
-              <h5 className="font-sans!">{product.title}</h5>
+              <h5 className="font-body">{product.title}</h5>
             </div>
             <VariantPrices variant={selectedVariant} />
             <JudgemeStarsRating

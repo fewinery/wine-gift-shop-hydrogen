@@ -18,11 +18,7 @@ export function DesktopMenu() {
     const items = headerMenu.items as unknown as SingleMenuItem[];
 
     return (
-      <NavigationMenu.Root
-        value={value}
-        onValueChange={setValue}
-        className="font-heading"
-      >
+      <NavigationMenu.Root value={value} onValueChange={setValue}>
         <NavigationMenu.List className="hidden h-full grow justify-center lg:flex">
           {items.map((menuItem) => {
             const { id, items: childItems = [], title, to } = menuItem;
@@ -48,14 +44,14 @@ export function DesktopMenu() {
                 >
                   {hasSubmenu ? (
                     <>
-                      <Link to={to} className="transition-none">
+                      <Link to={to} className="transition-none font-heading!">
                         {title}
                       </Link>
                       <CaretDownIcon className="h-3.5 w-3.5 transition-transform" />
                     </>
                   ) : (
                     <NavigationMenu.Link asChild>
-                      <Link to={to} className="transition-none">
+                      <Link to={to} className="transition-none font-heading!">
                         {title}
                       </Link>
                     </NavigationMenu.Link>
@@ -134,7 +130,7 @@ function MegaMenu({ items }: { items: SingleMenuItem[] }) {
               <Link
                 to={to}
                 prefetch="intent"
-                className="uppercase transition-none"
+                className="uppercase transition-none font-heading!"
               >
                 <RevealUnderline>{title}</RevealUnderline>
               </Link>
@@ -146,7 +142,7 @@ function MegaMenu({ items }: { items: SingleMenuItem[] }) {
                     <Link
                       to={cItem.to}
                       prefetch="intent"
-                      className="relative transition-none items-center gap-2 group"
+                      className="relative transition-none items-center gap-2 group font-heading!"
                     >
                       <RevealUnderline>{cItem.title}</RevealUnderline>
                       {cItem.isExternal && (

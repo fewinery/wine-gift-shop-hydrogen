@@ -14,7 +14,7 @@ import {
 import type { RootLoader } from "~/root";
 import { cn } from "~/utils/cn";
 
-export const variants = cva(["inline-flex justify-center transition-colors"], {
+export const variants = cva(["inline-flex justify-center transition-colors font-body"], {
   variants: {
     variant: {
       primary: [

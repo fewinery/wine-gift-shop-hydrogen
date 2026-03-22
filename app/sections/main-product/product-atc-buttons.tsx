@@ -98,6 +98,11 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
       giftFields.from.trim() &&
       giftFields.message.trim());
 
+  const giftNote =
+    isGiftPackage && isGift && isGiftFieldsValid
+      ? `[${product.title}] Gift - To: ${giftFields.to.trim()}, From: ${giftFields.from.trim()}, Message: ${giftFields.message.trim()}`
+      : undefined;
+
   return (
     <div ref={ref} {...rest} className="space-y-4 empty:hidden">
       {isGiftPackage && (
@@ -208,6 +213,7 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
           },
         ]}
         data-test="add-to-cart"
+        note={giftNote}
         className={cn(
           "w-full uppercase bg-black text-white border-black text-base transition-all duration-300 disabled:opacity-50 disabled:bg-neutral-500 disabled:border-neutral-500 disabled:cursor-not-allowed",
           buttonClassName,

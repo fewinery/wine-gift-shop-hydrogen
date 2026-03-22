@@ -78,6 +78,11 @@ export function QuickShop({
       giftFields.from.trim() &&
       giftFields.message.trim());
 
+  const giftNote =
+    isGiftPackage && isGift && isGiftFieldsValid
+      ? `[${product.title}] Gift - To: ${giftFields.to.trim()}, From: ${giftFields.from.trim()}, Message: ${giftFields.message.trim()}`
+      : undefined;
+
   return (
     <div className="bg-background">
       <div
@@ -99,7 +104,7 @@ export function QuickShop({
               selectedVariant={selectedVariant}
             />
             <div className="flex flex-col gap-2">
-              <h5>{product.title}</h5>
+              <h5 className="font-sans!">{product.title}</h5>
             </div>
             <VariantPrices variant={selectedVariant} />
             <JudgemeStarsRating
@@ -229,6 +234,7 @@ export function QuickShop({
               },
             ]}
             data-test="add-to-cart"
+            note={giftNote}
             className="w-full transition-all duration-300 disabled:bg-neutral-500 disabled:opacity-50 disabled:border-neutral-500 disabled:cursor-not-allowed uppercase bg-black text-white border-black text-base"
           >
             {selectedVariant?.availableForSale ? "Add to cart" : "Sold out"}
@@ -298,7 +304,7 @@ export function QuickShopTrigger({
           animate={false}
           variant="custom"
           className={clsx(
-            "font-heading font-medium",
+            "font-medium",
             !availableForSale && "pointer-events-none",
             placement === "image" && [
               "group/quick-shop absolute bottom-4 h-10.5 p-3 leading-4",

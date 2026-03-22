@@ -1,10 +1,11 @@
 import {
+  ArrowLeftIcon,
   FacebookLogoIcon,
   PinterestLogoIcon,
   XLogoIcon,
 } from "@phosphor-icons/react";
 import { createSchema, isBrowser } from "@weaverse/hydrogen";
-import { useLoaderData, useRouteLoaderData } from "react-router";
+import { Link, useLoaderData, useRouteLoaderData } from "react-router";
 import {
   FacebookShareButton,
   PinterestShareButton,
@@ -40,14 +41,21 @@ interface BlogPostProps extends SectionProps {
   ref: React.Ref<HTMLElement>;
   showTags: boolean;
   showShareButtons: boolean;
+  showBackButton: boolean;
 }
 
 export function BlogPost(props: BlogPostProps) {
-  const { ref, showTags, showShareButtons, ...rest } = props;
+  const {
+    ref,
+    showTags,
+    showShareButtons,
+    showBackButton = true,
+    ...rest
+  } = props;
   const { layout } = useRouteLoaderData<RootLoader>("root");
   const { article, blog, formattedDate } = useLoaderData<{
     article: ArticleData;
-    blog: { handle: string };
+    blog: { handle: string; title: string };
     formattedDate: string;
   }>();
   const { title, handle, image, contentHtml, author, tags = [] } = article;
@@ -79,6 +87,17 @@ export function BlogPost(props: BlogPostProps) {
               by <span>{author.name}</span>
             </div>
           )}
+          {showBackButton && (
+            <nav className="flex justify-center font-medium opacity-60">
+              <Link to="/" className="hover:underline">Home</Link>
+              <span className="mx-2">/</span>
+              <Link to="/blogs" className="hover:underline">Blogs</Link>
+              <span className="mx-2">/</span>
+              <Link to={articleBaseUrl} className="hover:underline">{blog.handle === 'blog' ? 'News' : blog.handle}</Link>
+              <span className="mx-2">/</span>
+              <span className="max-w-[200px] truncate">{title}</span>
+            </nav>
+          )}
         </div>
         <div className="mx-auto w-1/3 border-line-subtle border-t" />
         <article className="prose mx-auto py-4 lg:max-w-4xl lg:py-10">
@@ -88,6 +107,17 @@ export function BlogPost(props: BlogPostProps) {
               dangerouslySetInnerHTML={{ __html: contentHtml }}
             />
             <div className="mx-auto w-1/3 border-line-subtle border-t" />
+            {showBackButton && (
+              <div className="flex justify-center">
+                <Link
+                  to={articleBaseUrl}
+                  className="inline-flex items-center gap-2 border border-black px-8 py-3 text-sm font-medium uppercase tracking-widest transition-all hover:bg-black hover:text-white"
+                >
+                  <ArrowLeftIcon size={16} />
+                  <span>Back to Blog</span>
+                </Link>
+              </div>
+            )}
             <div className="flex flex-col items-center justify-between gap-2 md:flex-row">
               {showTags && (
                 <div>
@@ -135,6 +165,12 @@ export const schema = createSchema({
     {
       group: "Article",
       inputs: [
+        {
+          type: "switch",
+          label: "Show back button",
+          name: "showBackButton",
+          defaultValue: true,
+        },
         {
           type: "switch",
           label: "Show tags",

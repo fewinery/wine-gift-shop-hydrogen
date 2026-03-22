@@ -1,5 +1,5 @@
 import { createSchema } from "@weaverse/hydrogen";
-import { Link } from "~/components/link";
+import { Link, linkInputs } from "~/components/link";
 import {
   Section,
   type SectionProps,
@@ -10,8 +10,17 @@ interface FaqSectionProps extends SectionProps {
   ref?: React.Ref<HTMLElement>;
   heading: string;
   description: string;
-  buttonLabel: string;
-  buttonLink: string;
+  buttonLabel?: string;
+  buttonLink?: string;
+  text?: string;
+  to?: string;
+  variant?: "primary" | "secondary" | "outline" | "custom";
+  backgroundColor?: string;
+  textColor?: string;
+  borderColor?: string;
+  backgroundColorHover?: string;
+  textColorHover?: string;
+  borderColorHover?: string;
 }
 
 const FaqSection = (props: FaqSectionProps) => {
@@ -21,6 +30,15 @@ const FaqSection = (props: FaqSectionProps) => {
     description,
     buttonLabel,
     buttonLink,
+    text,
+    to,
+    variant = "primary",
+    backgroundColor,
+    textColor,
+    borderColor,
+    backgroundColorHover,
+    textColorHover,
+    borderColorHover,
     children,
     ...rest
   } = props;
@@ -38,14 +56,19 @@ const FaqSection = (props: FaqSectionProps) => {
               dangerouslySetInnerHTML={{ __html: description }}
             />
           )}
-          {buttonLabel && (
+          {(text || buttonLabel) && (
             <div className="pt-2">
               <Link
-                to={buttonLink || "#"}
-                className="inline-flex items-center justify-center border-2 border-black bg-transparent px-8 py-3 text-base font-bold uppercase tracking-wide text-black"
-              >
-                {buttonLabel}
-              </Link>
+                to={to || buttonLink || "#"}
+                text={text || buttonLabel}
+                variant={variant}
+                backgroundColor={backgroundColor}
+                textColor={textColor}
+                borderColor={borderColor}
+                backgroundColorHover={backgroundColorHover}
+                textColorHover={textColorHover}
+                borderColorHover={borderColorHover}
+              />
             </div>
           )}
         </div>
@@ -80,19 +103,11 @@ export const schema = createSchema({
           label: "Description",
           defaultValue: "<p>Description</p>",
         },
-        {
-          type: "text",
-          name: "buttonLabel",
-          label: "Button Label",
-          defaultValue: "Button Label",
-        },
-        {
-          type: "text",
-          name: "buttonLink",
-          label: "Button Link",
-          defaultValue: "#",
-        },
       ],
+    },
+    {
+      group: "Button",
+      inputs: linkInputs,
     },
     ...sectionSettings,
   ],

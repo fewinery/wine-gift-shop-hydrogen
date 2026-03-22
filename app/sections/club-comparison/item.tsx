@@ -7,6 +7,7 @@ import {
 import type { CSSProperties } from "react";
 import { CheckIcon } from "~/components/icons";
 import { Image } from "~/components/image";
+import { Link, linkInputs } from "~/components/link";
 import { cn } from "~/utils/cn";
 
 interface ClubComparisonItemProps extends HydrogenComponentProps {
@@ -23,8 +24,17 @@ interface ClubComparisonItemProps extends HydrogenComponentProps {
   benefits: string;
   hideDivider: boolean;
   hideCheckIcon: boolean;
-  buttonText: string;
-  buttonLink: string;
+  buttonText?: string;
+  buttonLink?: string;
+  text?: string;
+  to?: string;
+  variant?: "primary" | "secondary" | "outline" | "custom";
+  backgroundColor?: string;
+  textColor?: string;
+  borderColor?: string;
+  backgroundColorHover?: string;
+  textColorHover?: string;
+  borderColorHover?: string;
 }
 
 // Parse benefits HTML to extract text items
@@ -50,6 +60,15 @@ const ClubComparisonItem = (props: ClubComparisonItemProps) => {
     hideCheckIcon = false,
     buttonText,
     buttonLink,
+    text,
+    to,
+    variant = "primary",
+    backgroundColor,
+    textColor,
+    borderColor,
+    backgroundColorHover,
+    textColorHover,
+    borderColorHover,
     ...rest
   } = props;
   const benefitItems = parseBenefits(benefits);
@@ -116,13 +135,21 @@ const ClubComparisonItem = (props: ClubComparisonItemProps) => {
       </ul>
 
       {/* CTA Button */}
-      {buttonText && (
-        <a
-          href={buttonLink || "#"}
-          className="block w-full bg-black py-4 text-center text-sm font-bold uppercase text-white"
-        >
-          {buttonText}
-        </a>
+      {(text || buttonText) && (
+        <div className="w-full mt-auto">
+          <Link
+            to={to || buttonLink || "#"}
+            text={text || buttonText}
+            variant={variant}
+            backgroundColor={backgroundColor}
+            textColor={textColor}
+            borderColor={borderColor}
+            backgroundColorHover={backgroundColorHover}
+            textColorHover={textColorHover}
+            borderColorHover={borderColorHover}
+            className="w-full text-center text-sm font-bold uppercase"
+          />
+        </div>
       )}
     </div>
   );
@@ -253,20 +280,7 @@ export const schema = createSchema({
     },
     {
       group: "Button",
-      inputs: [
-        {
-          type: "text",
-          name: "buttonText",
-          label: "Button Text",
-          defaultValue: "GET STARTED",
-        },
-        {
-          type: "text",
-          name: "buttonLink",
-          label: "Button Link",
-          defaultValue: "#",
-        },
-      ],
+      inputs: linkInputs,
     },
   ],
 });

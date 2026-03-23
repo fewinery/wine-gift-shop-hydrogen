@@ -14,26 +14,26 @@ import {
 import type { RootLoader } from "~/root";
 import { cn } from "~/utils/cn";
 
-export const variants = cva(["inline-flex justify-center transition-colors"], {
+export const variants = cva(["inline-flex justify-center transition-colors font-body"], {
   variants: {
     variant: {
       primary: [
         "border px-4 py-3",
         "text-(--btn-primary-text)",
         "bg-(--btn-primary-bg)",
-        "border-(--btn-primary-bg)",
-        "hover:text-(--btn-primary-bg)",
-        "hover:bg-(--btn-primary-text)",
-        "hover:border-(--btn-primary-bg)",
+        "border-(--btn-primary-border)",
+        "hover:text-(--btn-primary-text-hover)",
+        "hover:bg-(--btn-primary-bg-hover)",
+        "hover:border-(--btn-primary-border-hover)",
       ],
       secondary: [
         "border px-4 py-3",
         "text-(--btn-secondary-text)",
         "bg-(--btn-secondary-bg)",
-        "border-(--btn-secondary-bg)",
-        "hover:bg-(--btn-secondary-text)",
-        "hover:text-(--btn-secondary-bg)",
-        "hover:border-(--btn-secondary-text)",
+        "border-(--btn-secondary-border)",
+        "hover:bg-(--btn-secondary-bg-hover)",
+        "hover:text-(--btn-secondary-text-hover)",
+        "hover:border-(--btn-secondary-border-hover)",
       ],
       outline: [
         "border px-4 py-3",

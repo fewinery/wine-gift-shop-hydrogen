@@ -25,6 +25,7 @@ export function AddToCartButton({
   width = "full",
   disabled,
   analytics,
+  note,
   ...props
 }: {
   children: React.ReactNode;
@@ -33,12 +34,13 @@ export function AddToCartButton({
   width?: "auto" | "full";
   disabled?: boolean;
   analytics?: unknown;
+  note?: string;
   [key: string]: any;
 }) {
   return (
     <CartForm
       route="/cart"
-      inputs={{ lines }}
+      inputs={{ lines, cartNote: note }}
       action={CartForm.ACTIONS.LinesAdd}
     >
       {(fetcher: FetcherWithComponents<any>) => (

@@ -69,6 +69,18 @@ export const PRODUCT_QUERY = `#graphql
           }
         }
       }
+      wineSpecs: metafield(namespace: "custom", key: "wine_specs") {
+        value
+      }
+      tastingNotes: metafield(namespace: "custom", key: "tasting_notes") {
+        value
+      }
+      foodPairings: metafield(namespace: "custom", key: "food_pairings") {
+        value
+      }
+      recipe: metafield(namespace: "custom", key: "recipe") {
+        value
+      }
       goesWellWith: metafield(namespace: "custom", key: "goes_well_with") {
         references(first: 10) {
           nodes {

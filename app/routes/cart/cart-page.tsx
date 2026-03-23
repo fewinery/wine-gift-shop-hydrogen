@@ -35,9 +35,22 @@ export async function action({ request, context }: ActionFunctionArgs) {
   let result: CartQueryDataReturn;
 
   switch (cartFormAction) {
-    case CartForm.ACTIONS.LinesAdd:
+    case CartForm.ACTIONS.LinesAdd: {
       result = await cart.addLines(inputs.lines as CartLineInput[]);
+      if (inputs.cartNote) {
+        const newNote = (inputs.cartNote as string).trim();
+        const currentCart = await cart.get();
+        let existingNotes = currentCart?.note ? currentCart.note.split("\n---\n").map(n => n.trim()) : [];
+        existingNotes.push(newNote);
+        
+        // Ensure uniqueness to prevent infinite duplication
+        existingNotes = Array.from(new Set(existingNotes)).filter(Boolean);
+        
+        const finalNote = existingNotes.join("\n---\n");
+        result = await cart.updateNote(finalNote);
+      }
       break;
+    }
     case CartForm.ACTIONS.LinesUpdate:
       result = await cart.updateLines(inputs.lines as CartLineUpdateInput[]);
       break;

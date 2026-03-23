@@ -48,7 +48,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
   return {
     article,
-    blog: { handle: blogHandle },
+    blog: { handle: blogHandle, title: blog.title },
     relatedArticles,
     formattedDate,
     seo,

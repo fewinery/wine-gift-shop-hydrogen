@@ -129,10 +129,10 @@ export function ProductCard({
               className={clsx([
                 "absolute inset-0",
                 pcardShowImageOnHover &&
-                  secondImage &&
-                  "transition-opacity duration-300 group-hover:opacity-0",
+                secondImage &&
+                "transition-opacity duration-300 group-hover:opacity-0",
                 isTransitioning &&
-                  "[&_img]:[view-transition-name:image-expand]",
+                "[&_img]:[view-transition-name:image-expand]",
               ])}
               sizes="(min-width: 64em) 25vw, (min-width: 48em) 30vw, 45vw"
               data={image}
@@ -212,27 +212,27 @@ export function ProductCard({
             "flex",
             isVertical
               ? [
-                  "flex-col",
-                  [
-                    alignment === "left" && "items-start",
-                    alignment === "center" && "items-center",
-                    alignment === "right" && "items-end",
-                  ],
-                ]
+                "flex-col",
+                [
+                  alignment === "left" && "items-start",
+                  alignment === "center" && "items-center",
+                  alignment === "right" && "items-end",
+                ],
+              ]
               : "justify-between gap-4",
           )}
         >
           <Link
             to={`/products/${product.handle}?${params.toString()}`}
             prefetch="intent"
-            className="inline-block font-medium font-heading uppercase py-4"
+            className="inline-block uppercase py-4 font-body"
           >
             <RevealUnderline className="bg-position-[left_calc(1em+3px)] leading-normal">
               {product.title}
             </RevealUnderline>
           </Link>
           {pcardShowLowestPrice || isCombinedListing(product) ? (
-            <div className="flex gap-1 font-heading">
+            <div className="flex gap-1 font-body">
               <span>From</span>
               <Money withoutTrailingZeros data={minVariantPrice} />
               {isCombinedListing(product) && (
@@ -246,7 +246,7 @@ export function ProductCard({
             <VariantPrices
               variant={selectedVariant || firstVariant}
               showCompareAtPrice={pcardShowSalePrice}
-              className="font-heading text-base"
+              className="text-base font-body"
             />
           )}
         </div>
@@ -272,32 +272,32 @@ export function ProductCard({
       {(showViewProductButton ||
         (pcardEnableQuickShop &&
           pcardQuickShopButtonPlacement === "bottom")) && (
-        <div className="mt-4 flex flex-col gap-2.5">
-          {showViewProductButton && (
-            <Link
-              to={`/products/${product.handle}?${params.toString()}`}
-              prefetch="intent"
-              className="font-heading flex w-full items-center justify-center border border-body py-2 px-4 uppercase"
-            >
-              View Product
-            </Link>
-          )}
-          {pcardEnableQuickShop &&
-            pcardQuickShopButtonPlacement === "bottom" && (
-              <QuickShopTrigger
-                productHandle={product.handle}
-                showOnHover={pcardShowQuickShopOnHover}
-                buttonType={pcardQuickShopButtonType}
-                buttonText={pcardQuickShopButtonText}
-                panelType={pcardQuickShopPanelType}
-                placement="bottom"
-                backgroundColor={pcardQuickShopButtonBg}
-                textColor={pcardQuickShopButtonTextColor}
-                availableForSale={firstVariant?.availableForSale}
-              />
+          <div className="mt-4 flex flex-col gap-2.5">
+            {showViewProductButton && (
+              <Link
+                to={`/products/${product.handle}?${params.toString()}`}
+                prefetch="intent"
+                className="flex w-full items-center justify-center border border-body py-2 px-4 uppercase font-body"
+              >
+                View Product
+              </Link>
             )}
-        </div>
-      )}
+            {pcardEnableQuickShop &&
+              pcardQuickShopButtonPlacement === "bottom" && (
+                <QuickShopTrigger
+                  productHandle={product.handle}
+                  showOnHover={pcardShowQuickShopOnHover}
+                  buttonType={pcardQuickShopButtonType}
+                  buttonText={pcardQuickShopButtonText}
+                  panelType={pcardQuickShopPanelType}
+                  placement="bottom"
+                  backgroundColor={pcardQuickShopButtonBg}
+                  textColor={pcardQuickShopButtonTextColor}
+                  availableForSale={firstVariant?.availableForSale}
+                />
+              )}
+          </div>
+        )}
     </div>
   );
 }

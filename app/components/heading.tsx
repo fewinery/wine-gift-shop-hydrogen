@@ -43,7 +43,7 @@ const fontSizeVariants = cva("", {
   },
 });
 
-const variants = cva("heading", {
+const variants = cva("heading font-heading", {
   variants: {
     size: {
       default: "",
@@ -94,7 +94,7 @@ const variants = cva("heading", {
 
 export interface HeadingProps
   extends VariantProps<typeof variants>,
-  VariantProps<typeof fontSizeVariants> {
+    VariantProps<typeof fontSizeVariants> {
   ref?: React.Ref<HTMLHeadingElement>;
   as?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
   content: string;

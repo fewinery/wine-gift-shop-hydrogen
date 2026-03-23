@@ -55,7 +55,7 @@ export async function loader(args: LoaderFunctionArgs) {
     const seo = seoPayload.article({ article, url: request.url });
     return data({
       article,
-      blog: { handle: "blog" },
+      blog: { handle: "blog", title: "Blog" },
       relatedArticles,
       formattedDate,
       seo,

@@ -38,7 +38,7 @@ function ViewAllButton(props: ViewAllButtonProps) {
     <div ref={ref} {...rest} className="flex flex-col w-full lg:w-auto">
       <Link
         to={buttonLink}
-        className={`flex items-center justify-center gap-1 underline underline-offset-4 ${mobilePositionClass} lg:hidden`}
+        className={`flex items-center justify-center gap-1 underline underline-offset-4 font-body ${mobilePositionClass} lg:hidden`}
         style={{ color: mobileTextColor }}
       >
         {buttonText}
@@ -46,7 +46,7 @@ function ViewAllButton(props: ViewAllButtonProps) {
       </Link>
       <Link
         to={buttonLink}
-        className="hidden lg:flex items-center justify-center px-6 py-2"
+        className="hidden lg:flex items-center justify-center px-6 py-2 font-body"
         style={{
           color: buttonTextColor,
           backgroundColor: buttonBgColor,

@@ -10,7 +10,6 @@ import PromotionalOfferModal, {
 } from "./promotional-offer-modal";
 import type { WizardStepProps } from "./selection-wizard";
 import { calculateTotalPrice } from "./selection-wizard";
-import { getFrequencyInfo } from "./step-2-frequency";
 
 /**
  * Step 5: Review Component
@@ -360,21 +359,6 @@ export default function Step5Review({
                   <div className="space-y-1 flex-1">
                     <div className="font-heading text-lg uppercase text-gray-900 leading-tight">
                       {selectedSellingPlan.name}
-                    </div>
-                    <div className="text-base text-gray-600">
-                      <p>
-                        {
-                          getFrequencyInfo(selectedSellingPlan)
-                            .deliveriesPerYear
-                        }{" "}
-                        deliveries per year
-                      </p>
-                      <p>
-                        Every{" "}
-                        {getFrequencyInfo(
-                          selectedSellingPlan,
-                        ).intervalText.toLowerCase()}
-                      </p>
                     </div>
                   </div>
                 </div>

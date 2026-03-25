@@ -1,3 +1,4 @@
+import { Image } from "@shopify/hydrogen";
 import type { CaseSize } from "~/types/winehub";
 import { cn } from "~/utils/cn";
 import type { WizardStepProps } from "./selection-wizard";
@@ -139,9 +140,11 @@ function CaseSizeCard({ caseSize, isSelected, onSelect }: CaseSizeCardProps) {
       {/* Case Size Image */}
       <div className="mb-6 h-40 w-full flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
         {caseSize.image ? (
-          <img
+          <Image
             src={caseSize.image}
             alt={caseSize.title}
+            width={350}
+            height={160}
             className="h-full w-full object-contain drop-shadow-sm"
           />
         ) : (
@@ -183,9 +186,6 @@ function CaseSizeCard({ caseSize, isSelected, onSelect }: CaseSizeCardProps) {
 
         <div className="space-y-1 font-body text-[#5C5C5C]">
           <p>{caseSize.quantity} bottles</p>
-          <p>
-            {caseSize.quantity <= 6 ? "Every few weeks" : "Monthly delivery"}
-          </p>
         </div>
 
         {/* Price Placeholder */}
@@ -255,6 +255,7 @@ export function CaseSizeComparisonTable({
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm">
                 <button
+                  type="button"
                   onClick={() => onSelect(caseSize)}
                   className={cn(
                     "font-medium",
@@ -278,8 +279,14 @@ export function CaseSizeComparisonTable({
  * Get recommendation text based on quantity
  */
 function getBestForDescription(quantity: number): string {
-  if (quantity <= 3) return "Trying new wines";
-  if (quantity <= 6) return "Regular enjoyment";
-  if (quantity <= 9) return "Building collection";
+  if (quantity <= 3) {
+    return "Trying new wines";
+  }
+  if (quantity <= 6) {
+    return "Regular enjoyment";
+  }
+  if (quantity <= 9) {
+    return "Building collection";
+  }
   return "Serious collectors";
 }

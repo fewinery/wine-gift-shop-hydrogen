@@ -70,7 +70,7 @@ export const action: ActionFunction = async ({
 
     if (apiToken && listId) {
       try {
-        const response = await fetch(
+        await fetch(
           "https://a.klaviyo.com/api/profile-subscription-bulk-create-jobs",
           {
             method: "POST",
@@ -104,18 +104,15 @@ export const action: ActionFunction = async ({
             }),
           },
         );
-        const result = await response.json();
-        console.log("Klaviyo API Status:", response.status);
-        console.log("Klaviyo API Response:", JSON.stringify(result, null, 2));
       } catch (error) {
         console.error("Error subscribing to Klaviyo list", error);
       }
     } else {
       console.error(
         "Missing Klaviyo API Token or List ID. Token:",
-        !!apiToken,
+        Boolean(apiToken),
         "List:",
-        !!listId,
+        Boolean(listId),
       );
     }
     return data({ customer, ok: true }, { status: 201 });
@@ -132,8 +129,8 @@ export const action: ActionFunction = async ({
 export type CustomerApiPlayLoad = {
   ok: boolean;
   customer?:
-  | NonNullable<CustomerCreateMutation["customerCreate"]>["customer"]
-  | null;
+    | NonNullable<CustomerCreateMutation["customerCreate"]>["customer"]
+    | null;
   errors?: any[];
   errorMessage?: string;
 };

@@ -3,85 +3,52 @@ import {
   type ActionFunctionArgs,
   data,
 } from "react-router";
-
-const KLAVIYO_API = "https://a.klaviyo.com/api/profiles";
+import { createGorgiasTicket } from "~/utils/gorgias";
 
 export const action: ActionFunction = async ({
   request,
   context,
 }: ActionFunctionArgs) => {
-  const apiToken = context.env.KLAVIYO_PRIVATE_API_TOKEN;
-  if (!apiToken) {
-    return data({
-      ok: false,
-      error: "Missing KLAVIYO_PRIVATE_API_TOKEN",
-    });
-  }
-
   const formData = await request.formData();
-  const email = formData.get("email");
-  const firstName = formData.get("firstName");
-  const lastName = formData.get("lastName");
-  const phone = formData.get("phone");
-  const tastingType = formData.get("tastingType");
-  const membership = formData.get("membership");
-  const numberOfGuests = formData.get("numberOfGuests");
-  const comments = formData.get("comments");
+  const firstName = formData.get("firstName") as string;
+  const lastName = formData.get("lastName") as string;
+  const email = formData.get("email") as string;
+  const phone = formData.get("phone") as string;
+  const tastingType = formData.get("tastingType") as string;
+  const numberOfGuests = formData.get("numberOfGuests") as string;
+  const membership = formData.get("membership") as string;
+  const comments = formData.get("comments") as string;
 
   if (!email) {
     return data({ ok: false, error: "Email is required" }, 400);
   }
 
-  try {
-    const res = await fetch(KLAVIYO_API, {
-      method: "POST",
-      headers: {
-        accept: "application/vnd.api+json",
-        revision: "2024-10-15",
-        "content-type": "application/vnd.api+json",
-        Authorization: `Klaviyo-API-Key ${apiToken}`,
-      },
-      body: JSON.stringify({
-        data: {
-          type: "profile",
-          attributes: {
-            email,
-            first_name: firstName,
-            last_name: lastName,
-            phone_number: phone,
-            properties: {
-              "Tasting Type": tastingType,
-              Membership: membership,
-              "Number of Guests": numberOfGuests,
-              Comments: comments,
-              "Reservation Date": new Date().toISOString(),
-              Source: "Reservation Form",
-            },
-          },
-        },
-      }),
+  const bodyText = [
+    `Name: ${firstName} ${lastName}`,
+    `Email: ${email}`,
+    `Phone: ${phone || "N/A"}`,
+    ``,
+    `Tasting Type: ${tastingType || "N/A"}`,
+    `Number of Guests: ${numberOfGuests || "N/A"}`,
+    `WinePlus Membership: ${membership || "N/A"}`,
+    ``,
+    `Comments:`,
+    comments || "None",
+  ].join("\n");
+
+  const result = await createGorgiasTicket(context.env, {
+    senderName: `${firstName} ${lastName}`.trim(),
+    senderEmail: email,
+    subject: `Reservation Request: ${tastingType || "Tasting"}`,
+    bodyText,
+  });
+
+  if (result.ok) {
+    return data({
+      ok: true,
+      message: "Reservation submitted successfully",
     });
-
-    const status = res.status;
-    const klaviyoData = (await res.json()) as any;
-
-    if (res.ok) {
-      return data(
-        { ok: true, message: "Reservation submitted successfully" },
-        status,
-      );
-    }
-
-    const errorDetail =
-      klaviyoData?.errors?.[0]?.detail ||
-      klaviyoData?.errors?.[0]?.title ||
-      "Unable to submit reservation";
-
-    return data({ ok: false, error: errorDetail }, status);
-  } catch (e) {
-    return data(
-      { ok: false, error: "Something went wrong! Please try again." },
-      500,
-    );
   }
+
+  return data({ ok: false, error: result.error }, 500);
 };

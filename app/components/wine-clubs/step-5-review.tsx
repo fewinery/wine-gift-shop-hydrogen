@@ -1,3 +1,4 @@
+import { Image } from "@shopify/hydrogen";
 import React, { useState } from "react";
 import { useFetcher } from "react-router";
 import { Button } from "~/components/button";
@@ -9,7 +10,6 @@ import PromotionalOfferModal, {
 } from "./promotional-offer-modal";
 import type { WizardStepProps } from "./selection-wizard";
 import { calculateTotalPrice } from "./selection-wizard";
-import { getFrequencyInfo } from "./step-2-frequency";
 
 /**
  * Step 5: Review Component
@@ -92,7 +92,9 @@ export default function Step5Review({
         : null
       : selectedSellingPlan;
 
-    if (sellingPlan?.discountPercentage) return sellingPlan.discountPercentage;
+    if (sellingPlan?.discountPercentage) {
+      return sellingPlan.discountPercentage;
+    }
     if (sellingPlan?.sellingPlanClubDiscount?.fixedType === "PERCENTAGE") {
       return sellingPlan.sellingPlanClubDiscount.fixedAmount;
     }
@@ -134,11 +136,15 @@ export default function Step5Review({
 
   // Handle checkout process
   const handleCheckout = async () => {
-    if (isSubmitting) return;
+    if (isSubmitting) {
+      return;
+    }
 
     try {
       // Validate all or specific selections
-      if (!validateSelections()) return;
+      if (!validateSelections()) {
+        return;
+      }
 
       // Format cart data for Shopify
       const cartData = formatWineClubCart(wineClub, state);
@@ -273,9 +279,11 @@ export default function Step5Review({
                   {/* Case Size Image */}
                   <div className="w-20 h-20 mr-4 shrink-0 bg-gray-50 rounded-md overflow-hidden border border-gray-200 flex items-center justify-center">
                     {selectedCaseSize.image ? (
-                      <img
+                      <Image
                         src={selectedCaseSize.image}
                         alt={selectedCaseSize.title}
+                        width={80}
+                        height={80}
                         className="w-full h-full object-contain p-1"
                       />
                     ) : (
@@ -321,12 +329,14 @@ export default function Step5Review({
                   {/* Frequency Image */}
                   <div className="w-20 h-20 mr-4 shrink-0 bg-gray-50 rounded-md overflow-hidden border border-gray-200 flex items-center justify-center">
                     {selectedSellingPlan.image?.contentUrl ? (
-                      <img
+                      <Image
                         src={selectedSellingPlan.image.contentUrl}
                         alt={
                           selectedSellingPlan.image.altText ||
                           selectedSellingPlan.name
                         }
+                        width={80}
+                        height={80}
                         className="w-full h-full object-contain p-1"
                       />
                     ) : (
@@ -349,21 +359,6 @@ export default function Step5Review({
                   <div className="space-y-1 flex-1">
                     <div className="font-heading text-lg uppercase text-gray-900 leading-tight">
                       {selectedSellingPlan.name}
-                    </div>
-                    <div className="text-base text-gray-600">
-                      <p>
-                        {
-                          getFrequencyInfo(selectedSellingPlan)
-                            .deliveriesPerYear
-                        }{" "}
-                        deliveries per year
-                      </p>
-                      <p>
-                        Every{" "}
-                        {getFrequencyInfo(
-                          selectedSellingPlan,
-                        ).intervalText.toLowerCase()}
-                      </p>
                     </div>
                   </div>
                 </div>
@@ -391,15 +386,13 @@ export default function Step5Review({
                       {/* Thumbnail */}
                       <div className="w-16 h-16 mr-4 shrink-0 bg-gray-50 rounded-md overflow-hidden border border-gray-200">
                         {product.productVariant.productImage ? (
-                          <>
-                            {/* biome-ignore lint/performance/noImgElement: External image URL */}
-                            {/* biome-ignore lint/correctness/useImageSize: Dynamic image size */}
-                            <img
-                              src={product.productVariant.productImage}
-                              alt={product.productVariant.productTitle}
-                              className="w-full h-full object-contain"
-                            />
-                          </>
+                          <Image
+                            src={product.productVariant.productImage}
+                            alt={product.productVariant.productTitle}
+                            width={64}
+                            height={64}
+                            className="w-full h-full object-contain"
+                          />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-gray-300">
                             <svg
@@ -492,15 +485,13 @@ export default function Step5Review({
                       {/* Thumbnail */}
                       <div className="w-16 h-16 mr-4 shrink-0 bg-gray-50 rounded-md overflow-hidden border border-gray-200">
                         {product.productVariant.productImage ? (
-                          <>
-                            {/* biome-ignore lint/performance/noImgElement: External image URL */}
-                            {/* biome-ignore lint/correctness/useImageSize: Dynamic image size */}
-                            <img
-                              src={product.productVariant.productImage}
-                              alt={product.productVariant.productTitle}
-                              className="w-full h-full object-contain"
-                            />
-                          </>
+                          <Image
+                            src={product.productVariant.productImage}
+                            alt={product.productVariant.productTitle}
+                            width={64}
+                            height={64}
+                            className="w-full h-full object-contain"
+                          />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-gray-300">
                             <AddOnIcon />
@@ -618,18 +609,6 @@ export default function Step5Review({
                 <span className="font-heading text-3xl text-gray-900 leading-normal">
                   ${pricing.grandTotal.toFixed(2)}
                 </span>
-              </div>
-
-              {/* Billing Info */}
-              <div className="mt-4 p-4 bg-[#f9f5f0] rounded border border-[#e6dac9]">
-                <div className="text-base text-[#4a4a4a] space-y-1 font-body">
-                  <p className="font-bold text-gray-900 uppercase tracking-wide mb-2">
-                    Billing Information
-                  </p>
-                  <p>• Subscription billed per delivery</p>
-                  <p>• Add-ons billed with first delivery</p>
-                  <p>• Free shipping on all orders</p>
-                </div>
               </div>
 
               {/* Checkout Button */}

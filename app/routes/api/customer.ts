@@ -51,7 +51,10 @@ export const action: ActionFunction = async ({
       { status: 500 },
     );
   }
-  if (customerUserErrors?.length) {
+  const isTaken = customerUserErrors?.some(
+    (e) => e.code === "TAKEN" || e.code === "CUSTOMER_DISABLED",
+  );
+  if (customerUserErrors?.length && !isTaken) {
     return data(
       {
         errors: customerUserErrors,
@@ -61,7 +64,7 @@ export const action: ActionFunction = async ({
       { status: 500 },
     );
   }
-  if (customer) {
+  if (customer || isTaken) {
     const apiToken = context.env.KLAVIYO_PRIVATE_API_TOKEN;
     const listId = context.env.KLAVIYO_LIST_ID;
 

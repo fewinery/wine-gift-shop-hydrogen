@@ -113,7 +113,8 @@ export default function HeroVideo(props: HeroVideoProps) {
   } as CSSProperties;
 
   const { ref: inViewRef, inView } = useInView({
-    triggerOnce: true,
+    triggerOnce: false,
+    threshold: 0.25,
   });
 
   // Use `useCallback` so we don't recreate the function on each render
@@ -160,6 +161,7 @@ export default function HeroVideo(props: HeroVideoProps) {
           "w-[max(var(--mobile-height)/9*16,100vw)] sm:w-[max(var(--desktop-height)/9*16,100vw)]",
           "translate-x-[min(0px,calc((var(--mobile-height)/9*16-100vw)/-2))]",
           "sm:translate-x-[min(0px,calc((var(--desktop-height)/9*16-100vw)/-2))]",
+          "pointer-events-none",
         )}
       >
         {inView && (
@@ -173,6 +175,8 @@ export default function HeroVideo(props: HeroVideoProps) {
               height={size.height}
               controls={false}
               className="aspect-video"
+              playsinline={true}
+              pip={false}
             />
           </Suspense>
         )}
@@ -183,7 +187,7 @@ export default function HeroVideo(props: HeroVideoProps) {
           overlayOpacity={overlayOpacity}
           className="z-0"
         />
-        <div ref={scope} className={clsx(variants({ gap }))}>
+        <div ref={scope} className={clsx(variants({ gap }), "pointer-events-auto")}>
           {children}
         </div>
       </div>

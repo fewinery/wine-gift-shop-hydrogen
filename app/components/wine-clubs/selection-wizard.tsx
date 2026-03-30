@@ -181,7 +181,9 @@ export function useWineClubWizard(wineClub: WineClubDetails) {
   const goToStep = useCallback(
     (step: number) => {
       let targetStep = step;
-      if (targetStep === 1 && shouldSkipCaseSizeStep) targetStep = 2;
+      if (targetStep === 1 && shouldSkipCaseSizeStep) {
+        targetStep = 2;
+      }
       if (targetStep === 2 && shouldSkipFrequencyStep) {
         targetStep = step > state.currentStep ? 3 : 1;
       }
@@ -362,11 +364,6 @@ export function useWineClubWizard(wineClub: WineClubDetails) {
         return true;
 
       case 3: {
-        if (state.selectedProducts.length === 0) {
-          setError("quantity", "Please select at least one wine");
-          return false;
-        }
-
         // Validate exact bottle count matches case size
         if (state.selectedCaseSize) {
           const totalBottles = state.selectedProducts.reduce(
@@ -375,13 +372,19 @@ export function useWineClubWizard(wineClub: WineClubDetails) {
           );
           const requiredBottles = state.selectedCaseSize.quantity;
 
-          // For Fixed clubs (quantity = 0), we only require at least one item (already checked above)
-          // We can skip exact quantity validation
+          // For Fixed clubs (quantity = 0), we still require at least one item (FR-019)
           if (requiredBottles === 0) {
+            if (state.selectedProducts.length === 0) {
+              setError(
+                "quantity",
+                "Please select at least one wine to complete your selection.",
+              );
+              return false;
+            }
             return true;
           }
 
-          // Standard validation for Bottle clubs
+          // Case for 0 bottles or under-limit (e.g. 1/3, 2/3)
           if (totalBottles < requiredBottles) {
             setError(
               "quantity",

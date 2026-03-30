@@ -43,7 +43,9 @@ export default function Step2Frequency({
   // Filter selling plans by case size if available
   const availableSellingPlans =
     sellingPlans?.filter((plan) => {
-      if (!selectedCaseSize) return true;
+      if (!selectedCaseSize) {
+        return true;
+      }
 
       // Check if plan is compatible with selected case size
       // This depends on the Winehub API structure - adjust as needed
@@ -257,15 +259,6 @@ function FrequencyCard({
         >
           {sellingPlan.name}
         </h3>
-
-        <div className="space-y-1 font-body text-gray-600">
-          <p className="font-medium text-lg">
-            {frequencyInfo.deliveriesPerYear} deliveries per year
-          </p>
-          <p className="text-sm text-gray-500">
-            Every {frequencyInfo.intervalText.toLowerCase()}
-          </p>
-        </div>
 
         {/* Pricing */}
         <div className="pt-4 mt-auto">

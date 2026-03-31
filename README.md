@@ -372,7 +372,7 @@ Key configuration files:
 
 ## License
 
-This project is provided under the [MIT License](LICENSE).
+This project is provided under the [MIT License](LICENSE). 
 
 ---
 

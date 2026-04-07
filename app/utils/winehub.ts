@@ -138,7 +138,7 @@ export async function fetchWineClubs({
           position:
             typeof clubObj.position === "number" ? clubObj.position : 999,
           description: clubObj.description || null,
-          image: clubObj.image || null,
+          image: ensureHttps(clubObj.image as string | undefined),  
           caseSizes: Array.isArray(clubObj.caseSizes) ? clubObj.caseSizes : [],
           sellingPlans: Array.isArray(clubObj.sellingPlans)
             ? clubObj.sellingPlans
@@ -245,14 +245,18 @@ export async function fetchWineClubDetails({
     let data: unknown;
     try {
       const text = await response.text();
-      if (!text || text.trim().length === 0) return null;
+      if (!text || text.trim().length === 0) {
+        return null;
+      }
       data = JSON.parse(text);
     } catch (parseError) {
       console.error("[Winehub] Failed to parse JSON:", parseError);
       return null;
     }
 
-    if (!data || typeof data !== "object") return null;
+    if (!data || typeof data !== "object") {
+      return null;
+    }
     const clubObj = data as Record<string, unknown>;
 
     // 2. Fetch extra details (images for selling plans and case sizes) from main API
@@ -309,7 +313,7 @@ export async function fetchWineClubDetails({
         }
       }
     } catch (e) {
-      console.warn("[Winehub] Failed to fetch enhancement images", e);
+      console.warn("[Winehub] Failed to fetch enhancement images", e); 
       // Continue without images
     }
 
@@ -321,28 +325,29 @@ export async function fetchWineClubDetails({
       type: clubObj.type || null,
       position: typeof clubObj.position === "number" ? clubObj.position : 999,
       description: clubObj.description || null,
-      image: clubObj.image || null,
+      image: ensureHttps(clubObj.image as string) || null,
       caseSizes: Array.isArray(clubObj.caseSizes)
         ? clubObj.caseSizes.map((cs: any) => {
-          const id = String(cs.id);
-          // Handle image structure difference between APIs
-          const image = caseSizeImages[id] || cs.image || null;
-          const imageUrl =
-            typeof image === "object" ? image?.contentUrl : image;
+            const id = String(cs.id);
+            // Handle image structure difference between APIs
+            const image = caseSizeImages[id] || cs.image || null;
+            const imageUrl = ensureHttps(
+              typeof image === "object" ? image?.contentUrl : image,
+            );
 
-          return {
-            ...cs,
-            id,
-            image: imageUrl || null,
-          };
-        })
+            return {
+              ...cs,
+              id,
+              image: imageUrl || null,
+            };
+          })
         : [],
       sellingPlans: Array.isArray((clubObj as any).sellingPlans)
         ? ((clubObj as any).sellingPlans as any[]).map((sp: any) => ({
-          ...sp,
-          // Inject image if we found one
-          image: sellingPlanImages[sp.id] || null,
-        }))
+            ...sp,
+            // Inject image if we found one
+            image: ensureHttps(sellingPlanImages[sp.id]),  
+          }))
         : [],
       sellingPlanPerks: Array.isArray(clubObj.sellingPlanPerks)
         ? clubObj.sellingPlanPerks
@@ -425,6 +430,17 @@ export function sanitizeHtml(html: string): string {
     .replace(/data:(?!image\/)/gi, "");
 
   return cleaned;
+}
+
+function ensureHttps(url: string | null | undefined): string | null {
+  if (!url) {
+    return null;
+  }
+  const urlStr = String(url);
+  if (urlStr.startsWith("http://")) {
+    return urlStr.replace("http://", "https://");
+  }
+  return urlStr;
 }
 
 /**

@@ -21,7 +21,12 @@ export const action: ActionFunction = async ({
     return data({ ok: false, error: "Email is required" }, 400);
   }
 
+  const storefront = new URL(request.url).hostname;
+
   const bodyText = [
+    `Source: Contact Form`,
+    `Storefront: ${storefront}`,
+    `---`,
     `Name: ${firstName} ${lastName}`,
     `Email: ${email}`,
     `Phone: ${phone || "N/A"}`,
@@ -36,6 +41,8 @@ export const action: ActionFunction = async ({
     senderEmail: email,
     subject: `Contact Form: ${topic || "General Inquiry"}`,
     bodyText,
+    sourceChannel: "contact-form",
+    storefront,
   });
 
   if (result.ok) {

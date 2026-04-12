@@ -3,6 +3,10 @@ interface GorgiasMessage {
   senderEmail: string;
   subject: string;
   bodyText: string;
+  /** Tag identifying the form source, e.g. "contact-form" or "reservation-form" */
+  sourceChannel?: string;
+  /** Tag identifying the storefront, e.g. "fewinery.com" — useful for multi-project setups */
+  storefront?: string;
 }
 
 export async function createGorgiasTicket(
@@ -16,6 +20,10 @@ export async function createGorgiasTicket(
   }
 
   const basicToken = btoa(`${GORGIAS_API_USER_EMAIL}:${GORGIAS_API_KEY}`);
+
+  const tags: { name: string }[] = [];
+  if (message.sourceChannel) tags.push({ name: message.sourceChannel });
+  if (message.storefront) tags.push({ name: message.storefront });
 
   try {
     const res = await fetch(
@@ -31,6 +39,7 @@ export async function createGorgiasTicket(
           via: "api",
           from_agent: false,
           subject: message.subject,
+          tags: tags.length > 0 ? tags : undefined,
           messages: [
             {
               channel: "email",

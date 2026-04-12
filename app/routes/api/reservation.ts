@@ -23,7 +23,12 @@ export const action: ActionFunction = async ({
     return data({ ok: false, error: "Email is required" }, 400);
   }
 
+  const storefront = new URL(request.url).hostname;
+
   const bodyText = [
+    `Source: Reservation Form`,
+    `Storefront: ${storefront}`,
+    `---`,
     `Name: ${firstName} ${lastName}`,
     `Email: ${email}`,
     `Phone: ${phone || "N/A"}`,
@@ -41,6 +46,8 @@ export const action: ActionFunction = async ({
     senderEmail: email,
     subject: `Reservation Request: ${tastingType || "Tasting"}`,
     bodyText,
+    sourceChannel: "reservation-form",
+    storefront,
   });
 
   if (result.ok) {

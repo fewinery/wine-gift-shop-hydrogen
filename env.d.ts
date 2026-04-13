@@ -33,6 +33,9 @@ declare global {
     HEADING_FONT_FAMILY: string;
     ADOBE_PROJECT_ID: string;
     PUBLIC_GORGIAS_CHAT_BUNDLE_ID: string;
+    GORGIAS_DOMAIN: string;
+    GORGIAS_API_USER_EMAIL: string;
+    GORGIAS_API_KEY: string;
   }
 }
 

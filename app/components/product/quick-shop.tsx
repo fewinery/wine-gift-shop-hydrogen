@@ -302,7 +302,7 @@ export function QuickShopTrigger({
       <Dialog.Trigger asChild>
         <Button
           animate={false}
-          variant="custom"
+          variant="primary"
           className={clsx(
             "font-medium",
             !availableForSale && "pointer-events-none",
@@ -316,11 +316,6 @@ export function QuickShopTrigger({
             ],
             placement === "bottom" && "w-full py-[10px]",
           )}
-          style={{
-            backgroundColor,
-            color: textColor,
-            borderColor: backgroundColor,
-          }}
         >
           {buttonType === "icon" ? (
             <>

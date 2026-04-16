@@ -1,5 +1,6 @@
 import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
 import clsx from "clsx";
+import { Button } from "~/components/button";
 import { useState } from "react";
 import PhoneInput from "react-phone-number-input";
 import { useFetcher } from "react-router";
@@ -194,13 +195,14 @@ function ReservationFormContent(props: ReservationFormContentProps) {
 
         {/* Submit Button */}
         <div className="mt-10 text-center">
-          <button
+          <Button
             type="submit"
+            variant="primary"
             disabled={state === "submitting"}
-            className="inline-block min-w-[280px] bg-black px-8 py-3 font-heading font-bold uppercase tracking-wide text-white transition-opacity disabled:opacity-50"
+            className="min-w-72"
           >
             {state === "submitting" ? "Submitting..." : submitButtonText}
-          </button>
+          </Button>
         </div>
 
         {/* Success/Error Message */}

@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import PhoneInput from "react-phone-number-input";
 import { useFetcher } from "react-router";
 import { backgroundInputs } from "~/components/background-image";
+import { Button } from "~/components/button";
 import { layoutInputs, Section, type SectionProps } from "~/components/section";
 import "react-phone-number-input/style.css";
 
@@ -172,13 +173,14 @@ function ContactForm(props: ContactFormProps) {
 
         {/* Submit Button */}
         <div className="mt-10 text-center">
-          <button
+          <Button
             type="submit"
+            variant="primary"
             disabled={isSubmitting}
-            className="inline-block min-w-[280px] bg-black px-8 py-3 font-heading font-bold uppercase tracking-wide text-white transition-opacity disabled:opacity-50"
+            className="min-w-72"
           >
             {isSubmitting ? "Submitting..." : submitButtonText}
-          </button>
+          </Button>
         </div>
       </fetcher.Form>
     </Section>

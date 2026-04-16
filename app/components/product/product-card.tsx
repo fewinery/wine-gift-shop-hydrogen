@@ -277,7 +277,8 @@ export function ProductCard({
               <Link
                 to={`/products/${product.handle}?${params.toString()}`}
                 prefetch="intent"
-                className="flex w-full items-center justify-center border border-body py-2 px-4 uppercase font-body"
+                variant="outline"
+                className="w-full"
               >
                 View Product
               </Link>

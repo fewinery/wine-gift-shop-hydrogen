@@ -337,7 +337,7 @@ export function QuickShopTrigger({
           onCloseAutoFocus={(e) => e.preventDefault()}
           className={clsx(
             "quick-shop-dialog-content",
-            "fixed inset-0 z-10 flex items-center overflow-x-hidden px-4",
+            "fixed inset-0 z-50 flex justify-center overflow-y-auto px-4 py-8 lg:items-center lg:py-0",
             "backdrop-blur-xs",
             "[--slide-up-from:20px]",
             "data-[state=open]:animate-slide-up",
@@ -359,9 +359,8 @@ export function QuickShopTrigger({
             </Button>
           </Dialog.Close>
           <div
-            style={{ maxHeight: "90vh" }}
             className={clsx(
-              "relative mx-auto h-auto w-full max-w-(--breakpoint-xl) overflow-hidden",
+              "relative mx-auto h-fit w-full max-w-(--breakpoint-xl)",
               "animate-slide-up bg-white shadow-sm",
               panelType === "drawer" &&
                 "mr-0 ml-auto min-h-screen max-w-md p-4",

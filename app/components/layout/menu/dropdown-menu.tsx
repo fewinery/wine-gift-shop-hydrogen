@@ -18,6 +18,13 @@ export function DropdownMenu({ menuItem }: { menuItem: SingleMenuItem }) {
             "uppercase focus:outline-hidden",
             "data-[state=open]:[&>svg]:rotate-180",
           ])}
+          style={
+            {
+              fontSize: "var(--nav-font-size)",
+              letterSpacing: "var(--nav-letter-spacing)",
+              fontWeight: "var(--nav-font-weight)",
+            } as React.CSSProperties
+          }
           onMouseEnter={() => {
             setOpen(true);
           }}
@@ -39,6 +46,13 @@ export function DropdownMenu({ menuItem }: { menuItem: SingleMenuItem }) {
                   to={itemTo}
                   prefetch="intent"
                   className="transition-none items-center gap-2 group outline-hidden font-heading!"
+                  style={
+                    {
+                      fontSize: "var(--nav-font-size)",
+                      letterSpacing: "var(--nav-letter-spacing)",
+                      fontWeight: "var(--nav-font-weight)",
+                    } as React.CSSProperties
+                  }
                 >
                   <RevealUnderline>{itemTitle}</RevealUnderline>
                   {isExternal && (

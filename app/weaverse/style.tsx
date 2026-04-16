@@ -60,6 +60,10 @@ export function GlobalStyle() {
       headingBaseLineHeight,
       navHeightDesktop,
       navHeightTablet,
+      navBaseSize,
+      navMobileBaseSize,
+      navBaseSpacing,
+      navBaseWeight,
       pageWidth,
     } = settings;
 
@@ -138,6 +142,12 @@ export function GlobalStyle() {
 
               --heading-base-spacing: ${headingBaseSpacing};
               --heading-base-line-height: ${headingBaseLineHeight};
+
+              /* Nav menu typography */
+              --nav-font-size: ${navBaseSize}px;
+              --nav-mobile-font-size: ${navMobileBaseSize}px;
+              --nav-letter-spacing: ${navBaseSpacing};
+              --nav-font-weight: ${navBaseWeight};
             }
 
             @media (min-width: 32em) {

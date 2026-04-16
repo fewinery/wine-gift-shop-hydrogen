@@ -41,6 +41,13 @@ export function DesktopMenu() {
                     'data-[state="open"]:[&>svg]:rotate-180',
                     "uppercase focus:outline-hidden",
                   ])}
+                  style={
+                    {
+                      fontSize: "var(--nav-font-size)",
+                      letterSpacing: "var(--nav-letter-spacing)",
+                      fontWeight: "var(--nav-font-weight)",
+                    } as React.CSSProperties
+                  }
                 >
                   {hasSubmenu ? (
                     <>
@@ -131,6 +138,13 @@ function MegaMenu({ items }: { items: SingleMenuItem[] }) {
                 to={to}
                 prefetch="intent"
                 className="uppercase transition-none font-heading!"
+                style={
+                  {
+                    fontSize: "var(--nav-font-size)",
+                    letterSpacing: "var(--nav-letter-spacing)",
+                    fontWeight: "var(--nav-font-weight)",
+                  } as React.CSSProperties
+                }
               >
                 <RevealUnderline>{title}</RevealUnderline>
               </Link>

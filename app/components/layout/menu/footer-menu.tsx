@@ -13,14 +13,20 @@ export function FooterMenu() {
           className="font-heading flex flex-col items-start text-white text-sm"
         >
           {["#", "/"].includes(to) ? (
-            <span>{title}</span>
+            <span className="font-heading">{title}</span>
           ) : (
-            <Link to={to}>{title}</Link>
+            <Link to={to} className="font-heading">
+              {title}
+            </Link>
           )}
           {childItems && childItems.length > 0 && (
             <div className="mt-10 flex flex-col gap-1 space-y-4 items-start">
               {childItems.map((child) => (
-                <Link to={child.to} key={child.id}>
+                <Link
+                  to={child.to}
+                  key={child.id}
+                  className="whitespace-nowrap transition-none font-heading!"
+                >
                   {child.title}
                 </Link>
               ))}

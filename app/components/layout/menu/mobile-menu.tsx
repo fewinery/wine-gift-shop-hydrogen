@@ -30,7 +30,7 @@ export function MobileMenu() {
             "font-heading",
             "-translate-x-full left-0",
             "data-[state=open]:translate-x-0 data-[state=open]:animate-enter-from-left",
-            "fixed inset-0 z-10 h-screen-no-topbar bg-(--color-header-bg) pt-4 pb-2",
+            "fixed inset-0 z-10 h-full bg-(--color-header-bg) pt-4 pb-2",
             "focus-visible:outline-hidden",
             "uppercase",
           ])}

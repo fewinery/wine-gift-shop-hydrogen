@@ -1,5 +1,6 @@
 import type { HydrogenComponentProps } from "@weaverse/hydrogen";
 import { createSchema } from "@weaverse/hydrogen";
+import { Link } from "~/components/link";
 import { cn } from "~/utils/cn";
 
 interface ComparisonColumnProps extends HydrogenComponentProps {
@@ -59,12 +60,13 @@ function ComparisonColumn(props: ComparisonColumnProps) {
       {/* Button Footer */}
       <div className="h-16 p-4 bg-[#FAF9F5] flex items-center justify-center border-b border-gray-200">
         {buttonText && (
-          <a
-            href={buttonLink}
-            className="px-6 py-3 bg-black text-white font-bold uppercase text-xs"
+          <Link
+            to={buttonLink}
+            variant="primary"
+            className="w-full"
           >
             {buttonText}
-          </a>
+          </Link>
         )}
       </div>
     </div>

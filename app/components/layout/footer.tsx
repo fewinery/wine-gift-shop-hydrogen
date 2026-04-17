@@ -94,7 +94,7 @@ export function Footer() {
                   />
                 </div>
               ) : (
-                <div className="font-bold text-lg uppercase font-heading">
+                <div className="font-bold text-lg font-heading">
                   {shopName}
                 </div>
               )}
@@ -105,8 +105,15 @@ export function Footer() {
                 />
               )}
             </div>
-            <div className="flex flex-col text-sm space-y-1.5">
-              <div className="font-bold font-heading uppercase">
+            <div
+              className="flex flex-col space-y-1.5 font-heading"
+              style={{
+                fontSize: "var(--footer-font-size)",
+                letterSpacing: "var(--footer-letter-spacing)",
+                fontWeight: "var(--footer-font-weight)",
+              }}
+            >
+              <div className="font-bold">
                 {addressTitle}
               </div>
               {storeAddress && <p>{storeAddress}</p>}

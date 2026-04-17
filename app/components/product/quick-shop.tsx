@@ -302,7 +302,7 @@ export function QuickShopTrigger({
       <Dialog.Trigger asChild>
         <Button
           animate={false}
-          variant="custom"
+          variant="primary"
           className={clsx(
             "font-medium",
             !availableForSale && "pointer-events-none",
@@ -316,11 +316,6 @@ export function QuickShopTrigger({
             ],
             placement === "bottom" && "w-full py-[10px]",
           )}
-          style={{
-            backgroundColor,
-            color: textColor,
-            borderColor: backgroundColor,
-          }}
         >
           {buttonType === "icon" ? (
             <>
@@ -342,7 +337,7 @@ export function QuickShopTrigger({
           onCloseAutoFocus={(e) => e.preventDefault()}
           className={clsx(
             "quick-shop-dialog-content",
-            "fixed inset-0 z-10 flex items-center overflow-x-hidden px-4",
+            "fixed inset-0 z-50 flex justify-center overflow-y-auto px-4 py-8 lg:items-center lg:py-0",
             "backdrop-blur-xs",
             "[--slide-up-from:20px]",
             "data-[state=open]:animate-slide-up",
@@ -357,16 +352,16 @@ export function QuickShopTrigger({
         >
           <Dialog.Close asChild>
             <Button
-              className="absolute top-3 right-3 rounded-full p-2"
+              className="absolute top-3 right-3 z-50 rounded-full p-2"
               variant="secondary"
+              aria-label="Close quick shop"
             >
               <XIcon size={18} />
             </Button>
           </Dialog.Close>
           <div
-            style={{ maxHeight: "90vh" }}
             className={clsx(
-              "relative mx-auto h-auto w-full max-w-(--breakpoint-xl) overflow-hidden",
+              "relative mx-auto h-fit w-full max-w-(--breakpoint-xl)",
               "animate-slide-up bg-white shadow-sm",
               panelType === "drawer" &&
                 "mr-0 ml-auto min-h-screen max-w-md p-4",

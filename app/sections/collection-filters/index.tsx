@@ -161,7 +161,7 @@ export default function CollectionFilters(props: CollectionFiltersProps) {
               </div>
             </div>
           )}
-          <div className="flex-1 p-8">
+          <div className="flex-1 p-4 md:p-8">
             <ToolsBar
               width={rest.width}
               gridSizeDesktop={gridSizeDesktop}

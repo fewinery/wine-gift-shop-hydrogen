@@ -60,7 +60,15 @@ export function GlobalStyle() {
       headingBaseLineHeight,
       navHeightDesktop,
       navHeightTablet,
+      navBaseSize,
+      navMobileBaseSize,
+      navBaseSpacing,
+      navBaseWeight,
       pageWidth,
+      footerDesktopFontSize,
+      footerMobileFontSize,
+      footerLetterSpacing,
+      footerFontWeight,
     } = settings;
 
     return (
@@ -138,6 +146,18 @@ export function GlobalStyle() {
 
               --heading-base-spacing: ${headingBaseSpacing};
               --heading-base-line-height: ${headingBaseLineHeight};
+
+              /* Nav menu typography */
+              --nav-font-size: ${navBaseSize}px;
+              --nav-mobile-font-size: ${navMobileBaseSize}px;
+              --nav-letter-spacing: ${navBaseSpacing};
+              --nav-font-weight: ${navBaseWeight};
+
+              /* Footer typography */
+              --footer-font-size: ${footerDesktopFontSize}px;
+              --footer-mobile-font-size: ${footerMobileFontSize}px;
+              --footer-letter-spacing: ${footerLetterSpacing};
+              --footer-font-weight: ${footerFontWeight};
             }
 
             @media (min-width: 32em) {

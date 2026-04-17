@@ -214,17 +214,16 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
         ]}
         data-test="add-to-cart"
         note={giftNote}
-        className={cn(
-          "w-full uppercase bg-black text-white border-black text-base transition-all duration-300 disabled:opacity-50 disabled:bg-neutral-500 disabled:border-neutral-500 disabled:cursor-not-allowed",
-          buttonClassName,
-        )}
+        variant="primary"
+        className={cn("w-full", buttonClassName)}
       >
         {atcButtonText}
       </AddToCartButton>
       {showSecondaryButton && (
         <Link
           to={secondaryButtonLink}
-          className="flex w-full items-center justify-center border border-body bg-transparent px-4 py-3 uppercase text-body hover:bg-body hover:text-background"
+          variant="secondary"
+          className="w-full"
         >
           {secondaryButtonText}
         </Link>

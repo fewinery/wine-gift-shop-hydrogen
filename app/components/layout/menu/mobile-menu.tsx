@@ -30,7 +30,7 @@ export function MobileMenu() {
             "font-heading",
             "-translate-x-full left-0",
             "data-[state=open]:translate-x-0 data-[state=open]:animate-enter-from-left",
-            "fixed inset-0 z-10 h-screen-no-topbar bg-(--color-header-bg) pt-4 pb-2",
+            "fixed inset-0 z-10 h-full bg-(--color-header-bg) pt-4 pb-2",
             "focus-visible:outline-hidden",
             "uppercase",
           ])}
@@ -67,8 +67,18 @@ function CollapsibleMenuItem({ item }: { item: SingleMenuItem }) {
   if (!items?.length) {
     return (
       <Dialog.Close asChild>
-        <Link to={to} className="block py-3">
-          {title}
+        <Link
+          to={to}
+          className="flex w-full items-center justify-between gap-4 py-3 uppercase font-heading!"
+          style={
+            {
+              fontSize: "var(--nav-mobile-font-size)",
+              letterSpacing: "var(--nav-letter-spacing)",
+              fontWeight: "var(--nav-font-weight)",
+            } as React.CSSProperties
+          }
+        >
+          <span>{title}</span>
         </Link>
       </Dialog.Close>
     );
@@ -79,9 +89,16 @@ function CollapsibleMenuItem({ item }: { item: SingleMenuItem }) {
       <Collapsible.Trigger asChild>
         <button
           type="button"
-          className='flex w-full items-center justify-between gap-4 py-3 data-[state="open"]:[&>svg]:rotate-90'
+          className='flex w-full items-center justify-between gap-4 py-3 data-[state="open"]:[&>svg]:rotate-90 uppercase font-heading!'
+          style={
+            {
+              fontSize: "var(--nav-mobile-font-size)",
+              letterSpacing: "var(--nav-letter-spacing)",
+              fontWeight: "var(--nav-font-weight)",
+            } as React.CSSProperties
+          }
         >
-          <span className="uppercase">{title}</span>
+          <span>{title}</span>
           <CaretRightIcon className="h-4 w-4" />
         </button>
       </Collapsible.Trigger>

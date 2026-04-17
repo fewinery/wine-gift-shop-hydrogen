@@ -106,7 +106,7 @@ export function ErrorBoundary({ error }: { error: Error }) {
   );
 }
 
-export function Layout({ children }: { children: React.ReactNode }) {
+export function RootLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const nonce = useNonce();
   const data = useRouteLoaderData<RootLoader>("root");
@@ -196,4 +196,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default withWeaverse(App);
+export const Layout = withWeaverse(RootLayout);
+
+export default App;

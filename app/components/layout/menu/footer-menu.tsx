@@ -10,7 +10,12 @@ export function FooterMenu() {
       {items.map(({ id, to, title, items: childItems }) => (
         <div
           key={id}
-          className="font-heading flex flex-col items-start text-white text-sm"
+          className="font-heading flex flex-col items-start text-white transition-none"
+          style={{
+            fontSize: "var(--footer-font-size)",
+            letterSpacing: "var(--footer-letter-spacing)",
+            fontWeight: "var(--footer-font-weight)",
+          }}
         >
           {["#", "/"].includes(to) ? (
             <span className="font-heading">{title}</span>

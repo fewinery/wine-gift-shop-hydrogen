@@ -65,6 +65,10 @@ export function GlobalStyle() {
       navBaseSpacing,
       navBaseWeight,
       pageWidth,
+      footerDesktopFontSize,
+      footerMobileFontSize,
+      footerLetterSpacing,
+      footerFontWeight,
     } = settings;
 
     return (
@@ -148,6 +152,12 @@ export function GlobalStyle() {
               --nav-mobile-font-size: ${navMobileBaseSize}px;
               --nav-letter-spacing: ${navBaseSpacing};
               --nav-font-weight: ${navBaseWeight};
+
+              /* Footer typography */
+              --footer-font-size: ${footerDesktopFontSize}px;
+              --footer-mobile-font-size: ${footerMobileFontSize}px;
+              --footer-letter-spacing: ${footerLetterSpacing};
+              --footer-font-weight: ${footerFontWeight};
             }
 
             @media (min-width: 32em) {

@@ -105,7 +105,14 @@ export function Footer() {
                 />
               )}
             </div>
-            <div className="flex flex-col text-sm space-y-1.5 font-heading">
+            <div
+              className="flex flex-col space-y-1.5 font-heading"
+              style={{
+                fontSize: "var(--footer-font-size)",
+                letterSpacing: "var(--footer-letter-spacing)",
+                fontWeight: "var(--footer-font-weight)",
+              }}
+            >
               <div className="font-bold">
                 {addressTitle}
               </div>

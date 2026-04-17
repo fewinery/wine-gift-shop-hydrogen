@@ -56,7 +56,7 @@ function NewsLetterForm(props: NewsLetterInputProps) {
           type="email"
           required
           placeholder={placeholder}
-          className="bg-white p-3 leading-tight focus:outline-hidden w-full border my-2.5 mx-1.5"
+          className="bg-white p-3 leading-tight focus:outline-hidden w-full border my-2.5 mr-1.5"
           style={{ width }}
         />
         <Button

@@ -49,7 +49,7 @@ export function ToolsBar({
           </span>
         )}
         {(enableSort || enableFilter || filtersPosition === "sidebar") && (
-          <div className="flex gap-2">
+          <div className="flex w-full items-center justify-between gap-4 md:w-auto md:gap-2">
             {filtersPosition === "sidebar" && (
               <button
                 type="button"

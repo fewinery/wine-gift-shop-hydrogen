@@ -39,9 +39,13 @@ function StepsGuideItem(props: StepsGuideItemProps) {
       {stepGuideItem && (
         <p className="mb-4 text-2xl italic text-body-subtle">{stepGuideItem}</p>
       )}
-      {title && <h3 className="mb-4 text-[26px]">{title}</h3>}
+      {/* 
+  Removed hardcoded font size (text-[26px]) to allow scalable typography.
+  Using Tailwind scale instead for consistency across storefronts.
+*/}
+      {title && <h3 className="mb-4 text-2xl">{title}</h3>}
       {description && (
-        <p className="max-w-[280px] text-[16px]">{description}</p>
+        <p className="max-w-[280px] text-base">{description}</p>
       )}
     </div>
   );

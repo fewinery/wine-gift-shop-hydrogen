@@ -7,13 +7,16 @@ interface Props {
 }
 
 export default function EmailFormCampaign(props: Props) {
+  const { buttonText, placeholder, ...rest } = props;
+
   return (
-    <NewsLetterForm
-      {...props}
-      formType="campaign"
-      buttonText={props.buttonText || "Get Access"}
-      placeholder={props.placeholder || "Enter your email"}
-    />
+    <div {...rest}>
+      <NewsLetterForm
+        formType="campaign"
+        buttonText={buttonText || "Get Access"}
+        placeholder={placeholder || "Enter your email"}
+      />
+    </div>
   );
 }
 

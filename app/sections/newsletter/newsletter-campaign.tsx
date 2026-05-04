@@ -7,21 +7,19 @@ interface Props {
   placeholder?: string;
 }
 
-const EmailFormCampaign = forwardRef<HTMLDivElement, Props>(
-  (props, ref) => {
-    const { buttonText, placeholder, ...rest } = props;
+const EmailFormCampaign = forwardRef<any, Props>((props, ref) => {
+  const { buttonText, placeholder, ...rest } = props;
 
-    return (
-      <NewsLetterForm
-        ref={ref}
-        {...rest}
-        formType="campaign"
-        buttonText={buttonText || "Get Access"}
-        placeholder={placeholder || "Enter your email"}
-      />
-    );
-  }
-);
+  return (
+    <NewsLetterForm
+      ref={ref}
+      {...rest}
+      formType="campaign"
+      buttonText={buttonText || "Get Access"}
+      placeholder={placeholder || "Enter your email"}
+    />
+  );
+});
 
 export default EmailFormCampaign;
 

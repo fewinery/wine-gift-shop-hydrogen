@@ -76,6 +76,7 @@ import * as MapSection from "~/sections/map";
 import * as NewsLetter from "~/sections/newsletter";
 import * as NewsLetterForm from "~/sections/newsletter/newsletter-form";
 import * as NewsletterCampaign from "~/sections/newsletter/newsletter-campaign";
+import * as EmailFormCampaign from "~/sections/email-form-campaign";
 import * as OurTeam from "~/sections/our-team";
 import * as OurTeamMembers from "~/sections/our-team/team-members";
 import * as Page from "~/sections/page";
@@ -157,6 +158,7 @@ export const components: HydrogenComponent[] = [
   NewsLetter,
   NewsLetterForm,
   NewsletterCampaign,
+  EmailFormCampaign,
   FeaturedProducts,
   FeaturedProductItems,
   FeaturedProductHeader,

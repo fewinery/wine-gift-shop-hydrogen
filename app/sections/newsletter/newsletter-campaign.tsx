@@ -12,13 +12,13 @@ const EmailFormCampaign = forwardRef<HTMLDivElement, Props>(
     const { buttonText, placeholder, ...rest } = props;
 
     return (
-      <div ref={ref} {...rest}>
-        <NewsLetterForm
-          formType="campaign"
-          buttonText={buttonText || "Get Access"}
-          placeholder={placeholder || "Enter your email"}
-        />
-      </div>
+      <NewsLetterForm
+        ref={ref}
+        {...rest}
+        formType="campaign"
+        buttonText={buttonText || "Get Access"}
+        placeholder={placeholder || "Enter your email"}
+      />
     );
   }
 );

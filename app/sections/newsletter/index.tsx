@@ -114,7 +114,7 @@ export const schema = createSchema({
       ],
     },
   ],
-  childTypes: ["subheading", "heading", "paragraph", "newsletter-form"],
+  childTypes: ["subheading", "heading", "paragraph", "newsletter-form", "newsletter-campaign"],
   presets: {
     gap: 20,
     children: [

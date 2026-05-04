@@ -1,4 +1,5 @@
 import { createSchema } from "@weaverse/hydrogen";
+import { forwardRef } from "react";
 import NewsLetterForm from "./newsletter-form";
 
 interface Props {
@@ -6,23 +7,27 @@ interface Props {
   placeholder?: string;
 }
 
-export default function EmailFormCampaign(props: Props) {
-  const { buttonText, placeholder, ...rest } = props;
+const EmailFormCampaign = forwardRef<HTMLDivElement, Props>(
+  (props, ref) => {
+    const { buttonText, placeholder, ...rest } = props;
 
-  return (
-    <div {...rest}>
-      <NewsLetterForm
-        formType="campaign"
-        buttonText={buttonText || "Get Access"}
-        placeholder={placeholder || "Enter your email"}
-      />
-    </div>
-  );
-}
+    return (
+      <div ref={ref} {...rest}>
+        <NewsLetterForm
+          formType="campaign"
+          buttonText={buttonText || "Get Access"}
+          placeholder={placeholder || "Enter your email"}
+        />
+      </div>
+    );
+  }
+);
+
+export default EmailFormCampaign;
 
 export const schema = createSchema({
-  type: "newsletter-campaign", // ⚠️ no cambiar
-  title: "Email Form Campaign", // 👈 esto verás en Weaverse
+  type: "newsletter-campaign",
+  title: "Email Form Campaign",
   settings: [
     {
       type: "text",

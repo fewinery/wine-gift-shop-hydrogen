@@ -27,6 +27,7 @@ export const action: ActionFunction = async ({
 }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const email = formData.get("email") as string;
+  const formType = formData.get("formType")?.toString();
   const { customerCreate, errors: queryErrors } =
     await context.storefront.mutate<CustomerCreateMutation>(CUSTOMER_CREATE, {
       variables: {
@@ -66,7 +67,16 @@ export const action: ActionFunction = async ({
   }
   if (customer || isTaken) {
     const apiToken = context.env.KLAVIYO_PRIVATE_API_TOKEN;
-    const listId = context.env.KLAVIYO_LIST_ID;
+   let listId = context.env.KLAVIYO_LIST_ID;
+
+if (formType === "campaign") {
+  listId = context.env.KLAVIYO_CAMPAIGN_LIST_ID;
+}
+
+// fallback
+if (!listId) {
+  listId = context.env.KLAVIYO_LIST_ID;
+}
 
     if (apiToken && listId) {
       try {
@@ -84,7 +94,7 @@ export const action: ActionFunction = async ({
               data: {
                 type: "profile-subscription-bulk-create-job",
                 attributes: {
-                  custom_source: "newsletter",
+                  custom_source: formType === "campaign" ? "campaign" : "newsletter",
                   profiles: {
                     data: [
                       {

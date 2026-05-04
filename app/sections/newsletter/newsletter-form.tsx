@@ -13,6 +13,7 @@ interface NewsLetterInputProps extends HydrogenComponentProps {
   placeholder: string;
   buttonText: string;
   helpText: string;
+  formType?: string;
   ref?: React.Ref<HTMLDivElement>;
 }
 
@@ -58,6 +59,11 @@ function NewsLetterForm(props: NewsLetterInputProps) {
           placeholder={placeholder}
           className="bg-white p-3 leading-tight focus:outline-hidden w-full border my-2.5 mr-1.5"
           style={{ width }}
+        />
+        <input
+          type="hidden"
+          name="formType"
+          value={props.formType || "default"}
         />
         <Button
           type="submit"

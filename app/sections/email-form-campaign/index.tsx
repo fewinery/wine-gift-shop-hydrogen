@@ -15,7 +15,7 @@ const EmailFormCampaign = forwardRef<HTMLDivElement, Props>((props, ref) => {
   const { Form, state } = fetcher;
 
   return (
-    <section ref={ref} {...rest} className="text-center py-10">
+    <div ref={ref} {...rest} className="text-center py-10">
       <Form method="POST" action="/api/customer">
         <input type="hidden" name="formType" value="campaign" />
 
@@ -31,7 +31,7 @@ const EmailFormCampaign = forwardRef<HTMLDivElement, Props>((props, ref) => {
           {buttonText || "Get Access"}
         </Button>
       </Form>
-    </section>
+    </div>
   );
 });
 

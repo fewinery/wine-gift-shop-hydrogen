@@ -1,23 +1,23 @@
-import { createSchema } from "@weaverse/hydrogen";
+import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
 import { forwardRef } from "react";
 import NewsLetterForm from "./newsletter-form";
 
-interface Props {
+interface Props extends HydrogenComponentProps {
   buttonText?: string;
   placeholder?: string;
 }
 
-const EmailFormCampaign = forwardRef<any, Props>((props, ref) => {
+const EmailFormCampaign = forwardRef<HTMLDivElement, Props>((props, ref) => {
   const { buttonText, placeholder, ...rest } = props;
 
   return (
-    <NewsLetterForm
-      ref={ref}
-      {...rest}
-      formType="campaign"
-      buttonText={buttonText || "Get Access"}
-      placeholder={placeholder || "Enter your email"}
-    />
+    <div ref={ref} {...rest}>
+      <NewsLetterForm
+        formType="campaign"
+        buttonText={buttonText || "Get Access"}
+        placeholder={placeholder || "Enter your email"}
+      />
+    </div>
   );
 });
 
@@ -28,16 +28,21 @@ export const schema = createSchema({
   title: "Email Form Campaign",
   settings: [
     {
-      type: "text",
-      name: "buttonText",
-      label: "Button text",
-      defaultValue: "Get Access",
-    },
-    {
-      type: "text",
-      name: "placeholder",
-      label: "Placeholder",
-      defaultValue: "Enter your email",
+      group: "Form",
+      inputs: [
+        {
+          type: "text",
+          name: "buttonText",
+          label: "Button text",
+          defaultValue: "Get Access",
+        },
+        {
+          type: "text",
+          name: "placeholder",
+          label: "Placeholder",
+          defaultValue: "Enter your email",
+        },
+      ],
     },
   ],
 });

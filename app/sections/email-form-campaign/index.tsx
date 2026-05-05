@@ -42,16 +42,21 @@ export const schema = createSchema({
   title: "Email Form Campaign",
   settings: [
     {
-      type: "text",
-      name: "placeholder",
-      label: "Placeholder",
-      defaultValue: "Enter your email",
-    },
-    {
-      type: "text",
-      name: "buttonText",
-      label: "Button text",
-      defaultValue: "Get Access",
+      group: "Form",
+      inputs: [
+        {
+          type: "text",
+          name: "placeholder",
+          label: "Placeholder",
+          defaultValue: "Enter your email",
+        },
+        {
+          type: "text",
+          name: "buttonText",
+          label: "Button text",
+          defaultValue: "Get Access",
+        },
+      ],
     },
   ],
 });

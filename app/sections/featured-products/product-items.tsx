@@ -12,7 +12,7 @@ interface ProductItemsProps {
   titlePricesAlignment?: "horizontal" | "vertical";
   contentAlignment?: "left" | "center" | "right";
   showViewProductButton?: boolean;
-  productsPerRow?: number;
+  productsPerRow?: string;
 }
 
 function ProductItems(props: ProductItemsProps) {
@@ -21,12 +21,10 @@ function ProductItems(props: ProductItemsProps) {
     titlePricesAlignment,
     contentAlignment,
     showViewProductButton,
-    productsPerRow = 3,
+    productsPerRow = "3",
     ...rest
   } = props;
-
   const parent = useParentInstance();
-
   const products: FeaturedProductsQuery["featuredProducts"] =
     parent.data?.loaderData?.products;
 
@@ -57,7 +55,7 @@ function ProductItems(props: ProductItemsProps) {
         spaceBetween={16}
         breakpoints={{
           640: { slidesPerView: 2, spaceBetween: 20 },
-          1024: { slidesPerView: productsPerRow, spaceBetween: 24 },
+          1024: { slidesPerView: Number(productsPerRow), spaceBetween: 24 },
         }}
         className="overflow-visible h-auto!"
       >
@@ -98,7 +96,6 @@ function ProductItems(props: ProductItemsProps) {
           >
             <ArrowLeft />
           </button>
-
           <button
             type="button"
             aria-label="Next"
@@ -128,12 +125,12 @@ export const schema = createSchema({
           label: "Products per row",
           configs: {
             options: [
-              { value: 2, label: "2" },
-              { value: 3, label: "3" },
-              { value: 4, label: "4" },
+              { value: "2", label: "2" },
+              { value: "3", label: "3" },
+              { value: "4", label: "4" },
             ],
           },
-          defaultValue: 3,
+          defaultValue: "3",
         },
         {
           type: "select",
@@ -176,4 +173,3 @@ export const schema = createSchema({
     },
   ],
 });
-```

@@ -1,7 +1,7 @@
 import { useThemeSettings } from "@weaverse/hydrogen";
 import { useEffect } from "react";
 
-const MAX_DURATION = 20;
+const MAX_DURATION = 80;
 
 export function ScrollingAnnouncement() {
   const themeSettings = useThemeSettings();

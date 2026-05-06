@@ -12,7 +12,6 @@ interface ProductItemsProps {
   titlePricesAlignment?: "horizontal" | "vertical";
   contentAlignment?: "left" | "center" | "right";
   showViewProductButton?: boolean;
-  productsPerRow?: string;
 }
 
 function ProductItems(props: ProductItemsProps) {
@@ -21,7 +20,6 @@ function ProductItems(props: ProductItemsProps) {
     titlePricesAlignment,
     contentAlignment,
     showViewProductButton,
-    productsPerRow = "3",
     ...rest
   } = props;
   const parent = useParentInstance();
@@ -51,10 +49,11 @@ function ProductItems(props: ProductItemsProps) {
           setSnapCount(s.snapGrid?.length || products?.nodes?.length || 0)
         }
         modules={[Navigation]}
-        slidesPerView={Number(productsPerRow)}
-        spaceBetween={24}
+        slidesPerView={2}
+        spaceBetween={16}
         breakpoints={{
           640: { slidesPerView: 2, spaceBetween: 20 },
+          1024: { slidesPerView: 4, spaceBetween: 24 },
         }}
         className="overflow-visible h-auto!"
       >
@@ -118,19 +117,6 @@ export const schema = createSchema({
     {
       group: "Product card",
       inputs: [
-        {
-          type: "select",
-          name: "productsPerRow",
-          label: "Products per row",
-          configs: {
-            options: [
-              { value: "2", label: "2" },
-              { value: "3", label: "3" },
-              { value: "4", label: "4" },
-            ],
-          },
-          defaultValue: "3",
-        },
         {
           type: "select",
           name: "titlePricesAlignment",

@@ -1,4 +1,5 @@
 import * as Accordion from "@radix-ui/react-accordion";
+import { RichText } from "@shopify/hydrogen";
 import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
 import clsx from "clsx";
 import { Link, useLoaderData } from "react-router";
@@ -10,21 +11,34 @@ function getExcerpt(text: string) {
   return match?.length ? match[0] : text;
 }
 
-interface AccoladeItem {
-  id: string;
-  handle: string;
-  fields: Array<{
-    key: string;
-    value: string;
-    reference?: {
-      image?: {
-        url: string;
-        altText?: string;
-        width?: number;
-        height?: number;
-      };
-    };
-  }>;
+/**
+ * Shopify rich-text metafields serialize to a Lexical-style JSON object
+ * (`{type: "root", children: [...]}`). Older or differently-typed metafields
+ * may still hold a plain string. Detect the JSON shape so RichText only
+ * receives valid Lexical input.
+ */
+function isLexicalRichText(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed.startsWith("{")) return false;
+  try {
+    const parsed = JSON.parse(trimmed) as { type?: string } | null;
+    return parsed?.type === "root";
+  } catch {
+    return false;
+  }
+}
+
+function MetafieldContent({
+  value,
+  className,
+}: {
+  value: string;
+  className?: string;
+}) {
+  if (isLexicalRichText(value)) {
+    return <RichText data={value} className={className} />;
+  }
+  return <div className={clsx(className, "whitespace-pre-line")}>{value}</div>;
 }
 
 interface CollapsibleDetailsProps extends HydrogenComponentProps {
@@ -91,21 +105,25 @@ export default function CollapsibleDetails(props: CollapsibleDetailsProps) {
     product?.wineSpecs?.value && {
       title: "Wine Specs",
       content: product.wineSpecs.value,
+      isRichText: true,
     },
     showTastingNotes &&
     product?.tastingNotes?.value && {
       title: "Tasting Notes",
       content: product.tastingNotes.value,
+      isRichText: true,
     },
     showFoodPairings &&
     product?.foodPairings?.value && {
       title: "Food Pairings",
       content: product.foodPairings.value,
+      isRichText: true,
     },
     showRecipe &&
     product?.recipe?.value && {
       title: "Recipe",
       content: product.recipe.value,
+      isRichText: true,
     },
   ].filter(Boolean);
 
@@ -113,11 +131,14 @@ export default function CollapsibleDetails(props: CollapsibleDetailsProps) {
     <div ref={ref} {...rest} className={clsx(rest.className, "border-t border-line")}>
       <Accordion.Root type="multiple">
         {details.map((detail) => (
-          <Accordion.Item key={detail.title} value={detail.title}>
+          <Accordion.Item
+            key={detail.title}
+            value={detail.title}
+            className="border-line border-b"
+          >
             <Accordion.Trigger
               className={clsx([
                 "flex w-full justify-between py-[15px] font-heading text-base font-medium uppercase tracking-widest text-[#2D2926]",
-                "border-line border-b",
                 "data-[state=open]:[&>.chevron]:rotate-180",
               ])}
             >
@@ -165,9 +186,10 @@ export default function CollapsibleDetails(props: CollapsibleDetailsProps) {
                           </p>
                         )}
                         {accolade.description && (
-                          <p className="text-sm text-neutral-800 mt-1 leading-relaxed">
-                            {accolade.description}
-                          </p>
+                          <MetafieldContent
+                            value={accolade.description}
+                            className="text-sm text-neutral-800 mt-1 leading-relaxed"
+                          />
                         )}
                       </div>
                     </div>
@@ -175,11 +197,18 @@ export default function CollapsibleDetails(props: CollapsibleDetailsProps) {
                 </div>
               ) : (
                 <>
-                  <div
-                    suppressHydrationWarning
-                    className="prose py-2.5 text-neutral-900"
-                    dangerouslySetInnerHTML={{ __html: detail.content }}
-                  />
+                  {detail.isRichText ? (
+                    <MetafieldContent
+                      value={detail.content}
+                      className="prose pb-4 text-neutral-900 prose-p:first:mt-0 prose-p:last:mb-0 [&>*:first-child]:mt-0! [&>*:last-child]:mb-0!"
+                    />
+                  ) : (
+                    <div
+                      suppressHydrationWarning
+                      className="prose pb-4 text-neutral-900 prose-p:first:mt-0 prose-p:last:mb-0 [&>*:first-child]:mt-0! [&>*:last-child]:mb-0!"
+                      dangerouslySetInnerHTML={{ __html: detail.content }}
+                    />
+                  )}
                   {detail.learnMore && (
                     <Link
                       className="border-line-subtle border-b pb-px text-body-subtle"

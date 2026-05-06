@@ -51,11 +51,10 @@ function ProductItems(props: ProductItemsProps) {
           setSnapCount(s.snapGrid?.length || products?.nodes?.length || 0)
         }
         modules={[Navigation]}
-        slidesPerView={2}
-        spaceBetween={16}
+        slidesPerView={Number(productsPerRow)}
+        spaceBetween={24}
         breakpoints={{
           640: { slidesPerView: 2, spaceBetween: 20 },
-          1024: { slidesPerView: Number(productsPerRow), spaceBetween: 24 },
         }}
         className="overflow-visible h-auto!"
       >

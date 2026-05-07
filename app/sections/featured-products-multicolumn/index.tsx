@@ -127,11 +127,11 @@ export const loader = async ({
 };
 
 export const schema = createSchema({
-  type: "featured-products",
+  type: "featured-products-multicolumn",
   title: "Featured products",
   childTypes: [
-    "featured-products--header",
-    "featured-products-items",
+    "featured-products-multicolumn--header",
+    "featured-products-multicolumn-items",
     "heading",
     "subheading",
     "paragraph",

@@ -111,7 +111,7 @@ function ProductItems(props: ProductItemsProps) {
 export default ProductItems;
 
 export const schema = createSchema({
-  type: "featured-products-items",
+  type: "featured-products-multicolumn-items",
   title: "Product items",
   settings: [
     {

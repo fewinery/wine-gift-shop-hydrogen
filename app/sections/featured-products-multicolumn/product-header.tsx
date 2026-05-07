@@ -23,7 +23,7 @@ const HeaderContainer = (props: HeaderContainerProps) => {
 export default HeaderContainer;
 
 export const schema = createSchema({
-  type: "featured-products--header",
+  type: "featured-products-multicolumn--header",
   title: "Products header",
   childTypes: ["heading", "subheading", "paragraph", "view-all-button"],
   settings: [

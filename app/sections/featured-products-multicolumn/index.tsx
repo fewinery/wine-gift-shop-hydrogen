@@ -192,7 +192,7 @@ export const schema = createSchema({
           },
         ],
       },
-      { type: "featured-products-multicolumn--header" },
+      { type: "featured-products-multicolumn-items" },
     ],
   },
 });

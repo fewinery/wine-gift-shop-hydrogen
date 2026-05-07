@@ -183,7 +183,7 @@ export const schema = createSchema({
     selectionMethod: "auto",
     children: [
       {
-        type: "featured-products--header",
+        type: "featured-products-multicolumn--header",
         children: [
           {
             type: "heading",
@@ -192,7 +192,7 @@ export const schema = createSchema({
           },
         ],
       },
-      { type: "featured-products-items" },
+      { type: "featured-products-multicolumn--header" },
     ],
   },
 });

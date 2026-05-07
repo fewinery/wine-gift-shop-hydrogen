@@ -7,9 +7,9 @@ import { ProductCard } from "~/components/product/product-card";
 const variants = cva("grid gap-6", {
   variants: {
     gridSize: {
-      "3": "grid-cols-2 lg:grid-cols-3",
-      "4": "grid-cols-2 lg:grid-cols-4",
-      "5": "grid-cols-2 lg:grid-cols-5",
+      "3": "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
+      "4": "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4",
+      "5": "grid-cols-1 sm:grid-cols-2 lg:grid-cols-5",
     },
   },
   defaultVariants: {
@@ -40,11 +40,7 @@ function ProductItems(props: ProductItemsProps) {
     parent.data?.loaderData?.products;
 
   return (
-    <div
-      ref={ref}
-      {...rest}
-      className={variants({ gridSize })}
-    >
+    <div ref={ref} {...rest} className={variants({ gridSize })}>
       {products?.nodes?.map((product) => (
         <div key={product.id} className="flex">
           <ProductCard

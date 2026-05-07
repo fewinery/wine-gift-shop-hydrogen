@@ -38,9 +38,9 @@ export function DropdownMenu({ menuItem }: { menuItem: SingleMenuItem }) {
             ])}
             style={
               {
-                fontSize: "var(--nav-font-size)",
-                letterSpacing: "var(--nav-letter-spacing)",
-                fontWeight: "var(--nav-font-weight)",
+                fontSize: "var(--nav-font-size, 16px)",
+                letterSpacing: "var(--nav-letter-spacing, 0em)",
+                fontWeight: "var(--nav-font-weight, 400)",
               } as React.CSSProperties
             }
             onMouseEnter={() => {

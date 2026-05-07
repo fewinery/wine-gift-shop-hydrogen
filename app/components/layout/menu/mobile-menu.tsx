@@ -72,9 +72,9 @@ function CollapsibleMenuItem({ item }: { item: SingleMenuItem }) {
           className="flex w-full items-center justify-between gap-4 py-3 uppercase font-heading!"
           style={
             {
-              fontSize: "var(--nav-mobile-font-size)",
-              letterSpacing: "var(--nav-letter-spacing)",
-              fontWeight: "var(--nav-font-weight)",
+              fontSize: "var(--nav-mobile-font-size, 16px)",
+              letterSpacing: "var(--nav-letter-spacing, 0em)",
+              fontWeight: "var(--nav-font-weight, 400)",
             } as React.CSSProperties
           }
         >
@@ -92,9 +92,9 @@ function CollapsibleMenuItem({ item }: { item: SingleMenuItem }) {
           className='flex w-full items-center justify-between gap-4 py-3 data-[state="open"]:[&>svg]:rotate-90 uppercase font-heading!'
           style={
             {
-              fontSize: "var(--nav-mobile-font-size)",
-              letterSpacing: "var(--nav-letter-spacing)",
-              fontWeight: "var(--nav-font-weight)",
+              fontSize: "var(--nav-mobile-font-size, 16px)",
+              letterSpacing: "var(--nav-letter-spacing, 0em)",
+              fontWeight: "var(--nav-font-weight, 400)",
             } as React.CSSProperties
           }
         >

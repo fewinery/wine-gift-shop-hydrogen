@@ -1,13 +1,23 @@
 import { createSchema, useParentInstance } from "@weaverse/hydrogen";
-import { useState } from "react";
+import type { VariantProps } from "class-variance-authority";
+import { cva } from "class-variance-authority";
 import type { FeaturedProductsQuery } from "storefront-api.generated";
-import { Navigation } from "swiper/modules";
-import type { SwiperClass } from "swiper/react";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { ArrowLeft, ArrowRight } from "~/components/icons";
 import { ProductCard } from "~/components/product/product-card";
 
-interface ProductItemsProps {
+const variants = cva("grid gap-6", {
+  variants: {
+    gridSize: {
+      "3": "grid-cols-2 lg:grid-cols-3",
+      "4": "grid-cols-2 lg:grid-cols-4",
+      "5": "grid-cols-2 lg:grid-cols-5",
+    },
+  },
+  defaultVariants: {
+    gridSize: "3",
+  },
+});
+
+interface ProductItemsProps extends VariantProps<typeof variants> {
   ref?: React.Ref<HTMLDivElement>;
   titlePricesAlignment?: "horizontal" | "vertical";
   contentAlignment?: "left" | "center" | "right";
@@ -17,93 +27,35 @@ interface ProductItemsProps {
 function ProductItems(props: ProductItemsProps) {
   const {
     ref,
+    gridSize,
     titlePricesAlignment,
     contentAlignment,
     showViewProductButton,
     ...rest
   } = props;
+
   const parent = useParentInstance();
+
   const products: FeaturedProductsQuery["featuredProducts"] =
     parent.data?.loaderData?.products;
 
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [snapCount, setSnapCount] = useState(0);
-  const [swiper, setSwiper] = useState<SwiperClass | null>(null);
-
-  const handlePrev = () => swiper?.slidePrev();
-  const handleNext = () => swiper?.slideNext();
-
-  const handleSwiperInit = (s: SwiperClass) => {
-    setSwiper(s);
-    setSnapCount(s.snapGrid?.length || products?.nodes?.length || 0);
-  };
-
-  const dots = Array.from({ length: snapCount }, (_, i) => i);
-
   return (
-    <div ref={ref} {...rest} className="overflow-hidden">
-      <Swiper
-        onSwiper={handleSwiperInit}
-        onSlideChange={(s) => setActiveIndex(s.activeIndex)}
-        onResize={(s) =>
-          setSnapCount(s.snapGrid?.length || products?.nodes?.length || 0)
-        }
-        modules={[Navigation]}
-        slidesPerView={2}
-        spaceBetween={16}
-        breakpoints={{
-          640: { slidesPerView: 2, spaceBetween: 20 },
-          1024: { slidesPerView: 4, spaceBetween: 24 },
-        }}
-        className="overflow-visible h-auto!"
-      >
-        {products?.nodes?.map((product) => (
-          <SwiperSlide key={product.id} className="h-auto! flex">
-            <ProductCard
-              product={product}
-              className="w-full"
-              titlePricesAlignment={titlePricesAlignment}
-              contentAlignment={contentAlignment}
-              showViewProductButton={showViewProductButton}
-            />
-          </SwiperSlide>
-        ))}
-      </Swiper>
-
-      <div className="pt-[30px] flex items-center justify-between">
-        <div className="flex gap-2">
-          {dots.map((index) => (
-            <button
-              type="button"
-              key={index}
-              aria-label={`Go to position ${index + 1}`}
-              className={`h-2 w-2 rounded-full transition-colors ${
-                index === activeIndex ? "bg-black" : "bg-[#ccc7c0]"
-              }`}
-              onClick={() => swiper?.slideTo(index)}
-            />
-          ))}
+    <div
+      ref={ref}
+      {...rest}
+      className={variants({ gridSize })}
+    >
+      {products?.nodes?.map((product) => (
+        <div key={product.id} className="flex">
+          <ProductCard
+            product={product}
+            className="w-full"
+            titlePricesAlignment={titlePricesAlignment}
+            contentAlignment={contentAlignment}
+            showViewProductButton={showViewProductButton}
+          />
         </div>
-
-        <div className="flex gap-2.5">
-          <button
-            type="button"
-            aria-label="Previous"
-            onClick={handlePrev}
-            className="flex p-2.5 items-center justify-center rounded-full border border-black"
-          >
-            <ArrowLeft />
-          </button>
-          <button
-            type="button"
-            aria-label="Next"
-            onClick={handleNext}
-            className="flex p-2.5 items-center justify-center rounded-full border border-black"
-          >
-            <ArrowRight />
-          </button>
-        </div>
-      </div>
+      ))}
     </div>
   );
 }
@@ -114,6 +66,24 @@ export const schema = createSchema({
   type: "featured-products-multicolumn-items",
   title: "Product items",
   settings: [
+    {
+      group: "Layout",
+      inputs: [
+        {
+          type: "toggle-group",
+          name: "gridSize",
+          label: "Grid size",
+          configs: {
+            options: [
+              { value: "3", label: "3 columns" },
+              { value: "4", label: "4 columns" },
+              { value: "5", label: "5 columns" },
+            ],
+          },
+          defaultValue: "3",
+        },
+      ],
+    },
     {
       group: "Product card",
       inputs: [

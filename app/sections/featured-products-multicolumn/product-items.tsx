@@ -1,4 +1,8 @@
-import { createSchema, useParentInstance } from "@weaverse/hydrogen";
+import {
+  createSchema,
+  useParentInstance,
+  type HydrogenComponentProps,
+} from "@weaverse/hydrogen";
 import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
 import type { FeaturedProductsQuery } from "storefront-api.generated";
@@ -17,7 +21,9 @@ const variants = cva("grid gap-6", {
   },
 });
 
-interface ProductItemsProps extends VariantProps<typeof variants> {
+interface ProductItemsProps
+  extends HydrogenComponentProps,
+    VariantProps<typeof variants> {
   ref?: React.Ref<HTMLDivElement>;
   titlePricesAlignment?: "horizontal" | "vertical";
   contentAlignment?: "left" | "center" | "right";
@@ -40,7 +46,11 @@ function ProductItems(props: ProductItemsProps) {
     parent.data?.loaderData?.products;
 
   return (
-    <div ref={ref} {...rest} className={variants({ gridSize })}>
+    <div
+  ref={ref}
+  {...rest}
+  className={`${variants({ gridSize })} ${rest.className || ""}`}
+  >
       {products?.nodes?.map((product) => (
         <div key={product.id} className="flex">
           <ProductCard

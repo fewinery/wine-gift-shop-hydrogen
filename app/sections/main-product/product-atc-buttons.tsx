@@ -178,8 +178,8 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
                 </label>
                 <textarea
                   id="gift-message"
-                  rows={3}
-                  maxLength={25}
+                  rows={4}
+                  maxLength={100}
                   placeholder="Write a personal message..."
                   value={giftFields.message}
                   onChange={(e) =>
@@ -188,7 +188,7 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
                   className="w-full resize-none border border-neutral-400 px-3 py-2 text-sm text-neutral-900 outline-none transition-colors focus:border-black placeholder:text-neutral-500"
                 />
                 <div className="text-right text-sm text-neutral-500">
-                  <span>{giftFields.message.length}/25</span>
+                  <span>{giftFields.message.length}/100</span>
                 </div>
               </div>
               {giftNoteText && (

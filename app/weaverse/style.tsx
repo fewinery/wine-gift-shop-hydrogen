@@ -79,8 +79,8 @@ export function GlobalStyle() {
           __html: `
             :root {
               /* Layout */
-              --height-nav: ${settings.navHeightMobile}rem;
-              --page-width: ${pageWidth}px;
+              --height-nav: ${settings.navHeightMobile ?? 3}rem;
+              --page-width: ${pageWidth ?? 1280}px;
 
               /* Colors (general) */
               --color-background: ${colorBackground};
@@ -147,11 +147,15 @@ export function GlobalStyle() {
               --heading-base-spacing: ${headingBaseSpacing};
               --heading-base-line-height: ${headingBaseLineHeight};
 
-              /* Nav menu typography */
-              --nav-font-size: ${navBaseSize}px;
-              --nav-mobile-font-size: ${navMobileBaseSize}px;
-              --nav-letter-spacing: ${navBaseSpacing};
-              --nav-font-weight: ${navBaseWeight};
+              /* Nav menu typography
+                 Bounds match schema (min/max). Defaults guard against undefined
+                 values producing "undefinedpx" — Safari has historically dropped
+                 entire declarations on invalid values, leaving fonts inheriting
+                 from body and rendering at unexpected sizes. */
+              --nav-font-size: clamp(10px, ${navBaseSize ?? 16}px, 32px);
+              --nav-mobile-font-size: clamp(10px, ${navMobileBaseSize ?? 16}px, 32px);
+              --nav-letter-spacing: ${navBaseSpacing ?? "0em"};
+              --nav-font-weight: ${navBaseWeight ?? 400};
 
               /* Footer typography */
               --footer-font-size: ${footerDesktopFontSize}px;
@@ -162,12 +166,12 @@ export function GlobalStyle() {
 
             @media (min-width: 32em) {
               body {
-                --height-nav: ${navHeightTablet}rem;
+                --height-nav: ${navHeightTablet ?? 4}rem;
               }
             }
             @media (min-width: 48em) {
               body {
-                --height-nav: ${navHeightDesktop}rem;
+                --height-nav: ${navHeightDesktop ?? 6}rem;
               }
             }
           `,

@@ -109,7 +109,12 @@ const BLOGS_QUERY = `#graphql
         title
         description
       }
-      articles(first: $pageBy, after: $cursor) {
+      articles(
+        first: $pageBy,
+        after: $cursor,
+        sortKey: PUBLISHED_AT,
+        reverse: true
+      ) {
         edges {
           node {
             author: authorV2 { name }

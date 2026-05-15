@@ -43,6 +43,11 @@ export async function loader(args: LoaderFunctionArgs) {
     const allPosts = allPostsResponse?.data?.posts || [];
     const relatedArticles = allPosts
       .filter((p) => p.slug !== handle)
+        .sort(
+        (a, b) =>
+          new Date(b.publishedAt).getTime() -
+          new Date(a.publishedAt).getTime()
+      )
       .slice(0, 3)
       .map((p) => transformDropInBlogPost(p, { language, country }));
 

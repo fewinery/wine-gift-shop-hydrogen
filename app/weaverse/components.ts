@@ -42,6 +42,9 @@ import * as FeaturedProductHeader from "~/sections/featured-products/product-hea
 import * as FeaturedProductsMulticolumnHeader from "~/sections/featured-products-multicolumn/product-header";
 import * as FeaturedProductItems from "~/sections/featured-products/product-items";
 import * as FeaturedProductsMulticolumnItems from "~/sections/featured-products-multicolumn/product-items";
+import * as FeaturedProductsTwoColumns from "~/sections/featured-products-two-columns";
+import * as FeaturedProductsTwoColumnsHeader from "~/sections/featured-products-two-columns/product-header";
+import * as FeaturedProductsTwoColumnsItems from "~/sections/featured-products-two-columns/product-items";
 import * as FeaturedWineClubs from "~/sections/featured-wine-clubs";
 import * as FeaturedWineClubsHeader from "~/sections/featured-wine-clubs/header";
 import * as FeaturedWineClubsItems from "~/sections/featured-wine-clubs/items";
@@ -168,6 +171,9 @@ export const components: HydrogenComponent[] = [
   FeaturedProductsMulticolumn,
   FeaturedProductsMulticolumnItems,
   FeaturedProductsMulticolumnHeader,
+  FeaturedProductsTwoColumns,
+  FeaturedProductsTwoColumnsItems,
+  FeaturedProductsTwoColumnsHeader,
   ImageGallery,
   ImageGalleryItems,
   ImageGalleryItem,

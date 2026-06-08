@@ -11,7 +11,7 @@ const HeaderContainer = (props: HeaderContainerProps) => {
   return (
     <div
       ref={ref}
-      {rest}
+      {...rest}
       className="flex flex-col lg:flex-row lg:items-center lg:justify-between font-heading"
       style={{ gap: `${gap}px` }}
     >

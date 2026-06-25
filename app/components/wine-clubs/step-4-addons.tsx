@@ -12,6 +12,32 @@ import { updateProductQuantity } from "./selection-wizard";
  * User Story 2 (P2): Wine Club Selection Process
  */
 
+function normalizeShopifyId(id: string | number | null | undefined): string {
+  return (
+    String(id || "")
+      .split("/")
+      .pop() || ""
+  );
+}
+
+function matchesSelectedSellingPlan(
+  spv: any,
+  selectedSellingPlan: any,
+): boolean {
+  if (!selectedSellingPlan) {
+    return true;
+  }
+
+  const candidateId = normalizeShopifyId(
+    spv.sellingPlanId || spv.sellingPlan?.id,
+  );
+  const selectedIds = [selectedSellingPlan.id, selectedSellingPlan.shopifyId]
+    .map(normalizeShopifyId)
+    .filter(Boolean);
+
+  return candidateId ? selectedIds.includes(candidateId) : true;
+}
+
 export interface Step4AddOnsProps extends WizardStepProps {
   /** Custom add-on selection handler */
   onAddOnSelect?: (addOn: ProductVariant, quantity: number) => void;
@@ -68,12 +94,14 @@ export default function Step4AddOns({
     });
   };
 
+  const productSources = wineClub.sellingPlanVariants?.length
+    ? wineClub.sellingPlanVariants.filter((spv: any) =>
+        matchesSelectedSellingPlan(spv, state.selectedSellingPlan),
+      )
+    : wineClub.productData || [];
+
   // Get add-on products (products marked as addOnOnly)
-  const availableAddOns = (
-    wineClub.sellingPlanVariants ||
-    wineClub.productData ||
-    []
-  )
+  const availableAddOns = productSources
     .map((spv: any) => {
       // Robustly handle both ProductData and SellingPlanVariant shapes
       const productData = spv.productData || spv;

@@ -12,6 +12,32 @@ import { updateProductQuantity } from "./selection-wizard";
  * User Story 2 (P2): Wine Club Selection Process
  */
 
+function normalizeShopifyId(id: string | number | null | undefined): string {
+  return (
+    String(id || "")
+      .split("/")
+      .pop() || ""
+  );
+}
+
+function matchesSelectedSellingPlan(
+  spv: any,
+  selectedSellingPlan: any,
+): boolean {
+  if (!selectedSellingPlan) {
+    return true;
+  }
+
+  const candidateId = normalizeShopifyId(
+    spv.sellingPlanId || spv.sellingPlan?.id,
+  );
+  const selectedIds = [selectedSellingPlan.id, selectedSellingPlan.shopifyId]
+    .map(normalizeShopifyId)
+    .filter(Boolean);
+
+  return candidateId ? selectedIds.includes(candidateId) : true;
+}
+
 export interface Step3QuantityProps extends WizardStepProps {
   /** Custom quantity change handler */
   onQuantityChange?: (product: ProductVariant, quantity: number) => void;
@@ -107,12 +133,14 @@ export default function Step3Quantity({
     0,
   );
 
+  const productSources = wineClub.sellingPlanVariants?.length
+    ? wineClub.sellingPlanVariants.filter((spv: any) =>
+        matchesSelectedSellingPlan(spv, state.selectedSellingPlan),
+      )
+    : wineClub.productData || [];
+
   // Get available products for this wine club
-  const availableProducts = (
-    wineClub.sellingPlanVariants ||
-    wineClub.productData ||
-    []
-  )
+  const availableProducts = productSources
     .map((spv: any) => {
       // Robustly handle both ProductData and SellingPlanVariant shapes
       const productData = spv.productData || spv;

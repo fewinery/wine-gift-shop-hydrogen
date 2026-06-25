@@ -107,6 +107,9 @@ export function formatWineClubCart(
     throw new Error("Missing required selections for cart formatting");
   }
 
+  const selectedSellingPlanId =
+    resolveSelectedSellingPlanId(selectedSellingPlan);
+
   // Format subscription items (main wine selections)
   const subscriptionLines: CartLineItem[] = selectedProducts.map((product) => ({
     merchandiseId: formatMerchandiseId(
@@ -114,9 +117,7 @@ export function formatWineClubCart(
     ),
     quantity: product.quantity,
     sellingPlanId: formatSellingPlanId(
-      product.sellingPlanId ||
-        selectedSellingPlan.shopifyId ||
-        selectedSellingPlan.id,
+      resolveLineSellingPlanId(product.sellingPlanId, selectedSellingPlanId),
     ),
     attributes: [
       {
@@ -153,9 +154,7 @@ export function formatWineClubCart(
     ),
     quantity: addOn.quantity,
     sellingPlanId: formatSellingPlanId(
-      addOn.sellingPlanId ||
-        selectedSellingPlan.shopifyId ||
-        selectedSellingPlan.id,
+      resolveLineSellingPlanId(addOn.sellingPlanId, selectedSellingPlanId),
     ),
     attributes: [
       {
@@ -278,6 +277,36 @@ export function formatSellingPlanId(sellingPlanId: string | number): string {
 
   // Fallback: assume it's already in correct format
   return idStr;
+}
+
+function normalizeShopifyId(id: string | number | null | undefined): string {
+  return (
+    String(id || "")
+      .split("/")
+      .pop() || ""
+  );
+}
+
+function resolveSelectedSellingPlanId(selectedSellingPlan: {
+  id: string | number;
+  shopifyId?: string | number;
+}): string | number {
+  return selectedSellingPlan.shopifyId || selectedSellingPlan.id;
+}
+
+function resolveLineSellingPlanId(
+  lineSellingPlanId: string | number | null | undefined,
+  selectedSellingPlanId: string | number,
+): string | number {
+  if (
+    lineSellingPlanId &&
+    normalizeShopifyId(lineSellingPlanId) ===
+      normalizeShopifyId(selectedSellingPlanId)
+  ) {
+    return lineSellingPlanId;
+  }
+
+  return selectedSellingPlanId;
 }
 
 // ============================================================================

@@ -138,7 +138,7 @@ export async function fetchWineClubs({
           position:
             typeof clubObj.position === "number" ? clubObj.position : 999,
           description: clubObj.description || null,
-          image: ensureHttps(clubObj.image as string | undefined),  
+          image: ensureHttps(clubObj.image as string | undefined),
           caseSizes: Array.isArray(clubObj.caseSizes) ? clubObj.caseSizes : [],
           sellingPlans: Array.isArray(clubObj.sellingPlans)
             ? clubObj.sellingPlans
@@ -313,7 +313,7 @@ export async function fetchWineClubDetails({
         }
       }
     } catch (e) {
-      console.warn("[Winehub] Failed to fetch enhancement images", e); 
+      console.warn("[Winehub] Failed to fetch enhancement images", e);
       // Continue without images
     }
 
@@ -345,8 +345,8 @@ export async function fetchWineClubDetails({
       sellingPlans: Array.isArray((clubObj as any).sellingPlans)
         ? ((clubObj as any).sellingPlans as any[]).map((sp: any) => ({
             ...sp,
-            // Inject image if we found one
-            image: ensureHttps(sellingPlanImages[sp.id]),  
+            // Inject image if we found one, preserving the UI's expected shape.
+            image: normalizeImage(sellingPlanImages[sp.id] || sp.image),
           }))
         : [],
       sellingPlanPerks: Array.isArray(clubObj.sellingPlanPerks)
@@ -441,6 +441,33 @@ function ensureHttps(url: string | null | undefined): string | null {
     return urlStr.replace("http://", "https://");
   }
   return urlStr;
+}
+
+function normalizeImage(
+  image:
+    | string
+    | { contentUrl?: string; url?: string; altText?: string }
+    | null
+    | undefined,
+): { contentUrl: string; altText?: string } | null {
+  if (!image) {
+    return null;
+  }
+
+  const contentUrl = ensureHttps(
+    typeof image === "object" ? image.contentUrl || image.url : image,
+  );
+
+  if (!contentUrl) {
+    return null;
+  }
+
+  return {
+    contentUrl,
+    ...(typeof image === "object" && image.altText
+      ? { altText: image.altText }
+      : {}),
+  };
 }
 
 /**

@@ -3,6 +3,7 @@ import {
   type ActionFunctionArgs,
   data,
 } from "react-router";
+import { verifyCaptcha } from "~/utils/captcha.server";
 import { createGorgiasTicket } from "~/utils/gorgias";
 
 export const action: ActionFunction = async ({
@@ -10,6 +11,16 @@ export const action: ActionFunction = async ({
   context,
 }: ActionFunctionArgs) => {
   const formData = await request.formData();
+  const captchaVerified = await verifyCaptcha();
+  if (!captchaVerified) {
+    return data(
+      {
+        ok: false,
+        error: "Captcha verification failed.",
+      },
+      400,
+    );
+  }
   const firstName = formData.get("firstName") as string;
   const lastName = formData.get("lastName") as string;
   const email = formData.get("email") as string;

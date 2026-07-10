@@ -62,6 +62,23 @@ function ContactForm(props: ContactFormProps) {
         ref={formRef}
         className="mx-auto max-w-3xl"
       >
+        {/* HONEYPOT: bots fill it, humans never see it */}
+        <div
+          style={{ position: "absolute", left: "-10000px" }}
+          aria-hidden="true"
+        >
+          <label htmlFor="company">Leave this empty</label>
+
+          <input
+            type="text"
+            id="company"
+            name="company"
+            tabIndex={-1}
+            autoComplete="off"
+          />
+        </div>
+        
+      >
         <div className="space-y-6">
           <div className="grid gap-6 md:grid-cols-2">
             {/* First Name */}

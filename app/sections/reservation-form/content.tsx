@@ -49,6 +49,21 @@ function ReservationFormContent(props: ReservationFormContentProps) {
         action="/api/reservation"
         className="mx-auto max-w-4xl"
       >
+        {/* HONEYPOT: bots fill it, humans never see it */}
+        <div
+          style={{ position: "absolute", left: "-10000px" }}
+          aria-hidden="true"
+        >
+          <label htmlFor="company">Leave this empty</label>
+        
+          <input
+            type="text"
+            id="company"
+            name="company"
+            tabIndex={-1}
+            autoComplete="off"
+          />
+        </div>
         <div className="grid gap-8 lg:grid-cols-2">
           {/* Left Column - Personal Information */}
           <div className="space-y-6">

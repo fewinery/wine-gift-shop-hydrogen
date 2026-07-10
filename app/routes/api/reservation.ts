@@ -10,6 +10,12 @@ export const action: ActionFunction = async ({
   context,
 }: ActionFunctionArgs) => {
   const formData = await request.formData();
+
+  // Honeypot check
+  if (formData.get("company")) {
+    return data({ ok: true });
+  }
+
   const firstName = formData.get("firstName") as string;
   const lastName = formData.get("lastName") as string;
   const email = formData.get("email") as string;

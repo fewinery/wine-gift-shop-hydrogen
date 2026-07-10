@@ -26,6 +26,12 @@ export const action: ActionFunction = async ({
   context,
 }: ActionFunctionArgs) => {
   const formData = await request.formData();
+
+  // Honeypot check
+  if (formData.get("company")) {
+    return data({ ok: true });
+  }
+
   const email = formData.get("email") as string;
   const formType = formData.get("formType")?.toString();
   const { customerCreate, errors: queryErrors } =
@@ -66,7 +72,7 @@ export const action: ActionFunction = async ({
     );
   }
   if (customer || isTaken) {
-    const apiToken = context.env.KLAVIYO_PRIVATE_API_TOKEN;
+  const apiToken = context.env.KLAVIYO_PRIVATE_API_TOKEN;
    let listId = context.env.KLAVIYO_LIST_ID;
 
 if (formType === "campaign") {

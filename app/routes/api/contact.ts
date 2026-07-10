@@ -3,7 +3,7 @@ import {
   type ActionFunctionArgs,
   data,
 } from "react-router";
-import { verifyCaptcha } from "~/utils/captcha.server";
+import { verifyCaptcha } from "~/utils/form-security.server";
 import { createGorgiasTicket } from "~/utils/gorgias";
 
 export const action: ActionFunction = async ({

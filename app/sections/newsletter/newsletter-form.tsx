@@ -52,6 +52,21 @@ function NewsLetterForm(props: NewsLetterInputProps) {
         className="flex w-full items-center justify-center"
         data-motion="fade-up"
       >
+        {/* HONEYPOT: bots fill it, humans never see it */}
+        <div
+          style={{ position: "absolute", left: "-10000px" }}
+          aria-hidden="true"
+        >
+          <label htmlFor="company">Leave this empty</label>
+
+        <input
+          type="text"
+          id="company"
+          name="company"
+          tabIndex={-1}
+          autoComplete="off"
+        />
+      </div>
         <input
           name="email"
           type="email"

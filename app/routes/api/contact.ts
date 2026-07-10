@@ -3,7 +3,6 @@ import {
   type ActionFunctionArgs,
   data,
 } from "react-router";
-import { verifyCaptcha } from "~/utils/form-security.server";
 import { createGorgiasTicket } from "~/utils/gorgias";
 
 export const action: ActionFunction = async ({
@@ -11,16 +10,12 @@ export const action: ActionFunction = async ({
   context,
 }: ActionFunctionArgs) => {
   const formData = await request.formData();
-  const captchaVerified = await verifyCaptcha();
-  if (!captchaVerified) {
-    return data(
-      {
-        ok: false,
-        error: "Captcha verification failed.",
-      },
-      400,
-    );
+
+  // Honeypot check
+  if (formData.get("company")) {
+    return data({ ok: true });
   }
+
   const firstName = formData.get("firstName") as string;
   const lastName = formData.get("lastName") as string;
   const email = formData.get("email") as string;

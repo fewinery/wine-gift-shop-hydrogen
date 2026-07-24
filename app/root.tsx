@@ -51,6 +51,7 @@ export async function loader(args: LoaderFunctionArgs) {
   return {
     ...deferredData,
     ...criticalData,
+    googleGtmID: args.context.env.PUBLIC_GOOGLE_GTM_ID,
     env: {
       FONT_FAMILY: args.context.env.FONT_FAMILY,
       HEADING_FONT_FAMILY: args.context.env.HEADING_FONT_FAMILY,

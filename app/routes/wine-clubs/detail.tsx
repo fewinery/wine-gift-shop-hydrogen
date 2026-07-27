@@ -1,5 +1,5 @@
 import { data, type LoaderFunctionArgs } from "@shopify/remix-oxygen";
-import { useLoaderData } from "react-router";
+import { type ShouldRevalidateFunctionArgs, useLoaderData } from "react-router";
 import SelectionWizardContainer from "~/components/wine-clubs/selection-wizard-container";
 import type { WineClubDetails } from "~/types/winehub";
 import { fetchWineClubDetails, sanitizeHtml } from "~/utils/winehub";
@@ -71,17 +71,24 @@ export async function action({ request, context }: LoaderFunctionArgs) {
   }
 }
 
-export async function loader({ params, context, request }: LoaderFunctionArgs) {
+export function shouldRevalidate({
+  actionResult,
+  defaultShouldRevalidate,
+}: ShouldRevalidateFunctionArgs) {
+  if (actionResult?.checkoutUrl) {
+    return false;
+  }
+
+  return defaultShouldRevalidate;
+}
+
+export async function loader({ params, context }: LoaderFunctionArgs) {
   const { clubId } = params;
   const { storefront } = context;
 
   if (!clubId) {
     throw new Response("Wine club ID is required", { status: 400 });
   }
-
-  // Check if this is a revalidation request (from fetcher submission)
-  const url = new URL(request.url);
-  const isRevalidation = url.searchParams.has("_data");
 
   // Parallel data loading (Constitutional Principle I)
   const [shopData, wineClubDetails] = await Promise.all([

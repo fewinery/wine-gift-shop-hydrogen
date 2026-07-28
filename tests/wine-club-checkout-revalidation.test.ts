@@ -1,33 +1,33 @@
 import { expect, test } from "@playwright/test";
-import { shouldRevalidate } from "../app/routes/wine-clubs/detail";
+import { shouldRevalidateAfterCheckout } from "../app/utils/checkout-revalidation";
 
 test.describe("wine club checkout revalidation", () => {
   test("skips loader revalidation after checkout creation succeeds", () => {
-    const result = shouldRevalidate({
+    const result = shouldRevalidateAfterCheckout({
       actionResult: {
         checkoutUrl: "https://winegiftshop.com/checkouts/test",
       },
       defaultShouldRevalidate: true,
       formMethod: "POST",
-    } as Parameters<typeof shouldRevalidate>[0]);
+    } as Parameters<typeof shouldRevalidateAfterCheckout>[0]);
 
     expect(result).toBe(false);
   });
 
   test("keeps the router default for failed checkout actions", () => {
-    const result = shouldRevalidate({
+    const result = shouldRevalidateAfterCheckout({
       actionResult: { error: "Unable to create checkout" },
       defaultShouldRevalidate: true,
       formMethod: "POST",
-    } as Parameters<typeof shouldRevalidate>[0]);
+    } as Parameters<typeof shouldRevalidateAfterCheckout>[0]);
 
     expect(result).toBe(true);
   });
 
   test("keeps the router default for normal navigations", () => {
-    const result = shouldRevalidate({
+    const result = shouldRevalidateAfterCheckout({
       defaultShouldRevalidate: true,
-    } as Parameters<typeof shouldRevalidate>[0]);
+    } as Parameters<typeof shouldRevalidateAfterCheckout>[0]);
 
     expect(result).toBe(true);
   });

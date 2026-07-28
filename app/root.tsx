@@ -32,6 +32,7 @@ import {
 } from "./components/root/newsletter-popup";
 import { NotFound } from "./components/root/not-found";
 import styles from "./styles/app.css?url";
+import { shouldRevalidateAfterCheckout } from "./utils/checkout-revalidation";
 import { DEFAULT_LOCALE } from "./utils/const";
 import { GlobalStyle } from "./weaverse/style";
 
@@ -56,10 +57,13 @@ export async function loader(args: LoaderFunctionArgs) {
       FONT_FAMILY: args.context.env.FONT_FAMILY,
       HEADING_FONT_FAMILY: args.context.env.HEADING_FONT_FAMILY,
       ADOBE_PROJECT_ID: args.context.env.ADOBE_PROJECT_ID,
-      PUBLIC_GORGIAS_CHAT_BUNDLE_ID: args.context.env.PUBLIC_GORGIAS_CHAT_BUNDLE_ID,
+      PUBLIC_GORGIAS_CHAT_BUNDLE_ID:
+        args.context.env.PUBLIC_GORGIAS_CHAT_BUNDLE_ID,
     },
   };
 }
+
+export const shouldRevalidate = shouldRevalidateAfterCheckout;
 
 export const meta = ({ data }: MetaArgs<typeof loader>) => {
   return getSeoMeta(data?.seo as SeoConfig);

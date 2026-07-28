@@ -1,7 +1,8 @@
 import { data, type LoaderFunctionArgs } from "@shopify/remix-oxygen";
-import { type ShouldRevalidateFunctionArgs, useLoaderData } from "react-router";
+import { useLoaderData } from "react-router";
 import SelectionWizardContainer from "~/components/wine-clubs/selection-wizard-container";
 import type { WineClubDetails } from "~/types/winehub";
+import { shouldRevalidateAfterCheckout } from "~/utils/checkout-revalidation";
 import { fetchWineClubDetails, sanitizeHtml } from "~/utils/winehub";
 
 /**
@@ -71,16 +72,7 @@ export async function action({ request, context }: LoaderFunctionArgs) {
   }
 }
 
-export function shouldRevalidate({
-  actionResult,
-  defaultShouldRevalidate,
-}: ShouldRevalidateFunctionArgs) {
-  if (actionResult?.checkoutUrl) {
-    return false;
-  }
-
-  return defaultShouldRevalidate;
-}
+export const shouldRevalidate = shouldRevalidateAfterCheckout;
 
 export async function loader({ params, context }: LoaderFunctionArgs) {
   const { clubId } = params;

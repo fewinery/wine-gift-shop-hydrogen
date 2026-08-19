@@ -51,6 +51,7 @@ interface CollapsibleDetailsProps extends HydrogenComponentProps {
   showTastingNotes: boolean;
   showFoodPairings: boolean;
   showRecipe: boolean;
+  showDownloadVineAndDineRecipe: boolean;
 }
 
 export default function CollapsibleDetails(props: CollapsibleDetailsProps) {
@@ -64,6 +65,7 @@ export default function CollapsibleDetails(props: CollapsibleDetailsProps) {
     showTastingNotes,
     showFoodPairings,
     showRecipe,
+    showDownloadVineAndDineRecipe,
     ...rest
   } = props;
   const { shop, product } = useLoaderData<typeof productLoader>();
@@ -79,6 +81,14 @@ export default function CollapsibleDetails(props: CollapsibleDetailsProps) {
       return { id: node.id, ...fields };
     },
   );
+
+  const vineAndDineRecipe = product?.downloadVineAndDineRecipe?.reference;
+
+  const recipeFields =
+    vineAndDineRecipe?.fields?.reduce((acc: any, field: any) => {
+      acc[field.key] = field.reference || field.value;
+      return acc;
+    }, {}) || {};
 
   const details = [
     showDescription &&
@@ -124,6 +134,13 @@ export default function CollapsibleDetails(props: CollapsibleDetailsProps) {
       title: "Recipe",
       content: product.recipe.value,
       isRichText: true,
+    },
+
+    showDownloadVineAndDineRecipe &&
+    recipeFields.pdf?.url && {
+      title: "Download Vine & Dine Recipe",
+      isDownloadRecipe: true,
+      recipe: recipeFields,
     },
   ].filter(Boolean);
 
@@ -194,6 +211,17 @@ export default function CollapsibleDetails(props: CollapsibleDetailsProps) {
                       </div>
                     </div>
                   ))}
+                </div>
+              ) : detail.isDownloadRecipe ? (
+                <div className="py-4">
+                  <a
+                    href={detail.recipe?.pdf?.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center border border-[#2D2926] px-5 py-3 text-sm font-medium uppercase tracking-widest text-[#2D2926] transition-opacity hover:opacity-70"
+                  >
+                    Download Recipe
+                  </a>
                 </div>
               ) : (
                 <>
@@ -284,6 +312,12 @@ export const schema = createSchema({
           type: "switch",
           label: "Show recipe",
           name: "showRecipe",
+          defaultValue: true,
+        },
+        {
+          type: "switch",
+          label: "Show Vine & Dine recipe download",
+          name: "showDownloadVineAndDineRecipe",
           defaultValue: true,
         },
       ],

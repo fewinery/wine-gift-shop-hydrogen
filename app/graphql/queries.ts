@@ -81,6 +81,35 @@ export const PRODUCT_QUERY = `#graphql
       recipe: metafield(namespace: "custom", key: "recipe") {
         value
       }
+      downloadVineAndDineRecipe: metafield(
+        namespace: "custom"
+        key: "download_vine_and_dine_recipe"
+      ) {
+        reference {
+          ... on Metaobject {
+            id
+            handle
+            type
+            fields {
+              key
+              value
+              reference {
+                ... on MediaImage {
+                  image {
+                    url
+                    altText
+                    width
+                    height
+                  }
+                }
+                ... on GenericFile {
+                  url
+                }
+              }
+            }
+          }
+        }
+      }
       goesWellWith: metafield(namespace: "custom", key: "goes_well_with") {
         references(first: 10) {
           nodes {

@@ -212,17 +212,39 @@ export default function CollapsibleDetails(props: CollapsibleDetailsProps) {
                     </div>
                   ))}
                 </div>
-              ) : detail.isDownloadRecipe ? (
-                <div className="py-4">
-                  <a
-                    href={detail.recipe?.pdf?.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center border border-[#2D2926] px-5 py-3 text-sm font-medium uppercase tracking-widest text-[#2D2926] transition-opacity hover:opacity-70"
-                  >
-                    Download Recipe
-                  </a>
-                </div>
+                  ) : detail.isDownloadRecipe ? (
+                    <div className="flex items-center gap-4 py-4">
+                      {detail.recipe?.thumbnail?.image?.url && (
+                        <img
+                          src={detail.recipe.thumbnail.image.url}
+                          alt={
+                            detail.recipe.thumbnail.image.altText ||
+                            detail.recipe.title ||
+                            "Vine & Dine Recipe"
+                          }
+                          width={100}
+                          height={100}
+                          className="size-24 shrink-0 object-contain"
+                        />
+                      )}
+                  
+                      <div>
+                        {detail.recipe?.title && (
+                          <p className="text-base font-bold uppercase tracking-wider text-[#2D2926]">
+                            {detail.recipe.title}
+                          </p>
+                        )}
+                  
+                        <a
+                          href={detail.recipe?.pdf?.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="mt-3 inline-flex items-center border border-[#2D2926] px-5 py-3 text-sm font-medium uppercase tracking-widest text-[#2D2926] transition-opacity hover:opacity-70"
+                        >
+                          Download Recipe
+                        </a>
+                      </div>
+                    </div>
               ) : (
                 <>
                   {detail.isRichText ? (

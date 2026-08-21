@@ -62,6 +62,22 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
     message: "",
   });
 
+  const upsellFields = product?.upsellConfiguration?.reference?.fields ?? [];
+
+  const upsellActive =
+    upsellFields.find((field) => field.key === "active")?.value === "true";
+
+  const woodCards =
+    upsellFields
+      .find((field) => field.key === "wood_cards")
+      ?.references?.nodes ?? [];
+
+  const hasWoodCardsUpsell = upsellActive && woodCards.length > 0;
+
+  const [selectedWoodCardId, setSelectedWoodCardId] = useState<string | null>(
+    null,
+  );
+
   const selectedVariant = useOptimisticVariant(
     product?.selectedOrFirstAvailableVariant,
     getAdjacentAndFirstAvailableVariants(product),

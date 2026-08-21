@@ -78,6 +78,14 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
     null,
   );
 
+  const selectedWoodCard = woodCards.find(
+    (woodCard) => woodCard.id === selectedWoodCardId,
+  );
+
+  const selectedWoodCardVariant = selectedWoodCard?.variants?.nodes?.find(
+    (variant) => variant.availableForSale,
+  );
+
   const selectedVariant = useOptimisticVariant(
     product?.selectedOrFirstAvailableVariant,
     getAdjacentAndFirstAvailableVariants(product),
@@ -99,7 +107,7 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
   }
 
   const giftProperties =
-    isGiftPackage && isGift
+    !hasWoodCardsUpsell && isGiftPackage && isGift
       ? [
           { key: "To", value: giftFields.to },
           { key: "From", value: giftFields.from },
@@ -107,15 +115,32 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
         ]
       : undefined;
 
-  const isGiftFieldsValid =
-    !isGiftPackage ||
-    !isGift ||
-    (giftFields.to.trim() &&
-      giftFields.from.trim() &&
-      giftFields.message.trim());
+  const woodCardGiftProperties =
+    hasWoodCardsUpsell && selectedWoodCardId
+      ? [
+          { key: "To", value: giftFields.to },
+          { key: "From", value: giftFields.from },
+          { key: "Message", value: giftFields.message },
+        ]
+      : undefined;
+
+  const isGiftFieldsValid = hasWoodCardsUpsell
+    ? !selectedWoodCardId ||
+      Boolean(
+        giftFields.to.trim() &&
+          giftFields.from.trim() &&
+          giftFields.message.trim(),
+      )
+    : !isGiftPackage ||
+      !isGift ||
+      Boolean(
+        giftFields.to.trim() &&
+          giftFields.from.trim() &&
+          giftFields.message.trim(),
+      );
 
   const giftNote =
-    isGiftPackage && isGift && isGiftFieldsValid
+    !hasWoodCardsUpsell && isGiftPackage && isGift && isGiftFieldsValid
       ? `[${product.title}] Gift - To: ${giftFields.to.trim()}, From: ${giftFields.from.trim()}, Message: ${giftFields.message.trim()}`
       : undefined;
 
@@ -360,7 +385,11 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
         </div>
       )}
       <AddToCartButton
-        disabled={!selectedVariant?.availableForSale || !isGiftFieldsValid}
+        disabled={
+          !selectedVariant?.availableForSale ||
+          !isGiftFieldsValid ||
+          Boolean(selectedWoodCardId && !selectedWoodCardVariant)
+        }
         lines={[
           {
             merchandiseId: selectedVariant?.id,
@@ -370,6 +399,17 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
               attributes: giftProperties,
             }),
           },
+          ...(selectedWoodCardVariant
+            ? [
+                {
+                  merchandiseId: selectedWoodCardVariant.id,
+                  quantity: 1,
+                  ...(woodCardGiftProperties && {
+                    attributes: woodCardGiftProperties,
+                  }),
+                },
+              ]
+            : []),
         ]}
         data-test="add-to-cart"
         note={giftNote}

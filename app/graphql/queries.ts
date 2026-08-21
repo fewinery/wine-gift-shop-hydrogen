@@ -110,6 +110,49 @@ export const PRODUCT_QUERY = `#graphql
           }
         }
       }
+
+      upsellConfiguration: metafield(
+        namespace: "custom"
+        key: "upsell_configuration"
+      ) {
+        reference {
+          ... on Metaobject {
+            id
+            handle
+            type
+            fields {
+              key
+              value
+              references(first: 50) {
+                nodes {
+                  ... on Product {
+                    id
+                    title
+                    handle
+                    featuredImage {
+                      id
+                      url
+                      altText
+                    }
+                    variants(first: 1) {
+                      nodes {
+                        id
+                        title
+                        availableForSale
+                        price {
+                          amount
+                          currencyCode
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      
       goesWellWith: metafield(namespace: "custom", key: "goes_well_with") {
         references(first: 10) {
           nodes {

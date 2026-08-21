@@ -41,6 +41,7 @@ export async function loader({ params, request, context }: LoaderFunctionArgs) {
         country: storefront.i18n.country,
         language: storefront.i18n.language,
       },
+      cache: storefront.CacheNone(),
     }),
     weaverse.loadPage({ type: "PRODUCT", handle }),
     // Add other queries here, so that they are loaded in parallel

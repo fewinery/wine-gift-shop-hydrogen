@@ -62,6 +62,30 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
     message: "",
   });
 
+  const upsellFields = product?.upsellConfiguration?.reference?.fields ?? [];
+
+  const upsellActive =
+    upsellFields.find((field) => field.key === "active")?.value === "true";
+
+  const woodCards =
+    upsellFields
+      .find((field) => field.key === "wood_cards")
+      ?.references?.nodes ?? [];
+
+  const hasWoodCardsUpsell = upsellActive && woodCards.length > 0;
+
+  const [selectedWoodCardId, setSelectedWoodCardId] = useState<string | null>(
+    null,
+  );
+
+  const selectedWoodCard = woodCards.find(
+    (woodCard) => woodCard.id === selectedWoodCardId,
+  );
+
+  const selectedWoodCardVariant = selectedWoodCard?.variants?.nodes?.find(
+    (variant) => variant.availableForSale,
+  );
+
   const selectedVariant = useOptimisticVariant(
     product?.selectedOrFirstAvailableVariant,
     getAdjacentAndFirstAvailableVariants(product),
@@ -83,7 +107,7 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
   }
 
   const giftProperties =
-    isGiftPackage && isGift
+    !hasWoodCardsUpsell && isGiftPackage && isGift
       ? [
           { key: "To", value: giftFields.to },
           { key: "From", value: giftFields.from },
@@ -91,38 +115,195 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
         ]
       : undefined;
 
-  const isGiftFieldsValid =
-    !isGiftPackage ||
-    !isGift ||
-    (giftFields.to.trim() &&
-      giftFields.from.trim() &&
-      giftFields.message.trim());
+  const woodCardGiftProperties =
+    hasWoodCardsUpsell && selectedWoodCardId
+      ? [
+          { key: "To", value: giftFields.to },
+          { key: "From", value: giftFields.from },
+          { key: "Message", value: giftFields.message },
+        ]
+      : undefined;
+
+  const isGiftFieldsValid = hasWoodCardsUpsell
+    ? !selectedWoodCardId ||
+      Boolean(
+        giftFields.to.trim() &&
+          giftFields.from.trim() &&
+          giftFields.message.trim(),
+      )
+    : !isGiftPackage ||
+      !isGift ||
+      Boolean(
+        giftFields.to.trim() &&
+          giftFields.from.trim() &&
+          giftFields.message.trim(),
+      );
 
   const giftNote =
-    isGiftPackage && isGift && isGiftFieldsValid
+    !hasWoodCardsUpsell && isGiftPackage && isGift && isGiftFieldsValid
       ? `[${product.title}] Gift - To: ${giftFields.to.trim()}, From: ${giftFields.from.trim()}, Message: ${giftFields.message.trim()}`
       : undefined;
 
   return (
     <div ref={ref} {...rest} className="space-y-4 empty:hidden">
-      {isGiftPackage && (
+      {hasWoodCardsUpsell && (
         <div className="space-y-4">
-          <label className="flex items-center gap-2 cursor-pointer select-none">
+          <p className="text-sm font-bold uppercase tracking-wide text-neutral-900">
+            ADD A WOOD CARD
+          </p>
+
+          <div className="grid grid-cols-2 gap-3">
+            {woodCards.map((woodCard) => {
+              const isSelected = selectedWoodCardId === woodCard.id;
+              const variant = woodCard.variants?.nodes?.find(
+                (item) => item.availableForSale,
+              );
+
+              return (
+                <button
+                  key={woodCard.id}
+                  type="button"
+                  onClick={() =>
+                    setSelectedWoodCardId(isSelected ? null : woodCard.id)
+                  }
+                  disabled={!variant}
+                  className={cn(
+                    "border p-3 text-left transition-colors",
+                    isSelected
+                      ? "border-black"
+                      : "border-neutral-300 hover:border-neutral-600",
+                    !variant && "cursor-not-allowed opacity-50",
+                  )}
+                >
+                  {woodCard.featuredImage?.url && (
+                    <img
+                      src={woodCard.featuredImage.url}
+                      alt={woodCard.featuredImage.altText ?? woodCard.title}
+                      className="mb-3 aspect-square w-full object-cover"
+                    />
+                  )}
+
+                  <p className="text-sm font-semibold text-neutral-900">
+                    {woodCard.title}
+                  </p>
+
+                  {variant && (
+                    <p className="mt-1 text-sm text-neutral-600">
+                      ${variant.price.amount}
+                    </p>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {hasWoodCardsUpsell && selectedWoodCardId && (
+        <div className="space-y-4 border border-neutral-400 p-4">
+          <p className="text-sm font-bold uppercase tracking-wide text-neutral-900">
+            GIFT MESSAGE
+          </p>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <label
+                htmlFor="wood-card-gift-to"
+                className="block text-xs font-bold uppercase tracking-wide text-neutral-900"
+              >
+                TO <span className="text-red-500">*</span>
+              </label>
+              <input
+                id="wood-card-gift-to"
+                type="text"
+                maxLength={20}
+                placeholder="Recipient name"
+                value={giftFields.to}
+                onChange={(e) =>
+                  setGiftFields((f) => ({ ...f, to: e.target.value }))
+                }
+                className="w-full border border-neutral-400 px-3 py-2 text-sm text-neutral-900 outline-none transition-colors focus:border-black placeholder:text-neutral-500"
+              />
+              <div className="text-right text-sm text-neutral-500">
+                {giftFields.to.length}/20
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <label
+                htmlFor="wood-card-gift-from"
+                className="block text-xs font-bold uppercase tracking-wide text-neutral-900"
+              >
+                FROM <span className="text-red-500">*</span>
+              </label>
+              <input
+                id="wood-card-gift-from"
+                type="text"
+                maxLength={20}
+                placeholder="Your name"
+                value={giftFields.from}
+                onChange={(e) =>
+                  setGiftFields((f) => ({ ...f, from: e.target.value }))
+                }
+                className="w-full border border-neutral-400 px-3 py-2 text-sm text-neutral-900 outline-none transition-colors focus:border-black placeholder:text-neutral-500"
+              />
+              <div className="text-right text-sm text-neutral-500">
+                {giftFields.from.length}/20
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <label
+              htmlFor="wood-card-gift-message"
+              className="block text-xs font-bold uppercase tracking-wide text-neutral-900"
+            >
+              MESSAGE <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              id="wood-card-gift-message"
+              rows={4}
+              maxLength={100}
+              placeholder="Write a personal message..."
+              value={giftFields.message}
+              onChange={(e) =>
+                setGiftFields((f) => ({ ...f, message: e.target.value }))
+              }
+              className="w-full resize-none border border-neutral-400 px-3 py-2 text-sm text-neutral-900 outline-none transition-colors focus:border-black placeholder:text-neutral-500"
+            />
+            <div className="text-right text-sm text-neutral-500">
+              {giftFields.message.length}/100
+            </div>
+          </div>
+
+          {giftNoteText && (
+            <div className="border-t border-neutral-200 pt-3 italic text-neutral-700">
+              {giftNoteText}
+            </div>
+          )}
+        </div>
+      )}
+
+      {isGiftPackage && !hasWoodCardsUpsell && (
+        <div className="space-y-4">
+          <label className="flex cursor-pointer select-none items-center gap-2">
             <input
               type="checkbox"
               checked={isGift}
               onChange={(e) => setIsGift(e.target.checked)}
-              className="accent-black h-4 w-4 rounded-none border border-neutral-400 focus:ring-0 focus:ring-offset-0"
+              className="h-4 w-4 rounded-none border border-neutral-400 accent-black focus:ring-0 focus:ring-offset-0"
             />
             <span className="text-sm font-semibold uppercase tracking-wide text-neutral-900">
               Is this a gift?
             </span>
           </label>
+
           {isGift && (
             <div className="space-y-4 border border-neutral-400 p-4">
               <p className="text-sm font-bold uppercase tracking-wide text-neutral-900">
                 GIFT MESSAGE
               </p>
+
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <label
@@ -142,10 +323,11 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
                     }
                     className="w-full border border-neutral-400 px-3 py-2 text-sm text-neutral-900 outline-none transition-colors focus:border-black placeholder:text-neutral-500"
                   />
-                  <div className="text-sm text-neutral-500 text-right">
+                  <div className="text-right text-sm text-neutral-500">
                     {giftFields.to.length}/20
                   </div>
                 </div>
+
                 <div className="space-y-1">
                   <label
                     htmlFor="gift-from"
@@ -164,11 +346,12 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
                     }
                     className="w-full border border-neutral-400 px-3 py-2 text-sm text-neutral-900 outline-none transition-colors focus:border-black placeholder:text-neutral-500"
                   />
-                  <div className="text-sm text-neutral-500 text-right">
+                  <div className="text-right text-sm text-neutral-500">
                     {giftFields.from.length}/20
                   </div>
                 </div>
               </div>
+
               <div className="space-y-1">
                 <label
                   htmlFor="gift-message"
@@ -188,11 +371,12 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
                   className="w-full resize-none border border-neutral-400 px-3 py-2 text-sm text-neutral-900 outline-none transition-colors focus:border-black placeholder:text-neutral-500"
                 />
                 <div className="text-right text-sm text-neutral-500">
-                  <span>{giftFields.message.length}/100</span>
+                  {giftFields.message.length}/100
                 </div>
               </div>
+
               {giftNoteText && (
-                <div className="italic text-neutral-700 border-t border-neutral-200 pt-3">
+                <div className="border-t border-neutral-200 pt-3 italic text-neutral-700">
                   {giftNoteText}
                 </div>
               )}
@@ -201,7 +385,11 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
         </div>
       )}
       <AddToCartButton
-        disabled={!selectedVariant?.availableForSale || !isGiftFieldsValid}
+        disabled={
+          !selectedVariant?.availableForSale ||
+          !isGiftFieldsValid ||
+          Boolean(selectedWoodCardId && !selectedWoodCardVariant)
+        }
         lines={[
           {
             merchandiseId: selectedVariant?.id,
@@ -211,6 +399,17 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
               attributes: giftProperties,
             }),
           },
+          ...(selectedWoodCardVariant
+            ? [
+                {
+                  merchandiseId: selectedWoodCardVariant.id,
+                  quantity: 1,
+                  ...(woodCardGiftProperties && {
+                    attributes: woodCardGiftProperties,
+                  }),
+                },
+              ]
+            : []),
         ]}
         data-test="add-to-cart"
         note={giftNote}

@@ -432,9 +432,17 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
           width="100%"
           variantIdsAndQuantities={[
             {
-              id: selectedVariant?.id,
+              id: selectedVariant?.id ?? "",
               quantity,
             },
+            ...(selectedWoodCardVariant
+              ? [
+                  {
+                    id: selectedWoodCardVariant.id,
+                    quantity: 1,
+                  },
+                ]
+              : []),
           ]}
           storeDomain={storeDomain}
         />

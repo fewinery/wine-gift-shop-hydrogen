@@ -152,7 +152,7 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
             ADD A WOOD CARD
           </p>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="flex snap-x gap-3 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {woodCards.map((woodCard) => {
               const isSelected = selectedWoodCardId === woodCard.id;
               const variant = woodCard.variants?.nodes?.find(
@@ -168,7 +168,7 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
                   }
                   disabled={!variant}
                   className={cn(
-                    "border p-3 text-left transition-colors",
+                    "w-[31%] shrink-0 snap-start border p-2 text-left transition-colors sm:w-[45%] lg:w-[30%] xl:w-[24%]",
                     isSelected
                       ? "border-black"
                       : "border-neutral-300 hover:border-neutral-600",
@@ -179,7 +179,7 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
                     <img
                       src={woodCard.featuredImage.url}
                       alt={woodCard.featuredImage.altText ?? woodCard.title}
-                      className="mb-3 aspect-square w-full object-cover"
+                      className="mb-2 aspect-square w-full object-cover"
                     />
                   )}
 
@@ -205,7 +205,7 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
             GIFT MESSAGE
           </p>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="space-y-1">
               <label
                 htmlFor="wood-card-gift-to"

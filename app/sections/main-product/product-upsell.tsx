@@ -62,12 +62,12 @@ export default function ProductUpsell(props: ProductUpsellProps) {
       {heading && (
         <h2 className="mb-6 font-heading text-2xl uppercase">{heading}</h2>
       )}
-           <div className="relative">
+            <div className="relative">
         <button
           type="button"
           aria-label="Previous"
           onClick={handlePrev}
-          className="absolute left-1 sm:left-0 top-1/2 z-10 -translate-y-1/2 sm:-translate-x-1/2 flex p-2 sm:p-2.5 items-center justify-center rounded-full border border-black bg-white"
+          className="absolute left-2 top-1/2 z-10 -translate-y-1/2 flex p-2 items-center justify-center rounded-full border border-black bg-white shadow-sm"
         >
           <ArrowLeft />
         </button>
@@ -75,7 +75,7 @@ export default function ProductUpsell(props: ProductUpsellProps) {
           type="button"
           aria-label="Next"
           onClick={handleNext}
-          className="absolute right-1 sm:right-0 top-1/2 z-10 -translate-y-1/2 sm:translate-x-1/2 flex p-2 sm:p-2.5 items-center justify-center rounded-full border border-black bg-white"
+          className="absolute right-2 top-1/2 z-10 -translate-y-1/2 flex p-2 items-center justify-center rounded-full border border-black bg-white shadow-sm"
         >
           <ArrowRight />
         </button>
@@ -88,16 +88,13 @@ export default function ProductUpsell(props: ProductUpsellProps) {
               setSnapCount(s.snapGrid?.length || upsellProducts.length || 0)
             }
             modules={[Navigation]}
-            slidesPerView={2.67}
+            slidesPerView="auto"
             spaceBetween={16}
-            breakpoints={{
-              640: { slidesPerView: 2.67, spaceBetween: 20 },
-              1024: { slidesPerView: 4, spaceBetween: 24 },
-            }}
+            centerInsufficientSlides
             className="overflow-visible h-auto!"
           >
             {upsellProducts.map((p) => (
-              <SwiperSlide key={p.id} className="h-auto! flex">
+              <SwiperSlide key={p.id} className="h-auto! flex w-[140px]">
                 <ProductCard
                   product={p}
                   className="w-full"

@@ -94,7 +94,7 @@ export default function ProductUpsell(props: ProductUpsellProps) {
             className="overflow-visible h-auto!"
           >
             {upsellProducts.map((p) => (
-              <SwiperSlide key={p.id} className="h-auto! flex w-[140px]">
+              <SwiperSlide key={p.id} className="h-auto! flex w-[140px]!">
                 <ProductCard
                   product={p}
                   className="w-full"

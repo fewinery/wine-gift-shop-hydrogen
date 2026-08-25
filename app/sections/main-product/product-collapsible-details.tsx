@@ -248,7 +248,7 @@ export default function CollapsibleDetails(props: CollapsibleDetailsProps) {
                           rel="noreferrer"
                           className="mt-3 inline-flex items-center border border-[#2D2926] px-5 py-3 text-sm font-medium uppercase tracking-widest text-[#2D2926] transition-opacity hover:opacity-70"
                         >
-                          Download Recipe
+                          Download Vine & Dine Pairing Recipe
                         </a>
                       </div>
                     </div>

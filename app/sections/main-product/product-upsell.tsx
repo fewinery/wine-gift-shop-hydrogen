@@ -62,36 +62,55 @@ export default function ProductUpsell(props: ProductUpsellProps) {
       {heading && (
         <h2 className="mb-6 font-heading text-2xl uppercase">{heading}</h2>
       )}
-      <div className="overflow-hidden">
-        <Swiper
-          onSwiper={handleSwiperInit}
-          onSlideChange={(s) => setActiveIndex(s.activeIndex)}
-          onResize={(s) =>
-            setSnapCount(s.snapGrid?.length || upsellProducts.length || 0)
-          }
-          modules={[Navigation]}
-          slidesPerView={2}
-          spaceBetween={16}
-          breakpoints={{
-            640: { slidesPerView: 2, spaceBetween: 20 },
-            1024: { slidesPerView: 4, spaceBetween: 24 },
-          }}
-          className="overflow-visible h-auto!"
+           <div className="relative">
+        <button
+          type="button"
+          aria-label="Previous"
+          onClick={handlePrev}
+          className="absolute left-1 sm:left-0 top-1/2 z-10 -translate-y-1/2 sm:-translate-x-1/2 flex p-2 sm:p-2.5 items-center justify-center rounded-full border border-black bg-white"
         >
-          {upsellProducts.map((p) => (
-            <SwiperSlide key={p.id} className="h-auto! flex">
-              <ProductCard
-                product={p}
-                className="w-full"
-                titlePricesAlignment={titlePricesAlignment}
-                contentAlignment={contentAlignment}
-                showViewProductButton={showViewProductButton}
-              />
-            </SwiperSlide>
-          ))}
-        </Swiper>
+          <ArrowLeft />
+        </button>
+        <button
+          type="button"
+          aria-label="Next"
+          onClick={handleNext}
+          className="absolute right-1 sm:right-0 top-1/2 z-10 -translate-y-1/2 sm:translate-x-1/2 flex p-2 sm:p-2.5 items-center justify-center rounded-full border border-black bg-white"
+        >
+          <ArrowRight />
+        </button>
 
-        <div className="pt-[30px] flex items-center justify-between">
+        <div className="overflow-hidden">
+          <Swiper
+            onSwiper={handleSwiperInit}
+            onSlideChange={(s) => setActiveIndex(s.activeIndex)}
+            onResize={(s) =>
+              setSnapCount(s.snapGrid?.length || upsellProducts.length || 0)
+            }
+            modules={[Navigation]}
+            slidesPerView={2.67}
+            spaceBetween={16}
+            breakpoints={{
+              640: { slidesPerView: 2.67, spaceBetween: 20 },
+              1024: { slidesPerView: 4, spaceBetween: 24 },
+            }}
+            className="overflow-visible h-auto!"
+          >
+            {upsellProducts.map((p) => (
+              <SwiperSlide key={p.id} className="h-auto! flex">
+                <ProductCard
+                  product={p}
+                  className="w-full"
+                  titlePricesAlignment={titlePricesAlignment}
+                  contentAlignment={contentAlignment}
+                  showViewProductButton={showViewProductButton}
+                />
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
+
+        <div className="pt-[30px] flex justify-center">
           <div className="flex gap-2">
             {dots.map((index) => (
               <button
@@ -105,25 +124,6 @@ export default function ProductUpsell(props: ProductUpsellProps) {
                 onClick={() => swiper?.slideTo(index)}
               />
             ))}
-          </div>
-
-          <div className="flex gap-2.5">
-            <button
-              type="button"
-              aria-label="Previous"
-              onClick={handlePrev}
-              className="flex p-2.5 items-center justify-center rounded-full border border-black"
-            >
-              <ArrowLeft />
-            </button>
-            <button
-              type="button"
-              aria-label="Next"
-              onClick={handleNext}
-              className="flex p-2.5 items-center justify-center rounded-full border border-black"
-            >
-              <ArrowRight />
-            </button>
           </div>
         </div>
       </div>

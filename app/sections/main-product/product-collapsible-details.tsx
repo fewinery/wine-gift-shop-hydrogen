@@ -138,7 +138,7 @@ export default function CollapsibleDetails(props: CollapsibleDetailsProps) {
 
     showDownloadVineAndDineRecipe &&
     recipeFields.pdf?.url && {
-      title: "Download Vine & Dine Recipe",
+      title: "Vine & Dine",
       isDownloadRecipe: true,
       recipe: recipeFields,
     },
@@ -146,7 +146,14 @@ export default function CollapsibleDetails(props: CollapsibleDetailsProps) {
 
   return (
     <div ref={ref} {...rest} className={clsx(rest.className, "border-t border-line")}>
-      <Accordion.Root type="multiple">
+            <Accordion.Root
+        type="multiple"
+        defaultValue={
+          showDownloadVineAndDineRecipe && recipeFields.pdf?.url
+            ? ["Vine & Dine"]
+            : []
+        }
+      >
         {details.map((detail) => (
           <Accordion.Item
             key={detail.title}

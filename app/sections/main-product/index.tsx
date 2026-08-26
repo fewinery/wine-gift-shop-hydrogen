@@ -41,8 +41,8 @@ export default function ProductInformation(
         <div
           className={clsx([
             "space-y-5 lg:grid lg:space-y-0",
-            "lg:gap-16",
-            "lg:grid-cols-[1fr_1fr]",
+            "lg:gap-10 2xl:gap-16",
+            "lg:grid-cols-[1.25fr_1fr] 2xl:grid-cols-[1fr_1fr]",
           ])}
         >
           <ProductMedia

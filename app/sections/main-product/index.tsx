@@ -41,8 +41,8 @@ export default function ProductInformation(
         <div
           className={clsx([
             "space-y-5 lg:grid lg:space-y-0",
-            "lg:gap-10 2xl:gap-16",
-            "lg:grid-cols-[1.25fr_1fr] 2xl:grid-cols-[1fr_1fr]",
+            "lg:gap-16",
+            "lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]",
           ])}
         >
           <ProductMedia
@@ -71,9 +71,9 @@ export default function ProductInformation(
             zoomTrigger={zoomTrigger}
             zoomButtonVisibility={zoomButtonVisibility}
           />
-          <div>
+          <div className="min-w-0">
             <div
-              className="sticky flex flex-col justify-start gap-5"
+              className="sticky flex min-w-0 flex-col justify-start gap-5"
               style={{ top: "calc(var(--height-nav) + 20px)" }}
             >
               {children}

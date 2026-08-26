@@ -184,14 +184,14 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
       : undefined;
 
   return (
-    <div ref={ref} {...rest} className="space-y-4 empty:hidden">
+    <div ref={ref} {...rest} className="min-w-0 space-y-4 empty:hidden">
       {hasWoodCardsUpsell && (
         <div className="space-y-4">
           <p className="text-sm font-bold uppercase tracking-wide text-neutral-900">
             ADD A WOOD CARD
           </p>
 
-                   <div className="flex items-center gap-2">
+                   <div className="flex min-w-0 items-center gap-2">
             <button
               type="button"
               aria-label="Previous wood cards"
@@ -204,7 +204,7 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
 
             <div
               ref={woodCardsScrollRef}
-              className="flex flex-1 snap-x gap-3 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              className="flex min-w-0 flex-1 snap-x gap-3 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
               {woodCards.map((woodCard) => {
                 const isSelected = selectedWoodCardId === woodCard.id;

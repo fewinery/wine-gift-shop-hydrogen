@@ -8,8 +8,9 @@ import {
   type HydrogenComponentProps,
   useThemeSettings,
 } from "@weaverse/hydrogen";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLoaderData } from "react-router";
+import { ArrowLeft, ArrowRight } from "~/components/icons";
 import { Link } from "~/components/link";
 import { AddToCartButton } from "~/components/product/add-to-cart-button";
 import type { loader as productRouteLoader } from "~/routes/products/product";
@@ -77,6 +78,44 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
   const [selectedWoodCardId, setSelectedWoodCardId] = useState<string | null>(
     null,
   );
+
+  const woodCardsScrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollPrev, setCanScrollPrev] = useState(false);
+  const [canScrollNext, setCanScrollNext] = useState(false);
+
+  function updateWoodCardScrollState() {
+    const container = woodCardsScrollRef.current;
+    if (!container) return;
+    setCanScrollPrev(container.scrollLeft > 4);
+    setCanScrollNext(
+      container.scrollLeft + container.clientWidth < container.scrollWidth - 4,
+    );
+  }
+
+  function scrollWoodCards(direction: "prev" | "next") {
+    const container = woodCardsScrollRef.current;
+    if (!container) return;
+    const amount = container.clientWidth * 0.75;
+    container.scrollBy({
+      left: direction === "prev" ? -amount : amount,
+      behavior: "smooth",
+    });
+  }
+
+  useEffect(() => {
+    if (!hasWoodCardsUpsell) return;
+    updateWoodCardScrollState();
+    const container = woodCardsScrollRef.current;
+    if (!container) return;
+    container.addEventListener("scroll", updateWoodCardScrollState, {
+      passive: true,
+    });
+    window.addEventListener("resize", updateWoodCardScrollState);
+    return () => {
+      container.removeEventListener("scroll", updateWoodCardScrollState);
+      window.removeEventListener("resize", updateWoodCardScrollState);
+    };
+  }, [hasWoodCardsUpsell, woodCards.length]);
 
   const selectedWoodCard = woodCards.find(
     (woodCard) => woodCard.id === selectedWoodCardId,
@@ -152,49 +191,74 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
             ADD A WOOD CARD
           </p>
 
-          <div className="flex snap-x gap-3 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {woodCards.map((woodCard) => {
-              const isSelected = selectedWoodCardId === woodCard.id;
-              const variant = woodCard.variants?.nodes?.find(
-                (item) => item.availableForSale,
-              );
+                   <div className="flex items-center gap-2">
+            <button
+              type="button"
+              aria-label="Previous wood cards"
+              onClick={() => scrollWoodCards("prev")}
+              disabled={!canScrollPrev}
+              className="flex shrink-0 items-center justify-center rounded-full border border-black bg-white p-2 disabled:cursor-not-allowed disabled:opacity-30"
+            >
+              <ArrowLeft />
+            </button>
 
-              return (
-                <button
-                  key={woodCard.id}
-                  type="button"
-                  onClick={() =>
-                    setSelectedWoodCardId(isSelected ? null : woodCard.id)
-                  }
-                  disabled={!variant}
-                  className={cn(
-                    "w-[31%] shrink-0 snap-start border p-2 text-left transition-colors sm:w-[45%] lg:w-[30%] xl:w-[24%]",
-                    isSelected
-                      ? "border-black"
-                      : "border-neutral-300 hover:border-neutral-600",
-                    !variant && "cursor-not-allowed opacity-50",
-                  )}
-                >
-                  {woodCard.featuredImage?.url && (
-                    <img
-                      src={woodCard.featuredImage.url}
-                      alt={woodCard.featuredImage.altText ?? woodCard.title}
-                      className="mb-2 aspect-square w-full object-cover"
-                    />
-                  )}
+            <div
+              ref={woodCardsScrollRef}
+              className="flex flex-1 snap-x gap-3 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+              {woodCards.map((woodCard) => {
+                const isSelected = selectedWoodCardId === woodCard.id;
+                const variant = woodCard.variants?.nodes?.find(
+                  (item) => item.availableForSale,
+                );
 
-                  <p className="text-sm font-semibold text-neutral-900">
-                    {woodCard.title}
-                  </p>
+                return (
+                  <button
+                    key={woodCard.id}
+                    type="button"
+                    onClick={() =>
+                      setSelectedWoodCardId(isSelected ? null : woodCard.id)
+                    }
+                    disabled={!variant}
+                    className={cn(
+                      "w-[23%] shrink-0 snap-start border p-2 text-left transition-colors sm:w-[34%] lg:w-[23%] xl:w-[18%]",
+                      isSelected
+                        ? "border-black"
+                        : "border-neutral-300 hover:border-neutral-600",
+                      !variant && "cursor-not-allowed opacity-50",
+                    )}
+                  >
+                    {woodCard.featuredImage?.url && (
+                      <img
+                        src={woodCard.featuredImage.url}
+                        alt={woodCard.featuredImage.altText ?? woodCard.title}
+                        className="mb-2 aspect-square w-full object-cover"
+                      />
+                    )}
 
-                  {variant && (
-                    <p className="mt-1 text-sm text-neutral-600">
-                      ${variant.price.amount}
+                    <p className="text-sm font-semibold text-neutral-900">
+                      {woodCard.title}
                     </p>
-                  )}
-                </button>
-              );
-            })}
+
+                    {variant && (
+                      <p className="mt-1 text-sm text-neutral-600">
+                        ${variant.price.amount}
+                      </p>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            <button
+              type="button"
+              aria-label="Next wood cards"
+              onClick={() => scrollWoodCards("next")}
+              disabled={!canScrollNext}
+              className="flex shrink-0 items-center justify-center rounded-full border border-black bg-white p-2 disabled:cursor-not-allowed disabled:opacity-30"
+            >
+              <ArrowRight />
+            </button>
           </div>
         </div>
       )}

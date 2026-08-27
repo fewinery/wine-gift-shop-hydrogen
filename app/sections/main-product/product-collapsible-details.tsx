@@ -105,12 +105,6 @@ export default function CollapsibleDetails(props: CollapsibleDetailsProps) {
       content: getExcerpt(refundPolicy.body),
       learnMore: `/policies/${refundPolicy.handle}`,
     },
-    showAccolades &&
-    accolades.length > 0 && {
-      title: "Accolades",
-      isAccolades: true,
-      accolades,
-    },
     showWineSpecs &&
     product?.wineSpecs?.value && {
       title: "Wine Specs",
@@ -142,17 +136,25 @@ export default function CollapsibleDetails(props: CollapsibleDetailsProps) {
       isDownloadRecipe: true,
       recipe: recipeFields,
     },
+
+    showAccolades &&
+    accolades.length > 0 && {
+      title: "Accolades",
+      isAccolades: true,
+      accolades,
+    },
   ].filter(Boolean);
 
   return (
     <div ref={ref} {...rest} className={clsx(rest.className, "border-t border-line")}>
             <Accordion.Root
         type="multiple"
-        defaultValue={
-          showDownloadVineAndDineRecipe && recipeFields.pdf?.url
+        defaultValue={[
+          ...(showDownloadVineAndDineRecipe && recipeFields.pdf?.url
             ? ["Vine & Dine"]
-            : []
-        }
+            : []),
+          ...(showAccolades && accolades.length > 0 ? ["Accolades"] : []),
+        ]}
       >
         {details.map((detail) => (
           <Accordion.Item

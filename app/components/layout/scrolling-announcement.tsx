@@ -6,6 +6,7 @@ const MAX_DURATION = 80;
 export function ScrollingAnnouncement() {
   const themeSettings = useThemeSettings();
   const {
+    enableScrollingAnnouncement,
     topbarText,
     topbarHeight,
     topbarTextColor,
@@ -14,8 +15,15 @@ export function ScrollingAnnouncement() {
     topbarScrollingSpeed,
   } = themeSettings;
 
+  // Enabled only when the toggle is on AND there is real (non-empty) content.
+  // A cleared rich-text field can still hold markup like "<p></p>", so strip
+  // tags before deciding — otherwise the topbar space is reserved for nothing.
+  const enabled =
+    enableScrollingAnnouncement !== false &&
+    Boolean(topbarText?.replace(/<[^>]*>/g, "").trim());
+
   function updateStyles() {
-    if (topbarText) {
+    if (enabled) {
       document.body.style.setProperty(
         "--topbar-height",
         `${Math.max(topbarHeight - window.scrollY, 0)}px`,

@@ -116,8 +116,12 @@ export function RootLayout({ children }: { children: React.ReactNode }) {
   const nonce = useNonce();
   const data = useRouteLoaderData<RootLoader>("root");
   const locale = data?.selectedLocale ?? DEFAULT_LOCALE;
-  const { topbarHeight, topbarText, favicon } = useThemeSettings();
+  const { enableScrollingAnnouncement, topbarHeight, topbarText, favicon } =
+    useThemeSettings();
   const shouldShowNewsletterPopup = useShouldRenderNewsletterPopup();
+  const hasAnnouncement =
+    enableScrollingAnnouncement !== false &&
+    Boolean(topbarText?.replace(/<[^>]*>/g, "").trim());
   if (
     location.pathname === "/subrequest-profiler" ||
     location.pathname === "/graphiql"
@@ -157,7 +161,7 @@ export function RootLayout({ children }: { children: React.ReactNode }) {
         style={
           {
             opacity: 0,
-            "--initial-topbar-height": `${topbarText ? topbarHeight : 0}px`,
+            "--initial-topbar-height": `${hasAnnouncement ? topbarHeight : 0}px`,
           } as CSSProperties
         }
         className="bg-background text-body antialiased opacity-100! transition-opacity duration-300"

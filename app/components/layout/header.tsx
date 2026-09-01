@@ -43,14 +43,31 @@ function useIsHomeCheck() {
 }
 
 export function Header() {
-  const { enableTransparentHeader, headerWidth } = useThemeSettings();
+  const { enableTransparentHeader, headerBehavior, headerWidth } =
+    useThemeSettings();
   const isHome = useIsHomeCheck();
   const { y } = useWindowScroll();
   const routeError = useRouteError();
 
   const scrolled = y >= 50;
-  const enableTransparent = enableTransparentHeader && isHome && !routeError;
-  const isTransparent = enableTransparent && !scrolled;
+
+  // Resolve behavior: "auto" (or unset) falls back to the legacy toggle
+  let behavior: "scroll" | "solid" | "transparent" =
+    headerBehavior && headerBehavior !== "auto"
+      ? headerBehavior
+      : enableTransparentHeader
+        ? "scroll"
+        : "solid";
+  // Transparent modes only apply on the home page and never on error pages
+  if (behavior !== "solid" && !(isHome && !routeError)) {
+    behavior = "solid";
+  }
+
+  // "scroll": fixed, transparent at top, turns solid after scrolling
+  // "transparent": absolute (not sticky), stays transparent, scrolls away
+  const enableTransparent = behavior === "scroll";
+  const isStatic = behavior === "transparent";
+  const isTransparent = isStatic || (enableTransparent && !scrolled);
 
   return (
     <header
@@ -61,13 +78,16 @@ export function Header() {
         "text-(--color-header-text) hover:text-(--color-header-text)",
         "border-line-subtle border-b",
         variants({ padding: headerWidth }),
-        scrolled ? "shadow-header" : "shadow-none",
-        enableTransparent
-          ? [
-            "group/header fixed w-full",
-            "top-(--topbar-height,var(--initial-topbar-height))",
-          ]
-          : "sticky top-0",
+        scrolled && !isStatic ? "shadow-header" : "shadow-none",
+        enableTransparent && [
+          "group/header fixed w-full",
+          "top-(--topbar-height,var(--initial-topbar-height))",
+        ],
+        isStatic && [
+          "group/header absolute w-full",
+          "top-(--initial-topbar-height,0px)",
+        ],
+        !(enableTransparent || isStatic) && "sticky top-0",
         isTransparent
           ? [
             "border-transparent bg-transparent",

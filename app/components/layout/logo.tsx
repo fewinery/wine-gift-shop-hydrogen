@@ -58,12 +58,7 @@ export function Logo() {
     <Link
       to="/"
       prefetch="intent"
-      className={clsx(
-        "z-30 flex items-center justify-center",
-        showBadges
-          ? "w-full min-h-0 flex-1 lg:w-fit"
-          : "h-full w-full lg:h-fit lg:w-fit",
-      )}
+      className="z-30 flex h-full w-full items-center justify-center lg:h-fit lg:w-fit"
     >
       <div
         className="relative h-full"
@@ -109,26 +104,32 @@ export function Logo() {
     return logoLink;
   }
 
+  // Badges render as a floating overlay pinned above the logo, so they take
+  // up no space in the header's own layout — the logo, nav, icons and cart
+  // stay at exactly the same position/height as the "standard" layout.
   return (
-    <div className="flex h-full max-h-full flex-col items-center justify-center gap-1">
-      <div
-        className="flex shrink-0 items-center"
-        style={{ gap: headerBadgeGap ? `${headerBadgeGap}px` : "8px" }}
-      >
-        {headerBadge1Image && (
-          <LogoBadge
-            image={headerBadge1Image}
-            link={headerBadge1Link}
-            size={headerBadge1Size}
-          />
-        )}
-        {headerBadge2Image && (
-          <LogoBadge
-            image={headerBadge2Image}
-            link={headerBadge2Link}
-            size={headerBadge2Size}
-          />
-        )}
+    <div className="relative flex h-full items-center justify-center">
+      <div className="-translate-x-1/2 absolute bottom-full left-1/2 flex flex-col items-center gap-1 pb-1.5">
+        <div
+          className="flex shrink-0 items-center"
+          style={{ gap: headerBadgeGap ? `${headerBadgeGap}px` : "8px" }}
+        >
+          {headerBadge1Image && (
+            <LogoBadge
+              image={headerBadge1Image}
+              link={headerBadge1Link}
+              size={headerBadge1Size}
+            />
+          )}
+          {headerBadge2Image && (
+            <LogoBadge
+              image={headerBadge2Image}
+              link={headerBadge2Link}
+              size={headerBadge2Size}
+            />
+          )}
+        </div>
+        <div className="h-px w-8 bg-(--color-transparent-header-text)" />
       </div>
       {logoLink}
     </div>

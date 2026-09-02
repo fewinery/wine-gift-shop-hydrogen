@@ -250,6 +250,48 @@ export const themeSchema: HydrogenThemeSchema = {
           defaultValue: 150,
         },
         {
+          type: "select",
+          name: "headerLogoLayout",
+          label: "Logo layout",
+          configs: {
+            options: [
+              { value: "standard", label: "Standard (logo only)" },
+              { value: "logoWithBadges", label: "Logo with badges above" },
+            ],
+          },
+          defaultValue: "standard",
+          helpText:
+            '"Logo with badges" adds up to two small clickable images stacked above the main logo. You may want to increase the nav height above so they both fit.',
+        },
+        {
+          type: "image",
+          name: "headerBadge1Image",
+          label: "Badge 1 image",
+          condition: (theme: any) =>
+            theme.headerLogoLayout === "logoWithBadges",
+        },
+        {
+          type: "url",
+          name: "headerBadge1Link",
+          label: "Badge 1 link",
+          condition: (theme: any) =>
+            theme.headerLogoLayout === "logoWithBadges",
+        },
+        {
+          type: "image",
+          name: "headerBadge2Image",
+          label: "Badge 2 image",
+          condition: (theme: any) =>
+            theme.headerLogoLayout === "logoWithBadges",
+        },
+        {
+          type: "url",
+          name: "headerBadge2Link",
+          label: "Badge 2 link",
+          condition: (theme: any) =>
+            theme.headerLogoLayout === "logoWithBadges",
+        },
+        {
           type: "heading",
           label: "Typography",
         },

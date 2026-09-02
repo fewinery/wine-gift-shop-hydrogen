@@ -303,7 +303,7 @@ export const themeSchema: HydrogenThemeSchema = {
           helpText:
             '"Logo with badges" adds up to two small clickable images stacked above the main logo. You may want to increase the nav height above so they both fit.',
         },
-        {
+       {
           type: "image",
           name: "headerBadge1Image",
           label: "Badge 1 image",
@@ -311,9 +311,23 @@ export const themeSchema: HydrogenThemeSchema = {
             theme.headerLogoLayout === "logoWithBadges",
         },
         {
-          type: "url",
+          type: "text",
           name: "headerBadge1Link",
           label: "Badge 1 link",
+          condition: (theme: any) =>
+            theme.headerLogoLayout === "logoWithBadges",
+        },
+        {
+          type: "range",
+          name: "headerBadge1Size",
+          label: "Badge 1 size",
+          configs: {
+            min: 10,
+            max: 60,
+            step: 1,
+            unit: "px",
+          },
+          defaultValue: 20,
           condition: (theme: any) =>
             theme.headerLogoLayout === "logoWithBadges",
         },
@@ -325,9 +339,37 @@ export const themeSchema: HydrogenThemeSchema = {
             theme.headerLogoLayout === "logoWithBadges",
         },
         {
-          type: "url",
+          type: "text",
           name: "headerBadge2Link",
           label: "Badge 2 link",
+          condition: (theme: any) =>
+            theme.headerLogoLayout === "logoWithBadges",
+        },
+        {
+          type: "range",
+          name: "headerBadge2Size",
+          label: "Badge 2 size",
+          configs: {
+            min: 10,
+            max: 60,
+            step: 1,
+            unit: "px",
+          },
+          defaultValue: 20,
+          condition: (theme: any) =>
+            theme.headerLogoLayout === "logoWithBadges",
+        },
+        {
+          type: "range",
+          name: "headerBadgeGap",
+          label: "Space between badges",
+          configs: {
+            min: 0,
+            max: 40,
+            step: 1,
+            unit: "px",
+          },
+          defaultValue: 8,
           condition: (theme: any) =>
             theme.headerLogoLayout === "logoWithBadges",
         },

@@ -161,6 +161,46 @@ export const themeSchema: HydrogenThemeSchema = {
       ],
     },
     {
+      group: "Secondary scrolling announcement",
+      inputs: [
+        {
+          type: "switch",
+          name: "enableSecondaryScrollingAnnouncement",
+          label: "Enable secondary scrolling announcement",
+          defaultValue: false,
+          helpText:
+            "Off by default. When on, this bar stacks above the header together with the announcement bar above, using the same behavior.",
+        },
+        {
+          type: "richtext",
+          name: "secondaryTopbarText",
+          label: "Content",
+          defaultValue: "",
+        },
+        {
+          type: "range",
+          label: "Content gap",
+          name: "secondaryTopbarScrollingGap",
+          configs: { min: 0, max: 100, step: 1, unit: "px" },
+          defaultValue: 44,
+        },
+        {
+          type: "range",
+          label: "Height",
+          name: "secondaryTopbarHeight",
+          configs: { min: 10, max: 100, step: 1, unit: "px" },
+          defaultValue: 36,
+        },
+        {
+          type: "range",
+          label: "Scrolling speed",
+          name: "secondaryTopbarScrollingSpeed",
+          configs: { min: 1, max: 20, step: 1, unit: "x" },
+          defaultValue: 1,
+        },
+      ],
+    },
+    {
       group: "Header",
       inputs: [
         {
@@ -413,6 +453,22 @@ export const themeSchema: HydrogenThemeSchema = {
           type: "color",
           label: "Announcement background",
           name: "topbarBgColor",
+          defaultValue: "#000000",
+        },
+        {
+          type: "heading",
+          label: "Secondary announcement bar",
+        },
+        {
+          type: "color",
+          label: "Secondary announcement text",
+          name: "secondaryTopbarTextColor",
+          defaultValue: "#ffffff",
+        },
+        {
+          type: "color",
+          label: "Secondary announcement background",
+          name: "secondaryTopbarBgColor",
           defaultValue: "#000000",
         },
         {

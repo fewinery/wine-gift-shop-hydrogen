@@ -301,7 +301,7 @@ export const themeSchema: HydrogenThemeSchema = {
           },
           defaultValue: "standard",
           helpText:
-            '"Logo with badges" shows up to two small clickable images in their own thin bar above the main header. It does not affect the header itself — the logo, menu, icons and cart stay exactly where they are today.',
+            '"Logo with badges" adds a row of up to two small clickable images inside the header, on their own line above the logo. The logo, menu, icons and cart all stay aligned together on the row below it.',
         },
         {
           type: "range",

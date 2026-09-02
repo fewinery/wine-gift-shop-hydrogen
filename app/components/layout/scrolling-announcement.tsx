@@ -1,76 +1,62 @@
 import { useThemeSettings } from "@weaverse/hydrogen";
 import { useEffect } from "react";
+import { hasRichTextContent } from "~/utils/misc";
 
 const MAX_DURATION = 80;
+
+function Bar({ id, text, height, textColor, bgColor, gap, speed }: { ... }) {
+  return (
+    <div id={id} className="relative flex items-center overflow-hidden whitespace-nowrap text-center" style={{ ... }}>
+      {/* same marquee content as before, now parameterized */}
+    </div>
+  );
+}
 
 export function ScrollingAnnouncement() {
   const themeSettings = useThemeSettings();
   const {
-    enableScrollingAnnouncement,
-    topbarText,
-    topbarHeight,
-    topbarTextColor,
-    topbarBgColor,
-    topbarScrollingGap,
-    topbarScrollingSpeed,
+    enableScrollingAnnouncement, topbarText, topbarHeight, topbarTextColor,
+    topbarBgColor, topbarScrollingGap, topbarScrollingSpeed,
+    enableSecondaryScrollingAnnouncement, secondaryTopbarText, secondaryTopbarHeight,
+    secondaryTopbarTextColor, secondaryTopbarBgColor,
+    secondaryTopbarScrollingGap, secondaryTopbarScrollingSpeed,
   } = themeSettings;
 
-  // Enabled only when the toggle is on AND there is real (non-empty) content.
-  // A cleared rich-text field can still hold markup like "<p></p>", so strip
-  // tags before deciding — otherwise the topbar space is reserved for nothing.
-  const enabled =
-    enableScrollingAnnouncement !== false &&
-    Boolean(topbarText?.replace(/<[^>]*>/g, "").trim());
+  const primaryEnabled =
+    enableScrollingAnnouncement !== false && hasRichTextContent(topbarText);
+  // Off by default on every site — only turns on where explicitly enabled.
+  const secondaryEnabled =
+    enableSecondaryScrollingAnnouncement === true &&
+    hasRichTextContent(secondaryTopbarText);
+
+  // Combined reserved space for whichever bars are visible. The header only
+  // ever reads this single --topbar-height variable, so it needs no changes
+  // to support a second stacked bar.
+  const combinedHeight =
+    (primaryEnabled ? topbarHeight : 0) +
+    (secondaryEnabled ? secondaryTopbarHeight : 0);
 
   function updateStyles() {
-    if (enabled) {
-      document.body.style.setProperty(
-        "--topbar-height",
-        `${Math.max(topbarHeight - window.scrollY, 0)}px`,
-      );
-    } else {
-      document.body.style.setProperty("--topbar-height", "0px");
-    }
+    document.body.style.setProperty(
+      "--topbar-height",
+      `${Math.max(combinedHeight - window.scrollY, 0)}px`,
+    );
   }
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation> --- IGNORE ---
   useEffect(() => {
     updateStyles();
     window.addEventListener("scroll", updateStyles);
     return () => window.removeEventListener("scroll", updateStyles);
-  }, [topbarText]);
+  }, [combinedHeight]);
 
-  if (topbarText?.replace(/<[^>]*>/g, "").trim() === "") {
+  if (!(primaryEnabled || secondaryEnabled)) {
     return null;
   }
 
   return (
-    <div
-      id="announcement-bar"
-      className="relative flex items-center overflow-hidden whitespace-nowrap text-center"
-      style={
-        {
-          height: `${topbarHeight}px`,
-          backgroundColor: topbarBgColor,
-          color: topbarTextColor,
-          "--marquee-duration": `${MAX_DURATION / topbarScrollingSpeed}s`,
-          "--gap": `${topbarScrollingGap}px`,
-        } as React.CSSProperties
-      }
-    >
-      {new Array(10).fill("").map((_, idx) => {
-        return (
-          <div
-            className="animate-marquee [animation-duration:var(--marquee-duration)] px-[calc(var(--gap)/2)]"
-            key={idx}
-          >
-            <div
-              className="flex items-center gap-(--gap) whitespace-nowrap [&_p]:flex [&_p]:items-center [&_p]:gap-2"
-              dangerouslySetInnerHTML={{ __html: topbarText }}
-            />
-          </div>
-        );
-      })}
-    </div>
+    <>
+      {primaryEnabled && <Bar id="announcement-bar" text={topbarText} height={topbarHeight} textColor={topbarTextColor} bgColor={topbarBgColor} gap={topbarScrollingGap} speed={topbarScrollingSpeed} />}
+      {secondaryEnabled && <Bar id="announcement-bar-secondary" text={secondaryTopbarText} height={secondaryTopbarHeight} textColor={secondaryTopbarTextColor} bgColor={secondaryTopbarBgColor} gap={secondaryTopbarScrollingGap} speed={secondaryTopbarScrollingSpeed} />}
+    </>
   );
 }

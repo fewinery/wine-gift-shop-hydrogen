@@ -107,6 +107,21 @@ export function Header() {
             "[&_.main-logo]:opacity-100",
             "[&_.transparent-logo]:opacity-0",
           ],
+        // "transparent" (isStatic) mode must NEVER turn solid or reveal the
+        // main logo on hover, unlike "scroll" mode which intentionally does.
+        // The base classes above (hover:bg-.../hover:text-...) and the
+        // isTransparent block above both add hover effects meant only for
+        // "scroll" mode, so this pins everything back to transparent with
+        // "!" to guarantee it wins no matter the class order Tailwind emits.
+        isTransparent &&
+          isStatic && [
+            "hover:border-transparent! hover:bg-transparent!",
+            "hover:text-(--color-transparent-header-text)!",
+            "hover:[&_.cart-count]:bg-(--color-transparent-header-text)!",
+            "hover:[&_.cart-count]:text-(--color-header-text)!",
+            "hover:[&_.main-logo]:opacity-0!",
+            "hover:[&_.transparent-logo]:opacity-100!",
+          ],
       )}
     >
       <div

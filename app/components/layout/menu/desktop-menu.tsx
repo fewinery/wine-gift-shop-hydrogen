@@ -90,7 +90,7 @@ export function DesktopMenu() {
         <div className="absolute inset-x-0 top-full flex w-full justify-center shadow-header">
           <NavigationMenu.Viewport
             className={cn(
-              "relative origin-[top_center] overflow-hidden bg-(--color-header-bg)",
+              "relative origin-[top_center] overflow-hidden bg-(--color-header-bg) text-(--color-header-text)",
               "data-[state=closed]:animate-scale-out data-[state=open]:animate-scale-in",
               "transition-[width,height] duration-200",
               "h-(--radix-navigation-menu-viewport-height) w-full",

@@ -7,16 +7,19 @@ import { useShopMenu } from "~/hooks/use-shop-menu";
 function LogoBadge({
   image,
   link,
+  size,
 }: {
   image: Parameters<typeof Image>[0]["data"];
   link?: string;
+  size?: number;
 }) {
   return (
     <a
       href={link || undefined}
       target={link ? "_blank" : undefined}
       rel={link ? "noopener noreferrer" : undefined}
-      className="block h-4 w-auto shrink-0 lg:h-5"
+      className="block w-auto shrink-0"
+      style={{ height: size ? `${size}px` : "20px" }}
     >
       <Image
         data={image}
@@ -37,8 +40,11 @@ export function Logo() {
     headerLogoLayout,
     headerBadge1Image,
     headerBadge1Link,
+    headerBadge1Size,
     headerBadge2Image,
     headerBadge2Link,
+    headerBadge2Size,
+    headerBadgeGap,
   } = useThemeSettings();
 
   // "logoWithBadges" is an opt-in layout selected in Weaverse Studio; every
@@ -105,12 +111,23 @@ export function Logo() {
 
   return (
     <div className="flex h-full max-h-full flex-col items-center justify-center gap-1">
-      <div className="flex shrink-0 items-center gap-2">
+      <div
+        className="flex shrink-0 items-center"
+        style={{ gap: headerBadgeGap ? `${headerBadgeGap}px` : "8px" }}
+      >
         {headerBadge1Image && (
-          <LogoBadge image={headerBadge1Image} link={headerBadge1Link} />
+          <LogoBadge
+            image={headerBadge1Image}
+            link={headerBadge1Link}
+            size={headerBadge1Size}
+          />
         )}
         {headerBadge2Image && (
-          <LogoBadge image={headerBadge2Image} link={headerBadge2Link} />
+          <LogoBadge
+            image={headerBadge2Image}
+            link={headerBadge2Link}
+            size={headerBadge2Size}
+          />
         )}
       </div>
       {logoLink}

@@ -63,7 +63,7 @@ function BadgeLink({
   size?: number;
 }) {
   return (
-    
+   <a
       href={link || undefined}
       target={link ? "_blank" : undefined}
       rel={link ? "noopener noreferrer" : undefined}

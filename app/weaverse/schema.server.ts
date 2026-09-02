@@ -161,6 +161,46 @@ export const themeSchema: HydrogenThemeSchema = {
       ],
     },
     {
+      group: "Secondary scrolling announcement",
+      inputs: [
+        {
+          type: "switch",
+          name: "enableSecondaryScrollingAnnouncement",
+          label: "Enable secondary scrolling announcement",
+          defaultValue: false,
+          helpText:
+            "Off by default. When on, this bar stacks above the header together with the announcement bar above, using the same behavior.",
+        },
+        {
+          type: "richtext",
+          name: "secondaryTopbarText",
+          label: "Content",
+          defaultValue: "",
+        },
+        {
+          type: "range",
+          label: "Content gap",
+          name: "secondaryTopbarScrollingGap",
+          configs: { min: 0, max: 100, step: 1, unit: "px" },
+          defaultValue: 44,
+        },
+        {
+          type: "range",
+          label: "Height",
+          name: "secondaryTopbarHeight",
+          configs: { min: 10, max: 100, step: 1, unit: "px" },
+          defaultValue: 36,
+        },
+        {
+          type: "range",
+          label: "Scrolling speed",
+          name: "secondaryTopbarScrollingSpeed",
+          configs: { min: 1, max: 20, step: 1, unit: "x" },
+          defaultValue: 1,
+        },
+      ],
+    },
+    {
       group: "Header",
       inputs: [
         {
@@ -248,6 +288,48 @@ export const themeSchema: HydrogenThemeSchema = {
             unit: "px",
           },
           defaultValue: 150,
+        },
+        {
+          type: "select",
+          name: "headerLogoLayout",
+          label: "Logo layout",
+          configs: {
+            options: [
+              { value: "standard", label: "Standard (logo only)" },
+              { value: "logoWithBadges", label: "Logo with badges above" },
+            ],
+          },
+          defaultValue: "standard",
+          helpText:
+            '"Logo with badges" adds up to two small clickable images stacked above the main logo. You may want to increase the nav height above so they both fit.',
+        },
+        {
+          type: "image",
+          name: "headerBadge1Image",
+          label: "Badge 1 image",
+          condition: (theme: any) =>
+            theme.headerLogoLayout === "logoWithBadges",
+        },
+        {
+          type: "url",
+          name: "headerBadge1Link",
+          label: "Badge 1 link",
+          condition: (theme: any) =>
+            theme.headerLogoLayout === "logoWithBadges",
+        },
+        {
+          type: "image",
+          name: "headerBadge2Image",
+          label: "Badge 2 image",
+          condition: (theme: any) =>
+            theme.headerLogoLayout === "logoWithBadges",
+        },
+        {
+          type: "url",
+          name: "headerBadge2Link",
+          label: "Badge 2 link",
+          condition: (theme: any) =>
+            theme.headerLogoLayout === "logoWithBadges",
         },
         {
           type: "heading",
@@ -371,6 +453,22 @@ export const themeSchema: HydrogenThemeSchema = {
           type: "color",
           label: "Announcement background",
           name: "topbarBgColor",
+          defaultValue: "#000000",
+        },
+        {
+          type: "heading",
+          label: "Secondary announcement bar",
+        },
+        {
+          type: "color",
+          label: "Secondary announcement text",
+          name: "secondaryTopbarTextColor",
+          defaultValue: "#ffffff",
+        },
+        {
+          type: "color",
+          label: "Secondary announcement background",
+          name: "secondaryTopbarBgColor",
           defaultValue: "#000000",
         },
         {

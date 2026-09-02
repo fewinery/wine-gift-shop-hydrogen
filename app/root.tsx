@@ -124,6 +124,10 @@ export function RootLayout({ children }: { children: React.ReactNode }) {
     enableSecondaryScrollingAnnouncement,
     secondaryTopbarHeight,
     secondaryTopbarText,
+    headerLogoLayout,
+    headerBadge1Image,
+    headerBadge2Image,
+    headerBadgeBarHeight,
     favicon,
   } = useThemeSettings();
   const shouldShowNewsletterPopup = useShouldRenderNewsletterPopup();
@@ -137,6 +141,10 @@ export function RootLayout({ children }: { children: React.ReactNode }) {
     (enableSecondaryScrollingAnnouncement === true &&
     hasRichTextContent(secondaryTopbarText)
       ? secondaryTopbarHeight
+      : 0) +
+    (headerLogoLayout === "logoWithBadges" &&
+    (headerBadge1Image || headerBadge2Image)
+      ? headerBadgeBarHeight
       : 0);
   if (
     location.pathname === "/subrequest-profiler" ||

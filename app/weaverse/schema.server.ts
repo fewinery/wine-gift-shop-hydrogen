@@ -301,9 +301,23 @@ export const themeSchema: HydrogenThemeSchema = {
           },
           defaultValue: "standard",
           helpText:
-            '"Logo with badges" adds up to two small clickable images stacked above the main logo. You may want to increase the nav height above so they both fit.',
+            '"Logo with badges" shows up to two small clickable images in their own thin bar above the main header. It does not affect the header itself — the logo, menu, icons and cart stay exactly where they are today.',
         },
-       {
+        {
+          type: "range",
+          name: "headerBadgeBarHeight",
+          label: "Badge bar height",
+          configs: {
+            min: 20,
+            max: 100,
+            step: 1,
+            unit: "px",
+          },
+          defaultValue: 40,
+          condition: (theme: any) =>
+            theme.headerLogoLayout === "logoWithBadges",
+        },
+        {
           type: "image",
           name: "headerBadge1Image",
           label: "Badge 1 image",

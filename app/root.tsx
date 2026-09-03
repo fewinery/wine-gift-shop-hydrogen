@@ -34,7 +34,6 @@ import { NotFound } from "./components/root/not-found";
 import styles from "./styles/app.css?url";
 import { shouldRevalidateAfterCheckout } from "./utils/checkout-revalidation";
 import { DEFAULT_LOCALE } from "./utils/const";
-import { hasRichTextContent } from "./utils/misc";
 import { GlobalStyle } from "./weaverse/style";
 
 export type RootLoader = typeof loader;
@@ -117,27 +116,8 @@ export function RootLayout({ children }: { children: React.ReactNode }) {
   const nonce = useNonce();
   const data = useRouteLoaderData<RootLoader>("root");
   const locale = data?.selectedLocale ?? DEFAULT_LOCALE;
-  const {
-    enableScrollingAnnouncement,
-    topbarHeight,
-    topbarText,
-    enableSecondaryScrollingAnnouncement,
-    secondaryTopbarHeight,
-    secondaryTopbarText,
-    favicon,
-  } = useThemeSettings();
+  const { topbarHeight, topbarText, favicon } = useThemeSettings();
   const shouldShowNewsletterPopup = useShouldRenderNewsletterPopup();
-  // Mirrors ScrollingAnnouncement's own enabled/height logic so the very
-  // first paint already reserves the right amount of space above the header
-  // and there's no gap flash once the client JS takes over.
-  const initialTopbarHeight =
-    (enableScrollingAnnouncement !== false && hasRichTextContent(topbarText)
-      ? topbarHeight
-      : 0) +
-    (enableSecondaryScrollingAnnouncement === true &&
-    hasRichTextContent(secondaryTopbarText)
-      ? secondaryTopbarHeight
-      : 0);
   if (
     location.pathname === "/subrequest-profiler" ||
     location.pathname === "/graphiql"
@@ -173,11 +153,11 @@ export function RootLayout({ children }: { children: React.ReactNode }) {
           }}
         />
       </head>
-       <body
+      <body
         style={
           {
             opacity: 0,
-            "--initial-topbar-height": `${initialTopbarHeight}px`,
+            "--initial-topbar-height": `${topbarText ? topbarHeight : 0}px`,
           } as CSSProperties
         }
         className="bg-background text-body antialiased opacity-100! transition-opacity duration-300"

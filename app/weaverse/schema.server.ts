@@ -109,14 +109,6 @@ export const themeSchema: HydrogenThemeSchema = {
       group: "Scrolling announcements",
       inputs: [
         {
-          type: "switch",
-          name: "enableScrollingAnnouncement",
-          label: "Enable scrolling announcement",
-          defaultValue: true,
-          helpText:
-            "When disabled, the bar is hidden and no space is reserved above the header.",
-        },
-        {
           type: "richtext",
           name: "topbarText",
           label: "Content",
@@ -161,46 +153,6 @@ export const themeSchema: HydrogenThemeSchema = {
       ],
     },
     {
-      group: "Secondary scrolling announcement",
-      inputs: [
-        {
-          type: "switch",
-          name: "enableSecondaryScrollingAnnouncement",
-          label: "Enable secondary scrolling announcement",
-          defaultValue: false,
-          helpText:
-            "Off by default. When on, this bar stacks above the header together with the announcement bar above, using the same behavior.",
-        },
-        {
-          type: "richtext",
-          name: "secondaryTopbarText",
-          label: "Content",
-          defaultValue: "",
-        },
-        {
-          type: "range",
-          label: "Content gap",
-          name: "secondaryTopbarScrollingGap",
-          configs: { min: 0, max: 100, step: 1, unit: "px" },
-          defaultValue: 44,
-        },
-        {
-          type: "range",
-          label: "Height",
-          name: "secondaryTopbarHeight",
-          configs: { min: 10, max: 100, step: 1, unit: "px" },
-          defaultValue: 36,
-        },
-        {
-          type: "range",
-          label: "Scrolling speed",
-          name: "secondaryTopbarScrollingSpeed",
-          configs: { min: 1, max: 20, step: 1, unit: "x" },
-          defaultValue: 1,
-        },
-      ],
-    },
-    {
       group: "Header",
       inputs: [
         {
@@ -222,35 +174,6 @@ export const themeSchema: HydrogenThemeSchema = {
           name: "enableTransparentHeader",
           defaultValue: false,
           helpText: "Header is transparent in home page only.",
-        },
-        {
-          type: "select",
-          name: "headerBehavior",
-          label: "Header behavior",
-          configs: {
-            options: [
-              { value: "auto", label: "Auto (use transparent header toggle)" },
-              { value: "scroll", label: "Transparent, solid on scroll" },
-              { value: "solid", label: "Always solid (sticky)" },
-              { value: "transparent", label: "Always transparent (not sticky)" },
-            ],
-          },
-          defaultValue: "auto",
-          helpText:
-            "Overrides the toggle above when set. Transparent modes apply on the home page only.",
-        },
-        {
-          type: "select",
-          name: "navAlignment",
-          label: "Menu alignment",
-          configs: {
-            options: [
-              { value: "left", label: "Left" },
-              { value: "center", label: "Center" },
-              { value: "right", label: "Right" },
-            ],
-          },
-          defaultValue: "center",
         },
         {
           type: "image",
@@ -411,22 +334,6 @@ export const themeSchema: HydrogenThemeSchema = {
           type: "color",
           label: "Announcement background",
           name: "topbarBgColor",
-          defaultValue: "#000000",
-        },
-        {
-          type: "heading",
-          label: "Secondary announcement bar",
-        },
-        {
-          type: "color",
-          label: "Secondary announcement text",
-          name: "secondaryTopbarTextColor",
-          defaultValue: "#ffffff",
-        },
-        {
-          type: "color",
-          label: "Secondary announcement background",
-          name: "secondaryTopbarBgColor",
           defaultValue: "#000000",
         },
         {

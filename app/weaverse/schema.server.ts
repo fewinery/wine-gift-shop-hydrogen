@@ -326,6 +326,15 @@ export const themeSchema: HydrogenThemeSchema = {
         },
         {
           type: "text",
+          name: "headerBadge1ImageUrl",
+          label: "Badge 1 image URL (overrides picker)",
+          helpText:
+            "Optional. Paste a direct image URL to use instead of the picker above. Leave empty to use the picker.",
+          condition: (theme: any) =>
+            theme.headerLogoLayout === "logoWithBadges",
+        },
+        {
+          type: "text",
           name: "headerBadge1Link",
           label: "Badge 1 link",
           condition: (theme: any) =>
@@ -349,6 +358,15 @@ export const themeSchema: HydrogenThemeSchema = {
           type: "image",
           name: "headerBadge2Image",
           label: "Badge 2 image",
+          condition: (theme: any) =>
+            theme.headerLogoLayout === "logoWithBadges",
+        },
+        {
+          type: "text",
+          name: "headerBadge2ImageUrl",
+          label: "Badge 2 image URL (overrides picker)",
+          helpText:
+            "Optional. Paste a direct image URL to use instead of the picker above. Leave empty to use the picker.",
           condition: (theme: any) =>
             theme.headerLogoLayout === "logoWithBadges",
         },

@@ -388,6 +388,20 @@ export const themeSchema: HydrogenThemeSchema = {
             theme.headerLogoLayout === "logoWithBadges",
         },
         {
+          type: "range",
+          name: "headerBadgeLogoGap",
+          label: "Space between badges and logo row",
+          configs: {
+            min: 0,
+            max: 40,
+            step: 1,
+            unit: "px",
+          },
+          defaultValue: 8,
+          condition: (theme: any) =>
+            theme.headerLogoLayout === "logoWithBadges",
+        },
+        {
           type: "heading",
           label: "Typography",
         },

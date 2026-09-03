@@ -56,6 +56,10 @@ export async function createHydrogenRouterContext(
     cache,
     themeSchema,
     components,
+    // The client defaults to a 10s fetch timeout. Publishing from Weaverse
+    // Studio purges its cache, so the very next request is cold and can run
+    // past 10s, which makes loadPage fail and 404 the page mid-edit.
+    fetchTimeoutMs: 30_000,
   });
 
   // Add weaverse directly to the hydrogenContext instance

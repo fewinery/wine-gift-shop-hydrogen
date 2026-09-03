@@ -1,6 +1,5 @@
 import { CaretDownIcon } from "@phosphor-icons/react";
 import * as NavigationMenu from "@radix-ui/react-navigation-menu";
-import { useThemeSettings } from "@weaverse/hydrogen";
 import clsx from "clsx";
 import { useState } from "react";
 import { Image } from "~/components/image";
@@ -13,7 +12,6 @@ import { DropdownMenu } from "./dropdown-menu";
 
 export function DesktopMenu() {
   const { headerMenu } = useShopMenu();
-  const { navAlignment } = useThemeSettings();
   const [value, setValue] = useState<string>("");
 
   if (headerMenu?.items?.length) {
@@ -21,14 +19,7 @@ export function DesktopMenu() {
 
     return (
       <NavigationMenu.Root value={value} onValueChange={setValue}>
-        <NavigationMenu.List
-          className={cn(
-            "hidden h-full grow lg:flex",
-            navAlignment === "left" && "justify-start lg:pl-8",
-            navAlignment === "right" && "justify-end lg:pr-8",
-            (!navAlignment || navAlignment === "center") && "justify-center",
-          )}
-        >
+        <NavigationMenu.List className="hidden h-full grow justify-center lg:flex">
           {items.map((menuItem) => {
             const { id, items: childItems = [], title, to } = menuItem;
             const level = getMaxDepth(menuItem);
@@ -90,7 +81,7 @@ export function DesktopMenu() {
         <div className="absolute inset-x-0 top-full flex w-full justify-center shadow-header">
           <NavigationMenu.Viewport
             className={cn(
-              "relative origin-[top_center] overflow-hidden bg-(--color-header-bg) text-(--color-header-text)",
+              "relative origin-[top_center] overflow-hidden bg-(--color-header-bg)",
               "data-[state=closed]:animate-scale-out data-[state=open]:animate-scale-in",
               "transition-[width,height] duration-200",
               "h-(--radix-navigation-menu-viewport-height) w-full",

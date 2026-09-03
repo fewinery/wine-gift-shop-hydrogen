@@ -43,31 +43,14 @@ function useIsHomeCheck() {
 }
 
 export function Header() {
-  const { enableTransparentHeader, headerBehavior, headerWidth } =
-    useThemeSettings();
+  const { enableTransparentHeader, headerWidth } = useThemeSettings();
   const isHome = useIsHomeCheck();
   const { y } = useWindowScroll();
   const routeError = useRouteError();
 
   const scrolled = y >= 50;
-
-  // Resolve behavior: "auto" (or unset) falls back to the legacy toggle
-  let behavior: "scroll" | "solid" | "transparent" =
-    headerBehavior && headerBehavior !== "auto"
-      ? headerBehavior
-      : enableTransparentHeader
-        ? "scroll"
-        : "solid";
-  // Transparent modes only apply on the home page and never on error pages
-  if (behavior !== "solid" && !(isHome && !routeError)) {
-    behavior = "solid";
-  }
-
-  // "scroll": fixed, transparent at top, turns solid after scrolling
-  // "transparent": absolute (not sticky), stays transparent, scrolls away
-  const enableTransparent = behavior === "scroll";
-  const isStatic = behavior === "transparent";
-  const isTransparent = isStatic || (enableTransparent && !scrolled);
+  const enableTransparent = enableTransparentHeader && isHome && !routeError;
+  const isTransparent = enableTransparent && !scrolled;
 
   return (
     <header
@@ -78,16 +61,13 @@ export function Header() {
         "text-(--color-header-text) hover:text-(--color-header-text)",
         "border-line-subtle border-b",
         variants({ padding: headerWidth }),
-        scrolled && !isStatic ? "shadow-header" : "shadow-none",
-        enableTransparent && [
-          "group/header fixed w-full",
-          "top-(--topbar-height,var(--initial-topbar-height))",
-        ],
-        isStatic && [
-          "group/header absolute w-full",
-          "top-(--initial-topbar-height,0px)",
-        ],
-        !(enableTransparent || isStatic) && "sticky top-0",
+        scrolled ? "shadow-header" : "shadow-none",
+        enableTransparent
+          ? [
+            "group/header fixed w-full",
+            "top-(--topbar-height,var(--initial-topbar-height))",
+          ]
+          : "sticky top-0",
         isTransparent
           ? [
             "border-transparent bg-transparent",
@@ -106,21 +86,6 @@ export function Header() {
             "[&_.cart-count]:bg-(--color-header-text)",
             "[&_.main-logo]:opacity-100",
             "[&_.transparent-logo]:opacity-0",
-          ],
-        // "transparent" (isStatic) mode must NEVER turn solid or reveal the
-        // main logo on hover, unlike "scroll" mode which intentionally does.
-        // The base classes above (hover:bg-.../hover:text-...) and the
-        // isTransparent block above both add hover effects meant only for
-        // "scroll" mode, so this pins everything back to transparent with
-        // "!" to guarantee it wins no matter the class order Tailwind emits.
-        isTransparent &&
-          isStatic && [
-            "hover:border-transparent! hover:bg-transparent!",
-            "hover:text-(--color-transparent-header-text)!",
-            "hover:[&_.cart-count]:bg-(--color-transparent-header-text)!",
-            "hover:[&_.cart-count]:text-(--color-header-text)!",
-            "hover:[&_.main-logo]:opacity-0!",
-            "hover:[&_.transparent-logo]:opacity-100!",
           ],
       )}
     >

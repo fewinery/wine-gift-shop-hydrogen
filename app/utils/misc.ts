@@ -45,11 +45,3 @@ export function isLightColor(color: string, threshold = 0.8) {
   const c = colord(color);
   return c.isValid() && c.brightness() > threshold;
 }
-
-// A cleared Weaverse richtext field can still hold markup like "<p></p>",
-// so strip tags before deciding whether there's real content — otherwise
-// anything that reserves layout space for the text (e.g. the announcement
-// bars) ends up reserving space for nothing.
-export function hasRichTextContent(text?: string | null) {
-  return Boolean(text?.replace(/<[^>]*>/g, "").trim());
-}

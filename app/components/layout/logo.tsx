@@ -53,6 +53,7 @@ export function LogoBadges({ className }: { className?: string }) {
     headerBadge2Size,
     headerBadgeGap,
     headerBadgeBarHeight,
+    headerBadgeLogoGap,
   } = useThemeSettings();
 
   const showBadges =
@@ -65,17 +66,22 @@ export function LogoBadges({ className }: { className?: string }) {
 
   return (
     <div
-      className={cn(
-        "flex items-end justify-center lg:justify-start",
-        className,
-      )}
+      className="w-full"
       style={{
-        height: headerBadgeBarHeight ? `${headerBadgeBarHeight}px` : "40px",
+        marginBottom: headerBadgeLogoGap ? `${headerBadgeLogoGap}px` : "8px",
       }}
     >
-      <div className="flex flex-col items-center gap-1 pb-1">
+      <div
+        className={cn(
+          "flex items-end justify-center lg:justify-start",
+          className,
+        )}
+        style={{
+          height: headerBadgeBarHeight ? `${headerBadgeBarHeight}px` : "40px",
+        }}
+      >
         <div
-          className="flex shrink-0 items-center"
+          className="flex shrink-0 items-center pb-1"
           style={{ gap: headerBadgeGap ? `${headerBadgeGap}px` : "8px" }}
         >
           {headerBadge1Image && (
@@ -93,8 +99,10 @@ export function LogoBadges({ className }: { className?: string }) {
             />
           )}
         </div>
-        <div className="h-px w-8 bg-current" />
       </div>
+      {/* Spans the full header width edge-to-edge, not just the content
+          container, matching the reference site's underline. */}
+      <div className="h-px w-full bg-current" />
     </div>
   );
 }

@@ -15,7 +15,7 @@ import Link from "~/components/link";
 import type { RootLoader } from "~/root";
 import { cn } from "~/utils/cn";
 import { DEFAULT_LOCALE } from "~/utils/const";
-import { Logo, LogoBadges } from "./logo";
+import { Logo } from "./logo";
 import { DesktopMenu } from "./menu/desktop-menu";
 import { MobileMenu } from "./menu/mobile-menu";
 import { PredictiveSearchButton } from "./predictive-search";
@@ -124,7 +124,6 @@ export function Header() {
           ],
       )}
     >
-      <LogoBadges className={variants({ width: headerWidth })} />
       <div
         className={cn(
           "flex h-(--height-nav) items-center justify-between gap-2 py-1.5 lg:gap-8 lg:py-3",

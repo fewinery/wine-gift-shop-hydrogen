@@ -50,8 +50,17 @@ export function Header() {
   const routeError = useRouteError();
 
   const scrolled = y >= 50;
-  const enableTransparent = enableTransparentHeader && isHome && !routeError;
-  const isTransparent = enableTransparent && !scrolled;
+  // "Logo with badges above" sits over the hero: the header scrolls away with
+  // the page instead of sticking, and never turns solid, so a white bar can
+  // never cover the badges.
+  const isStatic =
+    enableTransparentHeader &&
+    headerLogoLayout === "logoWithBadges" &&
+    isHome &&
+    !routeError;
+  const enableTransparent =
+    enableTransparentHeader && isHome && !routeError && !isStatic;
+  const isTransparent = isStatic || (enableTransparent && !scrolled);
 
   return (
     <header
@@ -62,13 +71,16 @@ export function Header() {
         "text-(--color-header-text) hover:text-(--color-header-text)",
         "border-line-subtle border-b",
         variants({ padding: headerWidth }),
-        scrolled ? "shadow-header" : "shadow-none",
-        enableTransparent
-          ? [
-            "group/header fixed w-full",
-            "top-(--topbar-height,var(--initial-topbar-height))",
-          ]
-          : "sticky top-0",
+        scrolled && !isStatic ? "shadow-header" : "shadow-none",
+        enableTransparent && [
+          "group/header fixed w-full",
+          "top-(--topbar-height,var(--initial-topbar-height))",
+        ],
+        isStatic && [
+          "group/header absolute w-full",
+          "top-(--initial-topbar-height,0px)",
+        ],
+        !(enableTransparent || isStatic) && "sticky top-0",
         isTransparent
           ? [
             "border-transparent bg-transparent",

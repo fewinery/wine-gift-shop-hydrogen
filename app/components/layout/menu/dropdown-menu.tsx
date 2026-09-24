@@ -56,7 +56,7 @@ export function DropdownMenu({ menuItem }: { menuItem: SingleMenuItem }) {
         <Content
           align="start"
           sideOffset={0}
-          className="flex min-w-48 flex-col gap-1.5 bg-(--color-header-bg) p-6 shadow-lg animate-fade-in"
+          className="flex min-w-48 flex-col gap-1.5 bg-(--color-header-bg) p-6 text-(--color-header-text) shadow-lg animate-fade-in"
           onCloseAutoFocus={(e) => e.preventDefault()}
           onMouseEnter={cancelClose}
           onMouseLeave={scheduleClose}

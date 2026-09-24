@@ -43,7 +43,8 @@ function useIsHomeCheck() {
 }
 
 export function Header() {
-  const { enableTransparentHeader, headerWidth } = useThemeSettings();
+  const { enableTransparentHeader, headerLogoLayout, headerWidth } =
+    useThemeSettings();
   const isHome = useIsHomeCheck();
   const { y } = useWindowScroll();
   const routeError = useRouteError();
@@ -86,6 +87,19 @@ export function Header() {
             "[&_.cart-count]:bg-(--color-header-text)",
             "[&_.main-logo]:opacity-100",
             "[&_.transparent-logo]:opacity-0",
+          ],
+        // With badges above the logo, hovering must NOT turn the header
+        // solid: the badges are white marks sitting on the hero image, so a
+        // white header hides them. Pin everything back to its transparent
+        // state with "!" so it wins whatever class order Tailwind emits.
+        isTransparent &&
+          headerLogoLayout === "logoWithBadges" && [
+            "hover:border-transparent! hover:bg-transparent!",
+            "hover:text-(--color-transparent-header-text)!",
+            "hover:[&_.cart-count]:bg-(--color-transparent-header-text)!",
+            "hover:[&_.cart-count]:text-(--color-header-text)!",
+            "hover:[&_.main-logo]:opacity-0!",
+            "hover:[&_.transparent-logo]:opacity-100!",
           ],
       )}
     >

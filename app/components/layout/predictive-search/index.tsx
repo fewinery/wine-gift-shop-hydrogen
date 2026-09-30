@@ -14,7 +14,7 @@ import { PopularKeywords } from "./popular-keywords";
 import { PredictiveSearchResult } from "./predictive-search-result";
 import { PredictiveSearchForm } from "./search-form";
 
-export function PredictiveSearchButton() {
+export function PredictiveSearchButton({ label }: { label?: string }) {
   const [open, setOpen] = useState(false);
   const location = useLocation();
   const params = useParams();
@@ -28,10 +28,14 @@ export function PredictiveSearchButton() {
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger
         asChild
-        className="hidden h-8 w-8 items-center justify-center focus-visible:outline-hidden lg:flex"
+        className={
+          label
+            ? "hidden items-center whitespace-nowrap focus-visible:outline-hidden lg:flex"
+            : "hidden h-8 w-8 items-center justify-center focus-visible:outline-hidden lg:flex"
+        }
       >
         <button type="button">
-          <MagnifyingGlassIcon className="h-5 w-5" />
+          {label ? label : <MagnifyingGlassIcon className="h-5 w-5" />}
         </button>
       </Dialog.Trigger>
       <Dialog.Portal>

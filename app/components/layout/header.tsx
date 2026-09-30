@@ -32,6 +32,12 @@ const variants = cva("", {
       stretch: "px-3 md:px-10 lg:px-16",
       fixed: "mx-auto px-3 md:px-4 lg:px-6",
     },
+    // Cancels the padding above so a child can reach both edges.
+    bleed: {
+      full: "",
+      stretch: "-mx-3 md:-mx-10 lg:-mx-16",
+      fixed: "-mx-3 md:-mx-4 lg:-mx-6",
+    },
   },
 });
 
@@ -43,8 +49,13 @@ function useIsHomeCheck() {
 }
 
 export function Header() {
-  const { enableTransparentHeader, headerLogoLayout, headerWidth } =
-    useThemeSettings();
+  const {
+    enableTransparentHeader,
+    headerActionsStyle,
+    headerLogoLayout,
+    headerWidth,
+  } = useThemeSettings();
+  const textActions = headerActionsStyle === "text";
   const isHome = useIsHomeCheck();
   const { y } = useWindowScroll();
   const routeError = useRouteError();
@@ -115,7 +126,11 @@ export function Header() {
           ],
       )}
     >
-      <LogoBadges className={variants({ width: headerWidth })} />
+      <LogoBadges
+        bleedClassName={variants({ bleed: headerWidth })}
+        className={variants({ width: headerWidth })}
+        isTransparent={isTransparent}
+      />
       <div
         className={cn(
           "flex h-(--height-nav) items-center justify-between gap-2 py-1.5 lg:gap-8 lg:py-3",
@@ -128,19 +143,45 @@ export function Header() {
         </Link>
         <Logo />
         <DesktopMenu />
-        <div className="z-1 flex items-center gap-1">
-          <AccountLink className="relative flex h-8 w-8 items-center justify-center" />
-          <PredictiveSearchButton />
-          <CartDrawer />
+        <div
+          className={cn(
+            "z-1 flex items-center",
+            textActions ? "gap-5 uppercase" : "gap-1",
+          )}
+        >
+          <AccountLink
+            className={
+              textActions
+                ? "relative hidden items-center whitespace-nowrap lg:flex"
+                : "relative flex h-8 w-8 items-center justify-center"
+            }
+            label={textActions ? "Login" : undefined}
+          />
+          <PredictiveSearchButton label={textActions ? "Search" : undefined} />
+          <CartDrawer label={textActions ? "Cart" : undefined} />
         </div>
       </div>
     </header>
   );
 }
 
-function AccountLink({ className }: { className?: string }) {
+function AccountLink({
+  className,
+  label,
+}: {
+  className?: string;
+  label?: string;
+}) {
   const rootData = useRouteLoaderData<RootLoader>("root");
   const isLoggedIn = rootData?.isLoggedIn;
+
+  if (label) {
+    return (
+      <Link to="/account" className={clsx("transition-none", className)}>
+        {label}
+      </Link>
+    );
+  }
 
   return (
     <Link to="/account" className={clsx("transition-none", className)}>

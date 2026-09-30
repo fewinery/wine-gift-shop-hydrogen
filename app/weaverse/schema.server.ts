@@ -313,6 +313,26 @@ export const themeSchema: HydrogenThemeSchema = {
             theme.headerLogoLayout === "logoWithBadges",
         },
         {
+          type: "image",
+          name: "headerBadge1ImageSolid",
+          label: "Badge 1 image (solid header)",
+          defaultValue: "",
+          helpText:
+            "Used on inner pages where the header is solid. Leave empty to reuse the image above.",
+          condition: (theme: any) =>
+            theme.headerLogoLayout === "logoWithBadges",
+        },
+        {
+          type: "image",
+          name: "headerBadge2ImageSolid",
+          label: "Badge 2 image (solid header)",
+          defaultValue: "",
+          helpText:
+            "Used on inner pages where the header is solid. Leave empty to reuse the image above.",
+          condition: (theme: any) =>
+            theme.headerLogoLayout === "logoWithBadges",
+        },
+        {
           type: "range",
           name: "headerBadgeLogoGap",
           label: "Space between badges and logo row",
@@ -321,10 +341,35 @@ export const themeSchema: HydrogenThemeSchema = {
             max: 40,
             step: 1,
             unit: "px",
-          },
+        },
           defaultValue: 8,
           condition: (theme: any) =>
             theme.headerLogoLayout === "logoWithBadges",
+        },
+        {
+          type: "select",
+          name: "navAlignment",
+          label: "Menu alignment",
+          configs: {
+            options: [
+              { value: "left", label: "Left" },
+              { value: "center", label: "Center" },
+              { value: "right", label: "Right" },
+            ],
+          },
+          defaultValue: "center",
+        },
+        {
+          type: "select",
+          name: "headerActionsStyle",
+          label: "Account, search and cart style",
+          configs: {
+            options: [
+              { value: "icons", label: "Icons" },
+              { value: "text", label: "Text" },
+            ],
+          },
+          defaultValue: "icons",
         },
         {
           type: "heading",

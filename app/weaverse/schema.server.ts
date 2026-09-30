@@ -1778,6 +1778,22 @@ export const themeSchema: HydrogenThemeSchema = {
           condition: (theme: any) => theme.footerLayout === "twoLogoColumns",
         },
         {
+          type: "switch",
+          name: "footerShowBottomDivider",
+          label: "Show divider above bottom row",
+          defaultValue: true,
+          condition: (theme: any) => theme.footerLayout === "twoLogoColumns",
+        },
+        {
+          type: "range",
+          name: "footerBottomFontSize",
+          label: "Bottom row font size",
+          helpText: "Copyright, privacy and accessibility text.",
+          configs: { min: 8, max: 24, step: 1, unit: "px" },
+          defaultValue: 14,
+          condition: (theme: any) => theme.footerLayout === "twoLogoColumns",
+        },
+        {
           type: "range",
           name: "footerLogoWidth",
           label: "Logo width",

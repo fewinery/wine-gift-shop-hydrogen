@@ -229,6 +229,8 @@ function FooterTwoLogoColumns({
     footerPrivacyUrl,
     footerAccessibilityLabel,
     footerAccessibilityUrl,
+    footerShowBottomDivider,
+    footerBottomFontSize,
   } = useThemeSettings();
 
   const contactStyle = {
@@ -289,25 +291,39 @@ function FooterTwoLogoColumns({
               {storeAddress}
             </FooterTextLink>
           )}
-          {storePhone && (
-            <FooterTextLink
-              href={`tel:${storePhone.replace(/[^+\d]/g, "")}`}
-              className="underline w-fit"
-            >
-              {storePhone}
-            </FooterTextLink>
-          )}
-          {storeEmail && (
-            <FooterTextLink
-              href={`mailto:${storeEmail}`}
-              className="underline w-fit"
-            >
-              {storeEmail}
-            </FooterTextLink>
+          {(storePhone || storeEmail) && (
+            <div className="flex flex-col">
+              {storePhone && (
+                <FooterTextLink
+                  href={`tel:${storePhone.replace(/[^+\d]/g, "")}`}
+                  className="underline w-fit"
+                >
+                  {storePhone}
+                </FooterTextLink>
+              )}
+              {storeEmail && (
+                <FooterTextLink
+                  href={`mailto:${storeEmail}`}
+                  className="underline w-fit"
+                >
+                  {storeEmail}
+                </FooterTextLink>
+              )}
+            </div>
           )}
         </div>
 
-        <div className="mt-12 flex flex-col items-center gap-6 border-t border-current/20 pt-8 font-heading text-sm lg:flex-row lg:justify-between lg:gap-8 lg:text-left">
+        <div
+          className={cn(
+            "mt-12 flex flex-col items-center gap-6 pt-8 font-heading lg:flex-row lg:justify-between lg:gap-8 lg:text-left",
+            footerShowBottomDivider !== false && "border-t border-current/20",
+          )}
+          style={{
+            fontSize: footerBottomFontSize
+              ? `${footerBottomFontSize}px`
+              : "14px",
+          }}
+        >
           <div dangerouslySetInnerHTML={{ __html: copyright }} />
           {socialAccounts.length > 0 && (
             <div className="flex gap-4">

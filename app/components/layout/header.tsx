@@ -56,6 +56,7 @@ export function Header() {
     headerWidth,
   } = useThemeSettings();
   const textActions = headerActionsStyle === "text";
+  const badgesLayout = headerLogoLayout === "logoWithBadges";
   const isHome = useIsHomeCheck();
   const { y } = useWindowScroll();
   const routeError = useRouteError();
@@ -138,7 +139,10 @@ export function Header() {
         )}
       >
         <MobileMenu />
-        <Link to="/search" className="p-1.5 lg:hidden">
+        <Link
+          to="/search"
+          className={cn("p-1.5 lg:hidden", badgesLayout && "-order-2")}
+        >
           <MagnifyingGlassIcon className="h-5 w-5" />
         </Link>
         <Logo />
@@ -146,13 +150,22 @@ export function Header() {
         <div
           className={cn(
             "z-1 flex items-center",
-            textActions ? "gap-5 uppercase" : "gap-1",
+            // The browser's own stylesheet sets text-transform:none on
+            // <button>, so "uppercase" alone never reaches the search and
+            // cart triggers; the child selector forces it on them too.
+            textActions
+              ? "gap-3 uppercase [&_button]:uppercase lg:gap-5"
+              : "gap-1",
+            badgesLayout && "-order-1 lg:order-none",
           )}
         >
           <AccountLink
             className={
               textActions
-                ? "relative hidden items-center whitespace-nowrap lg:flex"
+                ? cn(
+                    "relative items-center whitespace-nowrap lg:flex",
+                    badgesLayout ? "flex" : "hidden",
+                  )
                 : "relative flex h-8 w-8 items-center justify-center"
             }
             label={textActions ? "Login" : undefined}

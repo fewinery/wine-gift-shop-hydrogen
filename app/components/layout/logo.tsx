@@ -91,10 +91,7 @@ export function LogoBadges({
       }}
     >
       <div
-        className={cn(
-          "flex items-center justify-center lg:justify-start",
-          className,
-        )}
+        className={cn("flex items-center justify-start", className)}
         style={{
           height: headerBadgeBarHeight ? `${headerBadgeBarHeight}px` : "40px",
         }}
@@ -120,21 +117,33 @@ export function LogoBadges({
         </div>
       </div>
       {/* bleedClassName cancels the header's own horizontal padding so the
-          rule reaches both edges of the viewport. */}
-      <div className={cn("h-px w-full bg-current", bleedClassName)} />
+          rule reaches both edges of the viewport. No "w-full" here: a fixed
+          100% width ignores the negative right margin and stops short of the
+          right edge, so the width is left to auto. */}
+      <div className={cn("block h-px bg-current", bleedClassName)} />
     </div>
   );
 }
 
 export function Logo() {
   const { shopName } = useShopMenu();
-  const { logoData, transparentLogoData, logoWidth } = useThemeSettings();
+  const { logoData, transparentLogoData, logoWidth, headerLogoLayout } =
+    useThemeSettings();
+  // The badges layout mirrors the DTC header on mobile: the logo is pinned to
+  // the left and "mr-auto" pushes the menu trigger and actions to the right
+  // edge. Every other layout keeps the original centred mobile logo.
+  const badgesLayout = headerLogoLayout === "logoWithBadges";
 
   return (
     <Link
       to="/"
       prefetch="intent"
-      className="z-30 flex h-full w-full items-center justify-center lg:h-fit lg:w-fit"
+      className={cn(
+        "z-30 flex h-full items-center",
+        badgesLayout
+          ? "-order-3 mr-auto w-fit justify-start lg:order-none lg:mr-0 lg:h-fit"
+          : "w-full justify-center lg:h-fit lg:w-fit",
+      )}
     >
       <div
         className="relative h-full"

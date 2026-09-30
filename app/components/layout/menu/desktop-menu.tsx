@@ -20,12 +20,22 @@ export function DesktopMenu() {
     const items = headerMenu.items as unknown as SingleMenuItem[];
 
     return (
-      <NavigationMenu.Root value={value} onValueChange={setValue}>
+      <NavigationMenu.Root
+        // The nav only fills the space between the logo and the header
+        // actions when an explicit left/right alignment is chosen. Without
+        // this the <nav> is only as wide as its links, so "justify-start"
+        // has nothing to move against. Default/center keeps the old markup.
+        className={cn(
+          (navAlignment === "left" || navAlignment === "right") && "lg:grow",
+        )}
+        value={value}
+        onValueChange={setValue}
+      >
         <NavigationMenu.List
           className={cn(
             "hidden h-full grow lg:flex",
-            navAlignment === "left" && "justify-start lg:pl-8",
-            navAlignment === "right" && "justify-end lg:pr-8",
+            navAlignment === "left" && "justify-start",
+            navAlignment === "right" && "justify-end",
             (!navAlignment || navAlignment === "center") && "justify-center",
           )}
         >

@@ -9,7 +9,7 @@ import Link from "~/components/link";
 import type { RootLoader } from "~/root";
 import { useCartDrawerStore } from "./store";
 
-export function CartDrawer() {
+export function CartDrawer({ label }: { label?: string }) {
   const rootData = useRouteLoaderData<RootLoader>("root");
   const { publish } = useAnalytics();
   const {
@@ -29,9 +29,13 @@ export function CartDrawer() {
       fallback={
         <Link
           to="/cart"
-          className="relative flex h-8 w-8 items-center justify-center focus:ring-border"
+          className={
+            label
+              ? "relative flex items-center whitespace-nowrap focus:ring-border"
+              : "relative flex h-8 w-8 items-center justify-center focus:ring-border"
+          }
         >
-          <ShoppingCartIcon className="h-5 w-5" />
+          {label ? label : <ShoppingCartIcon className="h-5 w-5" />}
         </Link>
       }
     >
@@ -40,9 +44,13 @@ export function CartDrawer() {
           <Dialog.Root open={isOpen} onOpenChange={toggleCartDrawer}>
             <Dialog.Trigger
               onClick={() => publish("custom_sidecart_viewed", { cart })}
-              className="relative flex h-8 w-8 items-center justify-center focus:ring-border"
+              className={
+                label
+                  ? "relative flex items-center whitespace-nowrap focus:ring-border"
+                  : "relative flex h-8 w-8 items-center justify-center focus:ring-border"
+              }
             >
-              <ShoppingCartIcon className="h-5 w-5" />
+              {label ? label : <ShoppingCartIcon className="h-5 w-5" />}
               {cart?.totalQuantity > 0 && (
                 <div
                   className={clsx(

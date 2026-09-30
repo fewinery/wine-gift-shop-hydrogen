@@ -6,6 +6,7 @@ import {
 } from "@phosphor-icons/react";
 import { Image } from "@shopify/hydrogen";
 import { useThemeSettings } from "@weaverse/hydrogen";
+import type { ElementType } from "react";
 import { cva } from "class-variance-authority";
 import { BackgroundImage } from "~/components/background-image";
 import Link from "~/components/link";
@@ -31,6 +32,7 @@ const variants = cva("", {
 export function Footer() {
   const { shopName } = useShopMenu();
   const {
+    footerLayout,
     footerWidth,
     socialFacebook,
     socialInstagram,
@@ -71,6 +73,12 @@ export function Footer() {
       Icon: LinkedinLogoIcon,
     },
   ].filter((acc) => acc.to && acc.to.trim() !== "");
+
+  // Opt-in per storefront. Every other brand falls through to the standard
+  // footer below, unchanged.
+  if (footerLayout === "twoLogoColumns") {
+    return <FooterTwoLogoColumns socialAccounts={SOCIAL_ACCOUNTS} />;
+  }
 
   return (
     <footer
@@ -165,6 +173,170 @@ export function Footer() {
             className="object-contain mt-5"
           />
         )}
+      </div>
+    </footer>
+  );
+}
+
+// Plain anchor so tel:, mailto: and external URLs all work. React Router's
+// Link is for in-app navigation only and mangles those schemes.
+function FooterTextLink({
+  href,
+  className,
+  children,
+}: {
+  href?: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  const Tag: ElementType = href ? "a" : "span";
+  const linkProps = href ? { href } : {};
+
+  return (
+    <Tag {...linkProps} className={className}>
+      {children}
+    </Tag>
+  );
+}
+
+// Mirrors the Cuvaison DTC footer: two logos side by side, the shop menu as
+// columns on the right, contact details as links, and a bottom bar carrying
+// the copyright, social icons and policy links.
+function FooterTwoLogoColumns({
+  socialAccounts,
+}: {
+  socialAccounts: {
+    name: string;
+    to: string;
+    Icon: ElementType;
+  }[];
+}) {
+  const { shopName } = useShopMenu();
+  const {
+    footerWidth,
+    footerLogoData,
+    footerLogoWidth,
+    footerLogo2Data,
+    footerLogo2Width,
+    footerLogoGap,
+    storeAddress,
+    storeEmail,
+    storePhone,
+    footerAddressUrl,
+    copyright,
+    footerBackgroundImage,
+    footerPrivacyLabel,
+    footerPrivacyUrl,
+    footerAccessibilityLabel,
+    footerAccessibilityUrl,
+  } = useThemeSettings();
+
+  const contactStyle = {
+    fontSize: "var(--footer-font-size)",
+    letterSpacing: "var(--footer-letter-spacing)",
+    fontWeight: "var(--footer-font-weight)",
+  };
+
+  return (
+    <footer
+      className={cn(
+        "relative isolate w-full bg-(--color-footer-bg) py-9 md:py-12 lg:py-16 text-(--color-footer-text)",
+        variants({ padding: footerWidth }),
+      )}
+    >
+      <BackgroundImage backgroundImage={footerBackgroundImage} />
+      <div className={cn("h-full w-full", variants({ width: footerWidth }))}>
+        <div className="grid gap-y-12 lg:grid-cols-2">
+          <div
+            className="flex flex-wrap items-start"
+            style={{ gap: footerLogoGap ? `${footerLogoGap}px` : "40px" }}
+          >
+            {footerLogoData ? (
+              <div className="relative" style={{ width: footerLogoWidth }}>
+                <Image
+                  data={footerLogoData}
+                  sizes="auto"
+                  width={500}
+                  className="h-full w-full object-contain object-left"
+                />
+              </div>
+            ) : (
+              <div className="font-bold text-lg font-heading">{shopName}</div>
+            )}
+            {footerLogo2Data && (
+              <div className="relative" style={{ width: footerLogo2Width }}>
+                <Image
+                  data={footerLogo2Data}
+                  sizes="auto"
+                  width={500}
+                  className="h-full w-full object-contain object-left"
+                />
+              </div>
+            )}
+          </div>
+
+          <div className="flex justify-start">
+            <FooterMenu compact />
+          </div>
+        </div>
+
+        <div
+          className="mt-12 flex flex-col gap-3 font-heading lg:mt-16"
+          style={contactStyle}
+        >
+          {storeAddress && (
+            <FooterTextLink href={footerAddressUrl} className="underline w-fit">
+              {storeAddress}
+            </FooterTextLink>
+          )}
+          {storePhone && (
+            <FooterTextLink
+              href={`tel:${storePhone.replace(/[^+\d]/g, "")}`}
+              className="underline w-fit"
+            >
+              {storePhone}
+            </FooterTextLink>
+          )}
+          {storeEmail && (
+            <FooterTextLink
+              href={`mailto:${storeEmail}`}
+              className="underline w-fit"
+            >
+              {storeEmail}
+            </FooterTextLink>
+          )}
+        </div>
+
+        <div className="mt-12 flex flex-col items-center gap-6 border-t border-current/20 pt-8 font-heading text-sm lg:flex-row lg:justify-between lg:gap-8 lg:text-left">
+          <div dangerouslySetInnerHTML={{ __html: copyright }} />
+          {socialAccounts.length > 0 && (
+            <div className="flex gap-4">
+              {socialAccounts.map(({ to, name, Icon }) => (
+                <Link key={name} to={to} target="_blank" className="text-lg">
+                  <Icon className="h-5 w-5" weight="regular" />
+                </Link>
+              ))}
+            </div>
+          )}
+          <div className="flex flex-wrap items-center justify-center gap-6 lg:justify-end lg:gap-8">
+            {footerPrivacyUrl && (
+              <FooterTextLink
+                href={footerPrivacyUrl}
+                className="whitespace-nowrap underline"
+              >
+                {footerPrivacyLabel || "Privacy policy"}
+              </FooterTextLink>
+            )}
+            {footerAccessibilityUrl && (
+              <FooterTextLink
+                href={footerAccessibilityUrl}
+                className="whitespace-nowrap underline"
+              >
+                {footerAccessibilityLabel || "Accessibility Statement"}
+              </FooterTextLink>
+            )}
+          </div>
+        </div>
       </div>
     </footer>
   );

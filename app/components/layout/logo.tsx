@@ -42,19 +42,38 @@ function LogoBadge({
 // own line directly above the main header row. It is opt-in per site via the
 // "logoWithBadges" layout, so every other storefront renders nothing here and
 // its header is untouched.
-export function LogoBadges({ className }: { className?: string }) {
+export function LogoBadges({
+  className,
+  bleedClassName,
+  isTransparent = true,
+}: {
+  className?: string;
+  bleedClassName?: string;
+  isTransparent?: boolean;
+}) {
   const {
     headerLogoLayout,
     headerBadge1Image,
+    headerBadge1ImageSolid,
     headerBadge1Link,
     headerBadge1Size,
     headerBadge2Image,
+    headerBadge2ImageSolid,
     headerBadge2Link,
     headerBadge2Size,
     headerBadgeGap,
     headerBadgeBarHeight,
     headerBadgeLogoGap,
   } = useThemeSettings();
+
+  // On inner pages the header is solid, so white badge marks would vanish.
+  // Fall back to the main image when no solid-header version is uploaded.
+  const badge1 = isTransparent
+    ? headerBadge1Image
+    : headerBadge1ImageSolid || headerBadge1Image;
+  const badge2 = isTransparent
+    ? headerBadge2Image
+    : headerBadge2ImageSolid || headerBadge2Image;
 
   const showBadges =
     headerLogoLayout === "logoWithBadges" &&
@@ -73,7 +92,7 @@ export function LogoBadges({ className }: { className?: string }) {
     >
       <div
         className={cn(
-          "flex items-end justify-center lg:justify-start",
+          "flex items-center justify-center lg:justify-start",
           className,
         )}
         style={{
@@ -81,28 +100,28 @@ export function LogoBadges({ className }: { className?: string }) {
         }}
       >
         <div
-          className="flex shrink-0 items-center pb-1"
+          className="flex shrink-0 items-center"
           style={{ gap: headerBadgeGap ? `${headerBadgeGap}px` : "8px" }}
         >
-          {headerBadge1Image && (
+          {badge1 && (
             <LogoBadge
-              image={headerBadge1Image}
+              image={badge1}
               link={headerBadge1Link}
               size={headerBadge1Size}
             />
           )}
-          {headerBadge2Image && (
+          {badge2 && (
             <LogoBadge
-              image={headerBadge2Image}
+              image={badge2}
               link={headerBadge2Link}
               size={headerBadge2Size}
             />
           )}
         </div>
       </div>
-      {/* Spans the full header width edge-to-edge, not just the content
-          container, matching the reference site's underline. */}
-      <div className="h-px w-full bg-current" />
+      {/* bleedClassName cancels the header's own horizontal padding so the
+          rule reaches both edges of the viewport. */}
+      <div className={cn("h-px w-full bg-current", bleedClassName)} />
     </div>
   );
 }

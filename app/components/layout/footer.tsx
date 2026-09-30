@@ -169,7 +169,7 @@ export function Footer() {
         {showFooterBranding && footerBrandingImage && (
           <Image
             data={footerBrandingImage}
-                        width={400}
+            width={400}
             className="object-contain mt-5"
           />
         )}

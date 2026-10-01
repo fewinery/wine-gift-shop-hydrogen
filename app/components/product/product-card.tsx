@@ -64,6 +64,7 @@ export function ProductCard({
     pcardShowBestSellerBadge,
     pcardShowNewBadge,
     pcardShowOutOfStockBadge,
+    productTitleFontFamily,
   } = useThemeSettings();
 
   const [selectedVariant, setSelectedVariant] =
@@ -225,7 +226,12 @@ export function ProductCard({
           <Link
             to={`/products/${product.handle}?${params.toString()}`}
             prefetch="intent"
-            className="inline-block uppercase py-4 font-body"
+            className={clsx(
+              "inline-block uppercase py-4",
+              productTitleFontFamily === "heading"
+                ? "font-heading"
+                : "font-body",
+            )}
           >
             <RevealUnderline className="bg-position-[left_calc(1em+3px)] leading-normal">
               {product.title}

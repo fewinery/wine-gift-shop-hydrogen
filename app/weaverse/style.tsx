@@ -69,6 +69,8 @@ export function GlobalStyle() {
       footerMobileFontSize,
       footerLetterSpacing,
       footerFontWeight,
+      navFontFamily,
+      footerFontFamily,
     } = settings;
 
     return (
@@ -162,6 +164,24 @@ export function GlobalStyle() {
               --footer-mobile-font-size: ${footerMobileFontSize}px;
               --footer-letter-spacing: ${footerLetterSpacing};
               --footer-font-weight: ${footerFontWeight};
+            }
+
+            /* Font assignment overrides.
+               "font-heading" compiles to font-family: var(--font-heading),
+               so redefining that variable on a container retargets every
+               descendant - including the "!" variants the menus use, with
+               no specificity fight and no component edits. Nothing is
+               emitted unless the setting is changed from its default, so
+               storefronts that leave it alone are byte-identical. */
+            ${
+              navFontFamily === "body"
+                ? `header, [data-mobile-menu] { --font-heading: var(--body-font-family); }`
+                : ""
+            }
+            ${
+              footerFontFamily === "body"
+                ? `footer { --font-heading: var(--body-font-family); }`
+                : ""
             }
 
             @media (min-width: 32em) {

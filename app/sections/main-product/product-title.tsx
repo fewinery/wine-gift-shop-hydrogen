@@ -1,6 +1,11 @@
-import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
+import {
+  createSchema,
+  type HydrogenComponentProps,
+  useThemeSettings,
+} from "@weaverse/hydrogen";
 import { useLoaderData } from "react-router";
 import type { loader as productRouteLoader } from "~/routes/products/product";
+import { cn } from "~/utils/cn";
 
 interface ProductTitleProps extends HydrogenComponentProps {
   ref: React.Ref<HTMLDivElement>;
@@ -10,6 +15,7 @@ interface ProductTitleProps extends HydrogenComponentProps {
 export default function ProductTitle(props: ProductTitleProps) {
   const { ref, headingTag: Tag, ...rest } = props;
   const { product } = useLoaderData<typeof productRouteLoader>();
+  const { productTitleFontFamily } = useThemeSettings();
 
   if (!product) {
     return null;
@@ -17,7 +23,12 @@ export default function ProductTitle(props: ProductTitleProps) {
 
   return (
     <div ref={ref} {...rest}>
-      <Tag className="font-body text-[25.6px] tracking-tight! uppercase">
+      <Tag
+        className={cn(
+          "text-[25.6px] tracking-tight! uppercase",
+          productTitleFontFamily === "heading" ? "font-heading" : "font-body",
+        )}
+      >
         {product.title}
       </Tag>
     </div>

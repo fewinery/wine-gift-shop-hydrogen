@@ -26,6 +26,9 @@ export function MobileMenu() {
         <Dialog.Overlay className="data-[state=open]:animate-fade-in fixed inset-0 z-10 bg-black/50" />
         <Dialog.Content
           onCloseAutoFocus={(e) => e.preventDefault()}
+          // Rendered in a portal, outside <header>, so the header-scoped
+          // font override cannot reach it. This hook lets it opt in too.
+          data-mobile-menu=""
           className={cn([
             "font-heading",
             "-translate-x-full left-0",

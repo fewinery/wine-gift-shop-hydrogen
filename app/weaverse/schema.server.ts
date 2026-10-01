@@ -693,6 +693,51 @@ export const themeSchema: HydrogenThemeSchema = {
       inputs: [
         {
           type: "heading",
+          label: "Font assignment",
+        },
+        {
+          type: "select",
+          label: "Navigation font",
+          name: "navFontFamily",
+          configs: {
+            options: [
+              { label: "Heading font", value: "heading" },
+              { label: "Body font", value: "body" },
+            ],
+          },
+          defaultValue: "heading",
+          helpText:
+            "Header menu, dropdowns and mobile menu. Account, search and cart always use the body font.",
+        },
+        {
+          type: "select",
+          label: "Footer font",
+          name: "footerFontFamily",
+          configs: {
+            options: [
+              { label: "Heading font", value: "heading" },
+              { label: "Body font", value: "body" },
+            ],
+          },
+          defaultValue: "heading",
+          helpText: "Applies to every text element in the footer.",
+        },
+        {
+          type: "select",
+          label: "Product title font",
+          name: "productTitleFontFamily",
+          configs: {
+            options: [
+              { label: "Body font", value: "body" },
+              { label: "Heading font", value: "heading" },
+            ],
+          },
+          defaultValue: "body",
+          helpText:
+            "Product titles in collection grids and on the product page. Prices are not affected.",
+        },
+        {
+          type: "heading",
           label: "Headings",
         },
         {

@@ -30,6 +30,10 @@ interface EntryFormProps extends SectionProps {
   fieldBorderColor: string;
   fieldTextColor: string;
   buttonWidth: "full" | "auto";
+  buttonBackgroundColor: string;
+  buttonTextColor: string;
+  buttonBackgroundColorHover: string;
+  buttonTextColorHover: string;
 }
 
 const formWidths = {
@@ -65,6 +69,10 @@ function EntryForm(props: EntryFormProps) {
     fieldBorderColor,
     fieldTextColor,
     buttonWidth,
+    buttonBackgroundColor,
+    buttonTextColor,
+    buttonBackgroundColorHover,
+    buttonTextColorHover,
     ...rest
   } = props;
 
@@ -73,6 +81,15 @@ function EntryForm(props: EntryFormProps) {
   const result = fetcher.data as EntryFormApiPayload | undefined;
   const submitted = Boolean(result?.ok);
   const showError = state === "idle" && result && !result.ok;
+
+  // Only switch the button to its "custom" variant once a color is actually
+  // set, so an untouched form keeps the theme's primary button exactly.
+  const hasCustomButton = Boolean(
+    buttonBackgroundColor ||
+      buttonTextColor ||
+      buttonBackgroundColorHover ||
+      buttonTextColorHover,
+  );
 
   const colorStyle = {
     color: textColor || undefined,
@@ -183,6 +200,19 @@ function EntryForm(props: EntryFormProps) {
               type="submit"
               className={buttonWidth === "auto" ? "" : "w-full"}
               loading={state === "submitting"}
+              {...(hasCustomButton
+                ? {
+                    variant: "custom" as const,
+                    backgroundColor: buttonBackgroundColor,
+                    textColor: buttonTextColor,
+                    // The button always draws a border, so matching it to the
+                    // background keeps a solid button looking solid.
+                    borderColor: buttonBackgroundColor,
+                    backgroundColorHover: buttonBackgroundColorHover,
+                    textColorHover: buttonTextColorHover,
+                    borderColorHover: buttonBackgroundColorHover,
+                  }
+                : {})}
             >
               {buttonText || "Submit"}
             </Button>
@@ -318,6 +348,11 @@ export const schema = createSchema({
           name: "fieldTextColor",
           label: "Field text",
         },
+      ],
+    },
+    {
+      group: "Button style",
+      inputs: [
         {
           type: "toggle-group",
           name: "buttonWidth",
@@ -329,6 +364,28 @@ export const schema = createSchema({
               { value: "auto", label: "Auto", icon: "fold-horizontal" },
             ],
           },
+        },
+        {
+          type: "color",
+          name: "buttonBackgroundColor",
+          label: "Button background",
+          helpText:
+            "Leave every button color empty to use the theme's primary button.",
+        },
+        {
+          type: "color",
+          name: "buttonTextColor",
+          label: "Button text",
+        },
+        {
+          type: "color",
+          name: "buttonBackgroundColorHover",
+          label: "Button background (hover)",
+        },
+        {
+          type: "color",
+          name: "buttonTextColorHover",
+          label: "Button text (hover)",
         },
       ],
     },

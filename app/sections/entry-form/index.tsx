@@ -1,6 +1,6 @@
 import { createSchema } from "@weaverse/hydrogen";
 import clsx from "clsx";
-import type { CSSProperties } from "react";
+import { type CSSProperties, useRef, useState } from "react";
 import { useFetcher } from "react-router";
 import { Button } from "~/components/button";
 import {
@@ -19,8 +19,11 @@ interface EntryFormProps extends SectionProps {
   lastNameLabel: string;
   emailLabel: string;
   dateOfBirthLabel: string;
+  dateFieldStyle: "calendar" | "split";
   buttonText: string;
   successMessage: string;
+  successMessageSize: string;
+  keepContentAfterSubmit: boolean;
   consentText: string;
   // Named "formWidth" rather than "width" because Section already owns a
   // "width" setting for the section container itself.
@@ -44,11 +47,22 @@ const formWidths = {
 
 // Field colors come through CSS variables set on the wrapper so every input
 // picks them up without repeating the same four classes on each one.
-const FIELD_CLASS = cn(
-  "w-full p-3 leading-tight focus:outline-hidden",
+const FIELD_BASE = cn(
+  "p-3 leading-tight focus:outline-hidden",
   "border border-(--entry-field-border)",
   "bg-(--entry-field-bg) text-(--entry-field-text)",
 );
+
+const FIELD_CLASS = cn("w-full", FIELD_BASE);
+
+// The MM / DD / YYYY boxes are their own width, so they use the base class
+// without "w-full".
+const DATE_PART_CLASS = cn(FIELD_BASE, "text-center");
+
+/** Keeps a date box numeric and no longer than its part allows. */
+function digitsOnly(value: string, maxLength: number) {
+  return value.replace(/\D/g, "").slice(0, maxLength);
+}
 
 function EntryForm(props: EntryFormProps) {
   const {
@@ -60,8 +74,11 @@ function EntryForm(props: EntryFormProps) {
     lastNameLabel,
     emailLabel,
     dateOfBirthLabel,
+    dateFieldStyle,
     buttonText,
     successMessage,
+    successMessageSize,
+    keepContentAfterSubmit,
     consentText,
     formWidth,
     textColor,
@@ -81,6 +98,19 @@ function EntryForm(props: EntryFormProps) {
   const result = fetcher.data as EntryFormApiPayload | undefined;
   const submitted = Boolean(result?.ok);
   const showError = state === "idle" && result && !result.ok;
+
+  // Split date of birth. The three boxes are what the visitor types in; the
+  // hidden field below is what the API reads, always as YYYY-MM-DD.
+  const [dobMonth, setDobMonth] = useState("");
+  const [dobDay, setDobDay] = useState("");
+  const [dobYear, setDobYear] = useState("");
+  const dobDayRef = useRef<HTMLInputElement>(null);
+  const dobYearRef = useRef<HTMLInputElement>(null);
+
+  const dobValue =
+    dobMonth && dobDay && dobYear.length === 4
+      ? `${dobYear}-${dobMonth.padStart(2, "0")}-${dobDay.padStart(2, "0")}`
+      : "";
 
   // Only switch the button to its "custom" variant once a color is actually
   // set, so an untouched form keeps the theme's primary button exactly.
@@ -108,11 +138,18 @@ function EntryForm(props: EntryFormProps) {
       containerClassName={cn("mx-auto", formWidths[formWidth] || "max-w-xl")}
       style={colorStyle}
     >
-      {children}
+      {/* The heading and paragraph are children, so hiding them after a
+          successful entry has to happen here rather than inside the block
+          below. */}
+      {submitted && keepContentAfterSubmit === false ? null : children}
 
       {submitted ? (
         <div
-          className="entry-form-success text-center text-lg leading-relaxed [&_a]:underline"
+          className={cn(
+            "entry-form-success text-center leading-relaxed",
+            "[&_a]:underline [&_p+p]:mt-4",
+            successMessageSize || "text-lg",
+          )}
           data-motion="fade-up"
           dangerouslySetInnerHTML={{ __html: successMessage }}
         />
@@ -179,21 +216,121 @@ function EntryForm(props: EntryFormProps) {
             />
           </div>
 
-          <div className="space-y-1.5">
-            <label htmlFor="entry-dob" className="block text-sm">
-              {dateOfBirthLabel || "Date of Birth"}
-            </label>
-            <input
-              id="entry-dob"
-              name="dateOfBirth"
-              type="date"
-              required
-              autoComplete="bday"
-              // Keeps the native calendar icon and placeholder readable when
-              // the surrounding page is dark.
-              className={cn(FIELD_CLASS, "[color-scheme:light]")}
-            />
-          </div>
+          {dateFieldStyle === "split" ? (
+            <fieldset className="space-y-1.5">
+              <legend className="block text-sm">
+                {dateOfBirthLabel || "Date of Birth"}
+              </legend>
+              <div className="flex flex-wrap items-end gap-3">
+                <div className="space-y-1">
+                  <label
+                    htmlFor="entry-dob-month"
+                    className="block text-center font-medium text-xs uppercase tracking-wide"
+                  >
+                    MM
+                  </label>
+                  <input
+                    id="entry-dob-month"
+                    type="text"
+                    inputMode="numeric"
+                    required
+                    autoComplete="bday-month"
+                    aria-label="Birth month"
+                    placeholder="MM"
+                    value={dobMonth}
+                    onChange={(event) => {
+                      const next = digitsOnly(event.target.value, 2);
+                      setDobMonth(next);
+                      if (next.length === 2) {
+                        dobDayRef.current?.focus();
+                      }
+                    }}
+                    onBlur={() => {
+                      setDobMonth((current) =>
+                        current ? current.padStart(2, "0") : current,
+                      );
+                    }}
+                    className={cn(DATE_PART_CLASS, "w-16")}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label
+                    htmlFor="entry-dob-day"
+                    className="block text-center font-medium text-xs uppercase tracking-wide"
+                  >
+                    DD
+                  </label>
+                  <input
+                    id="entry-dob-day"
+                    ref={dobDayRef}
+                    type="text"
+                    inputMode="numeric"
+                    required
+                    autoComplete="bday-day"
+                    aria-label="Birth day"
+                    placeholder="DD"
+                    value={dobDay}
+                    onChange={(event) => {
+                      const next = digitsOnly(event.target.value, 2);
+                      setDobDay(next);
+                      if (next.length === 2) {
+                        dobYearRef.current?.focus();
+                      }
+                    }}
+                    onBlur={() => {
+                      setDobDay((current) =>
+                        current ? current.padStart(2, "0") : current,
+                      );
+                    }}
+                    className={cn(DATE_PART_CLASS, "w-16")}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label
+                    htmlFor="entry-dob-year"
+                    className="block text-center font-medium text-xs uppercase tracking-wide"
+                  >
+                    YYYY
+                  </label>
+                  <input
+                    id="entry-dob-year"
+                    ref={dobYearRef}
+                    type="text"
+                    inputMode="numeric"
+                    required
+                    // Four digits, so "19" can never be read as the year 19.
+                    pattern="[0-9]{4}"
+                    title="Enter a four-digit year, for example 1988"
+                    autoComplete="bday-year"
+                    aria-label="Birth year"
+                    placeholder="YYYY"
+                    value={dobYear}
+                    onChange={(event) => {
+                      setDobYear(digitsOnly(event.target.value, 4));
+                    }}
+                    className={cn(DATE_PART_CLASS, "w-24")}
+                  />
+                </div>
+              </div>
+              <input type="hidden" name="dateOfBirth" value={dobValue} />
+            </fieldset>
+          ) : (
+            <div className="space-y-1.5">
+              <label htmlFor="entry-dob" className="block text-sm">
+                {dateOfBirthLabel || "Date of Birth"}
+              </label>
+              <input
+                id="entry-dob"
+                name="dateOfBirth"
+                type="date"
+                required
+                autoComplete="bday"
+                // Keeps the native calendar icon and placeholder readable when
+                // the surrounding page is dark.
+                className={cn(FIELD_CLASS, "[color-scheme:light]")}
+              />
+            </div>
+          )}
 
           <div className={buttonWidth === "auto" ? "text-center" : ""}>
             <Button
@@ -309,6 +446,20 @@ export const schema = createSchema({
           defaultValue: "Date of Birth",
         },
         {
+          type: "select",
+          name: "dateFieldStyle",
+          label: "Date of birth field",
+          defaultValue: "calendar",
+          configs: {
+            options: [
+              { value: "calendar", label: "Single date picker" },
+              { value: "split", label: "Three boxes (MM / DD / YYYY)" },
+            ],
+          },
+          helpText:
+            "Three boxes avoids the browser's own date picker, so the field looks the same in every browser.",
+        },
+        {
           type: "text",
           name: "buttonText",
           label: "Button text",
@@ -401,6 +552,29 @@ export const schema = createSchema({
           helpText:
             "Replaces the form once an entry is accepted. Links are allowed.",
         },
+        {
+          type: "select",
+          name: "successMessageSize",
+          label: "Success message size",
+          defaultValue: "text-lg",
+          configs: {
+            options: [
+              { value: "text-base", label: "Small" },
+              { value: "text-lg", label: "Medium" },
+              { value: "text-xl", label: "Large" },
+              { value: "text-2xl", label: "Extra large" },
+              { value: "text-3xl", label: "Huge" },
+            ],
+          },
+        },
+        {
+          type: "switch",
+          name: "keepContentAfterSubmit",
+          label: "Keep heading and text",
+          defaultValue: true,
+          helpText:
+            "Off leaves only the success message on screen once an entry is accepted.",
+        },
       ],
     },
     ...sectionSettings,
@@ -408,6 +582,9 @@ export const schema = createSchema({
   childTypes: ["subheading", "heading", "paragraph"],
   presets: {
     formWidth: "medium",
+    dateFieldStyle: "split",
+    successMessageSize: "text-xl",
+    keepContentAfterSubmit: false,
     width: "fixed",
     verticalPadding: "medium",
     gap: 20,

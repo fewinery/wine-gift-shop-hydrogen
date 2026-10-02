@@ -15,8 +15,6 @@ interface EntryFormProps extends SectionProps {
   ref?: React.Ref<HTMLElement>;
   klaviyoListId: string;
   sourceTag: string;
-  heading: string;
-  description: string;
   firstNameLabel: string;
   lastNameLabel: string;
   emailLabel: string;
@@ -53,8 +51,7 @@ function EntryForm(props: EntryFormProps) {
     ref,
     klaviyoListId,
     sourceTag,
-    heading,
-    description,
+    children,
     firstNameLabel,
     lastNameLabel,
     emailLabel,
@@ -81,7 +78,10 @@ function EntryForm(props: EntryFormProps) {
     color: textColor || undefined,
     "--entry-field-bg": fieldBackgroundColor || "#ffffff",
     "--entry-field-border": fieldBorderColor || "var(--color-line)",
-    "--entry-field-text": fieldTextColor || "inherit",
+    // Not "inherit": the field background defaults to white, so inheriting a
+    // light page text color makes typed text and the date placeholder
+    // invisible against it.
+    "--entry-field-text": fieldTextColor || "#000000",
   } as CSSProperties;
 
   return (
@@ -91,15 +91,7 @@ function EntryForm(props: EntryFormProps) {
       containerClassName={cn("mx-auto", formWidths[formWidth] || "max-w-xl")}
       style={colorStyle}
     >
-      {heading && (
-        <h2 className="text-center font-heading text-3xl">{heading}</h2>
-      )}
-      {description && (
-        <div
-          className="text-center [&_a]:underline"
-          dangerouslySetInnerHTML={{ __html: description }}
-        />
-      )}
+      {children}
 
       {submitted ? (
         <div
@@ -180,7 +172,9 @@ function EntryForm(props: EntryFormProps) {
               type="date"
               required
               autoComplete="bday"
-              className={FIELD_CLASS}
+              // Keeps the native calendar icon and placeholder readable when
+              // the surrounding page is dark.
+              className={cn(FIELD_CLASS, "[color-scheme:light]")}
             />
           </div>
 
@@ -259,20 +253,6 @@ export const schema = createSchema({
           },
           helpText:
             "How wide the form itself is. The section's own width is under Layout.",
-        },
-        {
-          type: "text",
-          name: "heading",
-          label: "Heading",
-          defaultValue: "Enter to Win",
-          placeholder: "Enter to Win",
-        },
-        {
-          type: "richtext",
-          name: "description",
-          label: "Description",
-          defaultValue:
-            "<p>Fill in your details below for your chance to win.</p>",
         },
         {
           type: "text",
@@ -368,11 +348,22 @@ export const schema = createSchema({
     },
     ...sectionSettings,
   ],
+  childTypes: ["subheading", "heading", "paragraph"],
   presets: {
     formWidth: "medium",
-    heading: "Enter to Win",
     width: "fixed",
     verticalPadding: "medium",
     gap: 20,
+    children: [
+      {
+        type: "heading",
+        content: "Enter to Win",
+        as: "h2",
+      },
+      {
+        type: "paragraph",
+        content: "Fill in your details below for your chance to win.",
+      },
+    ],
   },
 });

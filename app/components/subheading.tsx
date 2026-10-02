@@ -59,6 +59,7 @@ interface SubHeadingProps
   content: string;
   enableMobileOverrides?: boolean;
 }
+
 function SubHeading(props: SubHeadingProps) {
   const {
     ref,
@@ -153,7 +154,6 @@ export const schema = createSchema({
           defaultValue: "normal",
         },
         {
-                  {
           type: "toggle-group",
           name: "alignment",
           label: "Alignment",
@@ -216,25 +216,6 @@ export const schema = createSchema({
           label: "Mobile alignment",
           condition: (data: SubHeadingProps) =>
             data.enableMobileOverrides === true,
-          configs: {
-            options: [
-              { value: "left", label: "Left", icon: "align-start-vertical" },
-              {
-                value: "center",
-                label: "Center",
-                icon: "align-center-vertical",
-              },
-              { value: "right", label: "Right", icon: "align-end-vertical" },
-            ],
-          },
-          defaultValue: "center",
-        },
-      ],
-    },
-  ],
-});
-          name: "alignment",
-          label: "Alignment",
           configs: {
             options: [
               { value: "left", label: "Left", icon: "align-start-vertical" },

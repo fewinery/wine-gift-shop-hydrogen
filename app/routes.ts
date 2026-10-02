@@ -25,6 +25,7 @@ export default hydrogenRoutes([
     ...prefix("api", [
       route("countries", "routes/api/countries.ts"),
       route("customer", "routes/api/customer.ts"),
+      route("entry-form", "routes/api/entry-form.ts"),
       route("featured-products", "routes/api/featured-products.ts"),
       route("klaviyo", "routes/api/klaviyo.ts"),
       route("reservation", "routes/api/reservation.ts"),

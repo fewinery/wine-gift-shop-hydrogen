@@ -22,6 +22,9 @@ declare global {
     METAOBJECT_COLORS_TYPE: string;
     KLAVIYO_PRIVATE_API_TOKEN: string;
     KLAVIYO_LIST_ID: string;
+    KLAVIYO_CAMPAIGN_LIST_ID: string;
+    KLAVIYO_ENTRY_LIST_ID: string;
+    SHOPIFY_ADMIN_API_TOKEN: string;
     PUBLIC_SHOPIFY_INBOX_SHOP_ID: string;
     WEAVERSE_HOST?: string;
     BLOG_PROVIDER?: "shopify" | "dropinblog";

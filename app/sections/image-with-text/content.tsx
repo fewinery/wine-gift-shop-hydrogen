@@ -12,9 +12,20 @@ const variants = cva(
         center: "md:items-center",
         right: "md:items-end",
       },
+      // The base class list above centres every child on mobile, which makes
+      // a short heading look centred even when its own alignment is Left:
+      // "items-center" shrinks each child to its content width. This variant
+      // targets screens below 768px so mobile can be set independently. The
+      // default reproduces the previous behaviour exactly.
+      mobileAlignment: {
+        left: "max-md:items-start",
+        center: "max-md:items-center",
+        right: "max-md:items-end",
+      },
     },
     defaultVariants: {
       alignment: "center",
+      mobileAlignment: "center",
     },
   },
 );
@@ -26,9 +37,13 @@ interface ImageWithTextContentProps
 }
 
 function ImageWithTextContent(props: ImageWithTextContentProps) {
-  const { alignment, children, ref, ...rest } = props;
+  const { alignment, mobileAlignment, children, ref, ...rest } = props;
   return (
-    <div ref={ref} {...rest} className={clsx(variants({ alignment }))}>
+    <div
+      ref={ref}
+      {...rest}
+      className={clsx(variants({ alignment, mobileAlignment }))}
+    >
       {children}
     </div>
   );
@@ -47,7 +62,7 @@ export const schema = createSchema({
         {
           type: "select",
           name: "alignment",
-          label: "Alignment",
+          label: "Alignment (desktop)",
           configs: {
             options: [
               { value: "left", label: "Left" },
@@ -57,6 +72,21 @@ export const schema = createSchema({
           },
           helpText:
             "This will override the default alignment setting of all children components.",
+        },
+        {
+          type: "select",
+          name: "mobileAlignment",
+          label: "Alignment (mobile)",
+          defaultValue: "center",
+          configs: {
+            options: [
+              { value: "left", label: "Left" },
+              { value: "center", label: "Center" },
+              { value: "right", label: "Right" },
+            ],
+          },
+          helpText:
+            "Applies below 768px. Leave on Center to keep the previous behaviour.",
         },
       ],
     },

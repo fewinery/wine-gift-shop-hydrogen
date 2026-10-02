@@ -6,6 +6,7 @@ const CUSTOMER_CREATE = `#graphql
   mutation customerCreate($input: CustomerCreateInput!) {
     customerCreate(input: $input) {
       customer {
+        id
         firstName
         lastName
         email
@@ -20,7 +21,10 @@ const CUSTOMER_CREATE = `#graphql
   }
 ` as const;
 
-const ADMIN_API_VERSION = "2025-07";
+// Shopify supports an Admin API version for about a year. 2025-07 was already
+// out of support, and requests to a retired version are rejected, which is why
+// nothing was being tagged. Keep this roughly current.
+const ADMIN_API_VERSION = "2026-10";
 
 // Shopify's standard customer birth date definition, the same on every store.
 const BIRTH_DATE_NAMESPACE = "facts";
@@ -61,11 +65,13 @@ async function enrichShopifyCustomer({
   email,
   dateOfBirth,
   sourceTag,
+  knownCustomerId,
 }: {
   env: Env;
   email: string;
   dateOfBirth: string;
   sourceTag: string;
+  knownCustomerId?: string | null;
 }): Promise<void> {
   const adminToken = env.SHOPIFY_ADMIN_API_TOKEN;
   const shopDomain = env.PUBLIC_STORE_DOMAIN;
@@ -88,17 +94,25 @@ async function enrichShopifyCustomer({
     return (await response.json()) as any;
   };
 
-  // The customer is always looked up by email rather than reusing the id from
-  // the Storefront mutation, so existing customers are handled the same way
-  // as brand new ones.
-  const lookup = await callAdmin(FIND_CUSTOMER, {
-    query: `email:"${email.replace(/"/g, "")}"`,
-  });
-  const customerId = lookup?.data?.customers?.nodes?.[0]?.id;
+  // Prefer the id the Storefront mutation just returned. Searching by email
+  // is a fallback for customers who already existed, because Shopify's
+  // customer search runs on an index that can lag a second or two behind a
+  // brand new record - a search here would often find nothing.
+  let customerId = knownCustomerId;
   if (!customerId) {
-    console.error("Admin API could not find the customer just created");
+    const lookup = await callAdmin(FIND_CUSTOMER, {
+      query: `email:"${email.replace(/"/g, "")}"`,
+    });
+    customerId = lookup?.data?.customers?.nodes?.[0]?.id;
+    if (lookup?.errors) {
+      console.error("Admin API lookup errors", JSON.stringify(lookup.errors));
+    }
+  }
+  if (!customerId) {
+    console.error("Admin API could not resolve a customer id for", email);
     return;
   }
+  console.log("Admin API enriching customer", customerId);
 
   const result = await callAdmin(ENRICH_CUSTOMER, {
     id: customerId,
@@ -125,6 +139,8 @@ async function enrichShopifyCustomer({
       "Admin API enrichment errors",
       JSON.stringify(userErrors.length ? userErrors : result.errors),
     );
+  } else {
+    console.log("Admin API enrichment ok: tag and birth date written");
   }
 }
 
@@ -257,6 +273,9 @@ export const action: ActionFunction = async ({
       email,
       dateOfBirth,
       sourceTag,
+      // Present for a newly created customer; absent when the email already
+      // existed, in which case the function searches by email instead.
+      knownCustomerId: (customerCreate?.customer as { id?: string } | null)?.id,
     });
   } catch (error) {
     console.error("Shopify customer enrichment failed", error);

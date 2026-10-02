@@ -52,13 +52,83 @@ const ENRICH_CUSTOMER = `#graphql
   }
 `;
 
+// Client-credentials tokens last 24 hours, so one is kept per worker isolate
+// and reused until just before it expires instead of asking Shopify on every
+// submission.
+let cachedAdminToken: { token: string; expiresAt: number } | null = null;
+
+/**
+ * Resolves an Admin API access token.
+ *
+ * Legacy custom apps (which Shopify stopped issuing on 1 January 2026) hand
+ * out a permanent token, so that is used when a store still has one. Newer
+ * stores use a Dev Dashboard app instead, whose client id and secret are
+ * exchanged for a 24 hour token through the client credentials grant.
+ *
+ * Returns null when neither is configured, which makes the whole Shopify
+ * enrichment step a no-op.
+ */
+async function getAdminAccessToken(env: Env): Promise<string | null> {
+  if (env.SHOPIFY_ADMIN_API_TOKEN) {
+    return env.SHOPIFY_ADMIN_API_TOKEN;
+  }
+
+  const clientId = env.SHOPIFY_APP_CLIENT_ID;
+  const clientSecret = env.SHOPIFY_APP_CLIENT_SECRET;
+  const shopDomain = env.PUBLIC_STORE_DOMAIN;
+  if (!(clientId && clientSecret && shopDomain)) {
+    return null;
+  }
+
+  if (cachedAdminToken && cachedAdminToken.expiresAt > Date.now() + 60_000) {
+    return cachedAdminToken.token;
+  }
+
+  const response = await fetch(
+    `https://${shopDomain}/admin/oauth/access_token`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        client_id: clientId,
+        client_secret: clientSecret,
+        grant_type: "client_credentials",
+      }),
+    },
+  );
+
+  if (!response.ok) {
+    console.error(
+      "Shopify client credentials grant failed",
+      response.status,
+      await response.text(),
+    );
+    return null;
+  }
+
+  const json = (await response.json()) as {
+    access_token?: string;
+    expires_in?: number;
+  };
+  if (!json.access_token) {
+    console.error("Client credentials grant returned no access token");
+    return null;
+  }
+
+  cachedAdminToken = {
+    token: json.access_token,
+    expiresAt: Date.now() + (json.expires_in ?? 86_399) * 1000,
+  };
+  return json.access_token;
+}
+
 /**
  * Adds the source tag and writes the birth date to the standard
  * facts.birth_date customer metafield.
  *
- * Requires SHOPIFY_ADMIN_API_TOKEN with the write_customers and
- * read_customers scopes. When the token is absent this is a no-op, so the
- * form keeps working on storefronts that have not set one up.
+ * Needs the read_customers and write_customers scopes. When no Admin
+ * credentials are configured this is a no-op, so the form keeps working on
+ * storefronts that have not set any up.
  */
 async function enrichShopifyCustomer({
   env,
@@ -73,8 +143,8 @@ async function enrichShopifyCustomer({
   sourceTag: string;
   knownCustomerId?: string | null;
 }): Promise<void> {
-  const adminToken = env.SHOPIFY_ADMIN_API_TOKEN;
   const shopDomain = env.PUBLIC_STORE_DOMAIN;
+  const adminToken = await getAdminAccessToken(env);
   if (!(adminToken && shopDomain)) {
     return;
   }

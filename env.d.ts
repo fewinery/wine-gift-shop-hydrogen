@@ -25,6 +25,8 @@ declare global {
     KLAVIYO_CAMPAIGN_LIST_ID: string;
     KLAVIYO_ENTRY_LIST_ID: string;
     SHOPIFY_ADMIN_API_TOKEN: string;
+    SHOPIFY_APP_CLIENT_ID: string;
+    SHOPIFY_APP_CLIENT_SECRET: string;
     PUBLIC_SHOPIFY_INBOX_SHOP_ID: string;
     WEAVERSE_HOST?: string;
     BLOG_PROVIDER?: "shopify" | "dropinblog";

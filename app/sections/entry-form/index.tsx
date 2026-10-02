@@ -1,11 +1,17 @@
-import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
+import { createSchema } from "@weaverse/hydrogen";
 import clsx from "clsx";
+import type { CSSProperties } from "react";
 import { useFetcher } from "react-router";
 import { Button } from "~/components/button";
+import {
+  Section,
+  type SectionProps,
+  sectionSettings,
+} from "~/components/section";
 import type { EntryFormApiPayload } from "~/routes/api/entry-form";
 import { cn } from "~/utils/cn";
 
-interface EntryFormProps extends HydrogenComponentProps {
+interface EntryFormProps extends SectionProps {
   ref?: React.Ref<HTMLElement>;
   klaviyoListId: string;
   sourceTag: string;
@@ -18,17 +24,29 @@ interface EntryFormProps extends HydrogenComponentProps {
   buttonText: string;
   successMessage: string;
   consentText: string;
-  width: "narrow" | "medium" | "wide";
+  // Named "formWidth" rather than "width" because Section already owns a
+  // "width" setting for the section container itself.
+  formWidth: "narrow" | "medium" | "wide";
+  textColor: string;
+  fieldBackgroundColor: string;
+  fieldBorderColor: string;
+  fieldTextColor: string;
+  buttonWidth: "full" | "auto";
 }
 
-const widths = {
+const formWidths = {
   narrow: "max-w-md",
   medium: "max-w-xl",
   wide: "max-w-3xl",
 };
 
-const FIELD_CLASS =
-  "w-full border border-line bg-white p-3 leading-tight focus:outline-hidden";
+// Field colors come through CSS variables set on the wrapper so every input
+// picks them up without repeating the same four classes on each one.
+const FIELD_CLASS = cn(
+  "w-full p-3 leading-tight focus:outline-hidden",
+  "border border-(--entry-field-border)",
+  "bg-(--entry-field-bg) text-(--entry-field-text)",
+);
 
 function EntryForm(props: EntryFormProps) {
   const {
@@ -44,7 +62,12 @@ function EntryForm(props: EntryFormProps) {
     buttonText,
     successMessage,
     consentText,
-    width,
+    formWidth,
+    textColor,
+    fieldBackgroundColor,
+    fieldBorderColor,
+    fieldTextColor,
+    buttonWidth,
     ...rest
   } = props;
 
@@ -54,129 +77,141 @@ function EntryForm(props: EntryFormProps) {
   const submitted = Boolean(result?.ok);
   const showError = state === "idle" && result && !result.ok;
 
+  const colorStyle = {
+    color: textColor || undefined,
+    "--entry-field-bg": fieldBackgroundColor || "#ffffff",
+    "--entry-field-border": fieldBorderColor || "var(--color-line)",
+    "--entry-field-text": fieldTextColor || "inherit",
+  } as CSSProperties;
+
   return (
-    <section ref={ref} {...rest} className="w-full px-4 py-12">
-      <div className={cn("mx-auto w-full", widths[width] || widths.medium)}>
-        {heading && (
-          <h2 className="mb-4 text-center font-heading text-3xl">{heading}</h2>
-        )}
-        {description && (
-          <div
-            className="mb-8 text-center"
-            dangerouslySetInnerHTML={{ __html: description }}
-          />
-        )}
+    <Section
+      ref={ref}
+      {...rest}
+      containerClassName={cn("mx-auto", formWidths[formWidth] || "max-w-xl")}
+      style={colorStyle}
+    >
+      {heading && (
+        <h2 className="text-center font-heading text-3xl">{heading}</h2>
+      )}
+      {description && (
+        <div
+          className="text-center [&_a]:underline"
+          dangerouslySetInnerHTML={{ __html: description }}
+        />
+      )}
 
-        {submitted ? (
+      {submitted ? (
+        <div
+          className="entry-form-success text-center text-lg leading-relaxed [&_a]:underline"
+          data-motion="fade-up"
+          dangerouslySetInnerHTML={{ __html: successMessage }}
+        />
+      ) : (
+        <Form method="POST" action="/api/entry-form" className="space-y-4">
+          {/* HONEYPOT: bots fill it, humans never see it */}
           <div
-            className="entry-form-success text-center text-lg leading-relaxed [&_a]:underline"
-            data-motion="fade-up"
-            dangerouslySetInnerHTML={{ __html: successMessage }}
-          />
-        ) : (
-          <Form method="POST" action="/api/entry-form" className="space-y-4">
-            {/* HONEYPOT: bots fill it, humans never see it */}
-            <div
-              style={{ position: "absolute", left: "-10000px" }}
-              aria-hidden="true"
-            >
-              <label htmlFor="entry-company">Leave this empty</label>
+            style={{ position: "absolute", left: "-10000px" }}
+            aria-hidden="true"
+          >
+            <label htmlFor="entry-company">Leave this empty</label>
+            <input
+              type="text"
+              id="entry-company"
+              name="company"
+              tabIndex={-1}
+              autoComplete="off"
+            />
+          </div>
+
+          <input type="hidden" name="listId" value={klaviyoListId || ""} />
+          <input type="hidden" name="sourceTag" value={sourceTag || ""} />
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <label htmlFor="entry-first-name" className="block text-sm">
+                {firstNameLabel || "First Name"}
+              </label>
               <input
+                id="entry-first-name"
+                name="firstName"
                 type="text"
-                id="entry-company"
-                name="company"
-                tabIndex={-1}
-                autoComplete="off"
-              />
-            </div>
-
-            <input type="hidden" name="listId" value={klaviyoListId || ""} />
-            <input type="hidden" name="sourceTag" value={sourceTag || ""} />
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="space-y-1.5">
-                <label htmlFor="entry-first-name" className="block text-sm">
-                  {firstNameLabel || "First Name"}
-                </label>
-                <input
-                  id="entry-first-name"
-                  name="firstName"
-                  type="text"
-                  required
-                  autoComplete="given-name"
-                  className={FIELD_CLASS}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label htmlFor="entry-last-name" className="block text-sm">
-                  {lastNameLabel || "Last Name"}
-                </label>
-                <input
-                  id="entry-last-name"
-                  name="lastName"
-                  type="text"
-                  required
-                  autoComplete="family-name"
-                  className={FIELD_CLASS}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <label htmlFor="entry-email" className="block text-sm">
-                {emailLabel || "Email Address"}
-              </label>
-              <input
-                id="entry-email"
-                name="email"
-                type="email"
                 required
-                autoComplete="email"
+                autoComplete="given-name"
                 className={FIELD_CLASS}
               />
             </div>
-
             <div className="space-y-1.5">
-              <label htmlFor="entry-dob" className="block text-sm">
-                {dateOfBirthLabel || "Date of Birth"}
+              <label htmlFor="entry-last-name" className="block text-sm">
+                {lastNameLabel || "Last Name"}
               </label>
               <input
-                id="entry-dob"
-                name="dateOfBirth"
-                type="date"
+                id="entry-last-name"
+                name="lastName"
+                type="text"
                 required
-                autoComplete="bday"
+                autoComplete="family-name"
                 className={FIELD_CLASS}
               />
             </div>
+          </div>
 
+          <div className="space-y-1.5">
+            <label htmlFor="entry-email" className="block text-sm">
+              {emailLabel || "Email Address"}
+            </label>
+            <input
+              id="entry-email"
+              name="email"
+              type="email"
+              required
+              autoComplete="email"
+              className={FIELD_CLASS}
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label htmlFor="entry-dob" className="block text-sm">
+              {dateOfBirthLabel || "Date of Birth"}
+            </label>
+            <input
+              id="entry-dob"
+              name="dateOfBirth"
+              type="date"
+              required
+              autoComplete="bday"
+              className={FIELD_CLASS}
+            />
+          </div>
+
+          <div className={buttonWidth === "auto" ? "text-center" : ""}>
             <Button
               type="submit"
-              className="w-full"
+              className={buttonWidth === "auto" ? "" : "w-full"}
               loading={state === "submitting"}
             >
               {buttonText || "Submit"}
             </Button>
+          </div>
 
-            {consentText && (
-              <div
-                className="text-center text-sm [&_a]:underline"
-                dangerouslySetInnerHTML={{ __html: consentText }}
-              />
-            )}
-
+          {consentText && (
             <div
-              className={clsx(
-                "text-center font-medium text-red-700 text-sm",
-                showError ? "visible" : "invisible",
-              )}
-            >
-              {result?.errorMessage || "Something went wrong"}
-            </div>
-          </Form>
-        )}
-      </div>
-    </section>
+              className="text-center text-sm [&_a]:underline"
+              dangerouslySetInnerHTML={{ __html: consentText }}
+            />
+          )}
+
+          <div
+            className={clsx(
+              "text-center font-medium text-red-700 text-sm",
+              showError ? "visible" : "invisible",
+            )}
+          >
+            {result?.errorMessage || "Something went wrong"}
+          </div>
+        </Form>
+      )}
+    </Section>
   );
 }
 
@@ -203,7 +238,7 @@ export const schema = createSchema({
           label: "Source tag",
           placeholder: "e.g. Klaviyo: Barry Manilow - Obbligato",
           helpText:
-            "Written to every entry as the Klaviyo profile property 'Signup Source' and as the consent record's source. Use it to tell real entrants apart from spam in segments and suppression rules.",
+            "Written to every entry as the Shopify customer tag, the Klaviyo profile property 'Signup Source' and the consent record's source.",
         },
       ],
     },
@@ -212,7 +247,7 @@ export const schema = createSchema({
       inputs: [
         {
           type: "select",
-          name: "width",
+          name: "formWidth",
           label: "Form width",
           defaultValue: "medium",
           configs: {
@@ -222,6 +257,8 @@ export const schema = createSchema({
               { value: "wide", label: "Wide" },
             ],
           },
+          helpText:
+            "How wide the form itself is. The section's own width is under Layout.",
         },
         {
           type: "text",
@@ -277,6 +314,45 @@ export const schema = createSchema({
       ],
     },
     {
+      group: "Form style",
+      inputs: [
+        {
+          type: "color",
+          name: "textColor",
+          label: "Text color",
+          helpText:
+            "Heading, description, labels and fine print. Leave empty to inherit the theme.",
+        },
+        {
+          type: "color",
+          name: "fieldBackgroundColor",
+          label: "Field background",
+        },
+        {
+          type: "color",
+          name: "fieldBorderColor",
+          label: "Field border",
+        },
+        {
+          type: "color",
+          name: "fieldTextColor",
+          label: "Field text",
+        },
+        {
+          type: "toggle-group",
+          name: "buttonWidth",
+          label: "Button width",
+          defaultValue: "full",
+          configs: {
+            options: [
+              { value: "full", label: "Full", icon: "move-horizontal" },
+              { value: "auto", label: "Auto", icon: "fold-horizontal" },
+            ],
+          },
+        },
+      ],
+    },
+    {
       group: "After submission",
       inputs: [
         {
@@ -290,9 +366,13 @@ export const schema = createSchema({
         },
       ],
     },
+    ...sectionSettings,
   ],
   presets: {
-    width: "medium",
+    formWidth: "medium",
     heading: "Enter to Win",
+    width: "fixed",
+    verticalPadding: "medium",
+    gap: 20,
   },
 });

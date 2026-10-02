@@ -32,6 +32,7 @@ import * as ComparisonColumn from "~/sections/comparison-table/column";
 import * as ContactForm from "~/sections/contact-form";
 import * as Countdown from "~/sections/countdown";
 import * as CountDownTimer from "~/sections/countdown/timer";
+import * as EntryForm from "~/sections/entry-form";
 import * as FaqSection from "~/sections/faq";
 import * as FaqItem from "~/sections/faq/item";
 import * as FeaturedCollections from "~/sections/featured-collections";
@@ -161,6 +162,7 @@ export const components: HydrogenComponent[] = [
   StepsGuideItem,
   Countdown,
   CountDownTimer,
+  EntryForm,
   NewsLetter,
   NewsLetterForm,
   NewsletterCampaign,

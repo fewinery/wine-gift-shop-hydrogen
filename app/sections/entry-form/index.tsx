@@ -19,8 +19,11 @@ interface EntryFormProps extends SectionProps {
   lastNameLabel: string;
   emailLabel: string;
   dateOfBirthLabel: string;
-  dateFieldStyle: "calendar" | "split";
+  dateFieldStyle: "calendar" | "split" | "dropdown";
   buttonText: string;
+  successTitle: string;
+  successTitleSize: string;
+  successTitleUseHeadingFont: boolean;
   successMessage: string;
   successMessageSize: string;
   keepContentAfterSubmit: boolean;
@@ -55,13 +58,65 @@ const FIELD_BASE = cn(
 
 const FIELD_CLASS = cn("w-full", FIELD_BASE);
 
-// The MM / DD / YYYY boxes are their own width, so they use the base class
-// without "w-full".
-const DATE_PART_CLASS = cn(FIELD_BASE, "text-center");
+// The date boxes fill their grid column, so the row spans the same width as
+// the email field above it.
+const DATE_PART_CLASS = cn(FIELD_CLASS, "text-center");
+
+// Dropdowns keep the native arrow, and "color-scheme: light" stops the
+// browser drawing the open list dark over a light field.
+const DATE_SELECT_CLASS = cn(FIELD_CLASS, "[color-scheme:light]");
+
+const MONTH_OPTIONS = Array.from({ length: 12 }, (_, index) =>
+  String(index + 1).padStart(2, "0"),
+);
+
+const OLDEST_YEAR_OFFSET = 110;
+
+const YEAR_OPTIONS = Array.from(
+  { length: OLDEST_YEAR_OFFSET + 1 },
+  (_, index) => String(new Date().getUTCFullYear() - index),
+);
 
 /** Keeps a date box numeric and no longer than its part allows. */
 function digitsOnly(value: string, maxLength: number) {
   return value.replace(/\D/g, "").slice(0, maxLength);
+}
+
+/**
+ * Last day of the chosen month. Before a year is picked it assumes a leap
+ * year, so February offers 29 rather than hiding a valid birthday.
+ */
+function daysInMonth(month: string, year: string) {
+  const monthNumber = Number(month);
+  if (!monthNumber) {
+    return 31;
+  }
+  const yearNumber = Number(year) || 2000;
+  return new Date(Date.UTC(yearNumber, monthNumber, 0)).getUTCDate();
+}
+
+function DatePartCell({
+  htmlFor,
+  label,
+  className,
+  children,
+}: {
+  htmlFor: string;
+  label: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className={cn("space-y-1", className)}>
+      <label
+        htmlFor={htmlFor}
+        className="block text-center font-medium text-xs uppercase tracking-wide"
+      >
+        {label}
+      </label>
+      {children}
+    </div>
+  );
 }
 
 function EntryForm(props: EntryFormProps) {
@@ -76,6 +131,9 @@ function EntryForm(props: EntryFormProps) {
     dateOfBirthLabel,
     dateFieldStyle,
     buttonText,
+    successTitle,
+    successTitleSize,
+    successTitleUseHeadingFont,
     successMessage,
     successMessageSize,
     keepContentAfterSubmit,
@@ -112,6 +170,12 @@ function EntryForm(props: EntryFormProps) {
       ? `${dobYear}-${dobMonth.padStart(2, "0")}-${dobDay.padStart(2, "0")}`
       : "";
 
+  const useDropdowns = dateFieldStyle === "dropdown";
+  const dayOptions = Array.from(
+    { length: daysInMonth(dobMonth, dobYear) },
+    (_, index) => String(index + 1).padStart(2, "0"),
+  );
+
   // Only switch the button to its "custom" variant once a color is actually
   // set, so an untouched form keeps the theme's primary button exactly.
   const hasCustomButton = Boolean(
@@ -145,14 +209,31 @@ function EntryForm(props: EntryFormProps) {
 
       {submitted ? (
         <div
-          className={cn(
-            "entry-form-success text-center leading-relaxed",
-            "[&_a]:underline [&_p+p]:mt-4",
-            successMessageSize || "text-lg",
-          )}
+          className="entry-form-success space-y-4 text-center"
           data-motion="fade-up"
-          dangerouslySetInnerHTML={{ __html: successMessage }}
-        />
+        >
+          {successTitle && (
+            <div
+              className={cn(
+                "leading-tight [&_a]:underline [&_p+p]:mt-2",
+                successTitleUseHeadingFont === false
+                  ? "font-body"
+                  : "font-heading",
+                successTitleSize || "text-2xl",
+              )}
+              dangerouslySetInnerHTML={{ __html: successTitle }}
+            />
+          )}
+          {successMessage && (
+            <div
+              className={cn(
+                "leading-relaxed [&_a]:underline [&_p+p]:mt-4",
+                successMessageSize || "text-lg",
+              )}
+              dangerouslySetInnerHTML={{ __html: successMessage }}
+            />
+          )}
+        </div>
       ) : (
         <Form method="POST" action="/api/entry-form" className="space-y-4">
           {/* HONEYPOT: bots fill it, humans never see it */}
@@ -216,105 +297,7 @@ function EntryForm(props: EntryFormProps) {
             />
           </div>
 
-          {dateFieldStyle === "split" ? (
-            <fieldset className="space-y-1.5">
-              <legend className="block text-sm">
-                {dateOfBirthLabel || "Date of Birth"}
-              </legend>
-              <div className="flex flex-wrap items-end gap-3">
-                <div className="space-y-1">
-                  <label
-                    htmlFor="entry-dob-month"
-                    className="block text-center font-medium text-xs uppercase tracking-wide"
-                  >
-                    MM
-                  </label>
-                  <input
-                    id="entry-dob-month"
-                    type="text"
-                    inputMode="numeric"
-                    required
-                    autoComplete="bday-month"
-                    aria-label="Birth month"
-                    placeholder="MM"
-                    value={dobMonth}
-                    onChange={(event) => {
-                      const next = digitsOnly(event.target.value, 2);
-                      setDobMonth(next);
-                      if (next.length === 2) {
-                        dobDayRef.current?.focus();
-                      }
-                    }}
-                    onBlur={() => {
-                      setDobMonth((current) =>
-                        current ? current.padStart(2, "0") : current,
-                      );
-                    }}
-                    className={cn(DATE_PART_CLASS, "w-16")}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label
-                    htmlFor="entry-dob-day"
-                    className="block text-center font-medium text-xs uppercase tracking-wide"
-                  >
-                    DD
-                  </label>
-                  <input
-                    id="entry-dob-day"
-                    ref={dobDayRef}
-                    type="text"
-                    inputMode="numeric"
-                    required
-                    autoComplete="bday-day"
-                    aria-label="Birth day"
-                    placeholder="DD"
-                    value={dobDay}
-                    onChange={(event) => {
-                      const next = digitsOnly(event.target.value, 2);
-                      setDobDay(next);
-                      if (next.length === 2) {
-                        dobYearRef.current?.focus();
-                      }
-                    }}
-                    onBlur={() => {
-                      setDobDay((current) =>
-                        current ? current.padStart(2, "0") : current,
-                      );
-                    }}
-                    className={cn(DATE_PART_CLASS, "w-16")}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label
-                    htmlFor="entry-dob-year"
-                    className="block text-center font-medium text-xs uppercase tracking-wide"
-                  >
-                    YYYY
-                  </label>
-                  <input
-                    id="entry-dob-year"
-                    ref={dobYearRef}
-                    type="text"
-                    inputMode="numeric"
-                    required
-                    // Four digits, so "19" can never be read as the year 19.
-                    pattern="[0-9]{4}"
-                    title="Enter a four-digit year, for example 1988"
-                    autoComplete="bday-year"
-                    aria-label="Birth year"
-                    placeholder="YYYY"
-                    value={dobYear}
-                    onChange={(event) => {
-                      setDobYear(digitsOnly(event.target.value, 4));
-                    }}
-                    className={cn(DATE_PART_CLASS, "w-24")}
-                  />
-                </div>
-              </div>
-              <input type="hidden" name="dateOfBirth" value={dobValue} />
-            </fieldset>
-          ) : (
+          {dateFieldStyle === "calendar" ? (
             <div className="space-y-1.5">
               <label htmlFor="entry-dob" className="block text-sm">
                 {dateOfBirthLabel || "Date of Birth"}
@@ -330,6 +313,167 @@ function EntryForm(props: EntryFormProps) {
                 className={cn(FIELD_CLASS, "[color-scheme:light]")}
               />
             </div>
+          ) : (
+            <fieldset className="space-y-1.5">
+              <legend className="block text-sm">
+                {dateOfBirthLabel || "Date of Birth"}
+              </legend>
+              {/* Four columns with the year taking two of them: the row fills
+                  the form width and the year stays the widest. */}
+              <div className="grid grid-cols-4 items-end gap-3">
+                <DatePartCell htmlFor="entry-dob-month" label="MM">
+                  {useDropdowns ? (
+                    <select
+                      id="entry-dob-month"
+                      required
+                      autoComplete="bday-month"
+                      aria-label="Birth month"
+                      value={dobMonth}
+                      onChange={(event) => {
+                        const next = event.target.value;
+                        setDobMonth(next);
+                        // A shorter month can strand a day that was already
+                        // picked, so drop it rather than submit the 31st of
+                        // February.
+                        if (Number(dobDay) > daysInMonth(next, dobYear)) {
+                          setDobDay("");
+                        }
+                      }}
+                      className={DATE_SELECT_CLASS}
+                    >
+                      <option value="">MM</option>
+                      {MONTH_OPTIONS.map((month) => (
+                        <option key={month} value={month}>
+                          {month}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      id="entry-dob-month"
+                      type="text"
+                      inputMode="numeric"
+                      required
+                      autoComplete="bday-month"
+                      aria-label="Birth month"
+                      placeholder="MM"
+                      value={dobMonth}
+                      onChange={(event) => {
+                        const next = digitsOnly(event.target.value, 2);
+                        setDobMonth(next);
+                        if (next.length === 2) {
+                          dobDayRef.current?.focus();
+                        }
+                      }}
+                      onBlur={() => {
+                        setDobMonth((current) =>
+                          current ? current.padStart(2, "0") : current,
+                        );
+                      }}
+                      className={DATE_PART_CLASS}
+                    />
+                  )}
+                </DatePartCell>
+                <DatePartCell htmlFor="entry-dob-day" label="DD">
+                  {useDropdowns ? (
+                    <select
+                      id="entry-dob-day"
+                      required
+                      autoComplete="bday-day"
+                      aria-label="Birth day"
+                      value={dobDay}
+                      onChange={(event) => {
+                        setDobDay(event.target.value);
+                      }}
+                      className={DATE_SELECT_CLASS}
+                    >
+                      <option value="">DD</option>
+                      {dayOptions.map((day) => (
+                        <option key={day} value={day}>
+                          {day}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      id="entry-dob-day"
+                      ref={dobDayRef}
+                      type="text"
+                      inputMode="numeric"
+                      required
+                      autoComplete="bday-day"
+                      aria-label="Birth day"
+                      placeholder="DD"
+                      value={dobDay}
+                      onChange={(event) => {
+                        const next = digitsOnly(event.target.value, 2);
+                        setDobDay(next);
+                        if (next.length === 2) {
+                          dobYearRef.current?.focus();
+                        }
+                      }}
+                      onBlur={() => {
+                        setDobDay((current) =>
+                          current ? current.padStart(2, "0") : current,
+                        );
+                      }}
+                      className={DATE_PART_CLASS}
+                    />
+                  )}
+                </DatePartCell>
+                <DatePartCell
+                  htmlFor="entry-dob-year"
+                  label="YYYY"
+                  className="col-span-2"
+                >
+                  {useDropdowns ? (
+                    <select
+                      id="entry-dob-year"
+                      required
+                      autoComplete="bday-year"
+                      aria-label="Birth year"
+                      value={dobYear}
+                      onChange={(event) => {
+                        const next = event.target.value;
+                        setDobYear(next);
+                        // February 29 only exists in a leap year.
+                        if (Number(dobDay) > daysInMonth(dobMonth, next)) {
+                          setDobDay("");
+                        }
+                      }}
+                      className={DATE_SELECT_CLASS}
+                    >
+                      <option value="">YYYY</option>
+                      {YEAR_OPTIONS.map((year) => (
+                        <option key={year} value={year}>
+                          {year}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      id="entry-dob-year"
+                      ref={dobYearRef}
+                      type="text"
+                      inputMode="numeric"
+                      required
+                      // Four digits, so "19" can never be read as the year 19.
+                      pattern="[0-9]{4}"
+                      title="Enter a four-digit year, for example 1988"
+                      autoComplete="bday-year"
+                      aria-label="Birth year"
+                      placeholder="YYYY"
+                      value={dobYear}
+                      onChange={(event) => {
+                        setDobYear(digitsOnly(event.target.value, 4));
+                      }}
+                      className={DATE_PART_CLASS}
+                    />
+                  )}
+                </DatePartCell>
+              </div>
+              <input type="hidden" name="dateOfBirth" value={dobValue} />
+            </fieldset>
           )}
 
           <div className={buttonWidth === "auto" ? "text-center" : ""}>
@@ -453,11 +597,12 @@ export const schema = createSchema({
           configs: {
             options: [
               { value: "calendar", label: "Single date picker" },
-              { value: "split", label: "Three boxes (MM / DD / YYYY)" },
+              { value: "dropdown", label: "Three dropdowns (MM / DD / YYYY)" },
+              { value: "split", label: "Three typed boxes (MM / DD / YYYY)" },
             ],
           },
           helpText:
-            "Three boxes avoids the browser's own date picker, so the field looks the same in every browser.",
+            "Dropdowns open the phone's own scroller and are the easiest on mobile. Typed boxes suit visitors who would rather key the date in. Either one avoids the browser's date picker, so the field looks the same everywhere.",
         },
         {
           type: "text",
@@ -545,25 +690,53 @@ export const schema = createSchema({
       inputs: [
         {
           type: "richtext",
-          name: "successMessage",
-          label: "Success message",
-          defaultValue:
-            '<p>Your entry has been received. Good luck!</p><p>In the meantime, <a href="https://obbligatonapa.com/">CLICK HERE</a> to explore our full wine collection and the Obbligato Club Membership, offering flexible membership options, shipping discounts, savings of up to 20%, and instant rewards through our WinePlus Loyalty Program.</p>',
+          name: "successTitle",
+          label: "Title",
+          defaultValue: "<p>Your entry has been received. Good luck!</p>",
           helpText:
-            "Replaces the form once an entry is accepted. Links are allowed.",
+            "Shown in place of the form once an entry is accepted. Leave empty for no title.",
+        },
+        {
+          type: "select",
+          name: "successTitleSize",
+          label: "Title size",
+          defaultValue: "text-2xl",
+          configs: {
+            options: [
+              { value: "text-lg", label: "Small" },
+              { value: "text-xl", label: "Medium" },
+              { value: "text-2xl", label: "Large" },
+              { value: "text-3xl", label: "Extra large" },
+              { value: "text-4xl", label: "Huge" },
+            ],
+          },
+        },
+        {
+          type: "switch",
+          name: "successTitleUseHeadingFont",
+          label: "Title uses the heading font",
+          defaultValue: true,
+        },
+        {
+          type: "richtext",
+          name: "successMessage",
+          label: "Description",
+          defaultValue:
+            '<p>In the meantime, <a href="https://obbligatonapa.com/">CLICK HERE</a> to explore our full wine collection and the Obbligato Club Membership, offering flexible membership options, shipping discounts, savings of up to 20%, and instant rewards through our WinePlus Loyalty Program.</p>',
+          helpText: "Sits under the title. Links are allowed.",
         },
         {
           type: "select",
           name: "successMessageSize",
-          label: "Success message size",
+          label: "Description size",
           defaultValue: "text-lg",
           configs: {
             options: [
-              { value: "text-base", label: "Small" },
-              { value: "text-lg", label: "Medium" },
-              { value: "text-xl", label: "Large" },
-              { value: "text-2xl", label: "Extra large" },
-              { value: "text-3xl", label: "Huge" },
+              { value: "text-sm", label: "Small" },
+              { value: "text-base", label: "Medium" },
+              { value: "text-lg", label: "Large" },
+              { value: "text-xl", label: "Extra large" },
+              { value: "text-2xl", label: "Huge" },
             ],
           },
         },
@@ -582,8 +755,9 @@ export const schema = createSchema({
   childTypes: ["subheading", "heading", "paragraph"],
   presets: {
     formWidth: "medium",
-    dateFieldStyle: "split",
-    successMessageSize: "text-xl",
+    dateFieldStyle: "dropdown",
+    successTitleSize: "text-2xl",
+    successMessageSize: "text-lg",
     keepContentAfterSubmit: false,
     width: "fixed",
     verticalPadding: "medium",

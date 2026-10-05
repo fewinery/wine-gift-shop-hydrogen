@@ -10,8 +10,13 @@ import {
 } from "~/components/section";
 import type { EntryFormApiPayload } from "~/routes/api/entry-form";
 import { cn } from "~/utils/cn";
+import {
+  EntryFormSuccess,
+  type EntryFormSuccessProps,
+  successMessageInputs,
+} from "./success-message";
 
-interface EntryFormProps extends SectionProps {
+interface EntryFormProps extends SectionProps, EntryFormSuccessProps {
   ref?: React.Ref<HTMLElement>;
   klaviyoListId: string;
   sourceTag: string;
@@ -20,13 +25,12 @@ interface EntryFormProps extends SectionProps {
   emailLabel: string;
   dateOfBirthLabel: string;
   dateFieldStyle: "calendar" | "split" | "dropdown";
+  labelSize: string;
+  dateLabelSize: string;
+  inputTextSize: string;
+  buttonTextSize: string;
+  consentTextSize: string;
   buttonText: string;
-  successTitle: string;
-  successTitleSize: string;
-  successTitleUseHeadingFont: boolean;
-  successMessage: string;
-  successMessageSize: string;
-  keepContentAfterSubmit: boolean;
   consentText: string;
   // Named "formWidth" rather than "width" because Section already owns a
   // "width" setting for the section container itself.
@@ -99,18 +103,23 @@ function DatePartCell({
   htmlFor,
   label,
   className,
+  labelClassName,
   children,
 }: {
   htmlFor: string;
   label: string;
   className?: string;
+  labelClassName?: string;
   children: React.ReactNode;
 }) {
   return (
     <div className={cn("space-y-1", className)}>
       <label
         htmlFor={htmlFor}
-        className="block text-center font-medium text-xs uppercase tracking-wide"
+        className={cn(
+          "block text-center font-medium uppercase tracking-wide",
+          labelClassName || "text-xs",
+        )}
       >
         {label}
       </label>
@@ -130,10 +139,24 @@ function EntryForm(props: EntryFormProps) {
     emailLabel,
     dateOfBirthLabel,
     dateFieldStyle,
+    labelSize,
+    dateLabelSize,
+    inputTextSize,
+    buttonTextSize,
+    consentTextSize,
     buttonText,
     successTitle,
+    successTitleAs,
+    successTitleColor,
     successTitleSize,
-    successTitleUseHeadingFont,
+    successTitleMobileSize,
+    successTitleDesktopSize,
+    successTitleMinSize,
+    successTitleMaxSize,
+    successTitleWeight,
+    successTitleLetterSpacing,
+    successTitleLineHeight,
+    successTitleAlignment,
     successMessage,
     successMessageSize,
     keepContentAfterSubmit,
@@ -169,6 +192,13 @@ function EntryForm(props: EntryFormProps) {
     dobMonth && dobDay && dobYear.length === 4
       ? `${dobYear}-${dobMonth.padStart(2, "0")}-${dobDay.padStart(2, "0")}`
       : "";
+
+  // Every brand sets its own base font size, so the form's labels need to be
+  // tunable per storefront rather than fixed at text-sm.
+  const labelClass = cn("block", labelSize || "text-sm");
+  const fieldClass = cn(FIELD_CLASS, inputTextSize || "text-base");
+  const datePartClass = cn(DATE_PART_CLASS, inputTextSize || "text-base");
+  const dateSelectClass = cn(DATE_SELECT_CLASS, inputTextSize || "text-base");
 
   const useDropdowns = dateFieldStyle === "dropdown";
   const dayOptions = Array.from(
@@ -208,32 +238,23 @@ function EntryForm(props: EntryFormProps) {
       {submitted && keepContentAfterSubmit === false ? null : children}
 
       {submitted ? (
-        <div
-          className="entry-form-success space-y-4 text-center"
-          data-motion="fade-up"
-        >
-          {successTitle && (
-            <div
-              className={cn(
-                "leading-tight [&_a]:underline [&_p+p]:mt-2",
-                successTitleUseHeadingFont === false
-                  ? "font-body"
-                  : "font-heading",
-                successTitleSize || "text-2xl",
-              )}
-              dangerouslySetInnerHTML={{ __html: successTitle }}
-            />
-          )}
-          {successMessage && (
-            <div
-              className={cn(
-                "leading-relaxed [&_a]:underline [&_p+p]:mt-4",
-                successMessageSize || "text-lg",
-              )}
-              dangerouslySetInnerHTML={{ __html: successMessage }}
-            />
-          )}
-        </div>
+        <EntryFormSuccess
+          successTitle={successTitle}
+          successTitleAs={successTitleAs}
+          successTitleColor={successTitleColor}
+          successTitleSize={successTitleSize}
+          successTitleMobileSize={successTitleMobileSize}
+          successTitleDesktopSize={successTitleDesktopSize}
+          successTitleMinSize={successTitleMinSize}
+          successTitleMaxSize={successTitleMaxSize}
+          successTitleWeight={successTitleWeight}
+          successTitleLetterSpacing={successTitleLetterSpacing}
+          successTitleLineHeight={successTitleLineHeight}
+          successTitleAlignment={successTitleAlignment}
+          successMessage={successMessage}
+          successMessageSize={successMessageSize}
+          keepContentAfterSubmit={keepContentAfterSubmit}
+        />
       ) : (
         <Form method="POST" action="/api/entry-form" className="space-y-4">
           {/* HONEYPOT: bots fill it, humans never see it */}
@@ -256,7 +277,7 @@ function EntryForm(props: EntryFormProps) {
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <label htmlFor="entry-first-name" className="block text-sm">
+              <label htmlFor="entry-first-name" className={labelClass}>
                 {firstNameLabel || "First Name"}
               </label>
               <input
@@ -265,11 +286,11 @@ function EntryForm(props: EntryFormProps) {
                 type="text"
                 required
                 autoComplete="given-name"
-                className={FIELD_CLASS}
+                className={fieldClass}
               />
             </div>
             <div className="space-y-1.5">
-              <label htmlFor="entry-last-name" className="block text-sm">
+              <label htmlFor="entry-last-name" className={labelClass}>
                 {lastNameLabel || "Last Name"}
               </label>
               <input
@@ -278,13 +299,13 @@ function EntryForm(props: EntryFormProps) {
                 type="text"
                 required
                 autoComplete="family-name"
-                className={FIELD_CLASS}
+                className={fieldClass}
               />
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <label htmlFor="entry-email" className="block text-sm">
+            <label htmlFor="entry-email" className={labelClass}>
               {emailLabel || "Email Address"}
             </label>
             <input
@@ -293,13 +314,13 @@ function EntryForm(props: EntryFormProps) {
               type="email"
               required
               autoComplete="email"
-              className={FIELD_CLASS}
+              className={fieldClass}
             />
           </div>
 
           {dateFieldStyle === "calendar" ? (
             <div className="space-y-1.5">
-              <label htmlFor="entry-dob" className="block text-sm">
+              <label htmlFor="entry-dob" className={labelClass}>
                 {dateOfBirthLabel || "Date of Birth"}
               </label>
               <input
@@ -310,18 +331,22 @@ function EntryForm(props: EntryFormProps) {
                 autoComplete="bday"
                 // Keeps the native calendar icon and placeholder readable when
                 // the surrounding page is dark.
-                className={cn(FIELD_CLASS, "[color-scheme:light]")}
+                className={cn(fieldClass, "[color-scheme:light]")}
               />
             </div>
           ) : (
             <fieldset className="space-y-1.5">
-              <legend className="block text-sm">
+              <legend className={labelClass}>
                 {dateOfBirthLabel || "Date of Birth"}
               </legend>
               {/* Four columns with the year taking two of them: the row fills
                   the form width and the year stays the widest. */}
               <div className="grid grid-cols-4 items-end gap-3">
-                <DatePartCell htmlFor="entry-dob-month" label="MM">
+                <DatePartCell
+                  htmlFor="entry-dob-month"
+                  label="MM"
+                  labelClassName={dateLabelSize}
+                >
                   {useDropdowns ? (
                     <select
                       id="entry-dob-month"
@@ -339,7 +364,7 @@ function EntryForm(props: EntryFormProps) {
                           setDobDay("");
                         }
                       }}
-                      className={DATE_SELECT_CLASS}
+                      className={dateSelectClass}
                     >
                       <option value="">MM</option>
                       {MONTH_OPTIONS.map((month) => (
@@ -370,11 +395,15 @@ function EntryForm(props: EntryFormProps) {
                           current ? current.padStart(2, "0") : current,
                         );
                       }}
-                      className={DATE_PART_CLASS}
+                      className={datePartClass}
                     />
                   )}
                 </DatePartCell>
-                <DatePartCell htmlFor="entry-dob-day" label="DD">
+                <DatePartCell
+                  htmlFor="entry-dob-day"
+                  label="DD"
+                  labelClassName={dateLabelSize}
+                >
                   {useDropdowns ? (
                     <select
                       id="entry-dob-day"
@@ -385,7 +414,7 @@ function EntryForm(props: EntryFormProps) {
                       onChange={(event) => {
                         setDobDay(event.target.value);
                       }}
-                      className={DATE_SELECT_CLASS}
+                      className={dateSelectClass}
                     >
                       <option value="">DD</option>
                       {dayOptions.map((day) => (
@@ -417,7 +446,7 @@ function EntryForm(props: EntryFormProps) {
                           current ? current.padStart(2, "0") : current,
                         );
                       }}
-                      className={DATE_PART_CLASS}
+                      className={datePartClass}
                     />
                   )}
                 </DatePartCell>
@@ -425,6 +454,7 @@ function EntryForm(props: EntryFormProps) {
                   htmlFor="entry-dob-year"
                   label="YYYY"
                   className="col-span-2"
+                  labelClassName={dateLabelSize}
                 >
                   {useDropdowns ? (
                     <select
@@ -441,7 +471,7 @@ function EntryForm(props: EntryFormProps) {
                           setDobDay("");
                         }
                       }}
-                      className={DATE_SELECT_CLASS}
+                      className={dateSelectClass}
                     >
                       <option value="">YYYY</option>
                       {YEAR_OPTIONS.map((year) => (
@@ -467,7 +497,7 @@ function EntryForm(props: EntryFormProps) {
                       onChange={(event) => {
                         setDobYear(digitsOnly(event.target.value, 4));
                       }}
-                      className={DATE_PART_CLASS}
+                      className={datePartClass}
                     />
                   )}
                 </DatePartCell>
@@ -479,7 +509,10 @@ function EntryForm(props: EntryFormProps) {
           <div className={buttonWidth === "auto" ? "text-center" : ""}>
             <Button
               type="submit"
-              className={buttonWidth === "auto" ? "" : "w-full"}
+              className={cn(
+                buttonWidth === "auto" ? "" : "w-full",
+                buttonTextSize || "text-base",
+              )}
               loading={state === "submitting"}
               {...(hasCustomButton
                 ? {
@@ -501,7 +534,10 @@ function EntryForm(props: EntryFormProps) {
 
           {consentText && (
             <div
-              className="text-center text-sm [&_a]:underline"
+              className={cn(
+                "text-center [&_a]:underline",
+                consentTextSize || "text-sm",
+              )}
               dangerouslySetInnerHTML={{ __html: consentText }}
             />
           )}
@@ -620,6 +656,83 @@ export const schema = createSchema({
       ],
     },
     {
+      group: "Text sizes",
+      inputs: [
+        {
+          type: "select",
+          name: "labelSize",
+          label: "Field labels",
+          defaultValue: "text-sm",
+          configs: {
+            options: [
+              { value: "text-xs", label: "Extra small" },
+              { value: "text-sm", label: "Small" },
+              { value: "text-base", label: "Medium" },
+              { value: "text-lg", label: "Large" },
+              { value: "text-xl", label: "Extra large" },
+            ],
+          },
+          helpText: "First Name, Last Name, Email Address and Date of Birth.",
+        },
+        {
+          type: "select",
+          name: "dateLabelSize",
+          label: "MM / DD / YYYY labels",
+          defaultValue: "text-xs",
+          configs: {
+            options: [
+              { value: "text-xs", label: "Extra small" },
+              { value: "text-sm", label: "Small" },
+              { value: "text-base", label: "Medium" },
+              { value: "text-lg", label: "Large" },
+            ],
+          },
+        },
+        {
+          type: "select",
+          name: "inputTextSize",
+          label: "Text inside the fields",
+          defaultValue: "text-base",
+          configs: {
+            options: [
+              { value: "text-sm", label: "Small" },
+              { value: "text-base", label: "Medium" },
+              { value: "text-lg", label: "Large" },
+              { value: "text-xl", label: "Extra large" },
+            ],
+          },
+        },
+        {
+          type: "select",
+          name: "buttonTextSize",
+          label: "Button text",
+          defaultValue: "text-base",
+          configs: {
+            options: [
+              { value: "text-sm", label: "Small" },
+              { value: "text-base", label: "Medium" },
+              { value: "text-lg", label: "Large" },
+              { value: "text-xl", label: "Extra large" },
+            ],
+          },
+        },
+        {
+          type: "select",
+          name: "consentTextSize",
+          label: "Fine print under the button",
+          defaultValue: "text-sm",
+          configs: {
+            options: [
+              { value: "text-xs", label: "Extra small" },
+              { value: "text-sm", label: "Small" },
+              { value: "text-base", label: "Medium" },
+              { value: "text-lg", label: "Large" },
+            ],
+          },
+        },
+      ],
+    },
+    {
       group: "Form style",
       inputs: [
         {
@@ -687,68 +800,7 @@ export const schema = createSchema({
     },
     {
       group: "After submission",
-      inputs: [
-        {
-          type: "richtext",
-          name: "successTitle",
-          label: "Title",
-          defaultValue: "<p>Your entry has been received. Good luck!</p>",
-          helpText:
-            "Shown in place of the form once an entry is accepted. Leave empty for no title.",
-        },
-        {
-          type: "select",
-          name: "successTitleSize",
-          label: "Title size",
-          defaultValue: "text-2xl",
-          configs: {
-            options: [
-              { value: "text-lg", label: "Small" },
-              { value: "text-xl", label: "Medium" },
-              { value: "text-2xl", label: "Large" },
-              { value: "text-3xl", label: "Extra large" },
-              { value: "text-4xl", label: "Huge" },
-            ],
-          },
-        },
-        {
-          type: "switch",
-          name: "successTitleUseHeadingFont",
-          label: "Title uses the heading font",
-          defaultValue: true,
-        },
-        {
-          type: "richtext",
-          name: "successMessage",
-          label: "Description",
-          defaultValue:
-            '<p>In the meantime, <a href="https://obbligatonapa.com/">CLICK HERE</a> to explore our full wine collection and the Obbligato Club Membership, offering flexible membership options, shipping discounts, savings of up to 20%, and instant rewards through our WinePlus Loyalty Program.</p>',
-          helpText: "Sits under the title. Links are allowed.",
-        },
-        {
-          type: "select",
-          name: "successMessageSize",
-          label: "Description size",
-          defaultValue: "text-lg",
-          configs: {
-            options: [
-              { value: "text-sm", label: "Small" },
-              { value: "text-base", label: "Medium" },
-              { value: "text-lg", label: "Large" },
-              { value: "text-xl", label: "Extra large" },
-              { value: "text-2xl", label: "Huge" },
-            ],
-          },
-        },
-        {
-          type: "switch",
-          name: "keepContentAfterSubmit",
-          label: "Keep heading and text",
-          defaultValue: true,
-          helpText:
-            "Off leaves only the success message on screen once an entry is accepted.",
-        },
-      ],
+      inputs: successMessageInputs,
     },
     ...sectionSettings,
   ],
@@ -756,7 +808,6 @@ export const schema = createSchema({
   presets: {
     formWidth: "medium",
     dateFieldStyle: "dropdown",
-    successTitleSize: "text-2xl",
     successMessageSize: "text-lg",
     keepContentAfterSubmit: false,
     width: "fixed",

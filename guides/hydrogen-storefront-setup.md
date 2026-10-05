@@ -1,5 +1,8 @@
 # Creating a new Hydrogen storefront — step by step
 
+> **Author:** Miguel Rivera · **Created:** October 2026 · **Last updated:** October 2026
+> **Applies to:** `fewinery/wine-gift-shop-hydrogen` (Hydrogen 2025.7 + Weaverse Pilot)
+
 How to stand up one more storefront on the Wine Gift Shop store: a Hydrogen
 environment on Shopify, wired to this repository, with its own Weaverse
 project for content.

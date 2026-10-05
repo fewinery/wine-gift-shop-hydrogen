@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight } from "~/components/icons";
 import { cn } from "~/utils/cn";
 
@@ -100,7 +100,10 @@ function MerchTile({
   return (
     <div
       className={cn(
-        "w-[46%] shrink-0 snap-start border p-2 transition-colors sm:w-[34%] lg:w-[23%] xl:w-[18%]",
+        // A fixed width, not a percentage: a single merch item should look
+        // the same size as one of ten, rather than shrinking to a lonely
+        // sliver or stretching across the row.
+        "w-[150px] shrink-0 snap-start border p-2 transition-colors sm:w-[170px]",
         isSelected
           ? "border-black"
           : "border-neutral-300 hover:border-neutral-600",
@@ -179,7 +182,7 @@ export function MerchUpsellPicker({
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollPrev, setCanScrollPrev] = useState(false);
-  const [canScrollNext, setCanScrollNext] = useState(true);
+  const [canScrollNext, setCanScrollNext] = useState(false);
 
   function updateScrollState() {
     const container = scrollRef.current;
@@ -191,6 +194,16 @@ export function MerchUpsellPicker({
       container.scrollLeft + container.clientWidth < container.scrollWidth - 4,
     );
   }
+
+  // Measured on mount and on resize, so a row that already fits knows it has
+  // nowhere to scroll and hides its arrows instead of offering dead buttons.
+  useEffect(() => {
+    updateScrollState();
+    window.addEventListener("resize", updateScrollState);
+    return () => {
+      window.removeEventListener("resize", updateScrollState);
+    };
+  }, [products.length]);
 
   function scroll(direction: "prev" | "next") {
     const container = scrollRef.current;
@@ -228,21 +241,25 @@ export function MerchUpsellPicker({
     return null;
   }
 
+  const showArrows = canScrollPrev || canScrollNext;
+
   return (
     <div className="space-y-4">
       <p className="text-sm font-bold uppercase tracking-wide text-neutral-900">
         {heading}
       </p>
       <div className="flex min-w-0 items-center gap-2">
-        <button
-          type="button"
-          aria-label="Previous merch"
-          onClick={() => scroll("prev")}
-          disabled={!canScrollPrev}
-          className="flex shrink-0 items-center justify-center rounded-full border border-black bg-white p-2 disabled:cursor-not-allowed disabled:opacity-30"
-        >
-          <ArrowLeft />
-        </button>
+        {showArrows && (
+          <button
+            type="button"
+            aria-label="Previous merch"
+            onClick={() => scroll("prev")}
+            disabled={!canScrollPrev}
+            className="flex shrink-0 items-center justify-center rounded-full border border-black bg-white p-2 disabled:cursor-not-allowed disabled:opacity-30"
+          >
+            <ArrowLeft />
+          </button>
+        )}
         <div
           ref={scrollRef}
           onScroll={updateScrollState}
@@ -258,15 +275,17 @@ export function MerchUpsellPicker({
             />
           ))}
         </div>
-        <button
-          type="button"
-          aria-label="Next merch"
-          onClick={() => scroll("next")}
-          disabled={!canScrollNext}
-          className="flex shrink-0 items-center justify-center rounded-full border border-black bg-white p-2 disabled:cursor-not-allowed disabled:opacity-30"
-        >
-          <ArrowRight />
-        </button>
+        {showArrows && (
+          <button
+            type="button"
+            aria-label="Next merch"
+            onClick={() => scroll("next")}
+            disabled={!canScrollNext}
+            className="flex shrink-0 items-center justify-center rounded-full border border-black bg-white p-2 disabled:cursor-not-allowed disabled:opacity-30"
+          >
+            <ArrowRight />
+          </button>
+        )}
       </div>
     </div>
   );

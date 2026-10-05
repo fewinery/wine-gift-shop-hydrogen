@@ -13,6 +13,12 @@ import { useLoaderData } from "react-router";
 import { ArrowLeft, ArrowRight } from "~/components/icons";
 import { Link } from "~/components/link";
 import { AddToCartButton } from "~/components/product/add-to-cart-button";
+import {
+  getMerchLines,
+  type MerchProduct,
+  type MerchSelection,
+  MerchUpsellPicker,
+} from "~/components/product/merch-upsell";
 import type { loader as productRouteLoader } from "~/routes/products/product";
 import { cn } from "~/utils/cn";
 import { isCombinedListing } from "~/utils/combined-listings";
@@ -36,6 +42,8 @@ interface ProductATCButtonsProps extends HydrogenComponentProps {
   secondaryButtonText: string;
   secondaryButtonLink: string;
   buttonClassName?: string;
+  merchHeading: string;
+  woodCardHeading: string;
 }
 
 export default function ProductATCButtons(props: ProductATCButtonsProps) {
@@ -49,6 +57,8 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
     secondaryButtonText,
     secondaryButtonLink,
     buttonClassName,
+    merchHeading,
+    woodCardHeading,
     ...rest
   } = props;
   const { product, storeDomain } = useLoaderData<typeof productRouteLoader>();
@@ -69,11 +79,21 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
     upsellFields.find((field) => field.key === "active")?.value === "true";
 
   const woodCards =
-    upsellFields
-      .find((field) => field.key === "wood_cards")
-      ?.references?.nodes ?? [];
+    upsellFields.find((field) => field.key === "wood_cards")?.references
+      ?.nodes ?? [];
 
   const hasWoodCardsUpsell = upsellActive && woodCards.length > 0;
+
+  // Merch lives in its own metafield so it can vary per product without
+  // disturbing the wood card entry, which is shared across many products.
+  const merchFields = (product as any)?.merchUpsell?.reference?.fields ?? [];
+  const merchActive =
+    merchFields.find((field: any) => field.key === "active")?.value === "true";
+  const merchProducts = (merchFields.find((field: any) => field.key === "merch")
+    ?.references?.nodes ?? []) as MerchProduct[];
+  const hasMerchUpsell = merchActive && merchProducts.length > 0;
+  const [merchSelection, setMerchSelection] = useState<MerchSelection>({});
+  const merchLines = getMerchLines(merchProducts, merchSelection);
 
   const [selectedWoodCardId, setSelectedWoodCardId] = useState<string | null>(
     null,
@@ -185,13 +205,22 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
 
   return (
     <div ref={ref} {...rest} className="min-w-0 space-y-4 empty:hidden">
+      {hasMerchUpsell && (
+        <MerchUpsellPicker
+          heading={merchHeading || "ADD A MERCH"}
+          products={merchProducts}
+          selection={merchSelection}
+          onChange={setMerchSelection}
+        />
+      )}
+
       {hasWoodCardsUpsell && (
         <div className="space-y-4">
           <p className="text-sm font-bold uppercase tracking-wide text-neutral-900">
-            ADD A WOOD CARD
+            {woodCardHeading || "IS THIS A GIFT? ADD A WOOD CARD?"}
           </p>
 
-                   <div className="flex min-w-0 items-center gap-2">
+          <div className="flex min-w-0 items-center gap-2">
             <button
               type="button"
               aria-label="Previous wood cards"
@@ -474,6 +503,9 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
                 },
               ]
             : []),
+          // Merch carries no gift properties: it never turns on the message
+          // fields, so there is nothing to attach.
+          ...merchLines,
         ]}
         data-test="add-to-cart"
         note={giftNote}
@@ -483,11 +515,7 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
         {atcButtonText}
       </AddToCartButton>
       {showSecondaryButton && (
-        <Link
-          to={secondaryButtonLink}
-          variant="secondary"
-          className="w-full"
-        >
+        <Link to={secondaryButtonLink} variant="secondary" className="w-full">
           {secondaryButtonText}
         </Link>
       )}
@@ -507,6 +535,10 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
                   },
                 ]
               : []),
+            ...merchLines.map((line) => ({
+              id: line.merchandiseId,
+              quantity: line.quantity,
+            })),
           ]}
           storeDomain={storeDomain}
         />
@@ -554,6 +586,27 @@ export const schema = createSchema({
           label: "Show Shop Pay button",
           name: "showShopPayButton",
           defaultValue: true,
+        },
+      ],
+    },
+    {
+      group: "Upsells",
+      inputs: [
+        {
+          type: "text",
+          label: "Merch heading",
+          name: "merchHeading",
+          defaultValue: "ADD A MERCH",
+          placeholder: "ADD A MERCH",
+          helpText:
+            "Shown above the merch row. The row only appears when the product has a custom.merch_upsell metafield whose entry is Active.",
+        },
+        {
+          type: "text",
+          label: "Wood card heading",
+          name: "woodCardHeading",
+          defaultValue: "IS THIS A GIFT? ADD A WOOD CARD?",
+          placeholder: "IS THIS A GIFT? ADD A WOOD CARD?",
         },
       ],
     },

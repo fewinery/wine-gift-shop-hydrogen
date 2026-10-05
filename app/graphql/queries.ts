@@ -153,6 +153,72 @@ export const PRODUCT_QUERY = `#graphql
         }
       }
       
+            merchUpsell: metafield(
+        namespace: "custom"
+        key: "merch_upsell"
+      ) {
+        reference {
+          ... on Metaobject {
+            id
+            handle
+            type
+            fields {
+              key
+              value
+              references(first: 50) {
+                nodes {
+                  ... on Product {
+                    id
+                    title
+                    handle
+                    featuredImage {
+                      id
+                      url
+                      altText
+                    }
+                    options {
+                      name
+                      optionValues {
+                        name
+                        swatch {
+                          color
+                          image {
+                            previewImage {
+                              url
+                              altText
+                            }
+                          }
+                        }
+                      }
+                    }
+                    variants(first: 20) {
+                      nodes {
+                        id
+                        title
+                        availableForSale
+                        price {
+                          amount
+                          currencyCode
+                        }
+                        image {
+                          id
+                          url
+                          altText
+                        }
+                        selectedOptions {
+                          name
+                          value
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
       goesWellWith: metafield(namespace: "custom", key: "goes_well_with") {
         references(first: 10) {
           nodes {

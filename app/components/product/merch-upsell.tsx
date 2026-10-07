@@ -103,9 +103,12 @@ function MerchTile({
         // A fixed width, not a percentage: a single merch item should look
         // the same size as one of ten, rather than shrinking to a lonely
         // sliver or stretching across the row.
-        "w-[150px] shrink-0 snap-start border p-2 transition-colors sm:w-[170px]",
+        // border-2 on every state, selected or not, so picking a tile never
+        // nudges the row by a pixel. The selected stroke uses the Add to cart
+        // button's own colour.
+        "w-[150px] shrink-0 snap-start border-2 p-2 transition-colors sm:w-[170px]",
         isSelected
-          ? "border-black"
+          ? "border-(--btn-primary-bg)"
           : "border-neutral-300 hover:border-neutral-600",
         isSoldOut && "opacity-50",
       )}
@@ -147,9 +150,9 @@ function MerchTile({
                 aria-pressed={isActive}
                 onClick={() => onPickVariant(variant.id)}
                 className={cn(
-                  "size-5 border transition-all",
+                  "size-5 border-2 transition-all",
                   isActive
-                    ? "border-black ring-1 ring-black ring-offset-1"
+                    ? "border-(--btn-primary-bg) ring-2 ring-(--btn-primary-bg) ring-offset-1"
                     : "border-neutral-300 hover:border-neutral-600",
                   !color && "px-1 w-auto text-[10px] leading-5",
                 )}

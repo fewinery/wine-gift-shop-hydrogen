@@ -1,5 +1,9 @@
 import * as Accordion from "@radix-ui/react-accordion";
-import { RichText } from "@shopify/hydrogen";
+import {
+  getAdjacentAndFirstAvailableVariants,
+  RichText,
+  useOptimisticVariant,
+} from "@shopify/hydrogen";
 import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
 import clsx from "clsx";
 import { Link, useLoaderData } from "react-router";
@@ -52,6 +56,7 @@ interface CollapsibleDetailsProps extends HydrogenComponentProps {
   showFoodPairings: boolean;
   showRecipe: boolean;
   showDownloadVineAndDineRecipe: boolean;
+  skuLabel: string;
 }
 
 export default function CollapsibleDetails(props: CollapsibleDetailsProps) {
@@ -66,9 +71,16 @@ export default function CollapsibleDetails(props: CollapsibleDetailsProps) {
     showFoodPairings,
     showRecipe,
     showDownloadVineAndDineRecipe,
+    skuLabel,
     ...rest
   } = props;
   const { shop, product } = useLoaderData<typeof productLoader>();
+  // The SKU follows the variant picker rather than always showing the first
+  // one, so it matches whatever the shopper has selected above.
+  const skuVariant = useOptimisticVariant(
+    product?.selectedOrFirstAvailableVariant,
+    getAdjacentAndFirstAvailableVariants(product),
+  );
   const { descriptionHtml } = product;
   const { shippingPolicy, refundPolicy } = shop;
 
@@ -282,6 +294,12 @@ export default function CollapsibleDetails(props: CollapsibleDetailsProps) {
           </Accordion.Item>
         ))}
       </Accordion.Root>
+      {skuVariant?.sku && (
+        <div className="py-[15px] font-body text-base text-black">
+          {skuLabel ? `${skuLabel} ` : ""}
+          {skuVariant.sku}
+        </div>
+      )}
     </div>
   );
 }
@@ -350,6 +368,15 @@ export const schema = createSchema({
           label: "Show Vine & Dine recipe download",
           name: "showDownloadVineAndDineRecipe",
           defaultValue: true,
+        },
+        {
+          type: "text",
+          label: "SKU label",
+          name: "skuLabel",
+          defaultValue: "SKU:",
+          placeholder: "SKU:",
+          helpText:
+            "The SKU is shown under the details. Leave empty for the SKU on its own.",
         },
       ],
     },

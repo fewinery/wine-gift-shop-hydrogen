@@ -71,9 +71,11 @@ import * as ProductATCButtons from "~/sections/main-product/product-atc-buttons"
 import * as ProductBadges from "~/sections/main-product/product-badges";
 import * as ProductBreadcrumb from "~/sections/main-product/product-breadcrumb";
 import * as ProductBundledVariants from "~/sections/main-product/product-bundled-variants";
+import * as ProductClubPrice from "~/sections/main-product/product-club-price";
 import * as ProductCollapsibleDetails from "~/sections/main-product/product-collapsible-details";
 import * as ProductPrices from "~/sections/main-product/product-prices";
 import * as ProductQuantitySelector from "~/sections/main-product/product-quantity-selector";
+import * as ProductSku from "~/sections/main-product/product-sku";
 import * as ProductSummary from "~/sections/main-product/product-summary";
 import * as ProductTitle from "~/sections/main-product/product-title";
 import * as ProductVariantSelector from "~/sections/main-product/product-variant-selector";
@@ -185,6 +187,7 @@ export const components: HydrogenComponent[] = [
   ProductVendor,
   ProductTitle,
   ProductPrices,
+  ProductClubPrice,
   ProductSummary,
   ProductBundledVariants,
   ProductVariantSelector,
@@ -192,6 +195,7 @@ export const components: HydrogenComponent[] = [
   ProductATCButtons,
   ProductUpsell,
   ProductCollapsibleDetails,
+  ProductSku,
   RelatedProducts,
   RelatedArticles,
   CollectionFilters,

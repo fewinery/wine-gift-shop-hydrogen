@@ -23,8 +23,9 @@ import {
   SaleBadge,
   SoldOutBadge,
 } from "./badges";
+import { ClubMemberPrice } from "./club-member-price";
+import { ProductCardAddToCart } from "./product-card-add-to-cart";
 import { ProductCardOptions } from "./product-card-options";
-import { QuickShopTrigger } from "./quick-shop";
 import { VariantPrices } from "./variant-prices";
 
 export function ProductCard({
@@ -56,9 +57,6 @@ export function ProductCard({
     pcardQuickShopButtonPlacement,
     pcardQuickShopButtonType,
     pcardQuickShopButtonText,
-    pcardQuickShopPanelType,
-    pcardQuickShopButtonBg,
-    pcardQuickShopButtonTextColor,
     pcardShowSaleBadge,
     pcardShowBundleBadge,
     pcardShowBestSellerBadge,
@@ -92,6 +90,19 @@ export function ProductCard({
     .filter(Boolean)
     .some(({ key, value }) => key === "best_seller" && value === "true");
   const isBundle = Boolean(product?.isBundle?.requiresComponents);
+
+  // The variant the card is currently showing: whatever the shopper picked
+  // from the option swatches, otherwise the product's first available one.
+  // This is the variant the "Add to cart" button adds.
+  const activeVariant = selectedVariant || firstVariant;
+  const combinedListing = isCombinedListing(product);
+  const cardSearch = params.toString() ? `?${params.toString()}` : "";
+  // The price the club member figure is derived from is the one on screen, so
+  // the two never disagree.
+  const displayedPrice =
+    pcardShowLowestPrice || combinedListing
+      ? minVariantPrice
+      : activeVariant?.price;
 
   let [image, secondImage] = images.nodes;
   if (selectedVariant?.image) {
@@ -174,16 +185,15 @@ export function ProductCard({
           {pcardShowOutOfStockBadge && <SoldOutBadge />}
         </div>
         {pcardEnableQuickShop && pcardQuickShopButtonPlacement === "image" && (
-          <QuickShopTrigger
+          <ProductCardAddToCart
+            variant={activeVariant}
             productHandle={product.handle}
-            showOnHover={pcardShowQuickShopOnHover}
-            buttonType={pcardQuickShopButtonType}
+            productSearch={cardSearch}
             buttonText={pcardQuickShopButtonText}
-            panelType={pcardQuickShopPanelType}
+            buttonType={pcardQuickShopButtonType}
             placement="image"
-            backgroundColor={pcardQuickShopButtonBg}
-            textColor={pcardQuickShopButtonTextColor}
-            availableForSale={firstVariant?.availableForSale}
+            showOnHover={pcardShowQuickShopOnHover}
+            needsProductPage={combinedListing}
           />
         )}
       </div>
@@ -237,24 +247,27 @@ export function ProductCard({
               {product.title}
             </RevealUnderline>
           </Link>
-          {pcardShowLowestPrice || isCombinedListing(product) ? (
-            <div className="flex gap-1 font-body">
-              <span>From</span>
-              <Money withoutTrailingZeros data={minVariantPrice} />
-              {isCombinedListing(product) && (
-                <>
-                  <span>–</span>
-                  <Money withoutTrailingZeros data={maxVariantPrice} />
-                </>
-              )}
-            </div>
-          ) : (
-            <VariantPrices
-              variant={selectedVariant || firstVariant}
-              showCompareAtPrice={pcardShowSalePrice}
-              className="text-base font-body"
-            />
-          )}
+          <div className="flex flex-col gap-1">
+            {pcardShowLowestPrice || combinedListing ? (
+              <div className="flex gap-1 font-body">
+                <span>From</span>
+                <Money withoutTrailingZeros data={minVariantPrice} />
+                {combinedListing && (
+                  <>
+                    <span>–</span>
+                    <Money withoutTrailingZeros data={maxVariantPrice} />
+                  </>
+                )}
+              </div>
+            ) : (
+              <VariantPrices
+                variant={activeVariant}
+                showCompareAtPrice={pcardShowSalePrice}
+                className="text-base font-body"
+              />
+            )}
+            <ClubMemberPrice price={displayedPrice} />
+          </div>
         </div>
         <ProductCardOptions
           product={product}
@@ -291,16 +304,15 @@ export function ProductCard({
             )}
             {pcardEnableQuickShop &&
               pcardQuickShopButtonPlacement === "bottom" && (
-                <QuickShopTrigger
+                <ProductCardAddToCart
+                  variant={activeVariant}
                   productHandle={product.handle}
-                  showOnHover={pcardShowQuickShopOnHover}
-                  buttonType={pcardQuickShopButtonType}
+                  productSearch={cardSearch}
                   buttonText={pcardQuickShopButtonText}
-                  panelType={pcardQuickShopPanelType}
+                  buttonType={pcardQuickShopButtonType}
                   placement="bottom"
-                  backgroundColor={pcardQuickShopButtonBg}
-                  textColor={pcardQuickShopButtonTextColor}
-                  availableForSale={firstVariant?.availableForSale}
+                  showOnHover={pcardShowQuickShopOnHover}
+                  needsProductPage={combinedListing}
                 />
               )}
           </div>

@@ -4,6 +4,7 @@ import {
 } from "@shopify/hydrogen";
 import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
 import { useLoaderData } from "react-router";
+import { ClubMemberPrice } from "~/components/product/club-member-price";
 import { VariantPrices } from "~/components/product/variant-prices";
 import type { loader as productRouteLoader } from "~/routes/products/product";
 import { isCombinedListing } from "~/utils/combined-listings";
@@ -28,8 +29,14 @@ export default function ProductPrices(props: ProductPricesProps) {
     return null;
   }
 
+  // "As low as" means the lowest price on offer, so a combined listing takes
+  // the bottom of its range rather than one arbitrary child product.
+  const clubBasePrice = combinedListing
+    ? product.priceRange.minVariantPrice
+    : selectedVariant?.price;
+
   return (
-    <div ref={ref} {...rest}>
+    <div ref={ref} {...rest} className="space-y-2">
       {combinedListing ? (
         <div className="flex gap-2 font-body text-[20px]/none">
           <span className="flex gap-1">
@@ -54,6 +61,7 @@ export default function ProductPrices(props: ProductPricesProps) {
           className="font-body text-[20px]/none"
         />
       )}
+      <ClubMemberPrice price={clubBasePrice} />
     </div>
   );
 }

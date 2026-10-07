@@ -689,6 +689,34 @@ export const themeSchema: HydrogenThemeSchema = {
       ],
     },
     {
+      group: "Club member price",
+      inputs: [
+        {
+          type: "text",
+          name: "clubPriceLabel",
+          label: "Label",
+          defaultValue: "Club Member Price as Low as",
+          placeholder: "Club Member Price as Low as",
+          helpText:
+            "Shown under the price on product cards and on the product page.",
+        },
+        {
+          type: "range",
+          name: "clubPriceDiscount",
+          label: "Club discount",
+          defaultValue: 20,
+          configs: {
+            min: 0,
+            max: 50,
+            step: 1,
+            unit: "%",
+          },
+          helpText:
+            "The club price is the retail price less this percentage. At 0 the line is hidden.",
+        },
+      ],
+    },
+    {
       group: "Typography",
       inputs: [
         {

@@ -250,9 +250,12 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
                     }
                     disabled={!variant}
                     className={cn(
-                      "w-[23%] shrink-0 snap-start border p-2 text-left transition-colors sm:w-[34%] lg:w-[23%] xl:w-[18%]",
+                      // border-2 on every state, selected or not, so picking a
+                      // card never nudges the row by a pixel. The selected
+                      // stroke uses the Add to cart button's own colour.
+                      "w-[23%] shrink-0 snap-start border-2 p-2 text-left transition-colors sm:w-[34%] lg:w-[23%] xl:w-[18%]",
                       isSelected
-                        ? "border-black"
+                        ? "border-(--btn-primary-bg)"
                         : "border-neutral-300 hover:border-neutral-600",
                       !variant && "cursor-not-allowed opacity-50",
                     )}

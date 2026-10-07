@@ -99,6 +99,7 @@ export const schema = createSchema({
     "mp--vendor",
     "mp--title",
     "mp--prices",
+    "mp--club-price",
     "judgeme-stars-rating",
     "mp--summary",
     "mp--bundled-variants",
@@ -106,6 +107,7 @@ export const schema = createSchema({
     "mp--quantity-selector",
     "mp--atc-buttons",
     "mp--collapsible-details",
+    "mp--sku",
   ],
   limit: 1,
   enabledOn: {
@@ -234,6 +236,9 @@ export const schema = createSchema({
         showCompareAtPrice: true,
       },
       {
+        type: "mp--club-price",
+      },
+      {
         type: "judgeme-stars-rating",
       },
       {
@@ -262,6 +267,10 @@ export const schema = createSchema({
         type: "mp--collapsible-details",
         showShippingPolicy: true,
         showRefundPolicy: true,
+      },
+      {
+        type: "mp--sku",
+        label: "SKU:",
       },
     ],
   },

@@ -9,9 +9,12 @@ const CENTS = 100;
 /**
  * The club member price derived from whatever price is on screen, so the
  * figure always tracks the price shown directly above it rather than drifting
- * to a different variant. The label and the discount live in theme settings
- * because they are copy and a number a brand will want to change without a
- * deploy; the block itself is always rendered.
+ * to a different variant.
+ *
+ * Off unless a storefront switches it on. This theme is shared by brands with
+ * no wine club at all — corporate gifting among them — and a club discount
+ * shown there is not a cosmetic slip, it is a wrong price on a live site. So
+ * the default is silence, and a brand opts in.
  */
 export function ClubMemberPrice({
   price,
@@ -20,7 +23,12 @@ export function ClubMemberPrice({
   price?: Pick<MoneyV2, "amount" | "currencyCode"> | null;
   className?: string;
 }) {
-  const { clubPriceLabel, clubPriceDiscount } = useThemeSettings();
+  const { clubPriceEnabled, clubPriceLabel, clubPriceDiscount } =
+    useThemeSettings();
+
+  if (!clubPriceEnabled) {
+    return null;
+  }
 
   const amount = Number(price?.amount);
   const discount = Number(clubPriceDiscount);

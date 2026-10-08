@@ -9,6 +9,7 @@ import type { LoaderFunctionArgs, MetaArgs } from "react-router";
 import { redirect, useLoaderData } from "react-router";
 import type { CollectionQuery } from "storefront-api.generated";
 import invariant from "tiny-invariant";
+import { requireB2BBuyer } from "~/.server/b2b";
 import { redirectIfHandleIsLocalized } from "~/.server/redirect";
 import { seoPayload } from "~/.server/seo";
 import type { SortParam } from "~/types/others";
@@ -34,6 +35,7 @@ export async function loader({ params, request, context }: LoaderFunctionArgs) {
 
   invariant(collectionHandle, "Missing collectionHandle param");
 
+  const buyer = await requireB2BBuyer(context, request);
   const searchParams = new URL(request.url).searchParams;
   const { sortKey, reverse } = getSortValuesFromParam(
     searchParams.get("sort") as SortParam,
@@ -64,6 +66,7 @@ export async function loader({ params, request, context }: LoaderFunctionArgs) {
           reverse,
           country: storefront.i18n.country,
           language: storefront.i18n.language,
+          buyer,
           // Query custom banner stored in Shopify's collection metafields
           customBannerNamespace: bannerNamespace,
           customBannerKey: bannerKey,

@@ -14,6 +14,7 @@ import type { SectionProps } from "~/components/section";
 import { layoutInputs, Section } from "~/components/section";
 import { PRODUCT_CARD_FRAGMENT } from "~/graphql/fragments";
 import type { I18nLocale } from "~/types/others";
+import { getB2BListingContext } from "~/utils/b2b";
 import { getFeaturedProducts } from "~/utils/featured-products";
 
 interface FeaturedProductsSectionData {
@@ -46,8 +47,8 @@ export default function FeaturedProducts(props: FeaturedProductsProps) {
 }
 
 const COLLECTION_PRODUCTS_QUERY = `#graphql
-  query collectionProducts($country: CountryCode, $language: LanguageCode, $handle: String!)
-  @inContext(country: $country, language: $language) {
+  query collectionProducts($country: CountryCode, $language: LanguageCode, $handle: String!, $buyer: BuyerInput)
+  @inContext(country: $country, language: $language, buyer: $buyer) {
     collection(handle: $handle) {
       products(first: 8) {
         nodes {
@@ -60,8 +61,8 @@ const COLLECTION_PRODUCTS_QUERY = `#graphql
 `;
 
 const PRODUCTS_BY_IDS_QUERY = `#graphql
-  query productsByIds($country: CountryCode, $language: LanguageCode, $ids: [ID!]!)
-  @inContext(country: $country, language: $language) {
+  query productsByIds($country: CountryCode, $language: LanguageCode, $ids: [ID!]!, $buyer: BuyerInput)
+  @inContext(country: $country, language: $language, buyer: $buyer) {
     nodes(ids: $ids) {
       ... on Product {
         ...ProductCard
@@ -80,6 +81,12 @@ export const loader = async ({
   const { language, country } = weaverse.storefront.i18n;
   const { selectionMethod = "auto", collection, products } = data;
 
+  // B2B storefronts show no products until a buyer is logged in.
+  const b2b = await getB2BListingContext(weaverse);
+  if (b2b.hidden) {
+    return { products: { nodes: [] } };
+  }
+
   if (selectionMethod === "collection" && collection?.handle) {
     const result = await weaverse.storefront.query<CollectionProductsQuery>(
       COLLECTION_PRODUCTS_QUERY,
@@ -88,6 +95,7 @@ export const loader = async ({
           country,
           language,
           handle: collection.handle,
+          buyer: b2b.buyer,
         },
       },
     );
@@ -109,6 +117,7 @@ export const loader = async ({
           country,
           language,
           ids,
+          buyer: b2b.buyer,
         },
       },
     );
@@ -122,6 +131,7 @@ export const loader = async ({
   // Default: auto selection (best selling products)
   const { featuredProducts } = await getFeaturedProducts(
     weaverse.storefront as Storefront<I18nLocale>,
+    b2b.buyer,
   );
   return { products: featuredProducts };
 };

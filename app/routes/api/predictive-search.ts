@@ -9,6 +9,7 @@ import type {
   PredictiveQueryFragment,
   PredictiveSearchQuery,
 } from "storefront-api.generated";
+import { getB2BListingContext } from "~/.server/b2b";
 import { NO_PREDICTIVE_SEARCH_RESULTS } from "~/hooks/use-predictive-search";
 import type {
   NormalizedPredictiveSearch,
@@ -78,7 +79,8 @@ async function fetchPredictiveSearchResults({
         .map((t) => t.toUpperCase() as PredictiveSearchTypes)
         .filter((t) => DEFAULT_SEARCH_TYPES.includes(t));
 
-  if (!searchTerm) {
+  const b2b = await getB2BListingContext(context);
+  if (!searchTerm || b2b.hidden) {
     return {
       searchResults: { results: null, totalResults: 0 },
       searchTerm,
@@ -96,6 +98,7 @@ async function fetchPredictiveSearchResults({
         limitScope: "EACH",
         searchTerm,
         types: searchTypes,
+        buyer: b2b.buyer,
       },
     }),
     dropinblog
@@ -388,7 +391,8 @@ const PREDICTIVE_SEARCH_QUERY = `#graphql
     $limitScope: PredictiveSearchLimitScope!
     $searchTerm: String!
     $types: [PredictiveSearchType!]
-  ) @inContext(country: $country, language: $language) {
+    $buyer: BuyerInput
+  ) @inContext(country: $country, language: $language, buyer: $buyer) {
     predictiveSearch(
       limit: $limit,
       limitScope: $limitScope,

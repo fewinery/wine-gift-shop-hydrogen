@@ -23,9 +23,33 @@ import {
   SaleBadge,
   SoldOutBadge,
 } from "./badges";
+import { ClubMemberPrice } from "./club-member-price";
+import { ProductCardAddToCart } from "./product-card-add-to-cart";
 import { ProductCardOptions } from "./product-card-options";
-import { QuickShopTrigger } from "./quick-shop";
 import { VariantPrices } from "./variant-prices";
+
+type CardAlignment = "left" | "center" | "right";
+
+// Lookup tables rather than chains of conditionals: the card reads the same
+// alignment in four places, and spelling it out each time is what pushes this
+// component past the complexity ceiling.
+const TEXT_ALIGNMENT: Record<CardAlignment, string> = {
+  left: "text-left",
+  center: "text-center",
+  right: "text-right",
+};
+
+const ITEMS_ALIGNMENT: Record<CardAlignment, string> = {
+  left: "items-start",
+  center: "items-center",
+  right: "items-end",
+};
+
+const JUSTIFY_ALIGNMENT: Record<CardAlignment, string> = {
+  left: "justify-start",
+  center: "justify-center",
+  right: "justify-end",
+};
 
 export function ProductCard({
   product,
@@ -56,9 +80,6 @@ export function ProductCard({
     pcardQuickShopButtonPlacement,
     pcardQuickShopButtonType,
     pcardQuickShopButtonText,
-    pcardQuickShopPanelType,
-    pcardQuickShopButtonBg,
-    pcardQuickShopButtonTextColor,
     pcardShowSaleBadge,
     pcardShowBundleBadge,
     pcardShowBestSellerBadge,
@@ -92,6 +113,19 @@ export function ProductCard({
     .filter(Boolean)
     .some(({ key, value }) => key === "best_seller" && value === "true");
   const isBundle = Boolean(product?.isBundle?.requiresComponents);
+
+  // The variant the card is currently showing: whatever the shopper picked
+  // from the option swatches, otherwise the product's first available one.
+  // This is the variant the "Add to cart" button adds.
+  const activeVariant = selectedVariant || firstVariant;
+  const combinedListing = isCombinedListing(product);
+  const cardSearch = params.toString() ? `?${params.toString()}` : "";
+  // The price the club member figure is derived from is the one on screen, so
+  // the two never disagree.
+  const displayedPrice =
+    pcardShowLowestPrice || combinedListing
+      ? minVariantPrice
+      : activeVariant?.price;
 
   let [image, secondImage] = images.nodes;
   if (selectedVariant?.image) {
@@ -174,16 +208,15 @@ export function ProductCard({
           {pcardShowOutOfStockBadge && <SoldOutBadge />}
         </div>
         {pcardEnableQuickShop && pcardQuickShopButtonPlacement === "image" && (
-          <QuickShopTrigger
+          <ProductCardAddToCart
+            variant={activeVariant}
             productHandle={product.handle}
-            showOnHover={pcardShowQuickShopOnHover}
-            buttonType={pcardQuickShopButtonType}
+            productSearch={cardSearch}
             buttonText={pcardQuickShopButtonText}
-            panelType={pcardQuickShopPanelType}
+            buttonType={pcardQuickShopButtonType}
             placement="image"
-            backgroundColor={pcardQuickShopButtonBg}
-            textColor={pcardQuickShopButtonTextColor}
-            availableForSale={firstVariant?.availableForSale}
+            showOnHover={pcardShowQuickShopOnHover}
+            needsProductPage={combinedListing}
           />
         )}
       </div>
@@ -191,11 +224,7 @@ export function ProductCard({
         className={clsx(
           "flex flex-1 flex-col",
           pcardBackgroundColor && "px-2",
-          isVertical && [
-            alignment === "left" && "text-left",
-            alignment === "center" && "text-center",
-            alignment === "right" && "text-right",
-          ],
+          isVertical && TEXT_ALIGNMENT[alignment as CardAlignment],
         )}
       >
         {pcardShowVendor && (
@@ -212,14 +241,7 @@ export function ProductCard({
           className={clsx(
             "flex",
             isVertical
-              ? [
-                "flex-col",
-                [
-                  alignment === "left" && "items-start",
-                  alignment === "center" && "items-center",
-                  alignment === "right" && "items-end",
-                ],
-              ]
+              ? ["flex-col", ITEMS_ALIGNMENT[alignment as CardAlignment]]
               : "justify-between gap-4",
           )}
         >
@@ -237,24 +259,37 @@ export function ProductCard({
               {product.title}
             </RevealUnderline>
           </Link>
-          {pcardShowLowestPrice || isCombinedListing(product) ? (
-            <div className="flex gap-1 font-body">
-              <span>From</span>
-              <Money withoutTrailingZeros data={minVariantPrice} />
-              {isCombinedListing(product) && (
-                <>
-                  <span>–</span>
-                  <Money withoutTrailingZeros data={maxVariantPrice} />
-                </>
-              )}
-            </div>
-          ) : (
-            <VariantPrices
-              variant={selectedVariant || firstVariant}
-              showCompareAtPrice={pcardShowSalePrice}
-              className="text-base font-body"
-            />
-          )}
+          <div
+            className={clsx(
+              "flex flex-col gap-1",
+              // The price and the club line are two stacked rows inside one
+              // flex item, so they need their own alignment — otherwise they
+              // sit flush left inside a block the card has centred.
+              isVertical
+                ? ITEMS_ALIGNMENT[alignment as CardAlignment]
+                : "items-end",
+            )}
+          >
+            {pcardShowLowestPrice || combinedListing ? (
+              <div className="flex gap-1 font-body">
+                <span>From</span>
+                <Money withoutTrailingZeros data={minVariantPrice} />
+                {combinedListing && (
+                  <>
+                    <span>–</span>
+                    <Money withoutTrailingZeros data={maxVariantPrice} />
+                  </>
+                )}
+              </div>
+            ) : (
+              <VariantPrices
+                variant={activeVariant}
+                showCompareAtPrice={pcardShowSalePrice}
+                className="text-base font-body"
+              />
+            )}
+            <ClubMemberPrice price={displayedPrice} />
+          </div>
         </div>
         <ProductCardOptions
           product={product}
@@ -267,11 +302,7 @@ export function ProductCard({
             setSelectedVariant(variant);
           }}
           className={clsx(
-            isVertical && [
-              pcardAlignment === "left" && "justify-start",
-              pcardAlignment === "center" && "justify-center",
-              pcardAlignment === "right" && "justify-end",
-            ],
+            isVertical && JUSTIFY_ALIGNMENT[pcardAlignment as CardAlignment],
           )}
         />
       </div>
@@ -291,16 +322,15 @@ export function ProductCard({
             )}
             {pcardEnableQuickShop &&
               pcardQuickShopButtonPlacement === "bottom" && (
-                <QuickShopTrigger
+                <ProductCardAddToCart
+                  variant={activeVariant}
                   productHandle={product.handle}
-                  showOnHover={pcardShowQuickShopOnHover}
-                  buttonType={pcardQuickShopButtonType}
+                  productSearch={cardSearch}
                   buttonText={pcardQuickShopButtonText}
-                  panelType={pcardQuickShopPanelType}
+                  buttonType={pcardQuickShopButtonType}
                   placement="bottom"
-                  backgroundColor={pcardQuickShopButtonBg}
-                  textColor={pcardQuickShopButtonTextColor}
-                  availableForSale={firstVariant?.availableForSale}
+                  showOnHover={pcardShowQuickShopOnHover}
+                  needsProductPage={combinedListing}
                 />
               )}
           </div>

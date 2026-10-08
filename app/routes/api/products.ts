@@ -4,6 +4,7 @@ import type { LoaderFunctionArgs } from "react-router";
 import { data } from "react-router";
 import type { ApiAllProductsQuery } from "storefront-api.generated";
 import invariant from "tiny-invariant";
+import { getB2BListingContext } from "~/.server/b2b";
 import { PRODUCT_CARD_FRAGMENT } from "~/graphql/fragments";
 import { maybeFilterOutCombinedListingsQuery } from "~/utils/combined-listings";
 
@@ -16,10 +17,8 @@ import { maybeFilterOutCombinedListingsQuery } from "~/utils/combined-listings";
  * @returns Product[]
  * @see https://shopify.dev/api/storefront/current/queries/products
  */
-export async function loader({
-  request,
-  context: { storefront },
-}: LoaderFunctionArgs) {
+export async function loader({ request, context }: LoaderFunctionArgs) {
+  const { storefront } = context;
   const url = new URL(request.url);
   const searchParams = new URLSearchParams(url.search);
   const query = searchParams.get("query") ?? "";
@@ -46,6 +45,11 @@ export async function loader({
     // noop
   }
 
+  const b2b = await getB2BListingContext(context);
+  if (b2b.hidden) {
+    return data({ products: [] });
+  }
+
   const combinedQuery = [maybeFilterOutCombinedListingsQuery, query]
     .filter(Boolean)
     .join(" ");
@@ -60,8 +64,10 @@ export async function loader({
         sortKey,
         country: storefront.i18n.country,
         language: storefront.i18n.language,
+        buyer: b2b.buyer,
       },
-      cache: storefront.CacheLong(),
+      // A buyer's catalog must never be cached for longer than a request.
+      cache: b2b.buyer ? storefront.CacheNone() : storefront.CacheLong(),
     },
   );
 
@@ -78,7 +84,8 @@ const API_ALL_PRODUCTS_QUERY = `#graphql
     $country: CountryCode
     $language: LanguageCode
     $sortKey: ProductSortKeys
-  ) @inContext(country: $country, language: $language) {
+    $buyer: BuyerInput
+  ) @inContext(country: $country, language: $language, buyer: $buyer) {
     products(first: $count, sortKey: $sortKey, reverse: $reverse, query: $query) {
       nodes {
         ...ProductCard

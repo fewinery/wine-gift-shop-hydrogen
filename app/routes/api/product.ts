@@ -2,6 +2,7 @@ import type { ActionFunction, LoaderFunction } from "react-router";
 import { data } from "react-router";
 import type { ProductQuery } from "storefront-api.generated";
 import invariant from "tiny-invariant";
+import { getB2BListingContext } from "~/.server/b2b";
 import { PRODUCT_QUERY } from "~/graphql/queries";
 import type {
   JudgeMeReviewType,
@@ -114,6 +115,10 @@ export const loader: LoaderFunction = async ({ request, context, params }) => {
     }
 
     // Handle product endpoint (default)
+    const b2b = await getB2BListingContext(context);
+    if (b2b.hidden) {
+      return data({ error: "Product not found" }, { status: 404 });
+    }
     const { product, shop } = await storefront.query<ProductQuery>(
       PRODUCT_QUERY,
       {
@@ -122,6 +127,7 @@ export const loader: LoaderFunction = async ({ request, context, params }) => {
           selectedOptions: [],
           language: storefront.i18n.language,
           country: storefront.i18n.country,
+          buyer: b2b.buyer,
         },
       },
     );

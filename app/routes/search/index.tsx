@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import type { LoaderFunctionArgs, MetaArgs } from "react-router";
 import { Form, useLoaderData } from "react-router";
 import type { SearchQuery } from "storefront-api.generated";
+import { requireB2BBuyer } from "~/.server/b2b";
 import { seoPayload } from "~/.server/seo";
 import { BreadCrumb } from "~/components/breadcrumb";
 import { variants } from "~/components/link";
@@ -21,10 +22,9 @@ import { getFeaturedProducts } from "~/utils/featured-products";
 import { NoResults } from "./no-results";
 import { PopularKeywords } from "./popular-searches";
 
-export async function loader({
-  request,
-  context: { storefront },
-}: LoaderFunctionArgs) {
+export async function loader({ request, context }: LoaderFunctionArgs) {
+  const { storefront } = context;
+  const buyer = await requireB2BBuyer(context, request);
   const { searchParams } = new URL(request.url);
   const searchTerm = searchParams.get("q");
   let products: SearchQuery["products"] = {
@@ -39,6 +39,7 @@ export async function loader({
         ...getPaginationVariables(request, { pageBy: 16 }),
         country: storefront.i18n.country,
         language: storefront.i18n.language,
+        buyer,
       },
     });
     products = data.products;
@@ -70,7 +71,7 @@ export async function loader({
     products,
     recommendations: hasResults
       ? Promise.resolve(null)
-      : getFeaturedProducts(storefront),
+      : getFeaturedProducts(storefront, buyer),
   };
 }
 
@@ -175,7 +176,8 @@ const SEARCH_QUERY = `#graphql
     $last: Int
     $searchTerm: String
     $startCursor: String
-  ) @inContext(country: $country, language: $language) {
+    $buyer: BuyerInput
+  ) @inContext(country: $country, language: $language, buyer: $buyer) {
     products(
       first: $first,
       last: $last,

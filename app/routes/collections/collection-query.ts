@@ -14,7 +14,8 @@ export const COLLECTION_QUERY = `#graphql
     $endCursor: String
     $customBannerNamespace: String!
     $customBannerKey: String!
-  ) @inContext(country: $country, language: $language) {
+    $buyer: BuyerInput
+  ) @inContext(country: $country, language: $language, buyer: $buyer) {
     collection(handle: $handle) {
       id
       handle

@@ -1,4 +1,5 @@
 import type { Storefront } from "@shopify/hydrogen";
+import type { BuyerInput } from "@shopify/hydrogen/storefront-api-types";
 import type { ProductRecommendationsQuery } from "storefront-api.generated";
 import invariant from "tiny-invariant";
 import { PRODUCT_CARD_FRAGMENT } from "~/graphql/fragments";
@@ -8,6 +9,7 @@ import { maybeFilterOutCombinedListingsQuery } from "~/utils/combined-listings";
 export async function getRecommendedProducts(
   storefront: Storefront<I18nLocale>,
   productId: string,
+  buyer?: BuyerInput,
 ) {
   const products = await storefront.query<ProductRecommendationsQuery>(
     RECOMMENDED_PRODUCTS_QUERY,
@@ -16,6 +18,7 @@ export async function getRecommendedProducts(
         productId,
         count: 12,
         query: maybeFilterOutCombinedListingsQuery,
+        buyer,
       },
     },
   );
@@ -44,7 +47,8 @@ const RECOMMENDED_PRODUCTS_QUERY = `#graphql
     $country: CountryCode
     $language: LanguageCode
     $query: String
-  ) @inContext(country: $country, language: $language) {
+    $buyer: BuyerInput
+  ) @inContext(country: $country, language: $language, buyer: $buyer) {
     recommended: productRecommendations(productId: $productId) {
       ...ProductCard
     }

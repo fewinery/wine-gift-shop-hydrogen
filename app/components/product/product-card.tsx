@@ -28,6 +28,29 @@ import { ProductCardAddToCart } from "./product-card-add-to-cart";
 import { ProductCardOptions } from "./product-card-options";
 import { VariantPrices } from "./variant-prices";
 
+type CardAlignment = "left" | "center" | "right";
+
+// Lookup tables rather than chains of conditionals: the card reads the same
+// alignment in four places, and spelling it out each time is what pushes this
+// component past the complexity ceiling.
+const TEXT_ALIGNMENT: Record<CardAlignment, string> = {
+  left: "text-left",
+  center: "text-center",
+  right: "text-right",
+};
+
+const ITEMS_ALIGNMENT: Record<CardAlignment, string> = {
+  left: "items-start",
+  center: "items-center",
+  right: "items-end",
+};
+
+const JUSTIFY_ALIGNMENT: Record<CardAlignment, string> = {
+  left: "justify-start",
+  center: "justify-center",
+  right: "justify-end",
+};
+
 export function ProductCard({
   product,
   className,
@@ -201,11 +224,7 @@ export function ProductCard({
         className={clsx(
           "flex flex-1 flex-col",
           pcardBackgroundColor && "px-2",
-          isVertical && [
-            alignment === "left" && "text-left",
-            alignment === "center" && "text-center",
-            alignment === "right" && "text-right",
-          ],
+          isVertical && TEXT_ALIGNMENT[alignment as CardAlignment],
         )}
       >
         {pcardShowVendor && (
@@ -222,14 +241,7 @@ export function ProductCard({
           className={clsx(
             "flex",
             isVertical
-              ? [
-                "flex-col",
-                [
-                  alignment === "left" && "items-start",
-                  alignment === "center" && "items-center",
-                  alignment === "right" && "items-end",
-                ],
-              ]
+              ? ["flex-col", ITEMS_ALIGNMENT[alignment as CardAlignment]]
               : "justify-between gap-4",
           )}
         >
@@ -247,7 +259,17 @@ export function ProductCard({
               {product.title}
             </RevealUnderline>
           </Link>
-          <div className="flex flex-col gap-1">
+          <div
+            className={clsx(
+              "flex flex-col gap-1",
+              // The price and the club line are two stacked rows inside one
+              // flex item, so they need their own alignment — otherwise they
+              // sit flush left inside a block the card has centred.
+              isVertical
+                ? ITEMS_ALIGNMENT[alignment as CardAlignment]
+                : "items-end",
+            )}
+          >
             {pcardShowLowestPrice || combinedListing ? (
               <div className="flex gap-1 font-body">
                 <span>From</span>
@@ -280,11 +302,7 @@ export function ProductCard({
             setSelectedVariant(variant);
           }}
           className={clsx(
-            isVertical && [
-              pcardAlignment === "left" && "justify-start",
-              pcardAlignment === "center" && "justify-center",
-              pcardAlignment === "right" && "justify-end",
-            ],
+            isVertical && JUSTIFY_ALIGNMENT[pcardAlignment as CardAlignment],
           )}
         />
       </div>

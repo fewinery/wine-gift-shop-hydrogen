@@ -2,6 +2,7 @@ import type { SeoConfig } from "@shopify/hydrogen";
 import { getPaginationVariables, getSeoMeta } from "@shopify/hydrogen";
 import type { LoaderFunctionArgs, MetaFunction } from "react-router";
 import invariant from "tiny-invariant";
+import { requireB2BBuyer } from "~/.server/b2b";
 import { seoPayload } from "~/.server/seo";
 import { PRODUCT_CARD_FRAGMENT } from "~/graphql/fragments";
 import { routeHeaders } from "~/utils/cache";
@@ -10,10 +11,9 @@ import { WeaverseContent } from "~/weaverse";
 
 export const headers = routeHeaders;
 
-export async function loader({
-  request,
-  context: { storefront, weaverse },
-}: LoaderFunctionArgs) {
+export async function loader({ request, context }: LoaderFunctionArgs) {
+  const { storefront, weaverse } = context;
+  const buyer = await requireB2BBuyer(context, request);
   // Load products data and weaverseData in parallel
   const [data, weaverseData] = await Promise.all([
     storefront.query(ALL_PRODUCTS_QUERY, {
@@ -22,6 +22,7 @@ export async function loader({
         country: storefront.i18n.country,
         language: storefront.i18n.language,
         query: maybeFilterOutCombinedListingsQuery,
+        buyer,
       },
     }),
     weaverse.loadPage({ type: "ALL_PRODUCTS" }),
@@ -67,7 +68,8 @@ const ALL_PRODUCTS_QUERY = `#graphql
     $startCursor: String
     $endCursor: String
     $query: String
-  ) @inContext(country: $country, language: $language) {
+    $buyer: BuyerInput
+  ) @inContext(country: $country, language: $language, buyer: $buyer) {
     products(first: $first, last: $last, before: $startCursor, after: $endCursor, query: $query) {
       nodes {
         ...ProductCard

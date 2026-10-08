@@ -1,5 +1,8 @@
 import type { LoaderFunctionArgs } from "react-router";
+import { resolveB2BBuyer } from "./b2b-buyer";
 
 export async function loader({ context }: LoaderFunctionArgs) {
-  return context.customerAccount.authorize();
+  const response = await context.customerAccount.authorize();
+  await resolveB2BBuyer(context);
+  return response;
 }

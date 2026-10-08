@@ -7,9 +7,10 @@ export const PRODUCT_QUERY = `#graphql
   query product(
     $country: CountryCode
     $language: LanguageCode
+    $buyer: BuyerInput
     $handle: String!
     $selectedOptions: [SelectedOptionInput!]!
-  ) @inContext(country: $country, language: $language) {
+  ) @inContext(country: $country, language: $language, buyer: $buyer) {
     product(handle: $handle) {
       id
       title

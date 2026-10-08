@@ -10,6 +10,7 @@ import type { LoaderFunctionArgs, MetaArgs } from "react-router";
 import { useLoaderData } from "react-router";
 import type { ProductQuery } from "storefront-api.generated";
 import invariant from "tiny-invariant";
+import { requireB2BBuyer } from "~/.server/b2b";
 import {
   redirectIfCombinedListing,
   redirectIfHandleIsLocalized,
@@ -32,6 +33,7 @@ export async function loader({ params, request, context }: LoaderFunctionArgs) {
   invariant(handle, "Missing productHandle param, check route filename");
 
   const { storefront, weaverse } = context;
+  const buyer = await requireB2BBuyer(context, request);
   const selectedOptions = getSelectedProductOptions(request);
   const [{ shop, product }, weaverseData] = await Promise.all([
     storefront.query<ProductQuery>(PRODUCT_QUERY, {
@@ -40,6 +42,7 @@ export async function loader({ params, request, context }: LoaderFunctionArgs) {
         selectedOptions,
         country: storefront.i18n.country,
         language: storefront.i18n.language,
+        buyer,
       },
       cache: storefront.CacheNone(),
     }),
@@ -57,7 +60,7 @@ export async function loader({ params, request, context }: LoaderFunctionArgs) {
   }
 
   // Use Hydrogen/Remix streaming for recommended products
-  const recommended = getRecommendedProducts(storefront, product.id);
+  const recommended = getRecommendedProducts(storefront, product.id, buyer);
 
   return {
     shop,

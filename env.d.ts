@@ -41,6 +41,7 @@ declare global {
     GORGIAS_DOMAIN: string;
     GORGIAS_API_USER_EMAIL: string;
     GORGIAS_API_KEY: string;
+    B2B_ENABLED?: string;
   }
 }
 

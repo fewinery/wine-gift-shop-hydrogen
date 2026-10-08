@@ -692,6 +692,14 @@ export const themeSchema: HydrogenThemeSchema = {
       group: "Club member price",
       inputs: [
         {
+          type: "switch",
+          name: "clubPriceEnabled",
+          label: "Show club member price",
+          defaultValue: false,
+          helpText:
+            "Off by default. Turn this on only for brands that actually run a wine club — it adds a second price under every product price, on cards and on the product page.",
+        },
+        {
           type: "text",
           name: "clubPriceLabel",
           label: "Label",
@@ -699,6 +707,7 @@ export const themeSchema: HydrogenThemeSchema = {
           placeholder: "Club Member Price as Low as",
           helpText:
             "Shown under the price on product cards and on the product page.",
+          condition: (theme) => theme.clubPriceEnabled === true,
         },
         {
           type: "range",
@@ -711,8 +720,8 @@ export const themeSchema: HydrogenThemeSchema = {
             step: 1,
             unit: "%",
           },
-          helpText:
-            "The club price is the retail price less this percentage. At 0 the line is hidden.",
+          helpText: "The club price is the retail price less this percentage.",
+          condition: (theme) => theme.clubPriceEnabled === true,
         },
       ],
     },

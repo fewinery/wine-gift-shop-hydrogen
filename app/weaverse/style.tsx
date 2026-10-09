@@ -94,6 +94,7 @@ export function GlobalStyle() {
       navMobileBaseSize,
       navBaseSpacing,
       navBaseWeight,
+      navSizeSource,
       pageWidth,
       footerDesktopFontSize,
       footerMobileFontSize,
@@ -184,8 +185,8 @@ export function GlobalStyle() {
                  values producing "undefinedpx" — Safari has historically dropped
                  entire declarations on invalid values, leaving fonts inheriting
                  from body and rendering at unexpected sizes. */
-              --nav-font-size: clamp(10px, ${navBaseSize ?? 16}px, 32px);
-              --nav-mobile-font-size: clamp(10px, ${navMobileBaseSize ?? 16}px, 32px);
+              --nav-font-size: ${navFontSize(navSizeSource, navBaseSize, "desktop")};
+              --nav-mobile-font-size: ${navFontSize(navSizeSource, navMobileBaseSize, "mobile")};
               --nav-letter-spacing: ${navBaseSpacing ?? "0em"};
               --nav-font-weight: ${navBaseWeight ?? 400};
 

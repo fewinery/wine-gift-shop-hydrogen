@@ -95,6 +95,7 @@ export function GlobalStyle() {
       navBaseSpacing,
       navBaseWeight,
       navSizeSource,
+      navWordSpacing,
       pageWidth,
       footerDesktopFontSize,
       footerMobileFontSize,
@@ -188,6 +189,7 @@ export function GlobalStyle() {
               --nav-font-size: ${navFontSize(navSizeSource, navBaseSize, "desktop")};
               --nav-mobile-font-size: ${navFontSize(navSizeSource, navMobileBaseSize, "mobile")};
               --nav-letter-spacing: ${navBaseSpacing ?? "0em"};
+              --nav-word-spacing: ${navWordSpacing ?? "normal"};
               --nav-font-weight: ${navBaseWeight ?? 400};
 
               /* Footer typography */
@@ -226,6 +228,7 @@ export function GlobalStyle() {
             .header-actions {
               font-size: var(--nav-mobile-font-size, 16px);
               letter-spacing: var(--nav-letter-spacing, 0em);
+              word-spacing: var(--nav-word-spacing, normal);
               font-weight: var(--nav-font-weight, 400);
             }
             .header-actions a,
@@ -233,6 +236,7 @@ export function GlobalStyle() {
               font-family: inherit;
               font-size: inherit;
               letter-spacing: inherit;
+              word-spacing: inherit;
               font-weight: inherit;
             }
             @media (min-width: 64em) {

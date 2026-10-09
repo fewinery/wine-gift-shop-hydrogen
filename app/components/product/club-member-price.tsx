@@ -53,7 +53,7 @@ export function ClubMemberPrice({
       )}
     >
       <span className="text-body-subtle text-sm">
-        {clubPriceLabel || "Club Member Price as Low as"}
+        {clubPriceLabel || "Club or Loyalty Pricing from"}
       </span>
       <Money
         withoutTrailingZeros

@@ -4,6 +4,36 @@ import namesPlugin from "colord/plugins/names";
 
 extend([namesPlugin]);
 
+/**
+ * Where the nav menu takes its size from. "custom" keeps the pixel sliders;
+ * a heading level or body makes the menu track the theme's own type scale, so
+ * retuning headings carries the menu with it instead of leaving it stranded
+ * at a number somebody typed once.
+ */
+const NAV_SIZE_SOURCES: Record<string, { desktop: string; mobile: string }> = {
+  h1: { desktop: "var(--h1-base-size)", mobile: "var(--h1-mobile-size)" },
+  h2: { desktop: "var(--h2-base-size)", mobile: "var(--h2-mobile-size)" },
+  h3: { desktop: "var(--h3-base-size)", mobile: "var(--h3-mobile-size)" },
+  h4: { desktop: "var(--h4-base-size)", mobile: "var(--h4-mobile-size)" },
+  h5: { desktop: "var(--h5-base-size)", mobile: "var(--h5-mobile-size)" },
+  h6: { desktop: "var(--h6-base-size)", mobile: "var(--h6-mobile-size)" },
+  body: { desktop: "var(--body-base-size)", mobile: "var(--body-base-size)" },
+};
+
+function navFontSize(
+  source: string | undefined,
+  pixels: number | undefined,
+  device: "desktop" | "mobile",
+) {
+  const mapped = NAV_SIZE_SOURCES[source ?? ""];
+  if (mapped) {
+    return mapped[device];
+  }
+  // The clamp guards against a stale or out-of-range saved value; the fallback
+  // guards against "undefinedpx", which Safari drops whole declarations over.
+  return `clamp(10px, ${pixels ?? 16}px, 32px)`;
+}
+
 export function GlobalStyle() {
   const settings = useThemeSettings();
   if (settings) {
@@ -64,6 +94,7 @@ export function GlobalStyle() {
       navMobileBaseSize,
       navBaseSpacing,
       navBaseWeight,
+      navSizeSource,
       pageWidth,
       footerDesktopFontSize,
       footerMobileFontSize,
@@ -154,8 +185,8 @@ export function GlobalStyle() {
                  values producing "undefinedpx" — Safari has historically dropped
                  entire declarations on invalid values, leaving fonts inheriting
                  from body and rendering at unexpected sizes. */
-              --nav-font-size: clamp(10px, ${navBaseSize ?? 16}px, 32px);
-              --nav-mobile-font-size: clamp(10px, ${navMobileBaseSize ?? 16}px, 32px);
+              --nav-font-size: ${navFontSize(navSizeSource, navBaseSize, "desktop")};
+              --nav-mobile-font-size: ${navFontSize(navSizeSource, navMobileBaseSize, "mobile")};
               --nav-letter-spacing: ${navBaseSpacing ?? "0em"};
               --nav-font-weight: ${navBaseWeight ?? 400};
 

@@ -265,9 +265,14 @@ export function ProductCard({
               // The price and the club line are two stacked rows inside one
               // flex item, so they need their own alignment — otherwise they
               // sit flush left inside a block the card has centred.
+              //
+              // justify-center matters in the title-beside-price layout: the
+              // row is as tall as the padded title, and without it the price
+              // pins to the top of that box instead of sitting level with the
+              // title, which reads as "too close to the image".
               isVertical
                 ? ITEMS_ALIGNMENT[alignment as CardAlignment]
-                : "items-end",
+                : "items-end justify-center",
             )}
           >
             {pcardShowLowestPrice || combinedListing ? (

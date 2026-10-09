@@ -215,6 +215,32 @@ export function GlobalStyle() {
                 : ""
             }
 
+                        /* Header actions (Login / Search / Cart).
+               Two reasons this lives here rather than on the element:
+               Search and Cart are <button>s, and this project's reset leaves
+               buttons on the browser's own font - the same reason the
+               existing "uppercase" needs a child selector to reach them. And
+               the mobile size needs a media query, which an inline style
+               cannot carry, so on phones the actions would otherwise sit at
+               the desktop size while the drawer menu beside them did not. */
+            .header-actions {
+              font-size: var(--nav-mobile-font-size, 16px);
+              letter-spacing: var(--nav-letter-spacing, 0em);
+              font-weight: var(--nav-font-weight, 400);
+            }
+            .header-actions a,
+            .header-actions button {
+              font-family: inherit;
+              font-size: inherit;
+              letter-spacing: inherit;
+              font-weight: inherit;
+            }
+            @media (min-width: 64em) {
+              .header-actions {
+                font-size: var(--nav-font-size, 16px);
+              }
+            }
+
             @media (min-width: 32em) {
               body {
                 --height-nav: ${navHeightTablet ?? 4}rem;

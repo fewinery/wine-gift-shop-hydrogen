@@ -387,9 +387,28 @@ export const themeSchema: HydrogenThemeSchema = {
               { label: "Wide (0.025em)", value: "0.025em" },
               { label: "Wider (0.05em)", value: "0.05em" },
               { label: "Widest (0.1em)", value: "0.1em" },
+              { label: "Extra wide (0.15em)", value: "0.15em" },
+              { label: "Ultra wide (0.2em)", value: "0.2em" },
             ],
           },
           defaultValue: "0em",
+        },
+        {
+          type: "select",
+          label: "Word spacing",
+          name: "navWordSpacing",
+          configs: {
+            options: [
+              { label: "Normal", value: "normal" },
+              { label: "Wide (0.1em)", value: "0.1em" },
+              { label: "Wider (0.2em)", value: "0.2em" },
+              { label: "Widest (0.3em)", value: "0.3em" },
+              { label: "Extra wide (0.5em)", value: "0.5em" },
+            ],
+          },
+          defaultValue: "normal",
+          helpText:
+            "Air between the words inside a single menu item, for example HOLIDAY GIFTS. The gap between separate menu items is part of the header layout, not this setting.",
         },
         {
           type: "select",

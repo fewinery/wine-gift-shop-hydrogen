@@ -392,6 +392,26 @@ export const themeSchema: HydrogenThemeSchema = {
           defaultValue: "0em",
         },
         {
+          type: "select",
+          label: "Size source",
+          name: "navSizeSource",
+          configs: {
+            options: [
+              { label: "Custom size", value: "custom" },
+              { label: "Match heading 1", value: "h1" },
+              { label: "Match heading 2", value: "h2" },
+              { label: "Match heading 3", value: "h3" },
+              { label: "Match heading 4", value: "h4" },
+              { label: "Match heading 5", value: "h5" },
+              { label: "Match heading 6", value: "h6" },
+              { label: "Match body text", value: "body" },
+            ],
+          },
+          defaultValue: "custom",
+          helpText:
+            "Match a heading level or body text to keep the menu on the same scale as the rest of the site, or pick Custom to set the sizes by hand below.",
+        },
+        {
           type: "range",
           label: "Desktop font size",
           name: "navBaseSize",
@@ -402,6 +422,8 @@ export const themeSchema: HydrogenThemeSchema = {
             unit: "px",
           },
           defaultValue: 16,
+          condition: (theme) =>
+            !theme.navSizeSource || theme.navSizeSource === "custom",
         },
         {
           type: "range",
@@ -414,6 +436,8 @@ export const themeSchema: HydrogenThemeSchema = {
             unit: "px",
           },
           defaultValue: 16,
+          condition: (theme) =>
+            !theme.navSizeSource || theme.navSizeSource === "custom",
         },
         {
           type: "select",
@@ -703,8 +727,8 @@ export const themeSchema: HydrogenThemeSchema = {
           type: "text",
           name: "clubPriceLabel",
           label: "Label",
-          defaultValue: "Club Member Price as Low as",
-          placeholder: "Club Member Price as Low as",
+          defaultValue: "Club or Loyalty Pricing from",
+          placeholder: "Club or Loyalty Pricing from",
           helpText:
             "Shown under the price on product cards and on the product page.",
           condition: (theme) => theme.clubPriceEnabled === true,

@@ -154,10 +154,23 @@ export function Header() {
             // <button>, so "uppercase" alone never reaches the search and
             // cart triggers; the child selector forces it on them too.
             textActions
-              ? "gap-3 uppercase [&_button]:uppercase lg:gap-5"
+              ? "gap-3 uppercase [&_button]:uppercase lg:gap-5 font-heading!"
               : "gap-1",
             badgesLayout && "-order-1 lg:order-none",
           )}
+          // Login / Search / Cart used to inherit the body font at the body
+          // size while the menu beside them ran on the nav settings, so the
+          // two halves of the header disagreed on every storefront. They now
+          // read the same variables as the menu items.
+          style={
+            textActions
+              ? ({
+                  fontSize: "var(--nav-font-size, 16px)",
+                  letterSpacing: "var(--nav-letter-spacing, 0em)",
+                  fontWeight: "var(--nav-font-weight, 400)",
+                } as React.CSSProperties)
+              : undefined
+          }
         >
           <AccountLink
             className={

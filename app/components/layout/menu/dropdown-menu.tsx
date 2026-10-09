@@ -40,6 +40,7 @@ export function DropdownMenu({ menuItem }: { menuItem: SingleMenuItem }) {
               {
                 fontSize: "var(--nav-font-size, 16px)",
                 letterSpacing: "var(--nav-letter-spacing, 0em)",
+                wordSpacing: "var(--nav-word-spacing, normal)",
                 fontWeight: "var(--nav-font-weight, 400)",
               } as React.CSSProperties
             }
@@ -72,6 +73,7 @@ export function DropdownMenu({ menuItem }: { menuItem: SingleMenuItem }) {
                     {
                       fontSize: "var(--nav-font-size)",
                       letterSpacing: "var(--nav-letter-spacing)",
+                      wordSpacing: "var(--nav-word-spacing, normal)",
                       fontWeight: "var(--nav-font-weight)",
                     } as React.CSSProperties
                   }

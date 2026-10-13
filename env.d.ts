@@ -42,6 +42,7 @@ declare global {
     GORGIAS_API_USER_EMAIL: string;
     GORGIAS_API_KEY: string;
     B2B_ENABLED?: string;
+    B2B_PUBLIC_CATALOG?: string;
   }
 }
 

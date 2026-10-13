@@ -24,6 +24,16 @@ export function isB2BEnabled(env: Env): boolean {
   return env?.B2B_ENABLED === "true";
 }
 
+/**
+ * Public mode for a B2B storefront (`B2B_PUBLIC_CATALOG` = "true"): visitors
+ * without a company location browse and buy the public catalog — whatever
+ * Shopify returns with no buyer (this channel + the market's catalog).
+ * Without it, a B2B storefront shows them no products.
+ */
+export function isB2BPublicCatalog(env: Env): boolean {
+  return env?.B2B_PUBLIC_CATALOG === "true";
+}
+
 export function isWeaverseDesignMode(request?: Request): boolean {
   if (!request) {
     return false;
@@ -56,7 +66,8 @@ export async function getB2BBuyer(
  * For product lists that cannot redirect (home page sections, API routes):
  * - not a B2B storefront → `{ hidden: false }` (unchanged behaviour)
  * - B2B storefront with a buyer → `{ hidden: false, buyer }`
- * - B2B storefront without a buyer → `{ hidden: true }`: return no products
+ * - B2B storefront without a buyer → `{ hidden: true }`: return no products,
+ *   unless public mode is on → `{ hidden: false }`: the public catalog
  */
 export async function getB2BListingContext(
   context: B2BContext,
@@ -64,10 +75,13 @@ export async function getB2BListingContext(
   if (!isB2BEnabled(context.env)) {
     return { hidden: false };
   }
-  // Keep Weaverse Studio usable: the editor iframe has no customer session.
+   // Keep Weaverse Studio usable: the editor iframe has no customer session.
   if (isWeaverseDesignMode(context.request)) {
     return { hidden: false };
   }
   const buyer = await getB2BBuyer(context);
-  return buyer ? { hidden: false, buyer } : { hidden: true };
+  if (buyer) {
+    return { hidden: false, buyer };
+  }
+  return { hidden: !isB2BPublicCatalog(context.env) };
 }

@@ -1,6 +1,11 @@
 import type { BuyerInput } from "@shopify/hydrogen/storefront-api-types";
 import { type AppLoadContext, redirect } from "react-router";
-import { getB2BBuyer, isB2BEnabled, isWeaverseDesignMode } from "~/utils/b2b";
+import {
+  getB2BBuyer,
+  isB2BEnabled,
+  isB2BPublicCatalog,
+  isWeaverseDesignMode,
+} from "~/utils/b2b";
 
 /**
  * B2B buyer context — opt-in per storefront via `B2B_ENABLED`.
@@ -33,6 +38,10 @@ export async function requireB2BBuyer(
   const buyer = await getB2BBuyer(context);
   if (buyer) {
     return buyer;
+  }
+  // Public mode: no buyer means the public catalog, not a login wall.
+  if (isB2BPublicCatalog(context.env)) {
+    return undefined;
   }
   const prefix = context.storefront.i18n.pathPrefix ?? "";
   const isLoggedIn = await context.customerAccount.isLoggedIn();

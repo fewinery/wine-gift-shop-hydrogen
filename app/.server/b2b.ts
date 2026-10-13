@@ -66,3 +66,17 @@ export function b2bPostLoginRedirect(
   }
   return response;
 }
+
+/**
+ * Company and location names for the "Ordering for" bar, or `null`.
+ * Only returned on a B2B storefront while a company location is active.
+ */
+export async function getB2BLocationLabel(
+  context: AppLoadContext,
+): Promise<{ companyName: string; locationName: string } | null> {
+  const buyer = await getB2BBuyer(context);
+  if (!buyer) {
+    return null;
+  }
+  return context.session.get("b2bLocation") ?? null;
+}

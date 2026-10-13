@@ -71,6 +71,7 @@ declare module "react-router" {
 
   interface SessionData extends HydrogenSessionData {
     // declare local additions to the Remix session data here
+    b2bLocation?: { companyName: string; locationName: string };
   }
 }
 

@@ -18,6 +18,7 @@ import {
   useRouteError,
   useRouteLoaderData,
 } from "react-router";
+import { getB2BLocationLabel } from "./.server/b2b";
 import { loadCriticalData, loadDeferredData } from "./.server/root";
 import { Footer } from "./components/layout/footer";
 import { Header } from "./components/layout/header";
@@ -47,11 +48,15 @@ export const links: LinksFunction = () => {
 
 export async function loader(args: LoaderFunctionArgs) {
   const deferredData = loadDeferredData(args);
-  const criticalData = await loadCriticalData(args);
+  const [criticalData, b2bLocation] = await Promise.all([
+    loadCriticalData(args),
+    getB2BLocationLabel(args.context),
+  ]);
 
   return {
     ...deferredData,
     ...criticalData,
+    b2bLocation,
     googleGtmID: args.context.env.PUBLIC_GOOGLE_GTM_ID,
     env: {
       FONT_FAMILY: args.context.env.FONT_FAMILY,
@@ -157,7 +162,7 @@ export function RootLayout({ children }: { children: React.ReactNode }) {
         style={
           {
             opacity: 0,
-            "--initial-topbar-height": `${topbarText ? topbarHeight : 0}px`,
+            "--initial-topbar-height": `${topbarText || data?.b2bLocation ? topbarHeight : 0}px`,
           } as CSSProperties
         }
         className="bg-background text-body antialiased opacity-100! transition-opacity duration-300"

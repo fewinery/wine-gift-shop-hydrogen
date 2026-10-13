@@ -16,6 +16,7 @@ export async function resolveB2BBuyer(context: AppLoadContext): Promise<void> {
 
   // Start clean so a previous customer's location can never carry over.
   context.session.unset("buyer");
+  context.session.unset("b2bLocation");
 
   try {
     const { data, errors } =
@@ -27,16 +28,28 @@ export async function resolveB2BBuyer(context: AppLoadContext): Promise<void> {
       return;
     }
 
-    const locationIds = (data?.customer?.companyContacts?.nodes ?? []).flatMap(
-      (contact) => contact.locations.nodes.map((location) => location.id),
+    const locations = (data?.customer?.companyContacts?.nodes ?? []).flatMap(
+      (contact) =>
+        contact.locations.nodes.map((location) => ({
+          id: location.id,
+          locationName: location.name,
+          companyName: contact.company?.name ?? "",
+        })),
     );
-    const uniqueLocationIds = [...new Set(locationIds)];
+    const uniqueLocations = locations.filter(
+      (location, index) =>
+        locations.findIndex((other) => other.id === location.id) === index,
+    );
 
     // One location: use it. None: a regular customer. Several: needs a
     // location selector, which is not built yet, so no buyer is set.
-    if (uniqueLocationIds.length === 1) {
-      context.customerAccount.setBuyer({
-        companyLocationId: uniqueLocationIds[0],
+    if (uniqueLocations.length === 1) {
+      const [location] = uniqueLocations;
+      context.customerAccount.setBuyer({ companyLocationId: location.id });
+      // Names for the "Ordering for" bar, so it needs no extra API call.
+      context.session.set("b2bLocation", {
+        companyName: location.companyName,
+        locationName: location.locationName,
       });
     }
   } catch (error) {
@@ -47,7 +60,10 @@ export async function resolveB2BBuyer(context: AppLoadContext): Promise<void> {
 type CustomerCompanyLocations = {
   customer: {
     companyContacts: {
-      nodes: { locations: { nodes: { id: string; name: string }[] } }[];
+      nodes: {
+        company: { name: string } | null;
+        locations: { nodes: { id: string; name: string }[] };
+      }[];
     };
   };
 };
@@ -57,6 +73,9 @@ const CUSTOMER_COMPANY_LOCATIONS_QUERY = `#graphql
     customer {
       companyContacts(first: 10) {
         nodes {
+          company {
+            name
+          }
           locations(first: 50) {
             nodes {
               id

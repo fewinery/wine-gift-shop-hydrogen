@@ -540,6 +540,22 @@ export const themeSchema: HydrogenThemeSchema = {
         },
         {
           type: "heading",
+          label: "B2B location bar",
+        },
+        {
+          type: "color",
+          label: "B2B bar text",
+          name: "b2bBarTextColor",
+          defaultValue: "#ffffff",
+        },
+        {
+          type: "color",
+          label: "B2B bar background",
+          name: "b2bBarBgColor",
+          defaultValue: "#1f2a44",
+        },
+        {
+          type: "heading",
           label: "Header",
         },
         {

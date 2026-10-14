@@ -1,6 +1,7 @@
 import { useThemeSettings } from "@weaverse/hydrogen";
 import { useEffect } from "react";
-import { useRouteLoaderData } from "react-router";
+import { useLocation, useRouteLoaderData } from "react-router";
+import Link from "~/components/link";
 import type { RootLoader } from "~/root";
 
 const MAX_DURATION = 80;
@@ -20,6 +21,7 @@ export function ScrollingAnnouncement() {
   // B2B storefronts only: a logged-in buyer sees "Ordering for <location>"
   // in this bar instead of the scrolling text. Everyone else is unchanged.
   const b2bLocation = useRouteLoaderData<RootLoader>("root")?.b2bLocation;
+  const { pathname, search } = useLocation();
   const showBar = Boolean(b2bLocation) || Boolean(topbarText);
 
   function updateStyles() {
@@ -60,6 +62,17 @@ export function ScrollingAnnouncement() {
         <span>
           Ordering for <strong>{b2bLocation.locationName}</strong>
         </span>
+        {b2bLocation.canSwitch && (
+          <>
+            <span aria-hidden="true">·</span>
+            <Link
+              to={`/account/locations?${new URLSearchParams({ return_to: pathname + search })}`}
+              className="underline underline-offset-2"
+            >
+              Change
+            </Link>
+          </>
+        )}
       </div>
     );
   }

@@ -120,7 +120,10 @@ export default function ChooseLocation() {
               const isCurrent = location.id === currentId;
               return (
                 <li key={location.id}>
-                  <Form method="post">
+                  {/* Full page load after switching: every product list on
+                      the next page (including Weaverse sections) is
+                      rebuilt for the new location. */}
+                  <Form method="post" reloadDocument>
                     <input
                       type="hidden"
                       name="locationId"

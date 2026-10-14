@@ -64,6 +64,7 @@ export default hydrogenRoutes([
       route("authorize", "routes/account/auth/authorize.ts"),
       route("login", "routes/account/auth/login.ts"),
       route("logout", "routes/account/auth/logout.ts"),
+      route("locations", "routes/account/locations.tsx"),
       layout("routes/account/layout.tsx", [
         index("routes/account/dashboard/index.tsx"),
         route("profile", "routes/account/profile.tsx"),

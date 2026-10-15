@@ -217,7 +217,7 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
       {hasWoodCardsUpsell && (
         <div className="space-y-4">
           <p className="text-sm font-bold uppercase tracking-wide text-neutral-900">
-            {woodCardHeading || "IS THIS A GIFT? ADD A WOOD CARD?"}
+            {woodCardHeading || "IS THIS A GIFT? CONSIDER ADDING A WOOD CARD"}
           </p>
 
           <div className="flex min-w-0 items-center gap-2">
@@ -608,8 +608,8 @@ export const schema = createSchema({
           type: "text",
           label: "Wood card heading",
           name: "woodCardHeading",
-          defaultValue: "IS THIS A GIFT? ADD A WOOD CARD?",
-          placeholder: "IS THIS A GIFT? ADD A WOOD CARD?",
+          defaultValue: "IS THIS A GIFT? CONSIDER ADDING A WOOD CARD",
+          placeholder: "IS THIS A GIFT? CONSIDER ADDING A WOOD CARD",
         },
       ],
     },

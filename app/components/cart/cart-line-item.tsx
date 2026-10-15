@@ -1,4 +1,4 @@
-import { TrashIcon } from "@phosphor-icons/react";
+import { TagIcon, TrashIcon } from "@phosphor-icons/react";
 import {
   CartForm,
   Money,
@@ -23,6 +23,40 @@ export type CartLineOptimisticData = {
   action?: string;
   quantity?: number;
 };
+
+interface LineAllocation {
+  discountedAmount?: { amount?: string | null } | null;
+  title?: string | null;
+  code?: string | null;
+  targetType?: string | null;
+}
+
+/**
+ * The discounts Shopify has applied to this line. Read structurally because
+ * codegen cannot currently run in this repo, so the generated cart types lag
+ * the fragment.
+ *
+ * One promotion can arrive as several allocations, so the titles are grouped
+ * and the amounts summed - otherwise the same offer is listed twice.
+ */
+function lineDiscounts(line: unknown) {
+  const allocations =
+    (line as { discountAllocations?: LineAllocation[] | null })
+      ?.discountAllocations ?? [];
+  const byLabel = new Map<string, number>();
+  let total = 0;
+  for (const allocation of allocations) {
+    const amount = Number(allocation?.discountedAmount?.amount) || 0;
+    // A free-shipping promotion can allocate against a line; its money is not
+    // in the line price, so it must not strike through one.
+    if (amount > 0 && allocation?.targetType !== "SHIPPING_LINE") {
+      total += amount;
+      const label = allocation?.title || allocation?.code || "Discount";
+      byLabel.set(label, (byLabel.get(label) ?? 0) + amount);
+    }
+  }
+  return { total, labels: [...byLabel.keys()] };
+}
 
 export function CartLineItem({
   line,
@@ -55,6 +89,7 @@ export function CartLineItem({
   }
 
   const { image, title, product, selectedOptions } = merchandise;
+  const discounts = lineDiscounts(line);
   let url = `/products/${product.handle}`;
   if (selectedOptions?.length) {
     const params = new URLSearchParams();
@@ -139,6 +174,26 @@ export function CartLineItem({
                 ))}
               </div>
             )}
+            {/* The offer sits on the product it applies to, so the shopper can
+                see why the price moved rather than meeting an unexplained
+                deduction down in the totals. */}
+            {discounts.labels.length > 0 && (
+              <div className="mt-1.5 space-y-1">
+                {discounts.labels.map((label) => (
+                  <div
+                    key={label}
+                    className="flex items-start gap-1.5 text-sm leading-snug"
+                  >
+                    <TagIcon
+                      aria-hidden="true"
+                      className="mt-0.5 size-4 shrink-0"
+                      weight="regular"
+                    />
+                    <span>{label}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           {layout === "drawer" && (
             <ItemRemoveButton lineId={id} className="-mt-1.5 -mr-2" />
@@ -152,7 +207,11 @@ export function CartLineItem({
         >
           <CartLineQuantityAdjust line={line} />
           {layout === "page" && <ItemRemoveButton lineId={id} />}
-          <CartLinePrice line={line} isOptimistic={isOptimistic} />
+          <CartLinePrice
+            line={line}
+            isOptimistic={isOptimistic}
+            discountAmount={discounts.total}
+          />
         </div>
       </div>
     </li>
@@ -191,10 +250,12 @@ function CartLinePrice({
   line,
   priceType = "regular",
   isOptimistic,
+  discountAmount = 0,
 }: {
   line: CartLine;
   priceType?: "regular" | "compareAt";
   isOptimistic?: boolean;
+  discountAmount?: number;
 }) {
   if (!(line?.cost?.amountPerQuantity && line?.cost?.totalAmount)) {
     return null;
@@ -209,10 +270,31 @@ function CartLinePrice({
     return null;
   }
 
-  if (isOptimistic) {
+   if (isOptimistic) {
     return <Skeleton as="span" className="ml-auto h-4 w-16 rounded" />;
   }
+
+  // line.cost.totalAmount is already net of the line's discounts, so adding
+  // them back reconstructs what the shopper would have paid without the offer.
+  const paid = Number(moneyV2.amount) || 0;
+  const showWas = discountAmount > 0 && paid > 0;
+
   return (
-    <Money withoutTrailingZeros as="span" data={moneyV2} className="ml-auto" />
+    <span className="ml-auto flex flex-col items-end leading-tight">
+      {showWas && (
+        <Money
+          withoutTrailingZeros
+          as="span"
+          data={
+            {
+              amount: (paid + discountAmount).toFixed(2),
+              currencyCode: moneyV2.currencyCode,
+            } as typeof moneyV2
+          }
+          className="strike text-(--color-compare-price-text)"
+        />
+      )}
+      <Money withoutTrailingZeros as="span" data={moneyV2} />
+    </span>
   );
 }

@@ -1,6 +1,7 @@
 import { GiftIcon, TagIcon, XIcon } from "@phosphor-icons/react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { CartForm, Money, type OptimisticCart } from "@shopify/hydrogen";
+import type { MoneyV2 } from "@shopify/hydrogen/storefront-api-types";
 import { useThemeSettings } from "@weaverse/hydrogen";
 import clsx from "clsx";
 import { useState } from "react";
@@ -16,6 +17,114 @@ import {
   GiftCardDialog,
   NoteDialog,
 } from "./cart-summary-actions";
+
+interface MoneyLike {
+  amount?: string | null;
+  currencyCode?: string | null;
+}
+
+interface AllocationLike {
+  discountedAmount?: MoneyLike | null;
+  // Automatic and custom discounts carry a title; a code discount carries the
+  // code the shopper typed, which is the label they will recognise.
+  title?: string | null;
+  code?: string | null;
+  targetType?: string | null;
+}
+
+/**
+ * Free-shipping promotions arrive as allocations too, but their money is not
+ * part of the subtotal - shipping is not priced until checkout. Counting one
+ * here would deduct an amount that was never added.
+ */
+function isMerchandiseDiscount(allocation: AllocationLike | null | undefined) {
+  return allocation?.targetType !== "SHIPPING_LINE";
+}
+
+/**
+ * The cart shape these helpers need. Read structurally rather than from the
+ * generated types: codegen cannot currently run in this repo (two queries
+ * share an operation name), so the generated cart type lags the fragment and
+ * would report these new fields as missing.
+ */
+interface CartDiscountShape {
+  discountAllocations?: AllocationLike[] | null;
+}
+
+function sumAmounts(values: Array<MoneyLike | null | undefined>) {
+  return values.reduce<number>(
+    (total, value) => total + (Number(value?.amount) || 0),
+    0,
+  );
+}
+
+/**
+ * Order-level discounts only. Shopify defines cost.subtotalAmount as "the
+ * amount, before taxes and cart-level discounts", so product-level offers -
+ * including buy X get Y, which allocates against the discounted line - are
+ * already deducted from it and are shown on the lines themselves. Deducting
+ * them again here would take the same money off twice.
+ */
+function discountTotals(cart: unknown) {
+  const source = cart as CartDiscountShape;
+  const cartAllocations = (source.discountAllocations ?? []).filter(
+    isMerchandiseDiscount,
+  );
+  const cartLevel = sumAmounts(
+    cartAllocations.map((allocation) => allocation?.discountedAmount),
+  );
+
+  // One promotion spread over several lines arrives as several allocations,
+  // so group by label - otherwise the same offer is listed three times.
+  const byLabel = new Map<string, number>();
+  for (const allocation of cartAllocations) {
+    const label = allocation?.title || allocation?.code || "Discount";
+    const amount = Number(allocation?.discountedAmount?.amount) || 0;
+    if (amount > 0) {
+      byLabel.set(label, (byLabel.get(label) ?? 0) + amount);
+    }
+  }
+
+  return {
+    cartLevel,
+    orderLevelLines: [...byLabel.entries()].map(([label, amount]) => ({
+      label,
+      amount,
+    })),
+  };
+}
+
+function money(amount: number, currencyCode: string) {
+  return { amount: amount.toFixed(2), currencyCode } as MoneyV2;
+}
+
+function SummaryRow({
+  label,
+  children,
+  loading,
+  emphasis,
+}: {
+  label: string;
+  children: React.ReactNode;
+  loading: boolean;
+  emphasis?: boolean;
+}) {
+  return (
+    <div
+      className={clsx(
+        "flex items-center justify-between",
+        emphasis ? "font-medium" : "text-body-subtle",
+      )}
+    >
+      <dt>{label}</dt>
+      {loading ? (
+        <Skeleton className="h-4 w-20 rounded" />
+      ) : (
+        <dd>{children}</dd>
+      )}
+    </div>
+  );
+}
 
 export function CartSummary({
   cart,
@@ -47,6 +156,23 @@ export function CartSummary({
     appliedGiftCards,
     note,
   } = cart;
+
+  const currencyCode =
+    cost?.totalAmount?.currencyCode ||
+    cost?.subtotalAmount?.currencyCode ||
+    "USD";
+  // Product-level offers are shown on the lines themselves, and Shopify's
+  // subtotal already has them deducted. Only order-level discounts still need
+  // a row here.
+  //
+  // No tax is shown. cost.totalAmount carries Shopify's tax estimate, which is
+  // guessed from whatever it knows of the shopper - often nothing before they
+  // sign in or type an address - so it moves around and can be wrong. The cart
+  // stays on figures that are certain, and checkout states tax and shipping.
+  const discounts = discountTotals(cart);
+  const subtotal = Number(cost?.subtotalAmount?.amount) || 0;
+  const totalAfterDiscounts = Math.max(subtotal - discounts.cartLevel, 0);
+  const hasOrderDiscount = discounts.orderLevelLines.length > 0;
 
   // Show loading state for optimistic line item changes or pending cart actions
   const isCartUpdating =
@@ -163,20 +289,30 @@ export function CartSummary({
             })}
         </div>
       )}
-      <dl className="mb-4 grid">
+      <dl className="mb-4 grid gap-1">
+        {hasOrderDiscount && (
+          <SummaryRow label="Subtotal:" loading={isCartUpdating}>
+            <Money data={money(subtotal, currencyCode)} />
+          </SummaryRow>
+        )}
+        {discounts.orderLevelLines.map(({ label, amount }) => (
+          <SummaryRow key={label} label={`${label}:`} loading={isCartUpdating}>
+            -<Money data={money(amount, currencyCode)} />
+          </SummaryRow>
+        ))}
         <div
           className={clsx(
             "flex items-center justify-between font-medium",
             layout === "page" && "text-xl",
           )}
         >
-          <dt>Estimated total:</dt>
+          <dt>{hasOrderDiscount ? "Total:" : "Subtotal:"}</dt>
           {isCartUpdating ? (
             <Skeleton className="h-4 w-20 rounded" />
           ) : (
             <dd>
-              {cost?.totalAmount?.amount ? (
-                <Money data={cost?.totalAmount} />
+              {subtotal > 0 ? (
+                <Money data={money(totalAfterDiscounts, currencyCode)} />
               ) : (
                 "-"
               )}
@@ -185,7 +321,7 @@ export function CartSummary({
         </div>
       </dl>
       <div className="mb-2 text-right text-body-subtle">
-        Taxes, discounts and{" "}
+        Taxes and{" "}
         <Link
           target="_blank"
           to="/policies/shipping-policy"

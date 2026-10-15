@@ -199,6 +199,21 @@ export const CART_QUERY_FRAGMENT = `#graphql
         ...Money
       }
     }
+    discountAllocations {
+      discountedAmount {
+        ...Money
+      }
+      targetType
+      ... on CartAutomaticDiscountAllocation {
+        title
+      }
+      ... on CartCodeDiscountAllocation {
+        code
+      }
+      ... on CartCustomDiscountAllocation {
+        title
+      }
+    }
     sellingPlanAllocation {
       sellingPlan {
         name
@@ -253,6 +268,21 @@ export const CART_QUERY_FRAGMENT = `#graphql
       }
       compareAtAmountPerQuantity {
         ...Money
+      }
+    }
+    discountAllocations {
+      discountedAmount {
+        ...Money
+      }
+      targetType
+      ... on CartAutomaticDiscountAllocation {
+        title
+      }
+      ... on CartCodeDiscountAllocation {
+        code
+      }
+      ... on CartCustomDiscountAllocation {
+        title
       }
     }
     merchandise {
@@ -336,6 +366,28 @@ export const CART_QUERY_FRAGMENT = `#graphql
         ...Money
       }
       totalTaxAmount {
+        ...Money
+      }
+    }
+    discountAllocations {
+      discountedAmount {
+        ...Money
+      }
+      targetType
+      ... on CartAutomaticDiscountAllocation {
+        title
+      }
+      ... on CartCodeDiscountAllocation {
+        code
+      }
+      ... on CartCustomDiscountAllocation {
+        title
+      }
+    }
+    appliedGiftCards {
+      id
+      lastCharacters
+      amountUsed {
         ...Money
       }
     }

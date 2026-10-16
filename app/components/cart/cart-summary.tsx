@@ -112,7 +112,7 @@ function SummaryRow({
   return (
     <div
       className={clsx(
-        "flex items-center justify-between",
+        "flex items-center justify-between gap-4",
         emphasis ? "font-medium" : "text-body-subtle",
       )}
     >
@@ -120,7 +120,7 @@ function SummaryRow({
       {loading ? (
         <Skeleton className="h-4 w-20 rounded" />
       ) : (
-        <dd>{children}</dd>
+        <dd className="shrink-0 whitespace-nowrap">{children}</dd>
       )}
     </div>
   );
@@ -297,7 +297,7 @@ export function CartSummary({
         )}
         {discounts.orderLevelLines.map(({ label, amount }) => (
           <SummaryRow key={label} label={`${label}:`} loading={isCartUpdating}>
-            -<Money data={money(amount, currencyCode)} />
+            -<Money as="span" data={money(amount, currencyCode)} />
           </SummaryRow>
         ))}
         <div

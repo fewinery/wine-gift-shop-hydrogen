@@ -748,6 +748,19 @@ export const themeSchema: HydrogenThemeSchema = {
       ],
     },
     {
+      group: "Blog",
+      inputs: [
+        {
+          type: "text",
+          name: "storefrontDomain",
+          label: "Storefront domain",
+          placeholder: "pergenapa.com",
+          helpText:
+            "This brand's public domain. Blog articles use it to decide which product to promote here. Leave empty to use the address the page was requested from, which does not match on Oxygen preview URLs.",
+        },
+      ],
+    },
+    {
       group: "Club member price",
       inputs: [
         {

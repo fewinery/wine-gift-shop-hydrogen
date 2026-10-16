@@ -8,6 +8,7 @@ import { useLoaderData } from "react-router";
 import { Image } from "~/components/image";
 import { Link } from "~/components/link";
 import { AddToCartButton } from "~/components/product/add-to-cart-button";
+import { useWeaverseStudioCheck } from "~/hooks/use-weaverse-studio-check";
 import type { loader as articleLoader } from "~/routes/blogs/article.tsx";
 
 interface BlogCtaProps extends HydrogenComponentProps {
@@ -84,19 +85,57 @@ export default function BlogCta(props: BlogCtaProps) {
     ...rest
   } = props;
   const { ctaEntry } = useLoaderData<typeof articleLoader>();
+  const isDesignMode = useWeaverseStudioCheck();
   const [dismissed, setDismissed] = useState(false);
   const isFloating = ctaLayout === "floating";
-  const revealed = useRevealOnScroll(isFloating, showAfterPercent);
+  const isBar = ctaLayout === "sticky";
+  const isInline = ctaLayout === "inline";
+  // Both pinned layouts sit over the page, so both get the scroll reveal and
+  // the close button. Only the inline card sits in the article's own flow.
+  const isPinned = isFloating || isBar;
+  const revealed = useRevealOnScroll(isPinned, showAfterPercent);
 
-  if (!ctaEntry || dismissed) {
-    return null;
-  }
-
-  const product = ctaEntry.product as CtaProduct | null;
+  const product = (ctaEntry?.product ?? null) as CtaProduct | null;
   // A row promotes a product or a page, never both. The product reference
   // resolves in this storefront's own catalog, so one a brand does not carry
   // arrives null and the row falls through to its link, or to nothing.
-  if (!(product || ctaEntry.link)) {
+  const hasCta = Boolean(ctaEntry && (product || ctaEntry.link));
+
+  // Silence is correct on a live site and useless in the editor: the article
+  // Studio previews usually carries no CTA metafields of its own, and a bottle
+  // the storefront does not sell resolves to null, so the section would look
+  // like it had failed to install. The placeholder is editor-only.
+  if (!hasCta) {
+    if (!isDesignMode) {
+      return null;
+    }
+    return (
+      <div
+        ref={ref}
+        {...rest}
+        className={clsx(
+          isPinned && "fixed inset-x-0 bottom-0 z-40 p-3",
+          isFloating && "lg:inset-x-auto lg:right-6 lg:bottom-6 lg:w-80 lg:p-0",
+          isInline &&
+            "mx-auto w-full max-w-(--page-width) px-3 py-10 md:px-4 lg:px-6",
+        )}
+      >
+        <div className="mx-auto flex max-w-lg flex-col gap-1.5 border border-line border-dashed bg-background p-4 text-body-subtle">
+          <p className="font-medium text-xs uppercase tracking-wide">
+            {heading || "Blog CTA"}
+          </p>
+          <p className="text-sm leading-snug">
+            Nothing to show on this storefront yet. On the article, add a "blog
+            cta" row for this domain pointing at a product this storefront
+            sells.
+          </p>
+          <p className="text-xs">Only visible here. Readers see nothing.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (dismissed) {
     return null;
   }
 
@@ -112,35 +151,73 @@ export default function BlogCta(props: BlogCtaProps) {
   const image = product?.featuredImage;
   const title = product?.title ?? ctaEntry.linkText ?? "";
 
+  const actions = (
+    <div
+      className={clsx(
+        "flex flex-col gap-2",
+        isFloating ? "mt-2" : "shrink-0 sm:w-44",
+      )}
+    >
+      {canAddToCart && variant?.id && (
+        <AddToCartButton
+          lines={[{ merchandiseId: variant.id, quantity: 1 }]}
+          variant="primary"
+          className="w-full py-2 text-sm"
+        >
+          {addToCartText || "Add to cart"}
+        </AddToCartButton>
+      )}
+      <Link
+        to={target}
+        variant={canAddToCart ? "outline" : "primary"}
+        className="w-full items-center justify-center whitespace-nowrap rounded-none py-2 text-sm"
+      >
+        {product
+          ? viewProductText || "View product"
+          : ctaEntry.linkText || viewProductText || "Learn more"}
+      </Link>
+    </div>
+  );
+
   return (
     <div
       ref={ref}
       {...rest}
       className={clsx(
-        isFloating && [
+        isPinned && [
           // z-40 deliberately: every dialog in this theme sits at z-50, so a
-          // floating card must pass under the cart drawer and the popups
-          // rather than over them.
-          "fixed right-0 bottom-0 left-0 z-40 lg:left-auto lg:right-6 lg:bottom-6 lg:w-80",
-          "pb-[env(safe-area-inset-bottom)] lg:pb-0",
+          // pinned card must pass under the cart drawer and the popups rather
+          // than over them.
+          //
+          // The padding is on this wrapper, not the card: an edge-to-edge
+          // panel glued to the bottom of a phone reads as part of the page
+          // chrome, and the home indicator sits on top of it.
+          "fixed inset-x-0 bottom-0 z-40 p-3",
+          "pb-[calc(env(safe-area-inset-bottom,0px)+0.75rem)]",
           "transition-all duration-300",
+          isFloating && "lg:inset-x-auto lg:right-6 lg:bottom-6 lg:w-80 lg:p-0",
           revealed
             ? "translate-y-0 opacity-100"
             : "pointer-events-none translate-y-4 opacity-0",
         ],
-        ctaLayout === "sticky" && "sticky top-24",
+        // Inline sits in the article's own flow, so it takes the page column
+        // rather than spanning the full browser width.
+        isInline &&
+          "mx-auto w-full max-w-(--page-width) px-3 py-10 md:px-4 lg:px-6",
       )}
     >
       <div
         className={clsx(
           // relative so the dismiss button below anchors to this card rather
           // than to whatever happens to be positioned further up the page.
-          "relative flex gap-3 border border-line bg-background p-3",
-          isFloating && "shadow-lg lg:flex-col lg:gap-4 lg:p-4",
-          !isFloating && "lg:flex-col",
+          "relative mx-auto flex items-center gap-3 border border-line bg-background p-3",
+          isPinned && "shadow-lg",
+          isFloating && "lg:flex-col lg:items-stretch lg:gap-4 lg:p-4",
+          isBar && "max-w-(--page-width)",
+          isInline && "max-w-xl gap-4 p-4",
         )}
       >
-        {dismissible && isFloating && (
+        {dismissible && isPinned && (
           <button
             type="button"
             aria-label="Hide this suggestion"
@@ -154,9 +231,18 @@ export default function BlogCta(props: BlogCtaProps) {
           <Link to={target} className="shrink-0">
             <Image
               data={image}
-              width={160}
+              // The card is at most 320px wide, so a 160px source was being
+              // blown up four times over on a retina screen. Ask for the size
+              // the layout actually paints.
+              width={640}
+              sizes="(min-width: 64em) 320px, 112px"
               aspectRatio="1/1"
-              className="size-16 object-contain lg:size-auto lg:w-full"
+              className={clsx(
+                "object-contain",
+                isFloating && "size-20 lg:size-auto lg:w-full",
+                isBar && "size-14",
+                isInline && "size-24",
+              )}
               alt={image.altText || title}
             />
           </Link>
@@ -179,27 +265,9 @@ export default function BlogCta(props: BlogCtaProps) {
               className="text-sm"
             />
           )}
-          <div className="mt-2 flex flex-col gap-2">
-            {canAddToCart && variant?.id && (
-              <AddToCartButton
-                lines={[{ merchandiseId: variant.id, quantity: 1 }]}
-                variant="primary"
-                className="w-full py-2 text-sm"
-              >
-                {addToCartText || "Add to cart"}
-              </AddToCartButton>
-            )}
-            <Link
-              to={target}
-              variant={canAddToCart ? "outline" : "primary"}
-              className="w-full items-center justify-center whitespace-nowrap rounded-none py-2 text-sm"
-            >
-              {product
-                ? viewProductText || "View product"
-                : ctaEntry.linkText || viewProductText || "Learn more"}
-            </Link>
-          </div>
+          {isFloating && actions}
         </div>
+        {!isFloating && actions}
       </div>
     </div>
   );
@@ -224,7 +292,7 @@ export const schema = createSchema({
           configs: {
             options: [
               { value: "floating", label: "Floating card" },
-              { value: "sticky", label: "Sticky beside the post" },
+              { value: "sticky", label: "Bar across the bottom" },
               { value: "inline", label: "Below the post" },
             ],
           },
@@ -236,15 +304,15 @@ export const schema = createSchema({
           defaultValue: 20,
           configs: { min: 0, max: 60, step: 5, unit: "%" },
           helpText:
-            "How far down the article the floating card appears. 0 shows it straight away.",
-          condition: (data: BlogCtaProps) => data.ctaLayout === "floating",
+            "How far down the article the card appears. 0 shows it straight away.",
+          condition: (data: BlogCtaProps) => data.ctaLayout !== "inline",
         },
         {
           type: "switch",
           name: "dismissible",
           label: "Let readers close it",
           defaultValue: true,
-          condition: (data: BlogCtaProps) => data.ctaLayout === "floating",
+          condition: (data: BlogCtaProps) => data.ctaLayout !== "inline",
         },
       ],
     },

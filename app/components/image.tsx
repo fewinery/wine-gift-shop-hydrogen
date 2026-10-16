@@ -1,7 +1,7 @@
 import { Image as HydrogenImage } from "@shopify/hydrogen";
 import type { Image as ImageType } from "@shopify/hydrogen/storefront-api-types";
 import type React from "react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { cn } from "~/utils/cn";
 
 type Crop = "center" | "top" | "bottom" | "left" | "right";
@@ -36,35 +36,21 @@ export function Image({ ref, className, onLoad, ...rest }: ImageProps) {
    * even when using ref prop for the outer div
    */
   const hydrogenImageRef = useRef<HTMLImageElement>(null);
-  const [loaded, setLoaded] = useState(false);
 
+  // Images that finished loading before the page became interactive never
+  // fire onLoad, so notify the caller (e.g. the product card spinner) here.
   useEffect(() => {
     if (hydrogenImageRef.current?.complete) {
-      setLoaded(true);
       onLoad?.({} as React.SyntheticEvent<HTMLImageElement>);
     }
   }, [onLoad]);
 
   return (
-    <div
-      ref={ref}
-      className={cn(
-        "h-full w-full overflow-hidden",
-        !loaded && "animate-pulse [animation-duration:4s]",
-        className,
-      )}
-    >
+    <div ref={ref} className={cn("h-full w-full overflow-hidden", className)}>
       <HydrogenImage
         ref={hydrogenImageRef}
-        className={cn(
-          "[transition:filter_500ms_cubic-bezier(.4,0,.2,1)]",
-          "h-full max-h-full w-full object-cover object-center",
-          loaded ? "blur-0" : "blur-xl",
-        )}
-        onLoad={(e) => {
-          setLoaded(true);
-          onLoad?.(e);
-        }}
+        className="h-full max-h-full w-full object-cover object-center"
+        onLoad={onLoad}
         {...rest}
       />
     </div>

@@ -9,6 +9,7 @@ import * as AlternatingContent from "~/sections/alternating-content";
 import * as AlternatingContentHeader from "~/sections/alternating-content/header";
 import * as AlternatingContentItem from "~/sections/alternating-content/item";
 import * as AlternatingContentItems from "~/sections/alternating-content/items";
+import * as BlogCta from "~/sections/blog-cta";
 import * as BlogPost from "~/sections/blog-post";
 import * as Blogs from "~/sections/blogs";
 import * as BrandShowcase from "~/sections/brand-showcase";
@@ -132,6 +133,7 @@ export const components: HydrogenComponent[] = [
   FeaturedCollections,
   FeaturedCollectionItems,
   BlogPost,
+  BlogCta,
   Blogs,
   Page,
   VideoEmbed,

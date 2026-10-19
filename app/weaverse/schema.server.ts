@@ -773,7 +773,7 @@ export const themeSchema: HydrogenThemeSchema = {
         },
         {
           type: "text",
-          name: "clubPriceLabel",
+          name: "clubPricingLabel",
           label: "Label",
           defaultValue: "Club or Loyalty Pricing from",
           placeholder: "Club or Loyalty Pricing from",

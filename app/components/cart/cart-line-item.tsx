@@ -90,6 +90,9 @@ export function CartLineItem({
 
   const { image, title, product, selectedOptions } = merchandise;
   const discounts = lineDiscounts(line);
+  const publicAttributes = (line.attributes ?? []).filter(
+    (attr) => !attr?.key?.startsWith("_"),
+  );
   let url = `/products/${product.handle}`;
   if (selectedOptions?.length) {
     const params = new URLSearchParams();
@@ -164,10 +167,14 @@ export function CartLineItem({
                   })}
                 </div>
               )}
-            {/* Show line item properties (attributes) */}
-            {line.attributes && line.attributes.length > 0 && (
+            {/* Show line item properties (attributes). Keys beginning with an
+                underscore are Shopify's convention for internal data - where
+                a sale came from, an app's bookkeeping - and Shopify's own
+                checkout hides them from the buyer. Ours has to as well, or
+                the shopper reads "_blog_cta" next to their wine. */}
+            {publicAttributes.length > 0 && (
               <div className="mt-1 space-y-0.5 text-gray-500 text-sm italic">
-                {line.attributes.map((attr) => (
+                {publicAttributes.map((attr) => (
                   <div key={attr.key}>
                     {attr.key}: {attr.value}
                   </div>

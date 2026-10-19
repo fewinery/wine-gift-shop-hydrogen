@@ -23,7 +23,10 @@ export function ClubMemberPrice({
   price?: Pick<MoneyV2, "amount" | "currencyCode"> | null;
   className?: string;
 }) {
-  const { clubPriceEnabled, clubPriceLabel, clubPriceDiscount } =
+  // Read from clubPricingLabel, not the original clubPriceLabel: storefronts
+  // that switched this on before the wording changed still have the old text
+  // saved under the old name, and a saved value beats the code default.
+  const { clubPriceEnabled, clubPricingLabel, clubPriceDiscount } =
     useThemeSettings();
 
   if (!clubPriceEnabled) {
@@ -53,7 +56,7 @@ export function ClubMemberPrice({
       )}
     >
       <span className="text-body-subtle text-sm">
-        {clubPriceLabel || "Club or Loyalty Pricing from"}
+        {clubPricingLabel || "Club or Loyalty Pricing from"}
       </span>
       <Money
         withoutTrailingZeros

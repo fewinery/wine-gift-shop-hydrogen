@@ -293,7 +293,14 @@ export function ProductCard({
                 className="text-base font-body"
               />
             )}
-            <ClubMemberPrice price={displayedPrice} />
+            <ClubMemberPrice
+              price={displayedPrice}
+              className={
+                isVertical
+                  ? JUSTIFY_ALIGNMENT[alignment as CardAlignment]
+                  : "justify-end text-right"
+              }
+            />
           </div>
         </div>
         <ProductCardOptions

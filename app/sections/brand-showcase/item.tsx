@@ -45,13 +45,28 @@ function BrandShowcaseItem(props: BrandShowcaseItemProps) {
     </>
   );
 
+  const hasLink = Boolean(link && link !== "#");
+
   return (
     <div
       ref={ref}
       {...rest}
       className="w-[calc(50%-16px)] md:w-[calc(25%-24px)] text-center"
     >
-      {link && link !== "#" ? <Link to={link}>{content}</Link> : content}
+      {hasLink ? (
+        // The shared Link is "inline-flex justify-center" by default, which
+        // turns the logo and the brand name into two columns side by side the
+        // moment a brand gets a real URL. flex-col keeps the tile looking the
+        // same whether or not its site is live yet.
+        <Link
+          to={link}
+          className="flex w-full flex-col text-center transition-opacity hover:opacity-70"
+        >
+          {content}
+        </Link>
+      ) : (
+        content
+      )}
     </div>
   );
 }

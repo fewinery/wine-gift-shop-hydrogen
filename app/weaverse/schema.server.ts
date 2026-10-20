@@ -775,8 +775,8 @@ export const themeSchema: HydrogenThemeSchema = {
           type: "text",
           name: "clubPricingLabel",
           label: "Label",
-          defaultValue: "Club or Loyalty Pricing from",
-          placeholder: "Club or Loyalty Pricing from",
+          defaultValue: "Club & Loyalty from",
+          placeholder: "Club & Loyalty from",
           helpText:
             "Shown under the price on product cards and on the product page.",
           condition: (theme) => theme.clubPriceEnabled === true,
@@ -794,6 +794,43 @@ export const themeSchema: HydrogenThemeSchema = {
           },
           helpText: "The club price is the retail price less this percentage.",
           condition: (theme) => theme.clubPriceEnabled === true,
+        },
+        {
+          type: "switch",
+          name: "clubInfoEnabled",
+          label: "Show info icon",
+          defaultValue: false,
+          helpText:
+            'Adds an "i" after the club price. Hover on desktop, or tap on mobile, shows a short message with a link to the club page.',
+          condition: (theme) => theme.clubPriceEnabled === true,
+        },
+        {
+          type: "textarea",
+          name: "clubInfoText",
+          label: "Info message",
+          defaultValue:
+            "If you join our club or loyalty program, you can get up to {discount}% off all your purchases, free shipping, and special offers.",
+          helpText: "{discount} is replaced with the club discount set above.",
+          condition: (theme) =>
+            theme.clubPriceEnabled === true && theme.clubInfoEnabled === true,
+        },
+        {
+          type: "text",
+          name: "clubInfoLinkText",
+          label: "Info link text",
+          defaultValue: "Click here to check out club options.",
+          placeholder: "Click here to check out club options.",
+          condition: (theme) =>
+            theme.clubPriceEnabled === true && theme.clubInfoEnabled === true,
+        },
+        {
+          type: "text",
+          name: "clubInfoLink",
+          label: "Info link",
+          defaultValue: "/club",
+          placeholder: "/club",
+          condition: (theme) =>
+            theme.clubPriceEnabled === true && theme.clubInfoEnabled === true,
         },
       ],
     },

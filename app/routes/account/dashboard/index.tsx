@@ -1,5 +1,6 @@
 import { ArrowSquareOut, SignOutIcon } from "@phosphor-icons/react";
 import { flattenConnection } from "@shopify/hydrogen";
+import { useThemeSettings } from "@weaverse/hydrogen";
 import { Suspense } from "react";
 import { Await, Form, useLoaderData, useOutletContext } from "react-router";
 import Link from "~/components/link";
@@ -12,8 +13,20 @@ import { AccountDetails } from "./account-details";
 import { AddressBook } from "./address-book";
 import { OrdersHistory } from "./orders-history";
 
+const DEFAULT_PORTAL_URL = "https://winegiftshop.com/apps/winehub?country=US";
+
 export default function AccountDashboard() {
   const signOutUrl = usePrefixPathWithLocale("/account/logout");
+  // The portal is Wine Gift Shop's Winehub account area. It is useful to the
+  // brands that sell through it and confusing everywhere else, so a storefront
+  // can switch it off. On by default: merging this must not change the 65
+  // storefronts already showing it.
+  const {
+    showCustomerPortalLink = true,
+    customerPortalLabel,
+    customerPortalUrl,
+  } = useThemeSettings();
+  const portalUrl = (customerPortalUrl || DEFAULT_PORTAL_URL).trim();
   const loaderData = useLoaderData<typeof accountLoader>();
   const outletContext =
     useOutletContext<Awaited<ReturnType<typeof accountLoader>>["data"]>();
@@ -46,17 +59,19 @@ export default function AccountDashboard() {
           <h1 className="h2 tracking-tight">{heading}</h1>
         </div>
         <div className="flex items-center gap-6">
-          <Link
-            to="https://winegiftshop.com/apps/winehub?country=US"
-            className="group flex items-center gap-2 text-base font-medium"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <ArrowSquareOut className="h-5 w-5" />
-            <span className="underline-offset-8 group-hover:underline">
-              Customer Portal
-            </span>
-          </Link>
+          {showCustomerPortalLink && portalUrl && (
+            <Link
+              to={portalUrl}
+              className="group flex items-center gap-2 text-base font-medium"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <ArrowSquareOut className="h-5 w-5" />
+              <span className="underline-offset-8 group-hover:underline">
+                {customerPortalLabel || "Customer Portal"}
+              </span>
+            </Link>
+          )}
           <Form method="post" action={signOutUrl}>
             <button
               type="submit"

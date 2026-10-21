@@ -769,7 +769,7 @@ export const themeSchema: HydrogenThemeSchema = {
           label: "Show club member price",
           defaultValue: false,
           helpText:
-            "Off by default. Turn this on only for brands that actually run a wine club — it adds a second price under every product price, on cards and on the product page.",
+            "Off by default. Turn this on only for brands that actually run a wine club — it adds a second price under every product price, on cards and on the product page. The club price is 20% off the retail price; that figure is fixed in code and can't be changed here.",
         },
         {
           type: "text",
@@ -779,20 +779,6 @@ export const themeSchema: HydrogenThemeSchema = {
           placeholder: "Club & Loyalty from",
           helpText:
             "Shown under the price on product cards and on the product page.",
-          condition: (theme) => theme.clubPriceEnabled === true,
-        },
-        {
-          type: "range",
-          name: "clubPriceDiscount",
-          label: "Club discount",
-          defaultValue: 20,
-          configs: {
-            min: 0,
-            max: 50,
-            step: 1,
-            unit: "%",
-          },
-          helpText: "The club price is the retail price less this percentage.",
           condition: (theme) => theme.clubPriceEnabled === true,
         },
         {
@@ -810,7 +796,7 @@ export const themeSchema: HydrogenThemeSchema = {
           label: "Info message",
           defaultValue:
             "If you join our club or loyalty program, you can get up to {discount}% off all your purchases, free shipping, and special offers.",
-          helpText: "{discount} is replaced with the club discount set above.",
+          helpText: "{discount} is replaced with the club discount (20).",
           condition: (theme) =>
             theme.clubPriceEnabled === true && theme.clubInfoEnabled === true,
         },

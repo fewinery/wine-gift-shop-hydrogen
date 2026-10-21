@@ -1804,6 +1804,37 @@ export const themeSchema: HydrogenThemeSchema = {
       ],
     },
     {
+      group: "Customer account",
+      inputs: [
+        {
+          type: "switch",
+          name: "showCustomerPortalLink",
+          label: "Show the customer portal link",
+          defaultValue: true,
+          helpText:
+            "The link on My Account that opens the Winehub portal. On by default so nothing changes for the brands using it — turn it off for corporate sites and anywhere the portal is not for that customer.",
+        },
+        {
+          type: "text",
+          name: "customerPortalLabel",
+          label: "Link text",
+          defaultValue: "Customer Portal",
+          placeholder: "Customer Portal",
+          condition: (theme) => theme.showCustomerPortalLink === true,
+        },
+        {
+          type: "text",
+          name: "customerPortalUrl",
+          label: "Link address",
+          defaultValue: "https://winegiftshop.com/apps/winehub?country=US",
+          placeholder: "https://winegiftshop.com/apps/winehub?country=US",
+          helpText:
+            "Where the link goes. The default is the shared Winehub portal on Wine Gift Shop.",
+          condition: (theme) => theme.showCustomerPortalLink === true,
+        },
+      ],
+    },
+    {
       group: "Cart",
       inputs: [
         {

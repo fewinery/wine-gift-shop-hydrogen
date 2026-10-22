@@ -32,6 +32,7 @@ import {
   useShouldRenderNewsletterPopup,
 } from "./components/root/newsletter-popup";
 import { NotFound } from "./components/root/not-found";
+import { TemporarilyUnavailable } from "./components/root/temporarily-unavailable";
 import styles from "./styles/app.css?url";
 import { shouldRevalidateAfterCheckout } from "./utils/checkout-revalidation";
 import { DEFAULT_LOCALE } from "./utils/const";
@@ -103,14 +104,20 @@ export function ErrorBoundary({ error }: { error: Error }) {
     pageType = routeError.data || pageType;
   }
 
+  if (isRouteError && routeError.status === 404) {
+    return <NotFound type={pageType} />;
+  }
+  // 503 is this theme's signal that the page builder could not be reached.
+  // It is a passing fault, so the visitor gets a reload button rather than a
+  // stack trace or a "page not found" that blames them for the address.
+  if (isRouteError && routeError.status === 503) {
+    return <TemporarilyUnavailable />;
+  }
+
   return isRouteError ? (
-    routeError.status === 404 ? (
-      <NotFound type={pageType} />
-    ) : (
-      <GenericError
-        error={{ message: `${routeError.status} ${routeError.data}` }}
-      />
-    )
+    <GenericError
+      error={{ message: `${routeError.status} ${routeError.data}` }}
+    />
   ) : (
     <GenericError error={error instanceof Error ? error : undefined} />
   );

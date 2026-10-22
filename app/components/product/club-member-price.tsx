@@ -18,6 +18,11 @@ const RETIRED_LABELS = new Set([
 
 const PERCENT = 100;
 const CENTS = 100;
+// Fixed in code on purpose, not a Studio setting: a slider in the editor was
+// one accidental drag away from a wrong price on every product. Changing it
+// is a code change. Saved values of the old clubPriceDiscount setting are
+// ignored.
+const CLUB_DISCOUNT_PERCENT = 20;
 // Long enough for the pointer to cross the gap between the icon and the
 // message without the message closing under it.
 const HOVER_CLOSE_DELAY_MS = 150;
@@ -156,26 +161,19 @@ export function ClubMemberPrice({
   // Read from clubPricingLabel, not the original clubPriceLabel: storefronts
   // that switched this on before the wording changed still have the old text
   // saved under the old name, and a saved value beats the code default.
-  const {
-    clubPriceEnabled,
-    clubPricingLabel,
-    clubPriceDiscount,
-    clubInfoEnabled,
-  } = useThemeSettings();
+  const { clubPriceEnabled, clubPricingLabel, clubInfoEnabled } =
+    useThemeSettings();
 
   if (!clubPriceEnabled) {
     return null;
   }
 
   const amount = Number(price?.amount);
-  const discount = Number(clubPriceDiscount);
+  const discount = CLUB_DISCOUNT_PERCENT;
 
-  // A missing price, a zero price or a nonsense discount means there is
-  // nothing honest to show, so show nothing rather than "$NaN".
+  // A missing or zero price means there is nothing honest to show, so show
+  // nothing rather than "$NaN".
   if (!(price?.currencyCode && Number.isFinite(amount)) || amount <= 0) {
-    return null;
-  }
-  if (!Number.isFinite(discount) || discount <= 0 || discount >= PERCENT) {
     return null;
   }
 

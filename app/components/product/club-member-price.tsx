@@ -32,6 +32,13 @@ const DEFAULT_INFO_TEXT =
 const DEFAULT_INFO_LINK_TEXT = "Click here to check out club options.";
 const DEFAULT_INFO_LINK = "/club";
 
+// Studio sizes arrive as numbers (or strings); anything unusable falls back to
+// the stylesheet size rather than producing "NaNpx".
+function toPx(value: unknown) {
+  const size = Number(value);
+  return size > 0 ? `${size}px` : undefined;
+}
+
 /**
  * The "i" next to the club price. One behaviour for every device: a mouse
  * opens it on hover, a finger or the keyboard opens it on tap / Enter. Phones
@@ -40,7 +47,17 @@ const DEFAULT_INFO_LINK = "/club";
  * it is what takes the shopper to the club page.
  */
 function ClubPriceInfo({ discount }: { discount: number }) {
-  const { clubInfoText, clubInfoLinkText, clubInfoLink } = useThemeSettings();
+  const {
+    clubInfoText,
+    clubInfoLinkText,
+    clubInfoLink,
+    clubInfoBgColor,
+    clubInfoTextColor,
+    clubInfoTextSize,
+    clubInfoButtonBgColor,
+    clubInfoButtonTextColor,
+    clubInfoButtonTextSize,
+  } = useThemeSettings();
   const [open, setOpen] = useState(false);
   const hovering = useRef(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -86,6 +103,11 @@ function ClubPriceInfo({ discount }: { discount: number }) {
   );
   const linkText = clubInfoLinkText || DEFAULT_INFO_LINK_TEXT;
   const link = clubInfoLink || DEFAULT_INFO_LINK;
+  // Every colour is optional. Empty means "keep the theme look", so a brand
+  // that never touches these settings sees exactly what it saw before. A
+  // button background turns the underlined link into a filled button.
+  const popupBg = clubInfoBgColor || undefined;
+  const isButton = Boolean(clubInfoButtonBgColor);
 
   return (
     <Popover.Root open={open} onOpenChange={setOpen}>
@@ -120,20 +142,36 @@ function ClubPriceInfo({ discount }: { discount: number }) {
           onPointerEnter={openFromHover}
           onPointerLeave={closeFromHover}
           className="z-1000 max-w-[min(18rem,calc(100vw-24px))] bg-body px-3 py-2 text-left font-body text-background text-sm leading-snug shadow-xs"
+          style={{
+            backgroundColor: popupBg,
+            color: clubInfoTextColor || undefined,
+          }}
         >
-          <p>{text}</p>
+          <p style={{ fontSize: toPx(clubInfoTextSize) }}>{text}</p>
           {link && (
             <Link
               to={link}
-              variant="underline"
-              className="mt-1 text-current after:bg-current"
+              variant={isButton ? undefined : "underline"}
+              className={
+                isButton
+                  ? "mt-2 px-3 py-1.5 text-current transition-opacity hover:opacity-90"
+                  : "mt-1 text-current after:bg-current"
+              }
+              style={{
+                backgroundColor: isButton ? clubInfoButtonBgColor : undefined,
+                color: clubInfoButtonTextColor || undefined,
+                fontSize: toPx(clubInfoButtonTextSize),
+              }}
               onClick={() => setOpen(false)}
             >
               {linkText}
             </Link>
           )}
           <Popover.Arrow asChild>
-            <span className="border-x-6 border-x-transparent border-t-6 border-t-body" />
+            <span
+              className="border-x-6 border-x-transparent border-t-6 border-t-body"
+              style={{ borderTopColor: popupBg }}
+            />
           </Popover.Arrow>
         </Popover.Content>
       </Popover.Portal>

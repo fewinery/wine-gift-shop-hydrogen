@@ -818,6 +818,71 @@ export const themeSchema: HydrogenThemeSchema = {
           condition: (theme) =>
             theme.clubPriceEnabled === true && theme.clubInfoEnabled === true,
         },
+        {
+          type: "color",
+          name: "clubInfoBgColor",
+          label: "Pop-up background",
+          defaultValue: "",
+          helpText: "Leave empty to use the theme's text color.",
+          condition: (theme) =>
+            theme.clubPriceEnabled === true && theme.clubInfoEnabled === true,
+        },
+        {
+          type: "color",
+          name: "clubInfoTextColor",
+          label: "Message text color",
+          defaultValue: "",
+          helpText: "Leave empty to use the theme's background color.",
+          condition: (theme) =>
+            theme.clubPriceEnabled === true && theme.clubInfoEnabled === true,
+        },
+        {
+          type: "range",
+          name: "clubInfoTextSize",
+          label: "Message text size",
+          defaultValue: 14,
+          configs: {
+            min: 10,
+            max: 24,
+            step: 1,
+            unit: "px",
+          },
+          condition: (theme) =>
+            theme.clubPriceEnabled === true && theme.clubInfoEnabled === true,
+        },
+        {
+          type: "color",
+          name: "clubInfoButtonBgColor",
+          label: "Link button background",
+          defaultValue: "",
+          helpText:
+            "Leave empty to show the link as underlined text instead of a button.",
+          condition: (theme) =>
+            theme.clubPriceEnabled === true && theme.clubInfoEnabled === true,
+        },
+        {
+          type: "color",
+          name: "clubInfoButtonTextColor",
+          label: "Link text color",
+          defaultValue: "",
+          helpText: "Leave empty to match the message text.",
+          condition: (theme) =>
+            theme.clubPriceEnabled === true && theme.clubInfoEnabled === true,
+        },
+        {
+          type: "range",
+          name: "clubInfoButtonTextSize",
+          label: "Link text size",
+          defaultValue: 14,
+          configs: {
+            min: 10,
+            max: 24,
+            step: 1,
+            unit: "px",
+          },
+          condition: (theme) =>
+            theme.clubPriceEnabled === true && theme.clubInfoEnabled === true,
+        },
       ],
     },
     {

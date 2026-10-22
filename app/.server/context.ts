@@ -22,6 +22,48 @@ declare global {
   interface HydrogenAdditionalContext extends AdditionalContextType {}
 }
 
+/** Long enough to let a blip pass, short enough that nobody notices. */
+const WEAVERSE_RETRY_DELAY_MS = 120;
+
+function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Give the Weaverse client one second attempt before it gives up.
+ *
+ * Its own error handling is silent and lossy: a failed page request comes
+ * back as null, and a failed theme request comes back as the schema's own
+ * defaults. The page then 404s and the header wears the stock Pilot logo,
+ * which is what visitors have been reporting - and why refreshing fixes it.
+ *
+ * Failed responses are never cached (the client only caches a response that
+ * has no error), so the retry is a genuinely fresh request rather than the
+ * same failure served twice. One extra attempt, only on the way to an error
+ * page the visitor would otherwise have to clear by hand.
+ */
+function withRetry(weaverse: WeaverseClient) {
+  const loadPage = weaverse.loadPage.bind(weaverse);
+  weaverse.loadPage = async (params) => {
+    const page = await loadPage(params);
+    if (page) {
+      return page;
+    }
+    await wait(WEAVERSE_RETRY_DELAY_MS);
+    return loadPage(params);
+  };
+
+  const loadThemeSettings = weaverse.loadThemeSettings.bind(weaverse);
+  weaverse.loadThemeSettings = async (strategy) => {
+    const settings = await loadThemeSettings(strategy);
+    if (!settings?._loadFailed) {
+      return settings;
+    }
+    await wait(WEAVERSE_RETRY_DELAY_MS);
+    return loadThemeSettings(strategy);
+  };
+}
+
 export async function createHydrogenRouterContext(
   request: Request,
   env: Env,
@@ -57,6 +99,8 @@ export async function createHydrogenRouterContext(
     themeSchema,
     components,
   });
+
+  withRetry(weaverse);
 
   // Add weaverse directly to the hydrogenContext instance
   // This preserves the RouterContextProvider class instance

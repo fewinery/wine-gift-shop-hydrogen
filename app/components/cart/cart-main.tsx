@@ -88,8 +88,12 @@ export function CartMain({
       <CartEmpty hidden={linesCount} onClose={onClose} layout={layout} />
       <div
         className={clsx(
+          // min-w-0 so the column is the drawer's width, not the widest thing
+          // inside it. A grid item defaults to min-width:auto, so one long
+          // product name or offer label stretches the column past the drawer
+          // and the totals end up printing off the right edge.
           layout === "drawer" &&
-            "grid grow grid-cols-1 grid-rows-[1fr_auto] px-4",
+            "grid min-w-0 grow grid-cols-1 grid-rows-[1fr_auto] px-4",
           layout === "page" && [
             "mx-auto w-full max-w-(--page-width) pb-12",
             "grid md:items-start lg:grid-cols-[1fr_480px]",
@@ -100,7 +104,7 @@ export function CartMain({
         <div
           ref={scrollRef}
           className={clsx([
-            "-mx-4 pb-4",
+            "-mx-4 min-w-0 pb-4",
             y > 0 ? "border-line-subtle border-t" : "",
             layout === "page" && "grow md:translate-y-4",
             layout === "drawer" && "transition",
@@ -112,7 +116,7 @@ export function CartMain({
           >
             <ul
               className={clsx(
-                "grid px-4",
+                "grid min-w-0 px-4",
                 layout === "page" && "gap-9",
                 layout === "drawer" && "gap-5",
               )}

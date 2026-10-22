@@ -116,7 +116,9 @@ function SummaryRow({
         emphasis ? "font-medium" : "text-body-subtle",
       )}
     >
-      <dt>{label}</dt>
+      {/* min-w-0 lets a long offer name wrap. Without it the label holds the
+          row open at its own width and pushes the amount off the edge. */}
+      <dt className="min-w-0">{label}</dt>
       {loading ? (
         <Skeleton className="h-4 w-20 rounded" />
       ) : (

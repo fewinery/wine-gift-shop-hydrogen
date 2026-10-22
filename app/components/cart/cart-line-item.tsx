@@ -123,8 +123,8 @@ export function CartLineItem({
           />
         )}
       </div>
-      <div className="flex grow flex-col gap-3">
-        <div className="flex justify-between gap-4">
+      <div className="flex min-w-0 grow flex-col gap-3">
+        <div className="flex min-w-0 justify-between gap-4">
           <div>
             <div>
               {product?.handle ? (

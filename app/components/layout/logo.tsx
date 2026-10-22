@@ -2,8 +2,10 @@ import { Image } from "@shopify/hydrogen";
 import { useThemeSettings } from "@weaverse/hydrogen";
 import clsx from "clsx";
 import type { ElementType } from "react";
+import { useRouteLoaderData } from "react-router";
 import { Link } from "~/components/link";
 import { useShopMenu } from "~/hooks/use-shop-menu";
+import type { RootLoader } from "~/root";
 import { cn } from "~/utils/cn";
 
 function LogoBadge({
@@ -127,8 +129,19 @@ export function LogoBadges({
 
 export function Logo() {
   const { shopName } = useShopMenu();
-  const { logoData, transparentLogoData, logoWidth, headerLogoLayout } =
-    useThemeSettings();
+  const {
+    logoData: configuredLogo,
+    transparentLogoData,
+    logoWidth,
+    headerLogoLayout,
+  } = useThemeSettings();
+  const rootData = useRouteLoaderData<RootLoader>("root");
+  // When the theme settings request fails, Weaverse answers with the schema's
+  // own defaults - and the default logo is the stock Pilot mark. Showing
+  // another company's logo on a wine brand's header is worse than showing no
+  // logo, so fall through to the shop name instead.
+  const settingsFailed = Boolean(rootData?.weaverseTheme?._loadFailed);
+  const logoData = settingsFailed ? null : configuredLogo;
   // The badges layout mirrors the DTC header on mobile: the logo is pinned to
   // the left and "mr-auto" pushes the menu trigger and actions to the right
   // edge. Every other layout keeps the original centred mobile logo.

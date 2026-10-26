@@ -58,8 +58,12 @@ export async function loader(args: LoaderFunctionArgs) {
   // null and nothing renders, rather than linking somewhere broken.
   const ctaEntry = resolveCtaEntry(article.blogCta, siteKey);
 
+  // Same storefront rule for the "related articles" list, so it never links
+  // to a sibling post that would 404 on this brand.
   const relatedArticles = blog.articles.nodes.filter(
-    (art: any) => art?.handle !== articleHandle,
+    (art: any) =>
+      art?.handle !== articleHandle &&
+      isVisibleToStorefront(art?.blogStorefronts, siteKey),
   );
   const formattedDate = new Intl.DateTimeFormat(`${language}-${country}`, {
     year: "numeric",
@@ -203,6 +207,21 @@ const ARTICLE_QUERY = `#graphql
           id
           contentHtml
           tags
+          blogStorefronts: metafield(
+            namespace: "custom"
+            key: "blog_storefronts"
+          ) {
+            references(first: 100) {
+              nodes {
+                ... on Metaobject {
+                  fields {
+                    key
+                    value
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }

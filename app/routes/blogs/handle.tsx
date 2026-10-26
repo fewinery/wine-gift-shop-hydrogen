@@ -4,6 +4,7 @@ import type { LoaderFunctionArgs, MetaFunction } from "react-router";
 import { data } from "react-router";
 import invariant from "tiny-invariant";
 import { seoPayload } from "~/.server/seo";
+import { isVisibleToStorefront, storefrontKey } from "~/utils/blog-cta";
 import { routeHeaders } from "~/utils/cache";
 import { createDropInBlogClient } from "~/utils/dropinblog";
 import { transformDropInBlogPost } from "~/utils/dropinblog-transform";
@@ -68,16 +69,30 @@ export async function loader(args: LoaderFunctionArgs) {
     });
   }
 
-  const [{ blog }, weaverseData] = await Promise.all([
+  const [{ blog }, weaverseData, themeSettings] = await Promise.all([
     storefront.query(BLOGS_QUERY, {
       variables: { blogHandle: handle, pageBy: 16, language },
     }),
     weaverse.loadPage({ type: "BLOG", handle }),
+    weaverse.loadThemeSettings(),
   ]);
 
   if (!blog?.articles) throw new Response("blog", { status: 404 });
 
-  const articles = flattenConnection(blog.articles).map((article: any) => ({
+  // Several brands share one blog, and each post lists the storefronts it is
+  // written for (custom.blog_storefronts). The article page already 404s for
+  // a storefront outside that list, so the listing must leave those posts out
+  // too - otherwise the card is shown and clicking it lands on an error.
+  const siteKey = storefrontKey(
+    request,
+    (themeSettings as { storefrontDomain?: string })?.storefrontDomain,
+  );
+
+  const articles = flattenConnection(blog.articles)
+    .filter((article: any) =>
+      isVisibleToStorefront(article.blogStorefronts, siteKey),
+    )
+    .map((article: any) => ({
     ...article,
     publishedAt: new Intl.DateTimeFormat(`${language}-${country}`, {
       year: "numeric",
@@ -138,6 +153,21 @@ const BLOGS_QUERY = `#graphql
             publishedAt
             title
             tags
+            blogStorefronts: metafield(
+              namespace: "custom"
+              key: "blog_storefronts"
+            ) {
+              references(first: 100) {
+                nodes {
+                  ... on Metaobject {
+                    fields {
+                      key
+                      value
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }

@@ -23,6 +23,15 @@ export const PRODUCT_QUERY = `#graphql
       encodedVariantExistence
       encodedVariantAvailability
       tags
+      productType
+      collections(first: 250) {
+        nodes {
+          handle
+        }
+      }
+      wineType: metafield(namespace: "custom", key: "wine_type") {
+        value
+      }
       featuredImage {
         id
         url

@@ -1,6 +1,7 @@
 import { useThemeSettings } from "@weaverse/hydrogen";
 import clsx from "clsx";
 import type { ReactNode } from "react";
+import { useWeaverseStudioCheck } from "~/hooks/use-weaverse-studio-check";
 import {
   getPromoLabels,
   type PromoLabelPosition,
@@ -44,7 +45,10 @@ export function PromoLabels({
   topRight?: ReactNode;
 }) {
   const settings = useThemeSettings();
-  const labels = getPromoLabels(product, settings);
+  const isDesignMode = useWeaverseStudioCheck();
+  // In Studio, scheduled/expired labels are still drawn (faded, with a note)
+  // so editors can check the dates. Shoppers only ever see active ones.
+  const labels = getPromoLabels(product, settings, Boolean(isDesignMode));
   const radius = settings?.promoLabelBorderRadius ?? 0;
 
   return (
@@ -70,6 +74,7 @@ export function PromoLabels({
                 className={clsx(
                   "promo-label font-medium leading-tight",
                   SIZE_CLASSES[label.size],
+                  label.status !== "active" && "opacity-50",
                 )}
                 style={{
                   backgroundColor: label.backgroundColor,
@@ -78,6 +83,11 @@ export function PromoLabels({
                 }}
               >
                 {label.text}
+                {isDesignMode && label.scheduleNote ? (
+                  <span className="mt-0.5 block font-normal text-[10px] normal-case">
+                    {label.scheduleNote}
+                  </span>
+                ) : null}
               </span>
             ))}
           </div>

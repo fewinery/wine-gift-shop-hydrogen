@@ -11,6 +11,8 @@ import type { OverlayAndBackgroundProps } from "~/components/overlay-and-backgro
 import { OverlayAndBackground } from "~/components/overlay-and-background";
 import { layoutInputs } from "~/components/section";
 import { useAnimation } from "~/hooks/use-animation";
+import { useWeaverseStudioCheck } from "~/hooks/use-weaverse-studio-check";
+import { describeSchedule } from "~/utils/schedule";
 
 const variants = cva("flex h-full w-full flex-col [&_.paragraph]:mx-[unset]", {
   variants: {
@@ -66,6 +68,8 @@ export interface SlideProps
     OverlayAndBackgroundProps {
   ref: React.Ref<HTMLDivElement>;
   backgroundColor: string;
+  startsAt?: string;
+  endsAt?: string;
 }
 
 export default function Slide(props: SlideProps) {
@@ -83,13 +87,22 @@ export default function Slide(props: SlideProps) {
     overlayColorHover,
     backgroundFit,
     backgroundPosition,
+    startsAt,
+    endsAt,
     children,
     ...rest
   } = props;
   const [scope] = useAnimation(ref);
+  const isDesignMode = useWeaverseStudioCheck();
+  const scheduleNote = isDesignMode ? describeSchedule(startsAt, endsAt) : "";
 
   return (
-    <div ref={scope} {...rest} className="h-full w-full">
+    <div ref={scope} {...rest} className="relative h-full w-full">
+      {scheduleNote ? (
+        <div className="absolute top-3 left-3 z-10 bg-black/80 px-2 py-1 text-white text-xs">
+          {scheduleNote} (only visible in the editor)
+        </div>
+      ) : null}
       <OverlayAndBackground
         backgroundImage={backgroundImage}
         backgroundFit={backgroundFit}
@@ -136,6 +149,29 @@ export const schema = createSchema({
       ),
     },
     { group: "Overlay", inputs: overlayInputs },
+    {
+      group: "Schedule",
+      inputs: [
+        {
+          type: "text",
+          name: "startsAt",
+          label: "Start (PT)",
+          defaultValue: "",
+          placeholder: "2026-11-01 09:00",
+          helpText:
+            "Pacific time (PT), format YYYY-MM-DD HH:mm, e.g. <strong>2026-11-01 09:00</strong>. Leave empty to show right away.",
+        },
+        {
+          type: "text",
+          name: "endsAt",
+          label: "End (PT)",
+          defaultValue: "",
+          placeholder: "2026-11-02 00:00",
+          helpText:
+            "Pacific time (PT). The slide disappears at this exact time, e.g. <strong>2026-11-02 00:00</strong> = gone at midnight Sunday night. Leave empty for no end.",
+        },
+      ],
+    },
   ],
   presets: {
     verticalPadding: "large",

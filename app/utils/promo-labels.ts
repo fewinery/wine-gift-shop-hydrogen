@@ -5,6 +5,12 @@
  * render nothing new.
  */
 
+import {
+  describeSchedule,
+  getScheduleStatus,
+  type ScheduleStatus,
+} from "~/utils/schedule";
+
 export const PROMO_LABEL_SLOTS = 3;
 
 export type PromoLabelPosition =
@@ -22,6 +28,10 @@ export interface PromoLabel {
   position: PromoLabelPosition;
   backgroundColor: string;
   textColor: string;
+  /** "active" unless the start/end dates say otherwise. */
+  status: ScheduleStatus;
+  /** Plain-English schedule summary, for Studio only. */
+  scheduleNote: string;
 }
 
 /** The product fields the rules look at. All optional: missing = no match. */
@@ -128,10 +138,15 @@ export function matchesLabelRules(
     : results.some(Boolean);
 }
 
-/** Reads the label slots out of theme settings and returns those that apply. */
+/**
+ * Reads the label slots out of theme settings and returns those that apply.
+ * Labels outside their start/end dates are left out, unless
+ * `includeInactive` is set (Studio uses it to show them greyed out).
+ */
 export function getPromoLabels(
   product: PromoLabelProduct | null | undefined,
   settings: Record<string, any>,
+  includeInactive = false,
 ): PromoLabel[] {
   if (!(product && settings)) {
     return [];
@@ -152,7 +167,10 @@ export function getPromoLabels(
       wineTypes: settings[`${p}WineTypes`],
       excluded: settings[`${p}Excluded`],
     });
-    if (matches) {
+    const start = settings[`${p}Start`];
+    const end = settings[`${p}End`];
+    const status = getScheduleStatus(start, end);
+    if (matches && (status === "active" || includeInactive)) {
       labels.push({
         key: p,
         text,
@@ -160,6 +178,8 @@ export function getPromoLabels(
         position: settings[`${p}Position`] || "top-left",
         backgroundColor: settings[`${p}BgColor`] || "#000000",
         textColor: settings[`${p}TextColor`] || "#ffffff",
+        status,
+        scheduleNote: describeSchedule(start, end),
       });
     }
   }

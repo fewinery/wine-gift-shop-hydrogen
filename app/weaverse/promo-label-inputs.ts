@@ -37,6 +37,10 @@ const COLLECTION_HELP =
   "The last part of the collection URL: /collections/<strong>handle</strong>";
 const PRODUCT_HELP =
   "The last part of the product URL: /products/<strong>handle</strong>";
+const START_HELP =
+  "Pacific time (PT), format YYYY-MM-DD HH:mm, e.g. <strong>2026-11-01 09:00</strong>. Leave empty to show right away.";
+const END_HELP =
+  "Pacific time (PT). The label disappears at this exact time, e.g. <strong>2026-11-02 00:00</strong> = gone at midnight Sunday night. Leave empty for no end.";
 const WINE_TYPE_HELP =
   "Matches the 'Wine Type (Custom Shopify)' product metafield.";
 
@@ -77,6 +81,24 @@ export const promoLabelInputs: ThemeInputs = [
     label: "Text",
     defaultValue: "",
     placeholder: "Sparkling Week - up to 35% OFF",
+    condition: (theme: any) => Boolean(theme.promoLabel1Enabled),
+  },
+  {
+    type: "text",
+    name: "promoLabel1Start",
+    label: "Start (PT)",
+    defaultValue: "",
+    placeholder: "2026-11-01 09:00",
+    helpText: START_HELP,
+    condition: (theme: any) => Boolean(theme.promoLabel1Enabled),
+  },
+  {
+    type: "text",
+    name: "promoLabel1End",
+    label: "End (PT)",
+    defaultValue: "",
+    placeholder: "2026-11-02 00:00",
+    helpText: END_HELP,
     condition: (theme: any) => Boolean(theme.promoLabel1Enabled),
   },
   {
@@ -193,6 +215,24 @@ export const promoLabelInputs: ThemeInputs = [
     condition: (theme: any) => Boolean(theme.promoLabel2Enabled),
   },
   {
+    type: "text",
+    name: "promoLabel2Start",
+    label: "Start (PT)",
+    defaultValue: "",
+    placeholder: "2026-11-01 09:00",
+    helpText: START_HELP,
+    condition: (theme: any) => Boolean(theme.promoLabel2Enabled),
+  },
+  {
+    type: "text",
+    name: "promoLabel2End",
+    label: "End (PT)",
+    defaultValue: "",
+    placeholder: "2026-11-02 00:00",
+    helpText: END_HELP,
+    condition: (theme: any) => Boolean(theme.promoLabel2Enabled),
+  },
+  {
     type: "select",
     name: "promoLabel2Position",
     label: "Position",
@@ -303,6 +343,24 @@ export const promoLabelInputs: ThemeInputs = [
     label: "Text",
     defaultValue: "",
     placeholder: "Sparkling Week - up to 35% OFF",
+    condition: (theme: any) => Boolean(theme.promoLabel3Enabled),
+  },
+  {
+    type: "text",
+    name: "promoLabel3Start",
+    label: "Start (PT)",
+    defaultValue: "",
+    placeholder: "2026-11-01 09:00",
+    helpText: START_HELP,
+    condition: (theme: any) => Boolean(theme.promoLabel3Enabled),
+  },
+  {
+    type: "text",
+    name: "promoLabel3End",
+    label: "End (PT)",
+    defaultValue: "",
+    placeholder: "2026-11-02 00:00",
+    helpText: END_HELP,
     condition: (theme: any) => Boolean(theme.promoLabel3Enabled),
   },
   {

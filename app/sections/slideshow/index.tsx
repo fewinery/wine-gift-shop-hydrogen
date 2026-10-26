@@ -2,6 +2,7 @@ import {
   createSchema,
   type HydrogenComponentProps,
   IMAGES_PLACEHOLDERS,
+  useChildInstances,
   useThemeSettings,
 } from "@weaverse/hydrogen";
 import type { VariantProps } from "class-variance-authority";
@@ -9,6 +10,8 @@ import { cva } from "class-variance-authority";
 import clsx from "clsx";
 import { Autoplay, EffectFade, Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
+import { useWeaverseStudioCheck } from "~/hooks/use-weaverse-studio-check";
+import { getScheduleStatus } from "~/utils/schedule";
 import type { SlideshowArrowsProps } from "./arrows";
 import { Arrows } from "./arrows";
 import type { SlideshowDotsProps } from "./dots";
@@ -82,7 +85,30 @@ export default function Slideshow(
     ...rest
   } = props;
 
-  const { enableTransparentHeader } = useThemeSettings();
+   const { enableTransparentHeader } = useThemeSettings();
+  const isDesignMode = useWeaverseStudioCheck();
+  const childInstances = useChildInstances();
+
+  // Each slide can have a Start/End (PT) schedule. On the live site, slides
+  // outside their dates are removed entirely (not left as blank slides), so
+  // the dots and auto-rotate only count live slides. Studio keeps them all,
+  // and the slide itself shows a note explaining why it would be hidden.
+  const slides = isDesignMode
+    ? children
+    : children.filter((child) => {
+        const id = (child as { props?: { id?: string } })?.props?.id;
+        const slideData = childInstances.find((inst) => inst.data?.id === id)
+          ?.data as { startsAt?: string; endsAt?: string } | undefined;
+        const status = getScheduleStatus(
+          slideData?.startsAt,
+          slideData?.endsAt,
+        );
+        return status === "active";
+      });
+
+  if (slides.length === 0) {
+    return null;
+  }
 
   return (
     <section
@@ -123,7 +149,7 @@ export default function Slideshow(
           showDots ? Pagination : null,
         ].filter(Boolean)}
       >
-        {children.map((child, idx) => (
+        {slides.map((child, idx) => (
           <SwiperSlide key={idx} className="bg-white">
             {child}
           </SwiperSlide>

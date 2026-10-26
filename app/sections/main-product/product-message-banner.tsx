@@ -5,8 +5,10 @@ import {
   type WeaverseCollection,
   type WeaverseProduct,
 } from "@weaverse/hydrogen";
+import clsx from "clsx";
 import { useLoaderData } from "react-router";
 import type { loader as productRouteLoader } from "~/routes/products/product";
+import { describeSchedule, getScheduleStatus } from "~/utils/schedule";
 
 type ShowOn = "all" | "any" | "every";
 type TextAlign = "left" | "center" | "right";
@@ -31,6 +33,8 @@ interface ProductMessageBannerProps extends HydrogenComponentProps {
   productTypes?: string;
   wineTypes?: string;
   excludedProducts?: WeaverseProduct[];
+  startsAt?: string;
+  endsAt?: string;
 }
 
 interface BannerProduct {
@@ -166,6 +170,8 @@ export default function ProductMessageBanner(props: ProductMessageBannerProps) {
     productTypes,
     wineTypes,
     excludedProducts,
+    startsAt,
+    endsAt,
     ...rest
   } = props;
   const { product } = useLoaderData<typeof productRouteLoader>();
@@ -176,6 +182,12 @@ export default function ProductMessageBanner(props: ProductMessageBannerProps) {
   }
 
   const visible = matchesBannerRules(product as BannerProduct, props);
+  const scheduleStatus = getScheduleStatus(startsAt, endsAt);
+  const scheduleNote = describeSchedule(startsAt, endsAt);
+
+  if (visible && scheduleStatus !== "active" && !isDesignMode) {
+    return null;
+  }
 
   if (!visible) {
     if (!isDesignMode) {
@@ -198,7 +210,7 @@ export default function ProductMessageBanner(props: ProductMessageBannerProps) {
     <div
       ref={ref}
       {...rest}
-      className="w-full"
+      className={clsx("w-full", scheduleStatus !== "active" && "opacity-50")}
       style={{
         backgroundColor,
         borderRadius,
@@ -225,6 +237,11 @@ export default function ProductMessageBanner(props: ProductMessageBannerProps) {
           }}
           dangerouslySetInnerHTML={{ __html: text }}
         />
+      ) : null}
+      {isDesignMode && scheduleNote ? (
+        <p className="mt-2 text-gray-600 text-xs">
+          {scheduleNote} (only visible in the editor)
+        </p>
       ) : null}
     </div>
   );
@@ -321,6 +338,29 @@ export const schema = createSchema({
           label: "Corner radius",
           configs: { min: 0, max: 32, step: 1, unit: "px" },
           defaultValue: 0,
+        },
+      ],
+    },
+    {
+      group: "Schedule",
+      inputs: [
+        {
+          type: "text",
+          name: "startsAt",
+          label: "Start (PT)",
+          defaultValue: "",
+          placeholder: "2026-11-01 09:00",
+          helpText:
+            "Pacific time (PT), format YYYY-MM-DD HH:mm, e.g. <strong>2026-11-01 09:00</strong>. Leave empty to show right away.",
+        },
+        {
+          type: "text",
+          name: "endsAt",
+          label: "End (PT)",
+          defaultValue: "",
+          placeholder: "2026-11-02 00:00",
+          helpText:
+            "Pacific time (PT). The banner disappears at this exact time, e.g. <strong>2026-11-02 00:00</strong> = gone at midnight Sunday night. Leave empty for no end.",
         },
       ],
     },

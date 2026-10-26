@@ -26,6 +26,7 @@ import {
 import { ClubMemberPrice } from "./club-member-price";
 import { ProductCardAddToCart } from "./product-card-add-to-cart";
 import { ProductCardOptions } from "./product-card-options";
+import { PromoLabels } from "./promo-labels";
 import { VariantPrices } from "./variant-prices";
 
 type CardAlignment = "left" | "center" | "right";
@@ -193,20 +194,27 @@ export function ProductCard({
             )}
           </Link>
         )}
-        <div className="absolute top-2.5 right-2.5 flex gap-1">
-          {isBundle && pcardShowBundleBadge && <BundleBadge />}
-          {pcardShowSaleBadge && (
-            <SaleBadge
-              price={minVariantPrice as MoneyV2}
-              compareAtPrice={maxVariantPrice as MoneyV2}
-            />
-          )}
-          {pcardShowBestSellerBadge && isBestSellerProduct && (
-            <BestSellerBadge />
-          )}
-          {pcardShowNewBadge && <NewBadge publishedAt={product.publishedAt} />}
-          {pcardShowOutOfStockBadge && <SoldOutBadge />}
-        </div>
+        <PromoLabels
+          product={product}
+          topRight={
+            <div className="flex gap-1">
+              {isBundle && pcardShowBundleBadge && <BundleBadge />}
+              {pcardShowSaleBadge && (
+                <SaleBadge
+                  price={minVariantPrice as MoneyV2}
+                  compareAtPrice={maxVariantPrice as MoneyV2}
+                />
+              )}
+              {pcardShowBestSellerBadge && isBestSellerProduct && (
+                <BestSellerBadge />
+              )}
+              {pcardShowNewBadge && (
+                <NewBadge publishedAt={product.publishedAt} />
+              )}
+              {pcardShowOutOfStockBadge && <SoldOutBadge />}
+            </div>
+          }
+        />
         {pcardEnableQuickShop && pcardQuickShopButtonPlacement === "image" && (
           <ProductCardAddToCart
             variant={activeVariant}

@@ -101,6 +101,7 @@ export const schema = createSchema({
     "mp--prices",
     "judgeme-stars-rating",
     "mp--summary",
+    "mp--message-banner",
     "mp--bundled-variants",
     "mp--variant-selector",
     "mp--quantity-selector",

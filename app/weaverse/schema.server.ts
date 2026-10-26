@@ -1,5 +1,6 @@
 import type { HydrogenThemeSchema } from "@weaverse/hydrogen";
 import { COUNTRIES } from "~/utils/const";
+import { promoLabelInputs } from "~/weaverse/promo-label-inputs";
 import { version } from "../../package.json";
 
 export const themeSchema: HydrogenThemeSchema = {
@@ -1250,6 +1251,10 @@ export const themeSchema: HydrogenThemeSchema = {
           ].join(""),
         },
       ],
+    },
+    {
+      group: "Promo labels",
+      inputs: promoLabelInputs,
     },
     {
       group: "Product cards",

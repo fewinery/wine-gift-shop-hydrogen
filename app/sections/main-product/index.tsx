@@ -1,10 +1,11 @@
-import { createSchema } from "@weaverse/hydrogen";
+import { createSchema, useThemeSettings } from "@weaverse/hydrogen";
 import clsx from "clsx";
 import { useLoaderData } from "react-router";
 import {
   ProductMedia,
   type ProductMediaProps,
 } from "~/components/product/product-media";
+import { PromoLabels } from "~/components/product/promo-labels";
 import { layoutInputs, Section, type SectionProps } from "~/components/section";
 import type { loader as productRouteLoader } from "~/routes/products/product";
 import { isCombinedListing } from "~/utils/combined-listings";
@@ -30,6 +31,7 @@ export default function ProductInformation(
     ...rest
   } = props;
   const { product } = useLoaderData<typeof productRouteLoader>();
+  const { promoLabelsOnProductPage } = useThemeSettings();
 
   const combinedListing = isCombinedListing(product);
 
@@ -45,6 +47,7 @@ export default function ProductInformation(
             "lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]",
           ])}
         >
+          <div className="relative min-w-0">
           <ProductMedia
             key={handle}
             mediaLayout={mediaLayout}
@@ -71,6 +74,8 @@ export default function ProductInformation(
             zoomTrigger={zoomTrigger}
             zoomButtonVisibility={zoomButtonVisibility}
           />
+          {promoLabelsOnProductPage && <PromoLabels product={product} />}
+          </div>
           <div className="min-w-0">
             <div
               className="sticky flex min-w-0 flex-col justify-start gap-5"

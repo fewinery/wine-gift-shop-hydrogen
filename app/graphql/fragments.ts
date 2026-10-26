@@ -87,6 +87,15 @@ export const PRODUCT_CARD_FRAGMENT = `#graphql
     handle
     vendor
     tags
+    productType
+    collections(first: 50) {
+      nodes {
+        handle
+      }
+    }
+    wineType: metafield(namespace: "custom", key: "wine_type") {
+      value
+    }
     images(first: 50) {
       nodes {
         id

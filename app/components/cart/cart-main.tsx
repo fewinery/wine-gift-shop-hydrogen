@@ -5,9 +5,7 @@ import useScroll from "react-use/esm/useScroll";
 import type { CartApiQueryFragment } from "storefront-api.generated";
 import { Link } from "~/components/link";
 import { ScrollArea } from "~/components/scroll-area";
-import { Section } from "~/components/section";
 import type { CartLayoutType } from "~/types/others";
-import { CartBestSellers } from "./cart-best-sellers";
 import { CartLineItem } from "./cart-line-item";
 import { CartSummary } from "./cart-summary";
 
@@ -53,17 +51,6 @@ function CartEmpty({
           Start Shopping
         </Link>
       </div>
-      {layout === "page" && (
-        <Section width="fixed" verticalPadding="medium">
-          <div className="grid gap-4">
-            <CartBestSellers
-              count={4}
-              heading="Shop Best Sellers"
-              sortKey="BEST_SELLING"
-            />
-          </div>
-        </Section>
-      )}
     </div>
   );
 }

@@ -1942,6 +1942,97 @@ export const themeSchema: HydrogenThemeSchema = {
           defaultValue: "Continue to Checkout",
           placeholder: "Continue to Checkout",
         },
+        {
+          type: "switch",
+          label: "Show Continue Shopping button",
+          name: "cartShowContinueShopping",
+          defaultValue: false,
+          helpText:
+            "Shown under the checkout button, in the cart drawer and on the cart page.",
+        },
+        {
+          type: "text",
+          label: "Continue Shopping text",
+          name: "cartContinueShoppingText",
+          defaultValue: "Continue Shopping",
+          placeholder: "Continue Shopping",
+          condition: (theme: any) => theme.cartShowContinueShopping === true,
+        },
+        {
+          type: "text",
+          label: "Continue Shopping link",
+          name: "cartContinueShoppingLink",
+          defaultValue: "/",
+          placeholder: "/collections/all",
+          helpText:
+            "A path on this site, starting with /. Use <strong>/</strong> for the home page.",
+          condition: (theme: any) => theme.cartShowContinueShopping === true,
+        },
+        {
+          type: "color",
+          label: "Continue Shopping background",
+          name: "cartContinueShoppingBgColor",
+          defaultValue: "",
+          helpText: "Leave empty to match the Continue to Checkout button.",
+          condition: (theme: any) => theme.cartShowContinueShopping === true,
+        },
+        {
+          type: "color",
+          label: "Continue Shopping text color",
+          name: "cartContinueShoppingTextColor",
+          defaultValue: "",
+          condition: (theme: any) => theme.cartShowContinueShopping === true,
+        },
+        {
+          type: "color",
+          label: "Continue Shopping border color",
+          name: "cartContinueShoppingBorderColor",
+          defaultValue: "",
+          condition: (theme: any) => theme.cartShowContinueShopping === true,
+        },
+        {
+          type: "heading",
+          label: "Cart page recommendations",
+        },
+        {
+          type: "switch",
+          label: "Show products below the cart",
+          name: "cartRecsEnabled",
+          defaultValue: true,
+        },
+        {
+          type: "text",
+          label: "Heading",
+          name: "cartRecsHeading",
+          defaultValue: "More from our best sellers",
+          placeholder: "More from our best sellers",
+          condition: (theme: any) => theme.cartRecsEnabled !== false,
+        },
+        {
+          type: "select",
+          label: "Products to show",
+          name: "cartRecsSource",
+          configs: {
+            options: [
+              { value: "best-sellers", label: "Best sellers (all products)" },
+              { value: "collection", label: "Best sellers from a collection" },
+            ],
+          },
+          defaultValue: "best-sellers",
+          condition: (theme: any) => theme.cartRecsEnabled !== false,
+        },
+        {
+          type: "text",
+          label: "Collection handle",
+          name: "cartRecsCollection",
+          defaultValue: "",
+          placeholder: "best-sellers",
+          helpText:
+            "The last part of the collection URL: /collections/<strong>handle</strong>. If the collection is empty or not found, the section is hidden.",
+          condition: (theme: any) =>
+            theme.cartRecsEnabled !== false &&
+            theme.cartRecsSource === "collection",
+        },
       ],
     },
     {

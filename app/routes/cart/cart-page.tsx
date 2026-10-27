@@ -22,6 +22,7 @@ import { CartMain } from "~/components/cart/cart-main";
 import { ProductCard } from "~/components/product/product-card";
 import { Section } from "~/components/section";
 import { Swimlane } from "~/components/swimlane";
+import { PRODUCT_CARD_FRAGMENT } from "~/graphql/fragments";
 import { getFeaturedProducts } from "~/utils/featured-products";
 
 export async function action({ request, context }: ActionFunctionArgs) {
@@ -121,16 +122,83 @@ export async function action({ request, context }: ActionFunctionArgs) {
 }
 
 export async function loader({ context }: LoaderFunctionArgs) {
-  const { cart, storefront } = context;
+  const { cart, storefront, weaverse } = context;
+  const [cartData, theme] = await Promise.all([
+    cart.get(),
+    weaverse.loadThemeSettings(),
+  ]);
+  const settings = (theme ?? {}) as {
+    cartRecsEnabled?: boolean;
+    cartRecsHeading?: string;
+    cartRecsSource?: string;
+    cartRecsCollection?: string;
+  };
 
   return {
-    cart: await cart.get(),
-    featuredProducts: getFeaturedProducts(storefront),
+    cart: cartData,
+    recsHeading: settings.cartRecsHeading || "More from our best sellers",
+    // Deferred, so the cart itself never waits on the product list. A failed
+    // lookup hides the section instead of taking the cart page down with it.
+    featuredProducts: getCartRecommendations(storefront, settings).catch(
+      () => null,
+    ),
   };
 }
 
+/**
+ * Products for the section below the cart, set per brand in Theme Settings
+ * -> Cart. Brands share one Shopify catalog, so "best sellers" across every
+ * product can show another brand's bottles; a collection keeps it on-brand.
+ */
+async function getCartRecommendations(
+  storefront: LoaderFunctionArgs["context"]["storefront"],
+  settings: {
+    cartRecsEnabled?: boolean;
+    cartRecsSource?: string;
+    cartRecsCollection?: string;
+  },
+) {
+  if (settings.cartRecsEnabled === false) {
+    return null;
+  }
+  const handle = settings.cartRecsCollection?.trim();
+  if (settings.cartRecsSource === "collection") {
+    if (!handle) {
+      return null;
+    }
+    const { collection } = await storefront.query(CART_RECS_COLLECTION_QUERY, {
+      variables: {
+        handle,
+        country: storefront.i18n.country,
+        language: storefront.i18n.language,
+      },
+    });
+    return collection?.products?.nodes ?? null;
+  }
+  const { featuredProducts } = await getFeaturedProducts(storefront);
+  return featuredProducts?.nodes ?? null;
+}
+
+const CART_RECS_COLLECTION_QUERY = `#graphql
+  query cartRecsCollection(
+    $handle: String!
+    $country: CountryCode
+    $language: LanguageCode
+  ) @inContext(country: $country, language: $language) {
+    collection(handle: $handle) {
+      products(first: 8, sortKey: BEST_SELLING) {
+        nodes {
+          ...ProductCard
+        }
+      }
+    }
+  }
+  ${PRODUCT_CARD_FRAGMENT}
+` as const;
+
 export default function CartRoute() {
-  const { cart, featuredProducts } = useLoaderData<typeof loader>();
+  const { cart, featuredProducts, recsHeading } =
+    useLoaderData<typeof loader>();
 
   return (
     <>
@@ -143,15 +211,15 @@ export default function CartRoute() {
       </Section>
       <Suspense fallback={null}>
         <Await resolve={featuredProducts}>
-          {({ featuredProducts: products }) => {
-            if (!products?.nodes?.length) {
+          {(products) => {
+            if (!products?.length) {
               return null;
             }
             return (
               <Section width="fixed" verticalPadding="large" gap={32}>
-                <h2 className="h4 text-center">More from our best sellers</h2>
+                <h2 className="h4 text-center">{recsHeading}</h2>
                 <Swimlane className="gap-4">
-                  {products.nodes.map((product) => (
+                  {products.map((product: any) => (
                     <ProductCard
                       key={product.id}
                       product={product}

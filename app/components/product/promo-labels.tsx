@@ -83,7 +83,7 @@ export function PromoLabels({
                 }}
               >
                 {label.text}
-                {isDesignMode && label.scheduleNote ? (
+                {isDesignMode && label.status !== "active" ? (
                   <span className="mt-0.5 block font-normal text-[10px] normal-case">
                     {label.scheduleNote}
                   </span>

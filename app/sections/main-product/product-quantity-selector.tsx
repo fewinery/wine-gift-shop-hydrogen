@@ -1,4 +1,5 @@
 import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
+import { useEffect } from "react";
 import { useLoaderData } from "react-router";
 import { create } from "zustand";
 import { Quantity } from "~/components/product/quantity";

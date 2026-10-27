@@ -161,7 +161,14 @@ async function getCartRecommendations(
   if (settings.cartRecsEnabled === false) {
     return null;
   }
-  const handle = settings.cartRecsCollection?.trim();
+  // Accept the handle however it is pasted: "wine-bottles",
+  // "/wine-bottles", "/collections/wine-bottles" or the full URL.
+  const handle = settings.cartRecsCollection
+    ?.trim()
+    .replace(/[?#].*$/, "")
+    .replace(/\/+$/, "")
+    .split("/")
+    .pop();
   if (settings.cartRecsSource === "collection") {
     if (!handle) {
       return null;

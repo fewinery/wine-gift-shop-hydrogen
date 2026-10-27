@@ -17,6 +17,7 @@ import {
   GiftCardDialog,
   NoteDialog,
 } from "./cart-summary-actions";
+import { useCartDrawerStore } from "./store";
 
 interface MoneyLike {
   amount?: string | null;
@@ -143,7 +144,19 @@ export function CartSummary({
     enableGiftCard,
     giftCardButtonText,
     checkoutButtonText,
+    cartShowContinueShopping,
+    cartContinueShoppingText,
+    cartContinueShoppingLink,
+    cartContinueShoppingBgColor,
+    cartContinueShoppingTextColor,
+    cartContinueShoppingBorderColor,
   } = useThemeSettings();
+  const closeCartDrawer = useCartDrawerStore((state) => state.close);
+  // Only a path on this site ("/", "/collections/all"); anything else falls
+  // back to the home page rather than sending shoppers off the storefront.
+  const continueShoppingTo = cartContinueShoppingLink?.trim().startsWith("/")
+    ? cartContinueShoppingLink.trim()
+    : "/";
   const [removingDiscountCode, setRemovingDiscountCode] = useState<
     string | null
   >(null);
@@ -184,6 +197,10 @@ export function CartSummary({
   return (
     <div
       className={clsx(
+        // min-w-0: without it the summary is as wide as its widest row, and on
+        // a phone that pushed the whole cart past the screen edge, cutting off
+        // names, prices and buttons.
+        "min-w-0",
         layout === "drawer" && "grid border-line-subtle border-t pt-4",
         layout === "page" &&
           "sticky top-(--height-nav) grid w-full rounded-sm py-4 md:translate-y-4 md:px-6 lg:py-0",
@@ -335,7 +352,7 @@ export function CartSummary({
         calculated at checkout.
       </div>
       {(enableCartNote || enableDiscountCode || enableGiftCard) && (
-        <div className="mb-4 flex items-center justify-end gap-2">
+        <div className="mb-4 flex flex-wrap items-center justify-end gap-x-2 gap-y-1">
           {enableCartNote && (
             <>
               <Dialog.Root>
@@ -382,6 +399,23 @@ export function CartSummary({
             </Button>
           </a>
           {/* @todo: <CartShopPayButton cart={cart} /> */}
+          {cartShowContinueShopping && (
+            <Link
+              variant="primary"
+              to={continueShoppingTo}
+              // Same shape as the checkout button; each colour left empty
+              // keeps the theme's primary button colour.
+              className="w-full hover:opacity-90"
+              style={{
+                backgroundColor: cartContinueShoppingBgColor || undefined,
+                color: cartContinueShoppingTextColor || undefined,
+                borderColor: cartContinueShoppingBorderColor || undefined,
+              }}
+              onClick={closeCartDrawer}
+            >
+              {cartContinueShoppingText || "Continue Shopping"}
+            </Link>
+          )}
           {layout === "drawer" && (
             <Link variant="underline" to="/cart" className="mx-auto w-fit">
               View cart

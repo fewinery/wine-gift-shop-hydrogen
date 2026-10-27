@@ -127,7 +127,8 @@ export async function loader({ context }: LoaderFunctionArgs) {
     cart.get(),
     weaverse.loadThemeSettings(),
   ]);
-  const settings = (theme ?? {}) as {
+  // loadThemeSettings returns { theme, ... }; the saved values live in .theme.
+  const settings = (theme?.theme ?? {}) as {
     cartRecsEnabled?: boolean;
     cartRecsHeading?: string;
     cartRecsSource?: string;

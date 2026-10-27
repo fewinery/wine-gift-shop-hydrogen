@@ -22,7 +22,7 @@ import {
 import type { loader as productRouteLoader } from "~/routes/products/product";
 import { cn } from "~/utils/cn";
 import { isCombinedListing } from "~/utils/combined-listings";
-import { useProductQtyStore } from "./product-quantity-selector";
+import { useProductQuantity } from "./product-quantity-selector";
 
 const GIFT_PACKAGE_TAG = "gift-package";
 
@@ -62,7 +62,7 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
     ...rest
   } = props;
   const { product, storeDomain } = useLoaderData<typeof productRouteLoader>();
-  const { quantity } = useProductQtyStore();
+  const [quantity] = useProductQuantity(product?.handle);
   const themeSettings = useThemeSettings();
   const { giftNoteText = "" } = themeSettings;
 

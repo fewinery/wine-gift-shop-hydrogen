@@ -1,8 +1,9 @@
-import { createSchema } from "@weaverse/hydrogen";
+import { createSchema, type WeaverseImage } from "@weaverse/hydrogen";
 import clsx from "clsx";
 import { type CSSProperties, useRef, useState } from "react";
 import { useFetcher } from "react-router";
 import { Button } from "~/components/button";
+import { Image } from "~/components/image";
 import {
   Section,
   type SectionProps,
@@ -44,6 +45,11 @@ interface EntryFormProps extends SectionProps, EntryFormSuccessProps {
   buttonTextColor: string;
   buttonBackgroundColorHover: string;
   buttonTextColorHover: string;
+  prizeImage?: WeaverseImage | string;
+  prizeImagePosition?: "above" | "below" | "left" | "right";
+  prizeImageMobilePosition?: "top" | "after-heading" | "bottom";
+  prizeImageWidth?: number;
+  prizeImageRadius?: number;
 }
 
 const formWidths = {
@@ -128,6 +134,129 @@ function DatePartCell({
   );
 }
 
+function getPrize(value: EntryFormProps["prizeImage"]) {
+  return value && typeof value === "object" && value.url ? value : null;
+}
+
+// Side by side needs more room than the form alone, so it uses a wider
+// container: one column on phones, two columns from tablet up.
+function sideLayoutClass(position: EntryFormProps["prizeImagePosition"]) {
+  return cn(
+    "mx-auto max-w-5xl",
+    "flex flex-col gap-5 space-y-0 lg:space-y-0",
+    "md:grid md:items-start md:gap-x-10 md:gap-y-5",
+    position === "left"
+      ? "md:grid-cols-[minmax(0,var(--prize-w))_minmax(0,1fr)]"
+      : "md:grid-cols-[minmax(0,1fr)_minmax(0,var(--prize-w))]",
+  );
+}
+
+function PrizeImage({
+  image,
+  isSide,
+  position,
+  mobilePosition,
+  radius,
+}: {
+  image: WeaverseImage;
+  isSide: boolean;
+  position: EntryFormProps["prizeImagePosition"];
+  mobilePosition: EntryFormProps["prizeImageMobilePosition"];
+  radius: number;
+}) {
+  return (
+    <div
+      className={cn(
+        "overflow-hidden",
+        isSide && [
+          // Phone: a single column, ordered by the mobile setting.
+          mobilePosition === "top" && "order-first",
+          mobilePosition === "bottom" && "order-last",
+          // Desktop: its own column, spanning heading and form.
+          "md:order-none md:row-span-2 md:row-start-1 md:self-center",
+          position === "left" ? "md:col-start-1" : "md:col-start-2",
+        ],
+      )}
+      style={{ borderRadius: `${radius}px` }}
+    >
+      <Image
+        data={image}
+        width={1200}
+        sizes={isSide ? "(min-width: 768px) 50vw, 100vw" : "100vw"}
+        className="h-auto w-full"
+      />
+    </div>
+  );
+}
+
+/**
+ * Where the prize image goes and how wide the section is. With no image this
+ * returns the section's original width and no image at all.
+ */
+function prizeLayout({
+  image,
+  position,
+  mobilePosition,
+  radius,
+  formWidth,
+}: {
+  image: EntryFormProps["prizeImage"];
+  position: EntryFormProps["prizeImagePosition"];
+  mobilePosition: EntryFormProps["prizeImageMobilePosition"];
+  radius: number;
+  formWidth: EntryFormProps["formWidth"];
+}) {
+  const prize = getPrize(image);
+  const isSide =
+    Boolean(prize) && (position === "left" || position === "right");
+  const imageEl = prize ? (
+    <PrizeImage
+      image={prize}
+      isSide={isSide}
+      position={position}
+      mobilePosition={mobilePosition}
+      radius={radius}
+    />
+  ) : null;
+  const below = position === "below" && !isSide;
+  return {
+    isSide,
+    containerClassName: isSide
+      ? sideLayoutClass(position)
+      : cn("mx-auto", formWidths[formWidth] || "max-w-xl"),
+    imageAbove: below ? null : imageEl,
+    imageBelow: below ? imageEl : null,
+  };
+}
+
+/**
+ * The heading and paragraph. Side by side they share one column, so they are
+ * wrapped; otherwise they render exactly as before, with no wrapper.
+ */
+function PrizeIntro({
+  isSide,
+  position,
+  children,
+}: {
+  isSide: boolean;
+  position: EntryFormProps["prizeImagePosition"];
+  children: React.ReactNode;
+}) {
+  if (!isSide) {
+    return <>{children}</>;
+  }
+  return (
+    <div
+      className={cn(
+        "flex flex-col gap-4 md:row-start-1",
+        position === "left" ? "md:col-start-2" : "md:col-start-1",
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
 function EntryForm(props: EntryFormProps) {
   const {
     ref,
@@ -171,6 +300,11 @@ function EntryForm(props: EntryFormProps) {
     buttonTextColor,
     buttonBackgroundColorHover,
     buttonTextColorHover,
+    prizeImage,
+    prizeImagePosition = "above",
+    prizeImageMobilePosition = "top",
+    prizeImageWidth = 45,
+    prizeImageRadius = 0,
     ...rest
   } = props;
 
@@ -223,19 +357,33 @@ function EntryForm(props: EntryFormProps) {
     // light page text color makes typed text and the date placeholder
     // invisible against it.
     "--entry-field-text": fieldTextColor || "#000000",
+    "--prize-w": `${prizeImageWidth}%`,
   } as CSSProperties;
+
+  // Optional prize image. With no image set, nothing below changes: the
+  // section renders exactly as it did before this option existed.
+  const layout = prizeLayout({
+    image: prizeImage,
+    position: prizeImagePosition,
+    mobilePosition: prizeImageMobilePosition,
+    radius: prizeImageRadius,
+    formWidth,
+  });
 
   return (
     <Section
       ref={ref}
       {...rest}
-      containerClassName={cn("mx-auto", formWidths[formWidth] || "max-w-xl")}
+      containerClassName={layout.containerClassName}
       style={colorStyle}
     >
       {/* The heading and paragraph are children, so hiding them after a
           successful entry has to happen here rather than inside the block
           below. */}
-      {submitted && keepContentAfterSubmit === false ? null : children}
+      <PrizeIntro isSide={layout.isSide} position={prizeImagePosition}>
+        {submitted && keepContentAfterSubmit === false ? null : children}
+      </PrizeIntro>
+      {layout.imageAbove}
 
       {submitted ? (
         <EntryFormSuccess
@@ -552,6 +700,7 @@ function EntryForm(props: EntryFormProps) {
           </div>
         </Form>
       )}
+      {layout.imageBelow}
     </Section>
   );
 }
@@ -795,6 +944,72 @@ export const schema = createSchema({
           type: "color",
           name: "buttonTextColorHover",
           label: "Button text (hover)",
+        },
+      ],
+    },
+    {
+      group: "Image",
+      inputs: [
+        {
+          type: "image",
+          name: "prizeImage",
+          label: "Image",
+          defaultValue: "",
+          helpText:
+            "Optional. Leave empty and the form looks exactly as before.",
+        },
+        {
+          type: "select",
+          name: "prizeImagePosition",
+          label: "Position",
+          defaultValue: "above",
+          configs: {
+            options: [
+              { value: "above", label: "Above the form fields" },
+              { value: "below", label: "Below the form" },
+              { value: "left", label: "Left of the form" },
+              { value: "right", label: "Right of the form" },
+            ],
+          },
+          condition: (data: EntryFormProps) => Boolean(data.prizeImage),
+        },
+        {
+          type: "select",
+          name: "prizeImageMobilePosition",
+          label: "Position on mobile",
+          defaultValue: "top",
+          configs: {
+            options: [
+              { value: "top", label: "Above the heading" },
+              { value: "after-heading", label: "Between heading and form" },
+              { value: "bottom", label: "Below the form" },
+            ],
+          },
+          condition: (data: EntryFormProps) =>
+            Boolean(data.prizeImage) &&
+            (data.prizeImagePosition === "left" ||
+              data.prizeImagePosition === "right"),
+        },
+        {
+          type: "range",
+          name: "prizeImageWidth",
+          label: "Image width",
+          defaultValue: 45,
+          configs: { min: 30, max: 60, step: 5, unit: "%" },
+          helpText:
+            "Share of the row the image takes when it sits next to the form. Side-by-side uses a wider layout than the form width setting.",
+          condition: (data: EntryFormProps) =>
+            Boolean(data.prizeImage) &&
+            (data.prizeImagePosition === "left" ||
+              data.prizeImagePosition === "right"),
+        },
+        {
+          type: "range",
+          name: "prizeImageRadius",
+          label: "Corner radius",
+          defaultValue: 0,
+          configs: { min: 0, max: 32, step: 2, unit: "px" },
+          condition: (data: EntryFormProps) => Boolean(data.prizeImage),
         },
       ],
     },

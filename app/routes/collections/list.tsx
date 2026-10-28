@@ -1,4 +1,3 @@
-import type { SeoConfig } from "@shopify/hydrogen";
 import { getPaginationVariables, getSeoMeta } from "@shopify/hydrogen";
 import type { RouteLoaderArgs } from "@weaverse/hydrogen";
 import type { MetaFunction } from "react-router";
@@ -41,8 +40,10 @@ export const loader = async (args: RouteLoaderArgs) => {
   };
 };
 
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  return getSeoMeta(data?.seo as SeoConfig);
+export const meta: MetaFunction<typeof loader> = ({ matches }) => {
+  return getSeoMeta(
+    ...matches.map((match) => (match.data as any)?.seo).filter(Boolean),
+  );
 };
 
 export default function Collections() {

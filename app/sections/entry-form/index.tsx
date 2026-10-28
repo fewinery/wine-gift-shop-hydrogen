@@ -9,8 +9,8 @@ import {
   type SectionProps,
   sectionSettings,
 } from "~/components/section";
+import { useWeaverseStudioCheck } from "~/hooks/use-weaverse-studio-check";
 import type { EntryFormApiPayload } from "~/routes/api/entry-form";
-import { cn } from "~/utils/cn";
 import {
   EntryFormSuccess,
   type EntryFormSuccessProps,
@@ -257,6 +257,15 @@ function PrizeIntro({
   );
 }
 
+/**
+ * True once an entry is accepted. Inside Studio the "Preview success message"
+ * switch also shows it, so it can be styled; the live site ignores the switch.
+ */
+function useShowSuccess(ok: boolean | undefined, previewSuccess?: boolean) {
+  const isDesignMode = useWeaverseStudioCheck();
+  return Boolean(ok) || Boolean(isDesignMode && previewSuccess);
+}
+
 function EntryForm(props: EntryFormProps) {
   const {
     ref,
@@ -289,6 +298,7 @@ function EntryForm(props: EntryFormProps) {
     successMessage,
     successMessageSize,
     keepContentAfterSubmit,
+    previewSuccess,
     consentText,
     formWidth,
     textColor,
@@ -311,7 +321,7 @@ function EntryForm(props: EntryFormProps) {
   const fetcher = useFetcher();
   const { state, Form } = fetcher;
   const result = fetcher.data as EntryFormApiPayload | undefined;
-  const submitted = Boolean(result?.ok);
+  const submitted = useShowSuccess(result?.ok, previewSuccess);
   const showError = state === "idle" && result && !result.ok;
 
   // Split date of birth. The three boxes are what the visitor types in; the

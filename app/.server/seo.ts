@@ -362,7 +362,7 @@ function article({
   };
   url: Request["url"];
 }): SeoConfig {
-    return {
+  return {
     title: articleData?.seo?.title || articleData?.title,
     description: truncate(
       articleData?.seo?.description || articleData?.excerpt || "",

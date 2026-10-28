@@ -21,6 +21,7 @@ export interface EntryFormSuccessProps {
   successMessage: string;
   successMessageSize: string;
   keepContentAfterSubmit: boolean;
+  previewSuccess?: boolean;
 }
 
 const alignments = {
@@ -81,7 +82,11 @@ export function EntryFormSuccess(props: EntryFormSuccessProps) {
             successMessageSize || "text-lg",
           )}
           data-motion="fade-up"
-          dangerouslySetInnerHTML={{ __html: successMessage }}
+          // Text pasted into Studio can arrive with every space saved as a
+          // non-breaking space, which stops it wrapping and cuts it off.
+          dangerouslySetInnerHTML={{
+            __html: successMessage.replace(/&nbsp;|\u00a0/g, " "),
+          }}
         />
       )}
     </div>
@@ -126,6 +131,14 @@ const titleInputs = headingInputs.map((input) => {
 }) as InspectorGroup["inputs"];
 
 export const successMessageInputs: InspectorGroup["inputs"] = [
+  {
+    type: "switch",
+    name: "previewSuccess",
+    label: "Preview success message",
+    defaultValue: false,
+    helpText:
+      "Shows the success message in the editor so you can style it. Has no effect on the live site.",
+  },
   ...titleInputs,
   {
     type: "richtext",

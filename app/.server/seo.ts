@@ -13,20 +13,33 @@ import type {
   ShopFragment,
 } from "storefront-api.generated";
 
+/**
+ * Store-wide defaults, used wherever a page has nothing better.
+ *
+ * Many storefronts share one Shopify store, so the Shopify store name,
+ * description and logo belong to that shared store, not to this brand.
+ * The defaults therefore come from the Weaverse theme settings (Branding),
+ * which are set per storefront.
+ */
 function root({
   shop,
   url,
-  siteTitle = "My Store",
+  siteTitle,
+  siteDescription,
+  shareImage,
 }: {
   shop: ShopFragment;
   url: Request["url"];
   siteTitle?: string;
+  siteDescription?: string;
+  shareImage?: string;
 }): SeoConfig {
+  const brand = siteTitle || shop?.name || "";
   return {
-    title: shop?.name,
-    titleTemplate: `%s | ${siteTitle}`,
-    description: truncate(shop?.description ?? ""),
-    handle: "@weaverse",
+    title: brand,
+    titleTemplate: `%s | ${brand}`,
+    description: truncate(siteDescription ?? ""),
+    media: shareImage || undefined,
     url,
     robots: {
       noIndex: false,
@@ -35,14 +48,7 @@ function root({
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "Organization",
-      name: shop?.name,
-      logo: shop?.brand?.logo?.image?.url,
-      sameAs: [
-        "https://twitter.com/weaverseio",
-        "https://facebook.com/weaverse",
-        "https://instagram.com/weaverse.io",
-        "https://youtube.com/@weaverse",
-      ],
+      name: brand,
       url,
       potentialAction: {
         "@type": "SearchAction",
@@ -53,19 +59,33 @@ function root({
   };
 }
 
+/**
+ * Home page and Weaverse custom pages (/club, /loyalty, ...). Description and
+ * image come from the store-wide defaults; the Weaverse SEO panel is applied
+ * on top of this in the route's meta function.
+ */
 function home({
-  siteTitle = "My Store",
+  siteTitle,
+  pageName,
 }: {
   siteTitle?: string;
+  pageName?: string;
 } = {}): SeoConfig {
+  if (pageName) {
+    // "Club | 1883 Reserve"
+    return {
+      title: pageName,
+      jsonLd: {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        name: pageName,
+      },
+    };
+  }
+  // The home page is just the brand name, not "Brand | Brand".
   return {
-    title: "Home",
-    titleTemplate: `%s | ${siteTitle}`,
-    description: "The best Shopify Hydrogen Theme Customizer",
-    robots: {
-      noIndex: false,
-      noFollow: false,
-    },
+    title: siteTitle,
+    titleTemplate: "%s",
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "WebPage",
@@ -259,19 +279,23 @@ function collection({
   url: Request["url"];
 }): SeoConfig {
   return {
-    title: collectionData?.seo?.title,
-    description: truncate(
-      collectionData?.seo?.description ?? collectionData?.description ?? "",
-    ),
-    titleTemplate: "%s | Collection",
+    title: collectionData?.seo?.title || collectionData?.title,
+    // Collections are shared by every storefront on the Shopify store, so an
+    // empty description falls back to this brand's default, not the store's.
+    description:
+      truncate(
+        collectionData?.seo?.description || collectionData?.description || "",
+      ) || undefined,
     url,
-    media: {
-      type: "image",
-      url: collectionData?.image?.url,
-      height: collectionData?.image?.height,
-      width: collectionData?.image?.width,
-      altText: collectionData?.image?.altText,
-    },
+    media: collectionData?.image?.url
+      ? {
+          type: "image",
+          url: collectionData.image.url,
+          height: collectionData.image.height,
+          width: collectionData.image.width,
+          altText: collectionData.image.altText,
+        }
+      : undefined,
     jsonLd: collectionJsonLd({ collection: collectionData, url }),
   };
 }
@@ -317,8 +341,7 @@ function listCollections({
 }): SeoConfig {
   return {
     title: "Collections",
-    titleTemplate: "%s | Collections",
-    description: "All hydrogen collections",
+    description: "All collections",
     url,
     jsonLd: collectionsJsonLd({ collections, url }),
   };
@@ -340,17 +363,20 @@ function article({
   url: Request["url"];
 }): SeoConfig {
   return {
-    title: articleData?.seo?.title ?? articleData?.title,
-    description: truncate(articleData?.seo?.description ?? ""),
-    titleTemplate: "%s | Journal",
+    title: articleData?.seo?.title || articleData?.title,
+    description: truncate(
+      articleData?.seo?.description || articleData?.excerpt || "",
+    ),
     url,
-    media: {
-      type: "image",
-      url: articleData?.image?.url,
-      height: articleData?.image?.height,
-      width: articleData?.image?.width,
-      altText: articleData?.image?.altText,
-    },
+    media: articleData?.image?.url
+      ? {
+          type: "image",
+          url: articleData.image.url,
+          height: articleData.image.height,
+          width: articleData.image.width,
+          altText: articleData.image.altText,
+        }
+      : undefined,
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "Article",
@@ -375,9 +401,8 @@ function blog({
   url: Request["url"];
 }): SeoConfig {
   return {
-    title: blogData?.seo?.title,
+    title: blogData?.seo?.title || blogData?.title,
     description: truncate(blogData?.seo?.description || ""),
-    titleTemplate: "%s | Blog",
     url,
     jsonLd: {
       "@context": "https://schema.org",
@@ -398,8 +423,7 @@ function page({
 }): SeoConfig {
   return {
     description: truncate(pageData?.seo?.description || ""),
-    title: pageData?.seo?.title ?? pageData?.title,
-    titleTemplate: "%s | Page",
+    title: pageData?.seo?.title || pageData?.title,
     url,
     jsonLd: {
       "@context": "https://schema.org",
@@ -419,7 +443,6 @@ function policy({
   return {
     description: truncate(policyData?.body ?? ""),
     title: policyData?.title,
-    titleTemplate: "%s | Policy",
     url,
   };
 }
@@ -444,8 +467,7 @@ function policies({
     });
   return {
     title: "Policies",
-    titleTemplate: "%s | Policies",
-    description: "Weaverse Hydrogen store policies",
+    description: "Store policies",
     jsonLd: [
       {
         "@context": "https://schema.org",
@@ -455,7 +477,7 @@ function policies({
       {
         "@context": "https://schema.org",
         "@type": "WebPage",
-        description: "Weaverse Hydrogen store policies",
+        description: "Store policies",
         name: "Policies",
         url,
       },

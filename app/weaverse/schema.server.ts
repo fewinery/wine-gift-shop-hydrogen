@@ -51,6 +51,22 @@ export const themeSchema: HydrogenThemeSchema = {
           defaultValue: "My Store",
           helpText: "Appears in browser tab as: Page Name | Site title",
         },
+        {
+          type: "textarea",
+          name: "siteDescription",
+          label: "Default share description",
+          defaultValue: "",
+          helpText:
+            "Shown by Google and in link previews for pages without their own description. Keep it under 155 characters.",
+        },
+        {
+          type: "image",
+          name: "shareImage",
+          label: "Default share image",
+          defaultValue: "",
+          helpText:
+            "Shown in link previews for pages without their own image. Recommended size: 1200x630px.",
+        },
       ],
     },
     {

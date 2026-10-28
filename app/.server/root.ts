@@ -24,11 +24,13 @@ export async function loadCriticalData({
     context.weaverse.loadThemeSettings(),
   ]);
 
-  const siteTitle = weaverseTheme?.theme?.siteTitle as string | undefined;
+  const theme = weaverseTheme?.theme;
   const seo = seoPayload.root({
     shop: layout.shop,
     url: request.url,
-    siteTitle,
+    siteTitle: theme?.siteTitle as string | undefined,
+    siteDescription: theme?.siteDescription as string | undefined,
+    shareImage: (theme?.shareImage as { url?: string } | undefined)?.url,
   });
 
   const { storefront, env } = context;

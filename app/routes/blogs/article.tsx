@@ -1,4 +1,3 @@
-import type { SeoConfig } from "@shopify/hydrogen";
 import { getSeoMeta } from "@shopify/hydrogen";
 import type { LoaderFunctionArgs, MetaFunction } from "react-router";
 import invariant from "tiny-invariant";
@@ -84,8 +83,10 @@ export async function loader(args: LoaderFunctionArgs) {
   };
 }
 
-export function meta({ data }: any) {
-  return getSeoMeta(data?.seo as SeoConfig);
+export function meta({ matches }: any) {
+  return getSeoMeta(
+    ...matches.map((match: any) => match?.data?.seo).filter(Boolean),
+  );
 }
 
 export function Article() {

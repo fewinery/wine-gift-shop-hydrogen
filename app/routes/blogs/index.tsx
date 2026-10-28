@@ -1,4 +1,3 @@
-import type { SeoConfig } from "@shopify/hydrogen";
 import { getSeoMeta } from "@shopify/hydrogen";
 import type { LoaderFunctionArgs, MetaFunction } from "react-router";
 import { data } from "react-router";
@@ -40,8 +39,10 @@ export async function loader(args: LoaderFunctionArgs) {
   return data({ blog, articles, seo, weaverseData });
 }
 
-export function meta({ data: loaderData }: any) {
-  return getSeoMeta(loaderData?.seo as SeoConfig);
+export function meta({ matches }: any) {
+  return getSeoMeta(
+    ...matches.map((match: any) => match?.data?.seo).filter(Boolean),
+  );
 }
 
 export function BlogIndex() {

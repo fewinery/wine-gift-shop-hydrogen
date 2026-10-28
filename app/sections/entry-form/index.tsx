@@ -11,6 +11,7 @@ import {
 } from "~/components/section";
 import { useWeaverseStudioCheck } from "~/hooks/use-weaverse-studio-check";
 import type { EntryFormApiPayload } from "~/routes/api/entry-form";
+import { cn } from "~/utils/cn";
 import {
   EntryFormSuccess,
   type EntryFormSuccessProps,
@@ -37,6 +38,7 @@ interface EntryFormProps extends SectionProps, EntryFormSuccessProps {
   // "width" setting for the section container itself.
   formWidth: "narrow" | "medium" | "wide";
   textColor: string;
+  errorTextColor: string;
   fieldBackgroundColor: string;
   fieldBorderColor: string;
   fieldTextColor: string;
@@ -302,6 +304,7 @@ function EntryForm(props: EntryFormProps) {
     consentText,
     formWidth,
     textColor,
+    errorTextColor,
     fieldBackgroundColor,
     fieldBorderColor,
     fieldTextColor,
@@ -702,9 +705,13 @@ function EntryForm(props: EntryFormProps) {
 
           <div
             className={clsx(
-              "text-center font-medium text-red-700 text-sm",
+              "text-center font-medium text-sm",
+              // Empty keeps the original red, so other brands are unchanged.
+              !errorTextColor && "text-red-700",
               showError ? "visible" : "invisible",
             )}
+            style={errorTextColor ? { color: errorTextColor } : undefined}
+            role="alert"
           >
             {result?.errorMessage || "Something went wrong"}
           </div>
@@ -900,6 +907,13 @@ export const schema = createSchema({
           label: "Text color",
           helpText:
             "Heading, description, labels and fine print. Leave empty to inherit the theme.",
+        },
+        {
+          type: "color",
+          name: "errorTextColor",
+          label: "Error message color",
+          helpText:
+            "Used for messages such as the under-21 warning. Leave empty for the default red.",
         },
         {
           type: "color",

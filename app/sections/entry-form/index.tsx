@@ -9,6 +9,7 @@ import {
   type SectionProps,
   sectionSettings,
 } from "~/components/section";
+import { useWeaverseStudioCheck } from "~/hooks/use-weaverse-studio-check";
 import type { EntryFormApiPayload } from "~/routes/api/entry-form";
 import { cn } from "~/utils/cn";
 import {
@@ -37,6 +38,7 @@ interface EntryFormProps extends SectionProps, EntryFormSuccessProps {
   // "width" setting for the section container itself.
   formWidth: "narrow" | "medium" | "wide";
   textColor: string;
+  errorTextColor: string;
   fieldBackgroundColor: string;
   fieldBorderColor: string;
   fieldTextColor: string;
@@ -257,6 +259,15 @@ function PrizeIntro({
   );
 }
 
+/**
+ * True once an entry is accepted. Inside Studio the "Preview success message"
+ * switch also shows it, so it can be styled; the live site ignores the switch.
+ */
+function useShowSuccess(ok: boolean | undefined, previewSuccess?: boolean) {
+  const isDesignMode = useWeaverseStudioCheck();
+  return Boolean(ok) || Boolean(isDesignMode && previewSuccess);
+}
+
 function EntryForm(props: EntryFormProps) {
   const {
     ref,
@@ -289,9 +300,11 @@ function EntryForm(props: EntryFormProps) {
     successMessage,
     successMessageSize,
     keepContentAfterSubmit,
+    previewSuccess,
     consentText,
     formWidth,
     textColor,
+    errorTextColor,
     fieldBackgroundColor,
     fieldBorderColor,
     fieldTextColor,
@@ -311,7 +324,7 @@ function EntryForm(props: EntryFormProps) {
   const fetcher = useFetcher();
   const { state, Form } = fetcher;
   const result = fetcher.data as EntryFormApiPayload | undefined;
-  const submitted = Boolean(result?.ok);
+  const submitted = useShowSuccess(result?.ok, previewSuccess);
   const showError = state === "idle" && result && !result.ok;
 
   // Split date of birth. The three boxes are what the visitor types in; the
@@ -692,9 +705,13 @@ function EntryForm(props: EntryFormProps) {
 
           <div
             className={clsx(
-              "text-center font-medium text-red-700 text-sm",
+              "text-center font-medium text-sm",
+              // Empty keeps the original red, so other brands are unchanged.
+              !errorTextColor && "text-red-700",
               showError ? "visible" : "invisible",
             )}
+            style={errorTextColor ? { color: errorTextColor } : undefined}
+            role="alert"
           >
             {result?.errorMessage || "Something went wrong"}
           </div>
@@ -890,6 +907,13 @@ export const schema = createSchema({
           label: "Text color",
           helpText:
             "Heading, description, labels and fine print. Leave empty to inherit the theme.",
+        },
+        {
+          type: "color",
+          name: "errorTextColor",
+          label: "Error message color",
+          helpText:
+            "Used for messages such as the under-21 warning. Leave empty for the default red.",
         },
         {
           type: "color",

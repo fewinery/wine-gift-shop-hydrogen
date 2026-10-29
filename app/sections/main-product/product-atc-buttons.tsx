@@ -19,6 +19,7 @@ import {
   type MerchSelection,
   MerchUpsellPicker,
 } from "~/components/product/merch-upsell";
+import { useWinePicker, WinePicker } from "~/components/product/wine-picker";
 import type { loader as productRouteLoader } from "~/routes/products/product";
 import { cn } from "~/utils/cn";
 import { isCombinedListing } from "~/utils/combined-listings";
@@ -44,6 +45,8 @@ interface ProductATCButtonsProps extends HydrogenComponentProps {
   buttonClassName?: string;
   merchHeading: string;
   woodCardHeading: string;
+  winePickerHeading: string;
+  winePickerAddText: string;
 }
 
 export default function ProductATCButtons(props: ProductATCButtonsProps) {
@@ -59,6 +62,8 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
     buttonClassName,
     merchHeading,
     woodCardHeading,
+    winePickerHeading,
+    winePickerAddText,
     ...rest
   } = props;
   const { product, storeDomain } = useLoaderData<typeof productRouteLoader>();
@@ -94,6 +99,10 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
   const hasMerchUpsell = merchActive && merchProducts.length > 0;
   const [merchSelection, setMerchSelection] = useState<MerchSelection>({});
   const merchLines = getMerchLines(merchProducts, merchSelection);
+
+  // The prebuilt packages' add-on. It reads its own two metafields, so a
+  // product without them behaves exactly as it does today.
+  const wine = useWinePicker(product, product?.handle);
 
   const [selectedWoodCardId, setSelectedWoodCardId] = useState<string | null>(
     null,
@@ -205,6 +214,17 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
 
   return (
     <div ref={ref} {...rest} className="min-w-0 space-y-4 empty:hidden">
+      {wine.enabled && (
+        <WinePicker
+          heading={winePickerHeading || "CHOOSE YOUR WINES"}
+          addLabel={winePickerAddText || "Add"}
+          tabs={wine.tabs}
+          required={wine.required}
+          selection={wine.selection}
+          onChange={wine.setSelection}
+        />
+      )}
+
       {hasMerchUpsell && (
         <MerchUpsellPicker
           heading={merchHeading || "ADD A MERCH"}
@@ -484,6 +504,7 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
         disabled={
           !selectedVariant?.availableForSale ||
           !isGiftFieldsValid ||
+          !wine.complete ||
           Boolean(selectedWoodCardId && !selectedWoodCardVariant)
         }
         lines={[
@@ -491,10 +512,16 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
             merchandiseId: selectedVariant?.id,
             quantity,
             selectedVariant,
-            ...(giftProperties && {
-              attributes: giftProperties,
-            }),
+            ...(giftProperties || wine.attributes
+              ? {
+                  attributes: [
+                    ...(giftProperties ?? []),
+                    ...(wine.attributes ?? []),
+                  ],
+                }
+              : {}),
           },
+          ...wine.lines,
           ...(selectedWoodCardVariant
             ? [
                 {
@@ -515,7 +542,7 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
         variant="primary"
         className={cn("w-full", buttonClassName)}
       >
-        {atcButtonText}
+        {wine.complete ? atcButtonText : wine.gateLabel}
       </AddToCartButton>
       {showSecondaryButton && (
         <Link to={secondaryButtonLink} variant="secondary" className="w-full">
@@ -539,6 +566,10 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
                 ]
               : []),
             ...merchLines.map((line) => ({
+              id: line.merchandiseId,
+              quantity: line.quantity,
+            })),
+            ...wine.lines.map((line) => ({
               id: line.merchandiseId,
               quantity: line.quantity,
             })),
@@ -610,6 +641,22 @@ export const schema = createSchema({
           name: "woodCardHeading",
           defaultValue: "IS THIS A GIFT? CONSIDER ADDING A WOOD CARD",
           placeholder: "IS THIS A GIFT? CONSIDER ADDING A WOOD CARD",
+        },
+        {
+          type: "text",
+          label: "Wine picker heading",
+          name: "winePickerHeading",
+          defaultValue: "CHOOSE YOUR WINES",
+          placeholder: "CHOOSE YOUR WINES",
+          helpText:
+            "Shown above the wine tabs. The picker only appears when the product has both an Add-on: Wine picker entry that is Active and a bottles-to-choose number.",
+        },
+        {
+          type: "text",
+          label: "Wine picker add button",
+          name: "winePickerAddText",
+          defaultValue: "Add",
+          placeholder: "Add",
         },
       ],
     },

@@ -299,7 +299,6 @@ export const PRODUCT_QUERY = `#graphql
       options {
         ...ProductOption
       }
-      }
       selectedOrFirstAvailableVariant(selectedOptions: $selectedOptions, ignoreUnknownOptions: true, caseInsensitiveMatch: true) {
         ...ProductVariant
       }

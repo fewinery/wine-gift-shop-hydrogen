@@ -280,9 +280,9 @@ export const PRODUCT_QUERY = `#graphql
         }
       }
 
-      winePickerBottles: metafield(
+      winePickerQuantity: metafield(
         namespace: "custom"
-        key: "wine_picker_bottles"
+        key: "wine_picker_quantity"
       ) {
         value
       }

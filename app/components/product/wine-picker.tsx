@@ -168,10 +168,10 @@ export function getWineLines(
 export function useWinePicker(product: unknown, packageHandle?: string) {
   const [selection, setSelection] = useState<WineSelection>({});
   const owner = product as
-    | { winePicker?: unknown; winePickerBottles?: unknown }
+    | { winePicker?: unknown; winePickerQuantity?: unknown }
     | undefined;
   const config = parseWinePicker(owner?.winePicker);
-  const required = parseBottlesRequired(owner?.winePickerBottles);
+  const required = parseBottlesRequired(owner?.winePickerQuantity);
   const enabled = config.active && config.tabs.length > 0 && required > 0;
   const chosen = countSelected(selection);
   const remaining = Math.max(required - chosen, 0);

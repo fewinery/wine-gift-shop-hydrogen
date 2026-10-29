@@ -18,7 +18,10 @@ const variants = cva("flex h-full w-full flex-col [&_.paragraph]:mx-[unset]", {
   variants: {
     width: {
       full: "",
-      stretch: "px-3 md:px-10 lg:px-16",
+      // Capped so the slide text lines up with the header's content edge on
+      // wide screens (Page width + the 4rem side padding on each side).
+      stretch:
+        "mx-auto max-w-[calc(var(--page-width)+8rem)] px-3 md:px-10 lg:px-16",
       fixed: "mx-auto max-w-(--page-width) px-3 md:px-10 lg:px-16",
     },
     verticalPadding: {

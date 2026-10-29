@@ -33,9 +33,13 @@ export interface SectionProps<T = any>
 
 const variants = cva("relative", {
   variants: {
+    // "Stretch" caps its content at the theme's Page width so products,
+    // collections and the PDP stop spreading edge to edge on wide screens.
+    // The section background stays full width. "Full page" is left uncapped
+    // on purpose: it is what edge-to-edge images and banners use.
     width: {
       full: "h-full w-full",
-      stretch: "h-full w-full",
+      stretch: "mx-auto h-full w-full max-w-(--page-width)",
       fixed: "mx-auto h-full w-full max-w-(--page-width)",
     },
     padding: {

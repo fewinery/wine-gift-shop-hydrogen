@@ -22,9 +22,13 @@ import { PredictiveSearchButton } from "./predictive-search";
 
 const variants = cva("", {
   variants: {
+    // Every mode caps its content at the theme's Page width, so on wide
+    // screens the logo, menu and icons line up with the page content instead
+    // of drifting to the far edges. The bar's background still spans the
+    // full viewport; below the cap each mode looks exactly as before.
     width: {
-      full: "h-full w-full",
-      stretch: "h-full w-full",
+      full: "mx-auto h-full w-full max-w-(--page-width)",
+      stretch: "mx-auto h-full w-full max-w-(--page-width)",
       fixed: "mx-auto h-full w-full max-w-(--page-width)",
     },
     padding: {

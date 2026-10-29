@@ -104,7 +104,14 @@ export default function CollectionFilters(props: CollectionFiltersProps) {
       ? collection.metafield.reference.image
       : collection.image;
     return (
-      <Section ref={ref} {...rest} overflow="unset">
+      <Section
+        ref={ref}
+        {...rest}
+        // This section has no "Content width" setting in Studio, so without
+        // a fallback it rendered uncapped and edge to edge on wide screens.
+        width={rest.width ?? "fixed"}
+        overflow="unset"
+      >
         <div className="">
           {showBreadcrumb && (
             <BreadCrumb page={collection.title} className="mb-2.5" />
@@ -196,7 +203,7 @@ export default function CollectionFilters(props: CollectionFiltersProps) {
       </Section>
     );
   }
-  return <Section ref={ref} {...rest} />;
+  return <Section ref={ref} {...rest} width={rest.width ?? "fixed"} />;
 }
 
 export const schema = createSchema({

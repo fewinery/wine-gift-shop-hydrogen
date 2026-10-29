@@ -16,9 +16,12 @@ import { FooterMenu } from "./menu/footer-menu";
 
 const variants = cva("", {
   variants: {
+    // Every mode caps its content at the theme's Page width (same as the
+    // header), so footer columns line up with the page on wide screens. The
+    // background still spans the full viewport.
     width: {
-      full: "",
-      stretch: "",
+      full: "mx-auto max-w-(--page-width)",
+      stretch: "mx-auto max-w-(--page-width)",
       fixed: "mx-auto max-w-(--page-width)",
     },
     padding: {

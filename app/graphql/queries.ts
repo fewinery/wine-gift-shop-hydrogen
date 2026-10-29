@@ -229,6 +229,64 @@ export const PRODUCT_QUERY = `#graphql
         }
       }
 
+      winePicker: metafield(namespace: "custom", key: "wine_picker") {
+        reference {
+          ... on Metaobject {
+            id
+            handle
+            type
+            fields {
+              key
+              value
+              references(first: 20) {
+                nodes {
+                  ... on Metaobject {
+                    id
+                    type
+                    fields {
+                      key
+                      value
+                      references(first: 50) {
+                        nodes {
+                          ... on Product {
+                            id
+                            title
+                            handle
+                            featuredImage {
+                              id
+                              url
+                              altText
+                            }
+                            variants(first: 1) {
+                              nodes {
+                                id
+                                title
+                                availableForSale
+                                price {
+                                  amount
+                                  currencyCode
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      winePickerBottles: metafield(
+        namespace: "custom"
+        key: "wine_picker_bottles"
+      ) {
+        value
+      }
+
       goesWellWith: metafield(namespace: "custom", key: "goes_well_with") {
         references(first: 10) {
           nodes {
@@ -240,6 +298,7 @@ export const PRODUCT_QUERY = `#graphql
       }
       options {
         ...ProductOption
+      }
       }
       selectedOrFirstAvailableVariant(selectedOptions: $selectedOptions, ignoreUnknownOptions: true, caseInsensitiveMatch: true) {
         ...ProductVariant

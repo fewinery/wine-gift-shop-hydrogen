@@ -340,16 +340,7 @@ export function CartSummary({
         </div>
       </dl>
       <div className="mb-2 text-right text-body-subtle">
-        Taxes and{" "}
-        <Link
-          target="_blank"
-          to="/policies/shipping-policy"
-          variant="underline"
-          className="text-current after:bg-current"
-        >
-          shipping
-        </Link>{" "}
-        calculated at checkout.
+        Taxes and shipping calculated at checkout.
       </div>
       {(enableCartNote || enableDiscountCode || enableGiftCard) && (
         <div className="mb-4 flex flex-wrap items-center justify-end gap-x-2 gap-y-1">

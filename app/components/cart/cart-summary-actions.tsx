@@ -65,13 +65,13 @@ export function NoteDialog({ cartNote: currentNote }: { cartNote: string }) {
           </Dialog.Close>
 
           <Dialog.Title className="mb-4 font-medium text-lg">
-            Add a note
+            Add a gift note
           </Dialog.Title>
 
           <form className="space-y-4" onSubmit={handleSubmit}>
             <textarea
               className="min-h-20 w-full resize-none p-3"
-              placeholder="Add any special instructions or notes for your order..."
+              placeholder="Add a personalized gift note to your order."
               rows={4}
               name="cartNote"
               value={note}
@@ -81,23 +81,33 @@ export function NoteDialog({ cartNote: currentNote }: { cartNote: string }) {
               }}
             />
             {submitted && (
-              <Banner variant="success">Cart note saved successfully 🎉</Banner>
+              <Banner variant="primary">Gift note saved successfully</Banner>
             )}
-            <div className="flex items-center justify-end gap-3">
-              <Dialog.Close asChild>
-                <Button variant="custom" className="w-24 border-none">
-                  Cancel
+            {/* Once saved, a single "Close" replaces Cancel + Save note so
+                the next step is obvious. Editing the text brings both back. */}
+            {submitted ? (
+              <div className="flex items-center justify-end">
+                <Dialog.Close asChild>
+                  <Button className="w-24 leading-tight!">Close</Button>
+                </Dialog.Close>
+              </div>
+            ) : (
+              <div className="flex items-center justify-end gap-3">
+                <Dialog.Close asChild>
+                  <Button variant="custom" className="w-24 border-none">
+                    Cancel
+                  </Button>
+                </Dialog.Close>
+                <Button
+                  type="submit"
+                  loading={fetcher.state !== "idle"}
+                  disabled={fetcher.state !== "idle"}
+                  className="w-24 leading-tight! [--spinner-duration:400ms]"
+                >
+                  Save note
                 </Button>
-              </Dialog.Close>
-              <Button
-                type="submit"
-                loading={fetcher.state !== "idle"}
-                disabled={fetcher.state !== "idle"}
-                className="w-24 leading-tight! [--spinner-duration:400ms]"
-              >
-                Save note
-              </Button>
-            </div>
+              </div>
+            )}
           </form>
         </div>
       </Dialog.Content>

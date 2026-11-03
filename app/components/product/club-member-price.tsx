@@ -26,6 +26,10 @@ const CLUB_DISCOUNT_PERCENT = 20;
 // Long enough for the pointer to cross the gap between the icon and the
 // message without the message closing under it.
 const HOVER_CLOSE_DELAY_MS = 150;
+// Products tagged with this in Shopify show no club price message. Display
+// only: it does not change any discount at checkout. Matched without regard
+// to capital letters or surrounding spaces.
+const HIDE_CLUB_PRICE_TAG = "no wineplus loyalty price message";
 
 const DEFAULT_INFO_TEXT =
   "If you join our club or loyalty program, you can get up to {discount}% off all your purchases, free shipping, and special offers.";
@@ -191,9 +195,11 @@ function ClubPriceInfo({ discount }: { discount: number }) {
  */
 export function ClubMemberPrice({
   price,
+  tags,
   className,
 }: {
   price?: Pick<MoneyV2, "amount" | "currencyCode"> | null;
+  tags?: string[] | null;
   className?: string;
 }) {
   // Read from clubPricingLabel, not the original clubPriceLabel: storefronts
@@ -203,6 +209,10 @@ export function ClubMemberPrice({
     useThemeSettings();
 
   if (!clubPriceEnabled) {
+    return null;
+  }
+
+  if (tags?.some((tag) => tag.trim().toLowerCase() === HIDE_CLUB_PRICE_TAG)) {
     return null;
   }
 

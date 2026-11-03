@@ -303,6 +303,7 @@ export function ProductCard({
             )}
             <ClubMemberPrice
               price={displayedPrice}
+              tags={product.tags}
               className={
                 isVertical
                   ? JUSTIFY_ALIGNMENT[alignment as CardAlignment]

@@ -1,6 +1,7 @@
 import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
 import { useContext } from "react";
 import { StarIcon } from "~/components/icons";
+import { TestimonialsTextStyleContext } from "./index";
 import { TestimonialsDisplayContext } from "./items";
 
 interface TestimonialItemProps extends HydrogenComponentProps {
@@ -16,6 +17,9 @@ const TestimonialItem = (props: TestimonialItemProps) => {
   const { showRating, showQuotes, showAuthorDash, authorPosition } = useContext(
     TestimonialsDisplayContext,
   );
+  const { authorNameSize, locationSize } = useContext(
+    TestimonialsTextStyleContext,
+  );
   const name = authorName?.trim();
   const place = location?.trim();
   const hasAuthor = Boolean(name || place);
@@ -24,9 +28,20 @@ const TestimonialItem = (props: TestimonialItemProps) => {
   const author = hasAuthor ? (
     <div className={authorOnTop ? "mb-4" : ""}>
       {name && (
-        <p className="text-[18px]">{showAuthorDash ? `-${name}` : name}</p>
+        <p
+          className="text-[18px]"
+          style={
+            authorNameSize ? { fontSize: `${authorNameSize}px` } : undefined
+          }
+        >
+          {showAuthorDash ? `-${name}` : name}
+        </p>
       )}
-      {place && <p>{place}</p>}
+      {place && (
+        <p style={locationSize ? { fontSize: `${locationSize}px` } : undefined}>
+          {place}
+        </p>
+      )}
     </div>
   ) : null;
 

@@ -1,18 +1,42 @@
 import { createSchema } from "@weaverse/hydrogen";
+import { createContext } from "react";
 import { backgroundInputs } from "~/components/background-image";
 import { layoutInputs, Section, type SectionProps } from "~/components/section";
 
+export interface TestimonialsTextStyle {
+  authorNameSize?: number;
+  locationSize?: number;
+}
+
+export const TestimonialsTextStyleContext =
+  createContext<TestimonialsTextStyle>({});
+
 interface TestimonialsProps extends SectionProps {
   ref?: React.Ref<HTMLElement>;
+  customAuthorTextSize?: boolean;
+  authorNameSize?: number;
+  locationSize?: number;
 }
 
 function Testimonials(props: TestimonialsProps) {
-  const { children, ref, ...rest } = props;
+  const {
+    children,
+    ref,
+    customAuthorTextSize,
+    authorNameSize,
+    locationSize,
+    ...rest
+  } = props;
+  const textStyle: TestimonialsTextStyle = customAuthorTextSize
+    ? { authorNameSize, locationSize }
+    : {};
 
   return (
-    <Section ref={ref} {...rest}>
-      {children}
-    </Section>
+    <TestimonialsTextStyleContext.Provider value={textStyle}>
+      <Section ref={ref} {...rest}>
+        {children}
+      </Section>
+    </TestimonialsTextStyleContext.Provider>
   );
 }
 
@@ -30,6 +54,45 @@ export const schema = createSchema({
     {
       group: "Background",
       inputs: backgroundInputs,
+    },
+    {
+      group: "Author & location text",
+      inputs: [
+        {
+          type: "switch",
+          name: "customAuthorTextSize",
+          label: "Custom author & location size",
+          defaultValue: false,
+        },
+        {
+          type: "range",
+          name: "authorNameSize",
+          label: "Author name size",
+          defaultValue: 18,
+          configs: {
+            min: 12,
+            max: 40,
+            step: 1,
+            unit: "px",
+          },
+          condition: (data: TestimonialsProps) =>
+            Boolean(data.customAuthorTextSize),
+        },
+        {
+          type: "range",
+          name: "locationSize",
+          label: "Location size",
+          defaultValue: 16,
+          configs: {
+            min: 12,
+            max: 40,
+            step: 1,
+            unit: "px",
+          },
+          condition: (data: TestimonialsProps) =>
+            Boolean(data.customAuthorTextSize),
+        },
+      ],
     },
   ],
   presets: {

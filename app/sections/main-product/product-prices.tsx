@@ -61,7 +61,7 @@ export default function ProductPrices(props: ProductPricesProps) {
           className="font-body text-[20px]/none"
         />
       )}
-      <ClubMemberPrice price={clubBasePrice} />
+      <ClubMemberPrice price={clubBasePrice} tags={product.tags} />
     </div>
   );
 }

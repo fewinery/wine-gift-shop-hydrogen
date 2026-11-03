@@ -1,5 +1,7 @@
 import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
+import { useContext } from "react";
 import { StarIcon } from "~/components/icons";
+import { TestimonialsShowRatingContext } from "./items";
 
 interface TestimonialItemProps extends HydrogenComponentProps {
   ref?: React.Ref<HTMLDivElement>;
@@ -11,6 +13,9 @@ interface TestimonialItemProps extends HydrogenComponentProps {
 
 const TestimonialItem = (props: TestimonialItemProps) => {
   const { ref, rating = 5, quote, authorName, location, ...rest } = props;
+  const showRating = useContext(TestimonialsShowRatingContext);
+  const name = authorName?.trim();
+  const place = location?.trim();
 
   return (
     <div
@@ -19,20 +24,26 @@ const TestimonialItem = (props: TestimonialItemProps) => {
       className="flex h-full flex-col rounded-lg bg-white p-6 shadow-md"
     >
       {/* Stars */}
-      <div className="mb-4 flex gap-1">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <StarIcon key={star} filled={star <= rating} />
-        ))}
-      </div>
+      {showRating && (
+        <div className="mb-4 flex gap-1">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <StarIcon key={star} filled={star <= rating} />
+          ))}
+        </div>
+      )}
 
       {/* Quote */}
-      <p className="mb-6 flex-1 text-[18px]">"{quote}"</p>
+      <p className={`flex-1 text-[18px] ${name || place ? "mb-6" : ""}`}>
+        "{quote}"
+      </p>
 
       {/* Author */}
-      <div>
-        <p className="text-[18px]">-{authorName}</p>
-        <p>{location}</p>
-      </div>
+      {(name || place) && (
+        <div>
+          {name && <p className="text-[18px]">-{name}</p>}
+          {place && <p>{place}</p>}
+        </div>
+      )}
     </div>
   );
 };

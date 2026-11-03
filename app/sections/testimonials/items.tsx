@@ -5,15 +5,44 @@ import { Autoplay, Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { ArrowLeft, ArrowRight } from "~/components/icons";
 
-export const TestimonialsShowRatingContext = createContext(true);
+export interface TestimonialsDisplay {
+  showRating: boolean;
+  showQuotes: boolean;
+  showAuthorDash: boolean;
+  authorPosition: "top" | "bottom";
+}
+
+export const TestimonialsDisplayContext = createContext<TestimonialsDisplay>({
+  showRating: true,
+  showQuotes: true,
+  showAuthorDash: true,
+  authorPosition: "bottom",
+});
 
 interface TestimonialsItemsProps extends HydrogenComponentProps {
   ref?: React.Ref<HTMLDivElement>;
   showRating?: boolean;
+  showQuotes?: boolean;
+  showAuthorDash?: boolean;
+  authorPosition?: "top" | "bottom";
 }
 
 function TestimonialsItems(props: TestimonialsItemsProps) {
-  const { ref, children, showRating, ...rest } = props;
+  const {
+    ref,
+    children,
+    showRating,
+    showQuotes,
+    showAuthorDash,
+    authorPosition,
+    ...rest
+  } = props;
+  const display: TestimonialsDisplay = {
+    showRating: showRating !== false,
+    showQuotes: showQuotes !== false,
+    showAuthorDash: showAuthorDash !== false,
+    authorPosition: authorPosition === "top" ? "top" : "bottom",
+  };
   const [swiper, setSwiper] = useState<SwiperType | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [snapCount, setSnapCount] = useState(0);
@@ -30,7 +59,7 @@ function TestimonialsItems(props: TestimonialsItemsProps) {
   };
 
   return (
-    <TestimonialsShowRatingContext.Provider value={showRating !== false}>
+    <TestimonialsDisplayContext.Provider value={display}>
       <div ref={ref} {...rest}>
         {/* Swiper */}
         <Swiper
@@ -95,7 +124,7 @@ function TestimonialsItems(props: TestimonialsItemsProps) {
           </div>
         </div>
       </div>
-    </TestimonialsShowRatingContext.Provider>
+    </TestimonialsDisplayContext.Provider>
   );
 }
 
@@ -114,6 +143,30 @@ export const schema = createSchema({
           name: "showRating",
           label: "Show rating stars",
           defaultValue: true,
+        },
+        {
+          type: "switch",
+          name: "showQuotes",
+          label: "Show quotation marks",
+          defaultValue: true,
+        },
+        {
+          type: "switch",
+          name: "showAuthorDash",
+          label: "Show hyphen before author name",
+          defaultValue: true,
+        },
+        {
+          type: "toggle-group",
+          name: "authorPosition",
+          label: "Author & location position",
+          configs: {
+            options: [
+              { value: "top", label: "Top" },
+              { value: "bottom", label: "Bottom" },
+            ],
+          },
+          defaultValue: "bottom",
         },
       ],
     },

@@ -55,8 +55,10 @@ export function CartDrawer({ label }: { label?: string }) {
                 <div
                   className={clsx(
                     "cart-count",
-                    "-right-1.5 absolute top-0",
+                    // Beside the "Cart" text label; over the icon's corner.
+                    label ? "ml-1.5" : "-right-1.5 absolute top-0",
                     "flex h-4.5 min-w-4.5 items-center justify-center rounded-full px-1 text-center",
+                    "text-center font-medium text-[13px] leading-none",
                     "text-center font-medium text-[13px] leading-none",
                     "transition-colors duration-300",
                     "group-hover/header:bg-(--color-header-text)",

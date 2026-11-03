@@ -1,7 +1,7 @@
 import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
 import { useContext } from "react";
 import { StarIcon } from "~/components/icons";
-import { TestimonialsShowRatingContext } from "./items";
+import { TestimonialsDisplayContext } from "./items";
 
 interface TestimonialItemProps extends HydrogenComponentProps {
   ref?: React.Ref<HTMLDivElement>;
@@ -13,9 +13,22 @@ interface TestimonialItemProps extends HydrogenComponentProps {
 
 const TestimonialItem = (props: TestimonialItemProps) => {
   const { ref, rating = 5, quote, authorName, location, ...rest } = props;
-  const showRating = useContext(TestimonialsShowRatingContext);
+  const { showRating, showQuotes, showAuthorDash, authorPosition } = useContext(
+    TestimonialsDisplayContext,
+  );
   const name = authorName?.trim();
   const place = location?.trim();
+  const hasAuthor = Boolean(name || place);
+  const authorOnTop = authorPosition === "top";
+
+  const author = hasAuthor ? (
+    <div className={authorOnTop ? "mb-4" : ""}>
+      {name && (
+        <p className="text-[18px]">{showAuthorDash ? `-${name}` : name}</p>
+      )}
+      {place && <p>{place}</p>}
+    </div>
+  ) : null;
 
   return (
     <div
@@ -32,18 +45,18 @@ const TestimonialItem = (props: TestimonialItemProps) => {
         </div>
       )}
 
+      {/* Author (top) */}
+      {authorOnTop && author}
+
       {/* Quote */}
-      <p className={`flex-1 text-[18px] ${name || place ? "mb-6" : ""}`}>
-        "{quote}"
+      <p
+        className={`flex-1 text-[18px] ${hasAuthor && !authorOnTop ? "mb-6" : ""}`}
+      >
+        {showQuotes ? `"${quote}"` : quote}
       </p>
 
-      {/* Author */}
-      {(name || place) && (
-        <div>
-          {name && <p className="text-[18px]">-{name}</p>}
-          {place && <p>{place}</p>}
-        </div>
-      )}
+      {/* Author (bottom) */}
+      {!authorOnTop && author}
     </div>
   );
 };

@@ -69,6 +69,7 @@ import * as JudgemeReviewSummary from "~/sections/judgeme-reviews/review-summary
 import * as MainProduct from "~/sections/main-product";
 import * as JudgemeStarsRating from "~/sections/main-product/judgeme-stars-rating";
 import * as ProductATCButtons from "~/sections/main-product/product-atc-buttons";
+import * as ProductB2BLocation from "~/sections/main-product/product-b2b-location";
 import * as ProductBadges from "~/sections/main-product/product-badges";
 import * as ProductBreadcrumb from "~/sections/main-product/product-breadcrumb";
 import * as ProductBundledVariants from "~/sections/main-product/product-bundled-variants";
@@ -190,6 +191,7 @@ export const components: HydrogenComponent[] = [
   ProductPrices,
   ProductSummary,
   ProductMessageBanner,
+  ProductB2BLocation,
   ProductBundledVariants,
   ProductVariantSelector,
   ProductQuantitySelector,

@@ -196,6 +196,7 @@ export function ProductCard({
         )}
         <PromoLabels
           product={product}
+          context="card"
           topRight={
             <div className="flex gap-1">
               {isBundle && pcardShowBundleBadge && <BundleBadge />}

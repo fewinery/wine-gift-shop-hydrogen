@@ -17,10 +17,46 @@ const CORNER_CLASSES: Record<PromoLabelPosition, string> = {
 };
 
 const SIZE_CLASSES: Record<PromoLabelSize, string> = {
+  xsmall: "px-1.5 py-0.5 text-[11px]",
   small: "px-2 py-1 text-xs",
   medium: "px-2.5 py-1 text-sm",
   large: "px-3 py-1.5 text-base",
 };
+
+// The same sizes from tablet up, written out in full so Tailwind sees them.
+const MD_SIZE_CLASSES: Record<PromoLabelSize, string> = {
+  xsmall: "md:px-1.5 md:py-0.5 md:text-[11px]",
+  small: "md:px-2 md:py-1 md:text-xs",
+  medium: "md:px-2.5 md:py-1 md:text-sm",
+  large: "md:px-3 md:py-1.5 md:text-base",
+};
+
+/**
+ * Product cards are much smaller than the product page image, so Theme
+ * Settings can override the size there, with its own value for phones.
+ * Left on "auto" / "same", a label keeps its own size, as before.
+ */
+function sizeClasses(
+  labelSize: PromoLabelSize,
+  context: "card" | "product",
+  settings: Record<string, any>,
+) {
+  if (context !== "card") {
+    return SIZE_CLASSES[labelSize];
+  }
+  const cardSize: string = settings?.promoLabelCardSize || "auto";
+  const mobileSize: string = settings?.promoLabelCardMobileSize || "same";
+  const desktop = (
+    cardSize in SIZE_CLASSES ? cardSize : labelSize
+  ) as PromoLabelSize;
+  const mobile = (
+    mobileSize in SIZE_CLASSES ? mobileSize : desktop
+  ) as PromoLabelSize;
+  if (mobile === desktop) {
+    return SIZE_CLASSES[desktop];
+  }
+  return clsx(SIZE_CLASSES[mobile], MD_SIZE_CLASSES[desktop]);
+}
 
 const CORNERS: PromoLabelPosition[] = [
   "top-left",
@@ -40,9 +76,11 @@ const CORNERS: PromoLabelPosition[] = [
 export function PromoLabels({
   product,
   topRight,
+  context = "product",
 }: {
   product: PromoLabelProduct | null | undefined;
   topRight?: ReactNode;
+  context?: "card" | "product";
 }) {
   const settings = useThemeSettings();
   const isDesignMode = useWeaverseStudioCheck();
@@ -73,7 +111,7 @@ export function PromoLabels({
                 key={label.key}
                 className={clsx(
                   "promo-label font-medium leading-tight",
-                  SIZE_CLASSES[label.size],
+                  sizeClasses(label.size, context, settings),
                   label.status !== "active" && "opacity-50",
                 )}
                 style={{

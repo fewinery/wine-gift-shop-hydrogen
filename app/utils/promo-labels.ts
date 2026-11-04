@@ -18,7 +18,7 @@ export type PromoLabelPosition =
   | "top-right"
   | "bottom-left"
   | "bottom-right";
-export type PromoLabelSize = "small" | "medium" | "large";
+export type PromoLabelSize = "xsmall" | "small" | "medium" | "large";
 type PromoLabelShowOn = "any" | "every" | "all";
 
 export interface PromoLabel {

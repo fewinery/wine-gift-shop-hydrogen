@@ -20,6 +20,7 @@ const POSITION_OPTIONS = [
 ];
 
 const SIZE_OPTIONS = [
+  { value: "xsmall", label: "Extra small" },
   { value: "small", label: "Small" },
   { value: "medium", label: "Medium" },
   { value: "large", label: "Large" },
@@ -63,6 +64,37 @@ export const promoLabelInputs: ThemeInputs = [
     label: "Corner radius",
     configs: { min: 0, max: 20, step: 1, unit: "px" },
     defaultValue: 0,
+  },
+  {
+    type: "select",
+    name: "promoLabelCardSize",
+    label: "Size on product cards",
+    configs: {
+      options: [
+        { value: "auto", label: "Same as each label's size" },
+        { value: "xsmall", label: "Extra small" },
+        { value: "small", label: "Small" },
+        { value: "medium", label: "Medium" },
+        { value: "large", label: "Large" },
+      ],
+    },
+    defaultValue: "auto",
+    helpText:
+      "Product grids (home, collections, search, related products). The product page image keeps each label's own size.",
+  },
+  {
+    type: "select",
+    name: "promoLabelCardMobileSize",
+    label: "Size on product cards (mobile)",
+    configs: {
+      options: [
+        { value: "same", label: "Same as desktop" },
+        { value: "xsmall", label: "Extra small" },
+        { value: "small", label: "Small" },
+        { value: "medium", label: "Medium" },
+      ],
+    },
+    defaultValue: "same",
   },
   // ---------- Label 1 ----------
   {

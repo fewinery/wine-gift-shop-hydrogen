@@ -182,6 +182,40 @@ function productJsonLd({
   ];
 }
 
+// Social apps reject large images (Facebook over 8 MB, X and LinkedIn over
+// 5 MB), and product photos here are often 4000+ px originals. Ask Shopify's
+// CDN for a 1200 px wide copy, the size those apps recommend.
+const SHARE_IMAGE_WIDTH = 1200;
+
+function toShareImage(
+  image:
+    | {
+        url: string;
+        width?: number | null;
+        height?: number | null;
+        altText?: string | null;
+      }
+    | null
+    | undefined,
+) {
+  if (!image?.url) {
+    return undefined;
+  }
+  const width = Math.min(image.width || SHARE_IMAGE_WIDTH, SHARE_IMAGE_WIDTH);
+  const height =
+    image.width && image.height
+      ? Math.round((image.height / image.width) * width)
+      : undefined;
+  const separator = image.url.includes("?") ? "&" : "?";
+  return {
+    type: "image" as const,
+    url: `${image.url}${separator}width=${width}`,
+    width,
+    height,
+    altText: image.altText ?? undefined,
+  };
+}
+
 function product({
   product: productData,
   url,
@@ -195,8 +229,9 @@ function product({
   const selectedVariant = productData?.selectedOrFirstAvailableVariant;
   // Gift sets and bundles often have no variant image, which left shared
   // links with no picture. Fall back to the product's first photo.
-  const shareImage =
-    selectedVariant?.image ?? productData?.media?.nodes?.[0]?.previewImage;
+  const shareImage = toShareImage(
+    selectedVariant?.image ?? productData?.media?.nodes?.[0]?.previewImage,
+  );
   return {
     title: productData?.seo?.title ?? productData?.title,
     description,
@@ -291,15 +326,7 @@ function collection({
         collectionData?.seo?.description || collectionData?.description || "",
       ) || undefined,
     url,
-    media: collectionData?.image?.url
-      ? {
-          type: "image",
-          url: collectionData.image.url,
-          height: collectionData.image.height,
-          width: collectionData.image.width,
-          altText: collectionData.image.altText,
-        }
-      : undefined,
+    media: toShareImage(collectionData?.image),
     jsonLd: collectionJsonLd({ collection: collectionData, url }),
   };
 }

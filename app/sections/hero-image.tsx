@@ -13,6 +13,8 @@ import { layoutInputs, Section } from "~/components/section";
 interface HeroImageData extends VariantProps<typeof variants> {
   heightOnDesktop?: number;
   heightOnMobile?: number;
+  contentOffsetDesktop?: number;
+  contentOffsetMobile?: number;
 }
 
 export interface HeroImageProps extends HeroImageData {
@@ -74,17 +76,24 @@ export default function HeroImage(props: HeroImageProps & SectionProps) {
     heightOnDesktop,
     heightOnMobile,
     contentPosition,
+    contentOffsetDesktop = 0,
+    contentOffsetMobile = 0,
     ...rest
   } = props;
   const { enableTransparentHeader } = useThemeSettings();
 
-  const customStyle =
-    height === "custom"
-      ? ({
-          "--desktop-height": `${heightOnDesktop}px`,
-          "--mobile-height": `${heightOnMobile}px`,
-        } as React.CSSProperties)
-      : undefined;
+  const hasContentOffset = contentOffsetDesktop > 0 || contentOffsetMobile > 0;
+
+  const customStyle = {
+    ...(height === "custom" && {
+      "--desktop-height": `${heightOnDesktop}px`,
+      "--mobile-height": `${heightOnMobile}px`,
+    }),
+    ...(hasContentOffset && {
+      "--content-offset-desktop": `${contentOffsetDesktop}px`,
+      "--content-offset-mobile": `${contentOffsetMobile}px`,
+    }),
+  } as React.CSSProperties;
 
   return (
     <Section
@@ -95,7 +104,7 @@ export default function HeroImage(props: HeroImageProps & SectionProps) {
         contentPosition,
         height,
         enableTransparentHeader,
-      })} ${height === "custom" ? "min-h-(--mobile-height) lg:min-h-(--desktop-height)" : ""}`}
+      })} ${height === "custom" ? "min-h-(--mobile-height) lg:min-h-(--desktop-height)" : ""} ${hasContentOffset ? "[&>:first-child]:mt-(--content-offset-mobile) lg:[&>:first-child]:mt-(--content-offset-desktop)" : ""}`}
     >
       {children}
     </Section>
@@ -154,6 +163,32 @@ export const schema = createSchema({
           name: "contentPosition",
           label: "Content position",
           defaultValue: "center center",
+        },
+        {
+          type: "range",
+          name: "contentOffsetDesktop",
+          label: "Content top offset on desktop",
+          defaultValue: 0,
+          configs: {
+            min: 0,
+            max: 400,
+            step: 5,
+            unit: "px",
+          },
+          helpText:
+            "Pushes the content down. Use with a top content position to clear the menu.",
+        },
+        {
+          type: "range",
+          name: "contentOffsetMobile",
+          label: "Content top offset on mobile",
+          defaultValue: 0,
+          configs: {
+            min: 0,
+            max: 400,
+            step: 5,
+            unit: "px",
+          },
         },
         ...layoutInputs.filter(
           (inp) => inp.name !== "divider" && inp.name !== "borderRadius",

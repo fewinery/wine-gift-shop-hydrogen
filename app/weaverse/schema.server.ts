@@ -1337,6 +1337,20 @@ export const themeSchema: HydrogenThemeSchema = {
           defaultValue: true,
         },
         {
+          type: "range",
+          label: "Title size",
+          name: "pcardTitleSize",
+          configs: {
+            min: 0,
+            max: 40,
+            step: 1,
+            unit: "px",
+          },
+          defaultValue: 0,
+          helpText:
+            "Product title size on product cards. Leave at 0 to use the body text size.",
+        },
+        {
           type: "switch",
           label: "Show lowest price",
           name: "pcardShowLowestPrice",

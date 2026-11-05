@@ -87,6 +87,7 @@ export function ProductCard({
     pcardShowNewBadge,
     pcardShowOutOfStockBadge,
     productTitleFontFamily,
+    pcardTitleSize,
   } = useThemeSettings();
 
   const [selectedVariant, setSelectedVariant] =
@@ -263,6 +264,11 @@ export function ProductCard({
                 ? "font-heading"
                 : "font-body",
             )}
+            style={
+              pcardTitleSize > 0
+                ? { fontSize: `${pcardTitleSize}px` }
+                : undefined
+            }
           >
             <RevealUnderline className="bg-position-[left_calc(1em+3px)] leading-normal">
               {product.title}

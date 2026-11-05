@@ -46,7 +46,9 @@ export function VariantPrices({
         Number(compareAtPrice.amount) > Number(price.amount);
       return (
         <div className={cn("flex flex-wrap items-center gap-2", className)}>
-          {isOnSale && <CompareAtPrice data={compareAtPrice as MoneyV2} />}
+          {isOnSale && (
+            <CompareAtPrice data={compareAtPrice as MoneyV2} className="mr-2" />
+          )}
           {isOnSale && label && <span>{label}</span>}
           <Money data={price} />
         </div>

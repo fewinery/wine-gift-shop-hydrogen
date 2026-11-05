@@ -1350,6 +1350,15 @@ export const themeSchema: HydrogenThemeSchema = {
           condition: (theme) => theme.pcardShowLowestPrice !== true,
         },
         {
+          type: "text",
+          label: "Sale price label",
+          name: "salePriceLabel",
+          defaultValue: "",
+          placeholder: "Holiday Price:",
+          helpText:
+            "Shown before the sale price on product cards, product pages and product sections, only when a product has a compare-at price. Leave empty to show no label.",
+        },
+        {
           type: "switch",
           label: "Show option values",
           name: "pcardShowOptionValues",

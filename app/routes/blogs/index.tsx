@@ -14,7 +14,9 @@ export async function loader(args: LoaderFunctionArgs) {
   const { storefront, weaverse, env } = context;
   const { language, country } = storefront.i18n;
 
-  if (env.BLOG_PROVIDER === "shopify") {
+  // Stores without a DropInBlog account (no DROPINBLOG_ID) have no blog to
+  // list; without this check the API call fails and the page returns a 500.
+  if (env.BLOG_PROVIDER === "shopify" || !env.DROPINBLOG_ID) {
     throw new Response("blog", { status: 404 });
   }
 

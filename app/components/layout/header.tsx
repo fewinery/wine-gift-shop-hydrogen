@@ -145,6 +145,7 @@ export function Header() {
         <MobileMenu />
         <Link
           to="/search"
+          aria-label="Search"
           className={cn("p-1.5 lg:hidden", badgesLayout && "-order-2")}
         >
           <MagnifyingGlassIcon className="h-5 w-5" />

@@ -137,6 +137,7 @@ export function Footer() {
                   key={name}
                   to={to}
                   target="_blank"
+                  aria-label={name}
                   className="flex items-center gap-2 text-lg"
                 >
                   <Icon className="h-5 w-5" weight="regular" />
@@ -331,7 +332,13 @@ function FooterTwoLogoColumns({
           {socialAccounts.length > 0 && (
             <div className="flex gap-4">
               {socialAccounts.map(({ to, name, Icon }) => (
-                <Link key={name} to={to} target="_blank" className="text-lg">
+                <Link
+                  key={name}
+                  to={to}
+                  target="_blank"
+                  aria-label={name}
+                  className="text-lg"
+                >
                   <Icon className="h-5 w-5" weight="regular" />
                 </Link>
               ))}

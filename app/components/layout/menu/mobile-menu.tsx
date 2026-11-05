@@ -120,7 +120,7 @@ function MenuTrigger(
 ) {
   const { ref, ...rest } = props;
   return (
-    <button ref={ref} type="button" {...rest}>
+    <button ref={ref} type="button" aria-label="Open menu" {...rest}>
       <ListIcon className="h-5 w-5" />
     </button>
   );

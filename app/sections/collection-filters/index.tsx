@@ -117,7 +117,7 @@ export default function CollectionFilters(props: CollectionFiltersProps) {
             <BreadCrumb page={collection.title} className="mb-2.5" />
           )}
           {(!showBanner || !banner) && (
-            <h3 className="text-center py-10">{collection.title}</h3>
+            <h1 className="h3 text-center py-10">{collection.title}</h1>
           )}
           {showDescription && collection.description && (
             <p className="mt-2.5 text-body-subtle">{collection.description}</p>
@@ -145,9 +145,9 @@ export default function CollectionFilters(props: CollectionFiltersProps) {
               {showOverlay && (
                 <div className="absolute inset-0 bg-[#00000099]" />
               )}
-              <h3 className="relative z-1 text-center font-heading text-white text-[25.6px] font-medium uppercase">
+              <h1 className="h3 relative z-1 text-center font-heading text-white text-[25.6px] font-medium uppercase">
                 {collection.title}
-              </h3>
+              </h1>
             </div>
           )}
         </div>

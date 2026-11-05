@@ -193,10 +193,14 @@ function product({
     productData?.seo?.description ?? productData?.description ?? "",
   );
   const selectedVariant = productData?.selectedOrFirstAvailableVariant;
+  // Gift sets and bundles often have no variant image, which left shared
+  // links with no picture. Fall back to the product's first photo.
+  const shareImage =
+    selectedVariant?.image ?? productData?.media?.nodes?.[0]?.previewImage;
   return {
     title: productData?.seo?.title ?? productData?.title,
     description,
-    media: selectedVariant?.image,
+    media: shareImage,
     jsonLd: productJsonLd({ product: productData, selectedVariant, url }),
   };
 }

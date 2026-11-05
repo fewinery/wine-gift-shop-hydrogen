@@ -1,5 +1,6 @@
 import { Money, useMoney } from "@shopify/hydrogen";
 import type { MoneyV2 } from "@shopify/hydrogen/storefront-api-types";
+import { useThemeSettings } from "@weaverse/hydrogen";
 import type { ProductVariantFragment } from "storefront-api.generated";
 import { cn } from "~/utils/cn";
 
@@ -30,19 +31,24 @@ export function VariantPrices({
   showCompareAtPrice?: boolean;
   className?: string;
 }) {
+  // Optional text shown before the sale price (e.g. "Holiday Price:").
+  // Empty by default, so storefronts that never fill it in see no label.
+  const { salePriceLabel } = useThemeSettings();
+  const label = typeof salePriceLabel === "string" ? salePriceLabel.trim() : "";
   if (variant) {
     const { price } = variant;
     const compareAtPrice =
       "compareAtPrice" in variant ? variant.compareAtPrice : undefined;
     if (price) {
+      const isOnSale =
+        showCompareAtPrice &&
+        compareAtPrice &&
+        Number(compareAtPrice.amount) > Number(price.amount);
       return (
-        <div className={cn("flex items-center gap-2", className)}>
+        <div className={cn("flex flex-wrap items-center gap-2", className)}>
+          {isOnSale && <CompareAtPrice data={compareAtPrice as MoneyV2} />}
+          {isOnSale && label && <span>{label}</span>}
           <Money data={price} />
-          {showCompareAtPrice &&
-            compareAtPrice &&
-            compareAtPrice?.amount > price?.amount && (
-              <CompareAtPrice data={compareAtPrice as MoneyV2} />
-            )}
         </div>
       );
     }

@@ -545,6 +545,20 @@
   }
 }
 
+/* Lists typed into Paragraph blocks. Tailwind's reset removes bullets and
+   indentation from every list, so they showed as plain lines. Scoped to
+   .paragraph so menus and other lists keep their styling. */
+@layer base {
+  .paragraph ul {
+    list-style: disc;
+    padding-inline-start: 1.5em;
+  }
+  .paragraph ol {
+    list-style: decimal;
+    padding-inline-start: 1.5em;
+  }
+}
+
 /* .animated-scope [data-motion] {
   opacity: 0;
 } */

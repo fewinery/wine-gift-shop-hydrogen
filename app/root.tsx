@@ -128,7 +128,14 @@ export function RootLayout({ children }: { children: React.ReactNode }) {
   const nonce = useNonce();
   const data = useRouteLoaderData<RootLoader>("root");
   const locale = data?.selectedLocale ?? DEFAULT_LOCALE;
-  const { topbarHeight, topbarText, favicon } = useThemeSettings();
+  const { topbarHeight, topbarText, favicon, googleSiteVerification } =
+    useThemeSettings();
+  // Accept either the full <meta> tag Search Console shows or just its code.
+  const siteVerification =
+    typeof googleSiteVerification === "string"
+      ? (googleSiteVerification.match(/content="([^"]+)"/)?.[1] ??
+        googleSiteVerification.trim())
+      : "";
   const shouldShowNewsletterPopup = useShouldRenderNewsletterPopup();
   if (
     location.pathname === "/subrequest-profiler" ||
@@ -143,6 +150,9 @@ export function RootLayout({ children }: { children: React.ReactNode }) {
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <link rel="stylesheet" href={styles} />
         <Meta />
+        {siteVerification && (
+          <meta name="google-site-verification" content={siteVerification} />
+        )}
         <link rel="icon" href={favicon?.url || "/favicon.ico"} />
         <Links />
         <GlobalStyle />

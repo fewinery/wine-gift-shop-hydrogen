@@ -100,9 +100,16 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
   const [merchSelection, setMerchSelection] = useState<MerchSelection>({});
   const merchLines = getMerchLines(merchProducts, merchSelection);
 
+  // Read before the picker: the number of bottles can live on the variant, so
+  // switching size has to change the target without a page load.
+  const selectedVariant = useOptimisticVariant(
+    product?.selectedOrFirstAvailableVariant,
+    getAdjacentAndFirstAvailableVariants(product),
+  );
+
   // The prebuilt packages' add-on. It reads its own two metafields, so a
   // product without them behaves exactly as it does today.
-  const wine = useWinePicker(product, product?.handle);
+  const wine = useWinePicker(product, product?.handle, selectedVariant);
 
   const [selectedWoodCardId, setSelectedWoodCardId] = useState<string | null>(
     null,
@@ -152,11 +159,6 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
 
   const selectedWoodCardVariant = selectedWoodCard?.variants?.nodes?.find(
     (variant) => variant.availableForSale,
-  );
-
-  const selectedVariant = useOptimisticVariant(
-    product?.selectedOrFirstAvailableVariant,
-    getAdjacentAndFirstAvailableVariants(product),
   );
 
   const combinedListing = isCombinedListing(product);

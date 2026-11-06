@@ -18,14 +18,13 @@ export function MobileMenu() {
     <Dialog.Root>
       <Dialog.Trigger
         asChild
-        className="relative flex h-8 w-8 items-center justify-center focus-visible:outline-hidden lg:hidden"
+        className="relative flex h-8 w-8 items-center justify-center lg:hidden"
       >
         <MenuTrigger />
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="data-[state=open]:animate-fade-in fixed inset-0 z-10 bg-black/50" />
         <Dialog.Content
-          onCloseAutoFocus={(e) => e.preventDefault()}
           // Rendered in a portal, outside <header>, so the header-scoped
           // font override cannot reach it. This hook lets it opt in too.
           data-mobile-menu=""
@@ -43,7 +42,13 @@ export function MobileMenu() {
             <div className="px-4">Menu</div>
           </Dialog.Title>
           <Dialog.Close asChild>
-            <XIcon className="fixed top-4 right-4 h-5 w-5" />
+            <button
+              type="button"
+              aria-label="Close menu"
+              className="fixed top-4 right-4"
+            >
+              <XIcon className="h-5 w-5" />
+            </button>
           </Dialog.Close>
           <div className="mt-4 border-line-subtle border-t" />
           <div className="py-2">

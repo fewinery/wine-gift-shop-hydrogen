@@ -32,6 +32,7 @@ export function Quantity(props: QuantityProps) {
           <span>&#8722;</span>
         </button>
         <input
+          aria-label={label}
           className="w-12 px-1 py-2.5 text-center"
           value={value}
           onKeyDown={handleKeyDown}

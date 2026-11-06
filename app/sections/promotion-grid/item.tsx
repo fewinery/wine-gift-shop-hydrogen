@@ -13,6 +13,7 @@ import {
   type OverlayProps,
   overlayInputs,
 } from "~/components/overlay";
+import { useWeaverseStudioCheck } from "~/hooks/use-weaverse-studio-check";
 import type { ImageAspectRatio } from "~/types/others";
 import { calculateAspectRatio } from "~/utils/image";
 
@@ -21,6 +22,8 @@ const variants = cva(
     "promotion-grid-item",
     "group/overlay",
     "relative flex flex-col gap-4 overflow-hidden",
+    // Cards with exactly one link are clickable anywhere (see handleCardClick)
+    "[&:has(a[href]):not(:has(a[href]~a[href]))]:cursor-pointer",
     "[&_.paragraph]:mx-[unset]",
   ],
   {
@@ -96,6 +99,35 @@ function PromotionGridItem(props: PromotionItemProps) {
 
   const parent = useParentInstance();
   const layout = parent?.data?.layout || "overlay";
+  const isDesignMode = useWeaverseStudioCheck();
+
+  // A click anywhere on the card opens its link, so shoppers (especially on
+  // mobile) don't have to find the button. Only when the card has exactly one
+  // link, so it's never ambiguous. Keyboard and screen reader users still use
+  // the button itself: there is still one link, nothing is duplicated.
+  // Disabled in Weaverse Studio so clicking a card still selects it.
+  function handleCardClick(e: React.MouseEvent<HTMLDivElement>) {
+    if (isDesignMode) {
+      return;
+    }
+    const target = e.target as HTMLElement;
+    if (target.closest("a, button, input, select, textarea")) {
+      return;
+    }
+    if (window.getSelection()?.toString()) {
+      return;
+    }
+    const links =
+      e.currentTarget.querySelectorAll<HTMLAnchorElement>("a[href]");
+    if (links.length !== 1) {
+      return;
+    }
+    if (e.metaKey || e.ctrlKey) {
+      window.open(links[0].href, "_blank", "noopener");
+      return;
+    }
+    links[0].click();
+  }
 
   return (
     <div
@@ -103,6 +135,7 @@ function PromotionGridItem(props: PromotionItemProps) {
       {...rest}
       data-motion="slide-in"
       className={variants({ contentPosition, borderRadius, layout })}
+      onClick={handleCardClick}
     >
       {layout === "overlay" ? (
         <>

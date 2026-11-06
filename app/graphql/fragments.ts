@@ -54,6 +54,12 @@ export const PRODUCT_VARIANT_FRAGMENT = `#graphql
         }
       }
     }
+    winePickerQuantity: metafield(
+      namespace: "custom"
+      key: "wine_picker_quantity"
+    ) {
+      value
+    }
   }
 ` as const;
 

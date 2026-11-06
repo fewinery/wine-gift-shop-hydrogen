@@ -165,16 +165,32 @@ export function getWineLines(
  * call. Kept here rather than in the buy-buttons section so that section
  * stays readable - it already carries the merch and wood card upsells.
  */
-export function useWinePicker(product: unknown, packageHandle?: string) {
+export function useWinePicker(
+  product: unknown,
+  packageHandle?: string,
+  variant?: unknown,
+) {
   const [selection, setSelection] = useState<WineSelection>({});
   const owner = product as
     | { winePicker?: unknown; winePickerQuantity?: unknown }
     | undefined;
   const config = parseWinePicker(owner?.winePicker);
-  const required = parseBottlesRequired(owner?.winePickerQuantity);
+  // The variant's own number wins, so one product can sell a 3-, 5- and
+  // 8-bottle size off a single wine list. A variant that carries no number
+  // falls back to the product's, which is how every package built before
+  // this keeps behaving exactly as it did.
+  const variantRequired = parseBottlesRequired(
+    (variant as { winePickerQuantity?: unknown } | undefined)
+      ?.winePickerQuantity,
+  );
+  const required =
+    variantRequired || parseBottlesRequired(owner?.winePickerQuantity);
   const enabled = config.active && config.tabs.length > 0 && required > 0;
   const chosen = countSelected(selection);
-  const remaining = Math.max(required - chosen, 0);
+  // Signed on purpose: switching from the 8-bottle size down to the 3-bottle
+  // one leaves the shopper over the limit, and they are told to remove some
+  // rather than having five deliberate choices deleted for them.
+  const remaining = required - chosen;
   // Ties the loose bottle lines to the package they belong in. The warehouse
   // otherwise receives a box and three unrelated bottles and has to guess.
   // Underscore-prefixed, so the shopper never sees it.
@@ -192,11 +208,19 @@ export function useWinePicker(product: unknown, packageHandle?: string) {
     complete: !enabled || chosen === required,
     attributes,
     lines: enabled ? getWineLines(config.tabs, selection, attributes) : [],
-    gateLabel:
-      remaining === 1
-        ? "Choose 1 more bottle"
-        : `Choose ${remaining} more bottles`,
+    gateLabel: gateLabelFor(remaining),
   };
+}
+
+/** What the Add to cart button says while the count is wrong. */
+function gateLabelFor(remaining: number) {
+  if (remaining > 0) {
+    return remaining === 1
+      ? "Choose 1 more bottle"
+      : `Choose ${remaining} more bottles`;
+  }
+  const over = -remaining;
+  return over === 1 ? "Remove 1 bottle" : `Remove ${over} bottles`;
 }
 
 function Stepper({

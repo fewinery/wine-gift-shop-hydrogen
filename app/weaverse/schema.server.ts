@@ -67,6 +67,14 @@ export const themeSchema: HydrogenThemeSchema = {
           helpText:
             "Shown in link previews for pages without their own image. Recommended size: 1200x630px.",
         },
+        {
+          type: "text",
+          name: "googleSiteVerification",
+          label: "Google Search Console verification",
+          defaultValue: "",
+          helpText:
+            "In Search Console choose URL prefix, then the HTML tag method, and paste the tag or just its content code here. Leave empty if not used.",
+        },
       ],
     },
     {

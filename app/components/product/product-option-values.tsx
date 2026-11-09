@@ -299,21 +299,25 @@ function OptionValue({
     );
   }
 
-  // Default fallback
+  // Default fallback. A boxed, fillable control rather than an underline:
+  // an option named anything other than Color or Size - "Bottle Size", say -
+  // used to render as underlined text, which reads as a link and leaves the
+  // chosen value easy to miss. Deliberately identical to OPTIONS_AS_BUTTON,
+  // so the two stay interchangeable as names are added to that list.
   return (
     // @ts-expect-error: TypeScript cannot infer the correct props for variable component
     <Component
       {...componentProps}
       className={cn(
-        "border-b py-0.5",
+        "border border-line-subtle px-4 py-2.5 text-center transition-colors",
         !exists && "cursor-not-allowed",
         selected && !combinedListing
-          ? [available ? "border-line" : "border-line-subtle"]
-          : [
-              "border-transparent",
-              available ? "hover:border-line" : "hover:border-line-subtle",
-            ],
-        !available && "text-body-subtle line-through",
+          ? [
+              available ? "bg-body text-body-inverse" : "text-body-subtle",
+              "border-body",
+            ]
+          : "hover:border-line",
+        !available && "diagonal bg-gray-100 text-body-subtle",
       )}
     >
       {name}

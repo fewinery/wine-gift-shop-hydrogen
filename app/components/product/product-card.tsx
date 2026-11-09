@@ -16,6 +16,7 @@ import { usePrefixPathWithLocale } from "~/hooks/use-prefix-path-with-locale";
 import JudgemeStarsRating from "~/sections/main-product/judgeme-stars-rating";
 import { isCombinedListing } from "~/utils/combined-listings";
 import { calculateAspectRatio } from "~/utils/image";
+import { hidesPrice } from "~/utils/product-tags";
 import {
   BestSellerBadge,
   BundleBadge,
@@ -121,6 +122,8 @@ export function ProductCard({
   // This is the variant the "Add to cart" button adds.
   const activeVariant = selectedVariant || firstVariant;
   const combinedListing = isCombinedListing(product);
+  // Tagged products show no price on the card, matching the product page.
+  const priceHidden = hidesPrice(product.tags);
   const cardSearch = params.toString() ? `?${params.toString()}` : "";
   // The price the club member figure is derived from is the one on screen, so
   // the two never disagree.
@@ -274,50 +277,52 @@ export function ProductCard({
               {product.title}
             </RevealUnderline>
           </Link>
-          <div
-            className={clsx(
-              "flex flex-col gap-1",
-              // The price and the club line are two stacked rows inside one
-              // flex item, so they need their own alignment — otherwise they
-              // sit flush left inside a block the card has centred.
-              //
-              // justify-center matters in the title-beside-price layout: the
-              // row is as tall as the padded title, and without it the price
-              // pins to the top of that box instead of sitting level with the
-              // title, which reads as "too close to the image".
-              isVertical
-                ? ITEMS_ALIGNMENT[alignment as CardAlignment]
-                : "items-end justify-center",
-            )}
-          >
-            {pcardShowLowestPrice || combinedListing ? (
-              <div className="flex gap-1 font-body">
-                <span>From</span>
-                <Money withoutTrailingZeros data={minVariantPrice} />
-                {combinedListing && (
-                  <>
-                    <span>–</span>
-                    <Money withoutTrailingZeros data={maxVariantPrice} />
-                  </>
-                )}
-              </div>
-            ) : (
-              <VariantPrices
-                variant={activeVariant}
-                showCompareAtPrice={pcardShowSalePrice}
-                className="text-base font-body"
-              />
-            )}
-            <ClubMemberPrice
-              price={displayedPrice}
-              tags={product.tags}
-              className={
+          {!priceHidden && (
+            <div
+              className={clsx(
+                "flex flex-col gap-1",
+                // The price and the club line are two stacked rows inside one
+                // flex item, so they need their own alignment — otherwise they
+                // sit flush left inside a block the card has centred.
+                //
+                // justify-center matters in the title-beside-price layout: the
+                // row is as tall as the padded title, and without it the price
+                // pins to the top of that box instead of sitting level with the
+                // title, which reads as "too close to the image".
                 isVertical
-                  ? JUSTIFY_ALIGNMENT[alignment as CardAlignment]
-                  : "justify-end text-right"
-              }
-            />
-          </div>
+                  ? ITEMS_ALIGNMENT[alignment as CardAlignment]
+                  : "items-end justify-center",
+              )}
+            >
+              {pcardShowLowestPrice || combinedListing ? (
+                <div className="flex gap-1 font-body">
+                  <span>From</span>
+                  <Money withoutTrailingZeros data={minVariantPrice} />
+                  {combinedListing && (
+                    <>
+                      <span>–</span>
+                      <Money withoutTrailingZeros data={maxVariantPrice} />
+                    </>
+                  )}
+                </div>
+              ) : (
+                <VariantPrices
+                  variant={activeVariant}
+                  showCompareAtPrice={pcardShowSalePrice}
+                  className="text-base font-body"
+                />
+              )}
+              <ClubMemberPrice
+                price={displayedPrice}
+                tags={product.tags}
+                className={
+                  isVertical
+                    ? JUSTIFY_ALIGNMENT[alignment as CardAlignment]
+                    : "justify-end text-right"
+                }
+              />
+            </div>
+          )}
         </div>
         <ProductCardOptions
           product={product}

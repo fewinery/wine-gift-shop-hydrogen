@@ -1,5 +1,8 @@
-import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight } from "~/components/icons";
+import {
+  AddStepper,
+  ScrollArrow,
+  useRowScroll,
+} from "~/components/product/add-stepper";
 import { cn } from "~/utils/cn";
 
 /**
@@ -34,8 +37,14 @@ export interface MerchProduct {
   } | null;
 }
 
-/** productId → the variant id chosen for it. A key present means selected. */
-export type MerchSelection = Record<string, string>;
+/**
+ * productId → which variant was chosen and how many of it. Merch is counted
+ * rather than toggled, so a shopper who wants three salamis can say so.
+ */
+export type MerchSelection = Record<
+  string,
+  { variantId: string; quantity: number }
+>;
 
 /** Cart lines for whatever merch is currently selected. */
 export function getMerchLines(
@@ -43,8 +52,14 @@ export function getMerchLines(
   selection: MerchSelection,
 ) {
   return Object.entries(selection)
-    .filter(([productId]) => products.some((p) => p.id === productId))
-    .map(([, variantId]) => ({ merchandiseId: variantId, quantity: 1 }));
+    .filter(
+      ([productId, entry]) =>
+        entry?.quantity > 0 && products.some((p) => p.id === productId),
+    )
+    .map(([, entry]) => ({
+      merchandiseId: entry.variantId,
+      quantity: entry.quantity,
+    }));
 }
 
 function firstAvailableVariant(product: MerchProduct) {
@@ -75,22 +90,25 @@ function swatchColorFor(
 
 function MerchTile({
   product,
-  selectedVariantId,
-  onToggle,
+  entry,
+  addLabel,
+  onQuantity,
   onPickVariant,
 }: {
   product: MerchProduct;
-  selectedVariantId: string | undefined;
-  onToggle: () => void;
+  entry: { variantId: string; quantity: number } | undefined;
+  addLabel: string;
+  onQuantity: (next: number) => void;
   onPickVariant: (variantId: string) => void;
 }) {
   const variants = (product.variants?.nodes ?? []).filter(
     (variant) => variant.availableForSale,
   );
   const activeVariant =
-    variants.find((variant) => variant.id === selectedVariantId) ??
+    variants.find((variant) => variant.id === entry?.variantId) ??
     firstAvailableVariant(product);
-  const isSelected = Boolean(selectedVariantId);
+  const quantity = entry?.quantity ?? 0;
+  const isSelected = quantity > 0;
   const isSoldOut = variants.length === 0;
   const image = activeVariant?.image ?? product.featuredImage;
   // Most merch has a single variant; the swatch row only earns its space
@@ -106,35 +124,26 @@ function MerchTile({
         // border-2 on every state, selected or not, so picking a tile never
         // nudges the row by a pixel. The selected stroke uses the Add to cart
         // button's own colour.
-        "w-[150px] shrink-0 snap-start border-2 p-2 transition-colors sm:w-[170px]",
+        "flex w-[150px] shrink-0 snap-start flex-col border-2 p-2 transition-colors sm:w-[170px]",
         isSelected
           ? "border-(--btn-primary-bg)"
           : "border-neutral-300 hover:border-neutral-600",
         isSoldOut && "opacity-50",
       )}
     >
-      <button
-        type="button"
-        onClick={onToggle}
-        disabled={isSoldOut}
-        className="block w-full text-left disabled:cursor-not-allowed"
-      >
-        {image?.url && (
-          <img
-            src={image.url}
-            alt={image.altText ?? product.title}
-            className="mb-2 aspect-square w-full object-cover"
-          />
-        )}
-        <p className="text-sm font-semibold text-neutral-900">
-          {product.title}
+      {image?.url && (
+        <img
+          src={image.url}
+          alt={image.altText ?? product.title}
+          className="mb-2 aspect-square w-full object-cover"
+        />
+      )}
+      <p className="font-semibold text-neutral-900 text-sm">{product.title}</p>
+      {activeVariant?.price && (
+        <p className="mt-1 text-neutral-600 text-sm">
+          ${activeVariant.price.amount}
         </p>
-        {activeVariant?.price && (
-          <p className="mt-1 text-sm text-neutral-600">
-            ${activeVariant.price.amount}
-          </p>
-        )}
-      </button>
+      )}
 
       {showSwatches && (
         <div className="mt-2 flex flex-wrap gap-1.5">
@@ -154,7 +163,7 @@ function MerchTile({
                   isActive
                     ? "border-(--btn-primary-bg) ring-2 ring-(--btn-primary-bg) ring-offset-1"
                     : "border-neutral-300 hover:border-neutral-600",
-                  !color && "px-1 w-auto text-[10px] leading-5",
+                  !color && "w-auto px-1 text-[10px] leading-5",
                 )}
                 style={color ? { backgroundColor: color } : undefined}
               >
@@ -164,130 +173,110 @@ function MerchTile({
           })}
         </div>
       )}
+
+      <div className="mt-auto pt-2">
+        {isSoldOut ? (
+          <p className="py-2 text-neutral-500 text-sm">Sold out</p>
+        ) : (
+          <AddStepper
+            quantity={quantity}
+            canAdd={true}
+            onChange={onQuantity}
+            addLabel={addLabel}
+          />
+        )}
+      </div>
     </div>
   );
 }
 
 /**
- * The merch row above the wood cards. Several items can be selected at once;
- * picking a swatch both chooses the colour and selects the item.
+ * The merch row above the wood cards. Several items can be chosen at once and
+ * each carries its own quantity; picking a swatch chooses the colour without
+ * disturbing the count.
  */
 export function MerchUpsellPicker({
   heading,
+  addLabel = "Add",
   products,
   selection,
   onChange,
 }: {
   heading: string;
+  addLabel?: string;
   products: MerchProduct[];
   selection: MerchSelection;
   onChange: (next: MerchSelection) => void;
 }) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [canScrollPrev, setCanScrollPrev] = useState(false);
-  const [canScrollNext, setCanScrollNext] = useState(false);
+  const row = useRowScroll(products.length);
 
-  function updateScrollState() {
-    const container = scrollRef.current;
-    if (!container) {
+  function setQuantity(product: MerchProduct, next: number) {
+    const updated = { ...selection };
+    if (next <= 0) {
+      delete updated[product.id];
+      onChange(updated);
       return;
     }
-    setCanScrollPrev(container.scrollLeft > 4);
-    setCanScrollNext(
-      container.scrollLeft + container.clientWidth < container.scrollWidth - 4,
-    );
-  }
-
-  // Measured on mount and on resize, so a row that already fits knows it has
-  // nowhere to scroll and hides its arrows instead of offering dead buttons.
-  useEffect(() => {
-    updateScrollState();
-    window.addEventListener("resize", updateScrollState);
-    return () => {
-      window.removeEventListener("resize", updateScrollState);
-    };
-  }, [products.length]);
-
-  function scroll(direction: "prev" | "next") {
-    const container = scrollRef.current;
-    if (!container) {
+    const variantId =
+      selection[product.id]?.variantId ?? firstAvailableVariant(product)?.id;
+    if (!variantId) {
       return;
     }
-    const amount = container.clientWidth * 0.75;
-    container.scrollBy({
-      left: direction === "prev" ? -amount : amount,
-      behavior: "smooth",
-    });
-  }
-
-  function toggle(product: MerchProduct) {
-    const next = { ...selection };
-    if (next[product.id]) {
-      delete next[product.id];
-    } else {
-      const variant = firstAvailableVariant(product);
-      if (!variant) {
-        return;
-      }
-      next[product.id] = variant.id;
-    }
-    onChange(next);
+    updated[product.id] = { variantId, quantity: next };
+    onChange(updated);
   }
 
   function pickVariant(product: MerchProduct, variantId: string) {
-    // Choosing a colour also selects the item: tapping a swatch on an
-    // unselected tile clearly means "this one, in this colour".
-    onChange({ ...selection, [product.id]: variantId });
+    // Choosing a colour on an untouched tile clearly means "this one, in this
+    // colour", so it also puts one in the box. On a tile already counted it
+    // only swaps the colour and leaves the count alone.
+    const quantity = selection[product.id]?.quantity ?? 1;
+    onChange({ ...selection, [product.id]: { variantId, quantity } });
   }
 
   if (!products.length) {
     return null;
   }
 
-  const showArrows = canScrollPrev || canScrollNext;
+  const showArrows = row.canScrollPrev || row.canScrollNext;
 
   return (
     <div className="space-y-4">
-      <p className="text-sm font-bold uppercase tracking-wide text-neutral-900">
+      <p className="font-bold text-neutral-900 text-sm uppercase tracking-wide">
         {heading}
       </p>
       <div className="flex min-w-0 items-center gap-2">
         {showArrows && (
-          <button
-            type="button"
-            aria-label="Previous merch"
-            onClick={() => scroll("prev")}
-            disabled={!canScrollPrev}
-            className="flex shrink-0 items-center justify-center rounded-full border border-black bg-white p-2 disabled:cursor-not-allowed disabled:opacity-30"
-          >
-            <ArrowLeft />
-          </button>
+          <ScrollArrow
+            direction="prev"
+            label="Previous merch"
+            disabled={!row.canScrollPrev}
+            onClick={() => row.scroll("prev")}
+          />
         )}
         <div
-          ref={scrollRef}
-          onScroll={updateScrollState}
+          ref={row.ref}
+          onScroll={row.update}
           className="flex min-w-0 flex-1 snap-x gap-3 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {products.map((product) => (
             <MerchTile
               key={product.id}
               product={product}
-              selectedVariantId={selection[product.id]}
-              onToggle={() => toggle(product)}
+              entry={selection[product.id]}
+              addLabel={addLabel}
+              onQuantity={(next) => setQuantity(product, next)}
               onPickVariant={(variantId) => pickVariant(product, variantId)}
             />
           ))}
         </div>
         {showArrows && (
-          <button
-            type="button"
-            aria-label="Next merch"
-            onClick={() => scroll("next")}
-            disabled={!canScrollNext}
-            className="flex shrink-0 items-center justify-center rounded-full border border-black bg-white p-2 disabled:cursor-not-allowed disabled:opacity-30"
-          >
-            <ArrowRight />
-          </button>
+          <ScrollArrow
+            direction="next"
+            label="Next merch"
+            disabled={!row.canScrollNext}
+            onClick={() => row.scroll("next")}
+          />
         )}
       </div>
     </div>

@@ -2,6 +2,11 @@ import { Money } from "@shopify/hydrogen";
 import type { MoneyV2 } from "@shopify/hydrogen/storefront-api-types";
 import { useState } from "react";
 import { Image } from "~/components/image";
+import {
+  AddStepper,
+  ScrollArrow,
+  useRowScroll,
+} from "~/components/product/add-stepper";
 import { ClubMemberPrice } from "~/components/product/club-member-price";
 import { cn } from "~/utils/cn";
 
@@ -223,64 +228,6 @@ function gateLabelFor(remaining: number) {
   return over === 1 ? "Remove 1 bottle" : `Remove ${over} bottles`;
 }
 
-function Stepper({
-  quantity,
-  canAdd,
-  onChange,
-  addLabel,
-}: {
-  quantity: number;
-  canAdd: boolean;
-  onChange: (next: number) => void;
-  addLabel: string;
-}) {
-  if (quantity === 0) {
-    return (
-      <button
-        type="button"
-        disabled={!canAdd}
-        onClick={() => onChange(1)}
-        className={cn(
-          "w-full border border-neutral-400 px-3 py-2 text-sm transition-colors",
-          canAdd
-            ? "hover:border-black hover:bg-neutral-50"
-            : "cursor-not-allowed opacity-40",
-        )}
-      >
-        {addLabel}
-      </button>
-    );
-  }
-
-  return (
-    <div className="flex w-full items-center justify-between border border-black">
-      <button
-        type="button"
-        aria-label="Remove one"
-        onClick={() => onChange(quantity - 1)}
-        className="px-3 py-2 text-base leading-none transition-colors hover:bg-neutral-100"
-      >
-        &minus;
-      </button>
-      <span className="text-sm tabular-nums" aria-live="polite">
-        {quantity}
-      </span>
-      <button
-        type="button"
-        aria-label="Add one more"
-        disabled={!canAdd}
-        onClick={() => onChange(quantity + 1)}
-        className={cn(
-          "px-3 py-2 text-base leading-none transition-colors",
-          canAdd ? "hover:bg-neutral-100" : "cursor-not-allowed opacity-40",
-        )}
-      >
-        +
-      </button>
-    </div>
-  );
-}
-
 function WineCard({
   wine,
   quantity,
@@ -296,9 +243,20 @@ function WineCard({
 }) {
   const variant = firstSellableVariant(wine);
   const image = wine.featuredImage;
+  const chosen = quantity > 0;
 
   return (
-    <div className="flex w-40 shrink-0 flex-col gap-2 text-left">
+    <div
+      className={cn(
+        // border-2 in every state so choosing a bottle never nudges the row
+        // by a pixel, matching the merch tiles directly below. The chosen
+        // stroke borrows the Add to cart button's own colour.
+        "flex w-40 shrink-0 snap-start flex-col gap-2 border-2 p-2 text-left transition-colors",
+        chosen
+          ? "border-(--btn-primary-bg)"
+          : "border-neutral-300 hover:border-neutral-600",
+      )}
+    >
       <div className="flex h-32 items-center justify-center">
         {image?.url && (
           <Image
@@ -317,7 +275,7 @@ function WineCard({
       <ClubMemberPrice price={variant?.price} className="justify-start" />
       <div className="mt-auto pt-1">
         {variant ? (
-          <Stepper
+          <AddStepper
             quantity={quantity}
             canAdd={canAdd}
             onChange={onChange}
@@ -352,10 +310,13 @@ export function WinePicker({
   // The count is across every tab, so switching from Red to White keeps what
   // is already in the box rather than starting again.
   const canAdd = chosen < required;
+  const row = useRowScroll(activeTab?.id);
 
   if (!activeTab) {
     return null;
   }
+
+  const showArrows = row.canScrollPrev || row.canScrollNext;
 
   function setQuantity(productId: string, next: number) {
     const updated = { ...selection };
@@ -384,10 +345,7 @@ export function WinePicker({
         </span>
       </div>
 
-      <div
-        className="flex gap-2 overflow-x-auto border-neutral-200 border-b pb-px"
-        role="tablist"
-      >
+      <div className="flex flex-wrap gap-2" role="tablist">
         {tabs.map((tab) => {
           const isActive = tab.id === activeTab.id;
           return (
@@ -398,10 +356,13 @@ export function WinePicker({
               aria-selected={isActive}
               onClick={() => setActiveTabId(tab.id)}
               className={cn(
-                "whitespace-nowrap border-b-2 px-3 py-2 text-sm transition-colors",
+                // Outlined always, filled when chosen - the same language as
+                // the cards below and the buy button, instead of an underline
+                // that reads as a link.
+                "whitespace-nowrap border-2 px-4 py-2 text-sm transition-colors",
                 isActive
-                  ? "border-black font-medium text-neutral-900"
-                  : "border-transparent text-neutral-500 hover:text-neutral-900",
+                  ? "border-(--btn-primary-bg) bg-(--btn-primary-bg) font-medium text-(--btn-primary-text)"
+                  : "border-neutral-300 text-neutral-600 hover:border-neutral-600 hover:text-neutral-900",
               )}
             >
               {tab.title}
@@ -410,17 +371,39 @@ export function WinePicker({
         })}
       </div>
 
-      <div className="flex gap-4 overflow-x-auto pb-2">
-        {activeTab.wines.map((wine) => (
-          <WineCard
-            key={wine.id}
-            wine={wine}
-            quantity={selection[wine.id] ?? 0}
-            canAdd={canAdd}
-            onChange={(next) => setQuantity(wine.id, next)}
-            addLabel={addLabel}
+      <div className="flex min-w-0 items-center gap-2">
+        {showArrows && (
+          <ScrollArrow
+            direction="prev"
+            label="Previous wines"
+            disabled={!row.canScrollPrev}
+            onClick={() => row.scroll("prev")}
           />
-        ))}
+        )}
+        <div
+          ref={row.ref}
+          onScroll={row.update}
+          className="flex min-w-0 flex-1 snap-x gap-4 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          {activeTab.wines.map((wine) => (
+            <WineCard
+              key={wine.id}
+              wine={wine}
+              quantity={selection[wine.id] ?? 0}
+              canAdd={canAdd}
+              onChange={(next) => setQuantity(wine.id, next)}
+              addLabel={addLabel}
+            />
+          ))}
+        </div>
+        {showArrows && (
+          <ScrollArrow
+            direction="next"
+            label="Next wines"
+            disabled={!row.canScrollNext}
+            onClick={() => row.scroll("next")}
+          />
+        )}
       </div>
     </div>
   );

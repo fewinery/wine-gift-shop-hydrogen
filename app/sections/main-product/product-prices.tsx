@@ -8,6 +8,7 @@ import { ClubMemberPrice } from "~/components/product/club-member-price";
 import { VariantPrices } from "~/components/product/variant-prices";
 import type { loader as productRouteLoader } from "~/routes/products/product";
 import { isCombinedListing } from "~/utils/combined-listings";
+import { hidesPrice } from "~/utils/product-tags";
 
 interface ProductPricesProps extends HydrogenComponentProps {
   ref: React.Ref<HTMLDivElement>;
@@ -26,6 +27,13 @@ export default function ProductPrices(props: ProductPricesProps) {
   const combinedListing = isCombinedListing(product);
 
   if (!product) {
+    return null;
+  }
+
+  // Some products are sold without a price on the page - a build-your-own kit
+  // whose cost is whatever the shopper puts in it. The tag hides the figure
+  // here and on the cards; it changes nothing about what is charged.
+  if (hidesPrice(product.tags)) {
     return null;
   }
 

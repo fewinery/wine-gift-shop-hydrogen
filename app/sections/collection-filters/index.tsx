@@ -26,6 +26,7 @@ export interface CollectionFiltersData {
   showFilterSeparator: boolean;
   enableSwatches: boolean;
   displayAsButtonFor: string;
+  hiddenFilters?: string;
   productsPerRowDesktop: number;
   productsPerRowMobile: number;
   loadPrevText: string;
@@ -61,6 +62,7 @@ export default function CollectionFilters(props: CollectionFiltersProps) {
     showProductsCount,
     enableSwatches,
     displayAsButtonFor,
+    hiddenFilters,
     productsPerRowDesktop,
     productsPerRowMobile,
     loadPrevText,
@@ -344,6 +346,16 @@ export const schema = createSchema({
           defaultValue: "Size, More filters",
           condition: (data: CollectionFiltersData) => data.enableFilter,
           helpText: "Comma-separated list of filters to display as buttons",
+        },
+        {
+          type: "text",
+          name: "hiddenFilters",
+          label: "Hide these filters:",
+          defaultValue: "",
+          placeholder: "Wine Brand",
+          condition: (data: CollectionFiltersData) => data.enableFilter,
+          helpText:
+            "Comma-separated filter names to hide on this storefront only, e.g. <strong>Wine Brand</strong>. Leave empty to show all.",
         },
         {
           type: "range",

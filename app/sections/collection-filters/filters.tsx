@@ -35,6 +35,7 @@ export function Filters({
     showFilterSeparator,
     enableSwatches,
     displayAsButtonFor,
+    hiddenFilters,
   } = parentData;
   const { collection, appliedFilters } = useLoaderData<
     CollectionQuery & {
@@ -45,7 +46,15 @@ export function Filters({
   const appliedFiltersKeys = appliedFilters
     .map((filter) => filter.label)
     .join("-");
-  const filters = collection.products.filters as Filter[];
+  // Filters named in "Hide these filters" (per storefront, in Weaverse) are
+  // left out. Empty setting = every filter shows, as before.
+  const hidden = (hiddenFilters || "")
+    .split(",")
+    .map((name) => name.trim().toLowerCase())
+    .filter(Boolean);
+  const filters = (collection.products.filters as Filter[]).filter(
+    (filter) => !hidden.includes(filter.label.trim().toLowerCase()),
+  );
 
   return (
     <ScrollArea className="h-[calc(100vh-var(--height-nav)-100px)]">

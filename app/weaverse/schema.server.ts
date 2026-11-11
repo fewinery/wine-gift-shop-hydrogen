@@ -2039,6 +2039,44 @@ export const themeSchema: HydrogenThemeSchema = {
         },
         {
           type: "heading",
+          label: "Multi-recipient checkout",
+        },
+        {
+          type: "switch",
+          label: "Offer sending to multiple recipients",
+          name: "enableMultiRecipient",
+          defaultValue: false,
+          helpText:
+            "Adds a button to the cart drawer and cart page that opens a page for sending one order to several addresses.",
+        },
+        {
+          type: "text",
+          label: "Button text",
+          name: "multiRecipientButtonText",
+          defaultValue: "Send to multiple recipients",
+          placeholder: "Send to multiple recipients",
+          condition: (theme: any) => theme.enableMultiRecipient === true,
+        },
+        {
+          type: "text",
+          label: "Add-ons collection handle",
+          name: "multiRecipientAddOnsCollection",
+          defaultValue: "",
+          placeholder: "gift-add-ons",
+          helpText:
+            "Products from this collection are offered as extras on the multi-recipient page. The last part of the collection URL: /collections/<strong>handle</strong>. Use products that can be added without choosing options. Leave empty to show no add-ons.",
+          condition: (theme: any) => theme.enableMultiRecipient === true,
+        },
+        {
+          type: "text",
+          label: "Add-ons heading",
+          name: "multiRecipientAddOnsHeading",
+          defaultValue: "Recommended add-ons",
+          placeholder: "Recommended add-ons",
+          condition: (theme: any) => theme.enableMultiRecipient === true,
+        },
+        {
+          type: "heading",
           label: "Cart page recommendations",
         },
         {

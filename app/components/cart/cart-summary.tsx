@@ -150,6 +150,8 @@ export function CartSummary({
     cartContinueShoppingBgColor,
     cartContinueShoppingTextColor,
     cartContinueShoppingBorderColor,
+    enableMultiRecipient,
+    multiRecipientButtonText,
   } = useThemeSettings();
   const closeCartDrawer = useCartDrawerStore((state) => state.close);
   // Only a path on this site ("/", "/collections/all"); anything else falls
@@ -390,6 +392,18 @@ export function CartSummary({
             </Button>
           </a>
           {/* @todo: <CartShopPayButton cart={cart} /> */}
+          {/* Off unless the storefront turns it on in Theme Settings -> Cart,
+              so every other storefront renders nothing here. */}
+          {enableMultiRecipient === true && (
+            <Link
+              variant="outline"
+              to="/cart/recipients"
+              className="w-full"
+              onClick={closeCartDrawer}
+            >
+              {multiRecipientButtonText || "Send to multiple recipients"}
+            </Link>
+          )}
           {cartShowContinueShopping && (
             <Link
               variant="primary"

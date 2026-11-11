@@ -41,6 +41,10 @@ export default hydrogenRoutes([
     ]),
     ...prefix("cart", [
       index("routes/cart/cart-page.tsx"),
+      // Listed before ":lines" so it reads in the order it is matched: a
+      // fixed path wins over a parameter, and without this route
+      // /cart/recipients would be taken for a cart permalink.
+      route("recipients", "routes/cart/recipients.tsx"),
       route(":lines", "routes/cart/lines.tsx"),
     ]),
     ...prefix("collections", [

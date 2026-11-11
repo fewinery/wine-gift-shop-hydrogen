@@ -2088,6 +2088,7 @@ export const themeSchema: HydrogenThemeSchema = {
         {
           type: "heading",
           label: "Cart page recommendations",
+        },
         {
           type: "switch",
           label: "Show products below the cart",

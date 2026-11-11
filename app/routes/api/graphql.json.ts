@@ -1,8 +1,10 @@
 import type { LoaderFunctionArgs } from "react-router";
 
 export async function action({ params, context, request }: LoaderFunctionArgs) {
+  const checkoutDomain =
+    context.env.PUBLIC_CHECKOUT_DOMAIN || context.env.PUBLIC_STORE_DOMAIN;
   const response = await fetch(
-    `https://${context.env.PUBLIC_CHECKOUT_DOMAIN}/api/${params.version}/graphql.json`,
+    `https://${checkoutDomain}/api/${params.version}/graphql.json`,
     {
       method: "POST",
       body: request.body,

@@ -20,11 +20,13 @@ import {
 } from "~/components/multi-recipient/order-summary";
 import { RecipientCard } from "~/components/multi-recipient/recipient-card";
 import { Section } from "~/components/section";
+import { useRecipientQuotes } from "~/hooks/use-recipient-quotes";
 import { loadSavedAddresses } from "~/routes/account/address/saved-addresses";
 import { routeHeaders } from "~/utils/cache";
 import {
   duplicateRecipient,
   loadRecipients,
+  missingDetails,
   newRecipient,
   type Recipient,
   recipientFromAddress,
@@ -32,6 +34,7 @@ import {
   saveRecipients,
   summarize,
   toGiftItems,
+  totalQuotes,
 } from "~/utils/multi-recipient";
 
 export const headers = routeHeaders;
@@ -213,6 +216,12 @@ export default function RecipientsRoute() {
     const stored = loadRecipients(cartId);
     if (stored.length > 0) {
       setRecipients(stored);
+      // Coming back to a saved list, open the first recipient that still
+      // needs something, so the next thing to do is already on screen.
+      setOpenId(
+        stored.find((recipient) => missingDetails(recipient, items).length > 0)
+          ?.id ?? null,
+      );
     } else {
       const first = newRecipient(items);
       setRecipients([first]);
@@ -228,6 +237,28 @@ export default function RecipientsRoute() {
   }, [restored, cartId, recipients]);
 
   const summary = summarize(recipients, items);
+  // Every code on the cart, including ones the cart marks as not applicable:
+  // the cart judges them against its own quantities, and what is bought here
+  // is what the recipients have been given.
+  const discountCodes = useMemo(
+    () =>
+      (
+        (cart as { discountCodes?: Array<{ code?: string | null }> | null })
+          ?.discountCodes ?? []
+      )
+        .map((entry) => entry?.code ?? "")
+        .filter(Boolean),
+    [cart],
+  );
+  const { quotes, retry } = useRecipientQuotes(
+    recipients,
+    items,
+    discountCodes,
+  );
+  const totals = totalQuotes(recipients, quotes);
+  const readyCount = recipients.filter(
+    (recipient) => quotes[recipient.id]?.status === "ready",
+  ).length;
   // Something already in the cart is on the menu already; offering it again
   // as an extra would only add a second copy of the same line.
   const inCart = new Set(items.map((item) => item.variantId));
@@ -394,6 +425,8 @@ export default function RecipientsRoute() {
                   }
                   onRemove={() => removeRecipient(recipient.id)}
                   giftNote={giftNoteText}
+                  quote={quotes[recipient.id]}
+                  onRetry={() => retry(recipient.id)}
                 />
               ))}
             </div>
@@ -417,7 +450,9 @@ export default function RecipientsRoute() {
             subtotal={summary.subtotal}
             currencyCode={summary.currencyCode}
             recipientCount={recipients.length}
-            completeCount={summary.completeCount}
+            readyCount={readyCount}
+            totals={totals}
+            discountCodes={discountCodes}
           />
         </div>
       </div>

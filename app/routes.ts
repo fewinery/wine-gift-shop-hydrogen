@@ -31,6 +31,7 @@ export default hydrogenRoutes([
       route("reservation", "routes/api/reservation.ts"),
       route("contact", "routes/api/contact.ts"),
       route("predictive-search", "routes/api/predictive-search.ts"),
+      route("multi-recipient/quote", "routes/api/multi-recipient-quote.ts"),
       route("products", "routes/api/products.ts"),
       route(":version/graphql.json", "routes/api/graphql.json.ts"),
       route("product/:productHandle/reviews?", "routes/api/product.ts"),

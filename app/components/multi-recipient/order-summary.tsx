@@ -1,5 +1,7 @@
-import { Money } from "@shopify/hydrogen";
+import { TagIcon, XIcon } from "@phosphor-icons/react";
+import { CartForm, Money } from "@shopify/hydrogen";
 import type { MoneyV2 } from "@shopify/hydrogen/storefront-api-types";
+import type { FetcherWithComponents } from "react-router";
 import { Button } from "~/components/button";
 import { Link } from "~/components/link";
 import type { OrderLine, SavedAddress } from "~/utils/multi-recipient";
@@ -105,27 +107,123 @@ function Row({
   );
 }
 
+function DiscountField({
+  fetcher,
+}: {
+  fetcher: FetcherWithComponents<unknown>;
+}) {
+  return (
+    <div className="flex gap-2">
+      <input
+        type="text"
+        name="discountCode"
+        required
+        placeholder="Discount code"
+        aria-label="Discount code"
+        autoComplete="off"
+        className="min-w-0 flex-1 border border-neutral-400 bg-white px-3 py-2 text-neutral-900 text-sm outline-none transition-colors placeholder:text-neutral-500 focus:border-black"
+      />
+      <Button
+        type="submit"
+        variant="outline"
+        disabled={fetcher.state !== "idle"}
+        className="shrink-0 px-4 py-2 text-sm"
+      >
+        Apply
+      </Button>
+    </div>
+  );
+}
+
+/**
+ * Discount codes live on the cart, the same place the ordinary cart keeps
+ * them, so a code added before coming here is already applied and one added
+ * here is still there if the shopper goes back.
+ */
+function DiscountCodes({ codes }: { codes: string[] }) {
+  return (
+    <div className="space-y-2">
+      {codes.length > 0 && (
+        <ul className="flex flex-wrap gap-2">
+          {codes.map((code) => (
+            <li
+              key={code}
+              className="flex items-center gap-1.5 bg-neutral-100 px-2 py-1 text-neutral-900 text-sm [&>form]:flex"
+            >
+              <TagIcon size={14} aria-hidden="true" />
+              <span>{code}</span>
+              <CartForm
+                route="/cart"
+                action={CartForm.ACTIONS.DiscountCodesUpdate}
+                inputs={{
+                  discountCodes: codes.filter((other) => other !== code),
+                }}
+              >
+                <button
+                  type="submit"
+                  aria-label={`Remove discount code ${code}`}
+                  className="flex size-4 items-center justify-center transition-colors hover:text-red-600"
+                >
+                  <XIcon size={12} />
+                </button>
+              </CartForm>
+            </li>
+          ))}
+        </ul>
+      )}
+      <CartForm
+        route="/cart"
+        action={CartForm.ACTIONS.DiscountCodesUpdate}
+        inputs={{ discountCodes: codes }}
+      >
+        {(fetcher: FetcherWithComponents<unknown>) => (
+          // Keyed by the codes on the cart: when one is added the field is
+          // replaced by an empty one, ready for the next. The applied code
+          // is then read from the list above, not from the box.
+          <DiscountField key={codes.join(",")} fetcher={fetcher} />
+        )}
+      </CartForm>
+    </div>
+  );
+}
+
+export interface OrderTotals {
+  merchandise: number;
+  discount: number;
+  shipping: number;
+  tax: number;
+  total: number;
+}
+
 /**
  * The order as it stands. Tax and shipping depend on each recipient's
- * address, so until they are priced the rows say so instead of showing a
- * figure that would change.
+ * address, so the full figures appear only once every recipient has been
+ * priced; until then the rows say so instead of showing a number that is
+ * about to change.
  */
 export function OrderSummary({
   lines,
   subtotal,
   currencyCode,
   recipientCount,
-  completeCount,
+  readyCount,
+  totals,
+  discountCodes,
 }: {
   lines: OrderLine[];
+  /** The gifts at their cart prices, used until Shopify's figures arrive. */
   subtotal: number;
   currencyCode: string;
   recipientCount: number;
-  completeCount: number;
+  readyCount: number;
+  /** Shopify's figures for the whole order, or null while any are missing. */
+  totals: OrderTotals | null;
+  discountCodes: string[];
 }) {
   const assigned = lines.filter((line) => line.quantity > 0);
   const money = (amount: number) =>
     ({ amount: amount.toFixed(2), currencyCode }) as MoneyV2;
+  const merchandise = totals ? totals.merchandise : subtotal;
 
   return (
     <div className={CARD_CLASS}>
@@ -147,36 +245,57 @@ export function OrderSummary({
 
       <dl className="space-y-2 border-neutral-200 border-t pt-4">
         <Row label="Subtotal">
-          {subtotal > 0 ? (
-            <Money as="span" withoutTrailingZeros data={money(subtotal)} />
+          {merchandise > 0 ? (
+            <Money as="span" data={money(merchandise)} />
           ) : (
             "—"
           )}
         </Row>
-        <Row label="Tax">—</Row>
-        <Row label="Shipping">—</Row>
+        {totals && totals.discount > 0 && (
+          <Row label="Discounts">
+            -<Money as="span" data={money(totals.discount)} />
+          </Row>
+        )}
+        <Row label="Shipping">
+          {totals ? <Money as="span" data={money(totals.shipping)} /> : "—"}
+        </Row>
+        <Row label="Tax">
+          {totals ? <Money as="span" data={money(totals.tax)} /> : "—"}
+        </Row>
       </dl>
 
       <dl className="border-neutral-200 border-t pt-4">
         <Row label="Total" emphasis>
-          —
+          {totals ? <Money as="span" data={money(totals.total)} /> : "—"}
         </Row>
       </dl>
 
       <p className="text-neutral-600 text-sm" aria-live="polite">
-        {completeCount} of {recipientCount}{" "}
+        {readyCount} of {recipientCount}{" "}
         {recipientCount === 1 ? "recipient" : "recipients"} ready
+        {!totals &&
+          recipientCount > 0 &&
+          ". Shipping, tax and the total appear once every recipient is ready."}
       </p>
 
-      {/* Payment arrives in a later release. The button is shown, disabled,
+      <div className="space-y-2 border-neutral-200 border-t pt-4">
+        <DiscountCodes codes={discountCodes} />
+        {totals && discountCodes.length > 0 && totals.discount === 0 && (
+          <p className="text-amber-900 text-sm">
+            No discount was applied: the code does not apply to these gifts as
+            they are split between recipients.
+          </p>
+        )}
+      </div>
+
+      {/* Payment arrives in the next release. The button is shown, disabled,
           so the page can be reviewed as a whole - and says why, so nobody
           who lands here early thinks it is broken. */}
       <Button className="w-full" disabled>
         Checkout
       </Button>
       <p className="text-neutral-500 text-xs">
-        Preview: tax, shipping and payment for multi-recipient orders are not
-        switched on yet.
+        Preview: payment for multi-recipient orders is not switched on yet.
       </p>
     </div>
   );

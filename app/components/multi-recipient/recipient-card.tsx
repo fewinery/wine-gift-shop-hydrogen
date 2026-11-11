@@ -15,7 +15,9 @@ import {
   GIFT_TO_MAX,
   type GiftItem,
   missingDetails,
+  type QuoteState,
   type Recipient,
+  type RecipientQuote,
   recipientItems,
   US_STATES,
 } from "~/utils/multi-recipient";
@@ -73,6 +75,130 @@ function recipientName(recipient: Recipient) {
   return `${recipient.firstName} ${recipient.lastName}`.trim();
 }
 
+function formatMoney(amount: number, currencyCode: string) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: currencyCode,
+  }).format(amount);
+}
+
+const BADGE_TONES = {
+  amber: "bg-amber-100 text-amber-900",
+  neutral: "bg-neutral-100 text-neutral-700",
+  red: "bg-red-100 text-red-900",
+  green: "bg-green-100 text-green-900",
+};
+
+/**
+ * Where this recipient stands. "Ready" now means more than a full form: it
+ * means Shopify has priced them, so there is a real figure to charge.
+ */
+function statusOf(complete: boolean, quote: QuoteState | undefined) {
+  if (!complete) {
+    return { label: "Incomplete", tone: BADGE_TONES.amber };
+  }
+  if (!quote || quote.status === "loading") {
+    return { label: "Calculating", tone: BADGE_TONES.neutral };
+  }
+  if (quote.status === "error") {
+    return {
+      label: quote.code === "no_rates" ? "Can't ship here" : "Needs attention",
+      tone: BADGE_TONES.red,
+    };
+  }
+  return { label: "Ready", tone: BADGE_TONES.green };
+}
+
+function CostRow({
+  label,
+  value,
+  emphasis,
+}: {
+  label: string;
+  value: string;
+  emphasis?: boolean;
+}) {
+  return (
+    <div
+      className={cn(
+        "flex items-baseline justify-between gap-4",
+        emphasis ? "font-semibold text-neutral-900" : "text-neutral-600",
+      )}
+    >
+      <dt className="min-w-0">{label}</dt>
+      <dd className="shrink-0 whitespace-nowrap">{value}</dd>
+    </div>
+  );
+}
+
+/**
+ * Shipping method and the cost of sending to this one address. Tax is listed
+ * by jurisdiction because it differs from recipient to recipient - a shopper
+ * sending to three states should be able to see why the three totals differ.
+ */
+function Delivery({
+  id,
+  quote,
+  busy,
+  onMethodChange,
+}: {
+  id: string;
+  quote: RecipientQuote;
+  busy: boolean;
+  onMethodChange: (method: string) => void;
+}) {
+  const money = (amount: number) => formatMoney(amount, quote.currencyCode);
+  return (
+    <div className={cn("space-y-3", busy && "opacity-60")}>
+      <div className="space-y-1 sm:max-w-sm">
+        <label htmlFor={id} className={LABEL_CLASS}>
+          Shipping method
+        </label>
+        <select
+          id={id}
+          value={quote.shippingMethod}
+          disabled={busy}
+          onChange={(event) => onMethodChange(event.target.value)}
+          className={INPUT_CLASS}
+        >
+          {quote.rates.map((rate) => (
+            <option key={rate.title} value={rate.title}>
+              {rate.title} - {money(rate.amount)}
+            </option>
+          ))}
+        </select>
+      </div>
+      <dl className="space-y-1 text-sm sm:max-w-sm">
+        <CostRow label="Gifts" value={money(quote.merchandise)} />
+        {quote.discount > 0 && (
+          <CostRow label="Discount" value={`-${money(quote.discount)}`} />
+        )}
+        <CostRow label="Shipping" value={money(quote.shipping)} />
+        <CostRow label="Tax" value={money(quote.tax)} />
+        {quote.taxLines.map((line) => (
+          <div
+            key={line.title}
+            className="flex items-baseline justify-between gap-4 pl-3 text-neutral-500 text-xs"
+          >
+            <dt className="min-w-0">{line.title}</dt>
+            <dd className="shrink-0 whitespace-nowrap">{money(line.amount)}</dd>
+          </div>
+        ))}
+        <CostRow
+          label="Total for this recipient"
+          value={money(quote.total)}
+          emphasis
+        />
+      </dl>
+      {quote.notices.map((notice) => (
+        <p key={notice} className="text-amber-900 text-sm">
+          {notice}
+        </p>
+      ))}
+    </div>
+  );
+}
+
 /**
  * One recipient: who they are, where they live, what they get and what the
  * card says. Collapsed, it is a single row with a status so a list of twenty
@@ -88,6 +214,8 @@ export function RecipientCard({
   onDuplicate,
   onRemove,
   giftNote,
+  quote,
+  onRetry,
 }: {
   recipient: Recipient;
   index: number;
@@ -98,11 +226,17 @@ export function RecipientCard({
   onDuplicate: () => void;
   onRemove: () => void;
   giftNote?: string;
+  /** This recipient's price, once they are complete enough to have one. */
+  quote?: QuoteState;
+  onRetry: () => void;
 }) {
   const [pickerOpen, setPickerOpen] = useState(false);
   const assigned = recipientItems(recipient, items);
   const missing = missingDetails(recipient, items);
   const complete = missing.length === 0;
+  const status = statusOf(complete, quote);
+  // While a recipient is being re-priced the last figures stay on screen.
+  const figures = quote && quote.status !== "error" ? quote.quote : undefined;
   const name = recipientName(recipient);
   const label = name || `Recipient ${index + 1}`;
   const fieldId = (field: string) => `recipient-${recipient.id}-${field}`;
@@ -125,18 +259,16 @@ export function RecipientCard({
           <span className="truncate font-semibold text-neutral-900 text-sm">
             {label}
           </span>
-          <span
-            className={cn(
-              "shrink-0 px-2 py-0.5 text-xs",
-              complete
-                ? "bg-green-100 text-green-900"
-                : "bg-amber-100 text-amber-900",
-            )}
-          >
-            {complete ? "Ready" : "Incomplete"}
+          <span className={cn("shrink-0 px-2 py-0.5 text-xs", status.tone)}>
+            {status.label}
           </span>
           {!open && (
-            <span className="ml-auto flex shrink-0 items-center gap-1">
+            <span className="ml-auto flex shrink-0 items-center gap-2">
+              {quote?.status === "ready" && (
+                <span className="text-neutral-900 text-sm">
+                  {formatMoney(quote.quote.total, quote.quote.currencyCode)}
+                </span>
+              )}
               {assigned.slice(0, 4).map(({ item, quantity }) => (
                 <span key={item.lineId} className="relative block size-9">
                   {item.image && (
@@ -346,6 +478,42 @@ export function RecipientCard({
               Update items &amp; quantities
             </button>
           </div>
+
+          {complete && (
+            <div className="space-y-3 border-neutral-200 border-t pt-5">
+              <p className={LABEL_CLASS}>Shipping &amp; tax</p>
+              {quote?.status === "error" && (
+                <p className="text-red-800 text-sm" role="alert">
+                  {quote.message}{" "}
+                  {quote.code === "unavailable" && (
+                    <button
+                      type="button"
+                      onClick={onRetry}
+                      className="underline underline-offset-4"
+                    >
+                      Try again
+                    </button>
+                  )}
+                </p>
+              )}
+              {figures ? (
+                <Delivery
+                  id={fieldId("shippingMethod")}
+                  quote={figures}
+                  busy={quote?.status === "loading"}
+                  onMethodChange={(shippingMethod) =>
+                    onChange({ shippingMethod })
+                  }
+                />
+              ) : (
+                quote?.status !== "error" && (
+                  <p className="text-neutral-500 text-sm" aria-live="polite">
+                    Calculating shipping and tax for this address...
+                  </p>
+                )
+              )}
+            </div>
+          )}
 
           <div className="space-y-3 border-neutral-200 border-t pt-5">
             <p className={LABEL_CLASS}>Gift message (optional)</p>

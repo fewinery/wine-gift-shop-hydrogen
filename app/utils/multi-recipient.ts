@@ -46,6 +46,9 @@ export interface Recipient {
   giftTo: string;
   giftFrom: string;
   giftMessage: string;
+  /** The shipping method chosen for this address, by its name. Empty means
+   * "the cheapest one offered", which is what a recipient starts on. */
+  shippingMethod: string;
   /** cart line id -> how many of it this recipient gets. */
   items: Record<string, number>;
 }
@@ -207,6 +210,7 @@ export function newRecipient(items: GiftItem[]): Recipient {
     giftTo: "",
     giftFrom: "",
     giftMessage: "",
+    shippingMethod: "",
     items: starting,
   };
 }
@@ -246,6 +250,8 @@ export function duplicateRecipient(source: Recipient): Recipient {
     email: "",
     phone: "",
     giftTo: "",
+    // Methods and prices belong to an address; a new one starts afresh.
+    shippingMethod: "",
     items: { ...source.items },
   };
 }
@@ -328,15 +334,127 @@ export function summarize(recipients: Recipient[], items: GiftItem[]) {
     });
   }
   const subtotal = lines.reduce((sum, line) => sum + line.total, 0);
-  const complete = recipients.filter(
-    (recipient) => missingDetails(recipient, items).length === 0,
-  ).length;
   return {
     lines,
     subtotal,
     currencyCode: items[0]?.currencyCode ?? "USD",
-    completeCount: complete,
   };
+}
+
+/** What the page sends to have one recipient priced. */
+export interface QuoteRequest {
+  address: {
+    firstName: string;
+    lastName: string;
+    company: string;
+    address1: string;
+    address2: string;
+    city: string;
+    state: string;
+    zip: string;
+    phone: string;
+  };
+  items: Array<{ variantId: string; quantity: number }>;
+  shippingMethod: string;
+}
+
+/** Shopify's own figures for one recipient: their gifts, to their address. */
+export interface RecipientQuote {
+  currencyCode: string;
+  /** The gifts before any discount. */
+  merchandise: number;
+  discount: number;
+  shipping: number;
+  tax: number;
+  total: number;
+  taxLines: Array<{ title: string; amount: number }>;
+  /** Every method offered for this address, cheapest first. */
+  rates: Array<{ title: string; amount: number }>;
+  /** The method these figures were calculated with. */
+  shippingMethod: string;
+  /** Things Shopify wants the shopper to know, such as a code that did not
+   * apply to this recipient's gifts. */
+  notices: string[];
+}
+
+export type QuoteErrorCode = "no_rates" | "invalid" | "unavailable";
+
+export type QuoteResponse =
+  | { quote: RecipientQuote }
+  | { error: { code: QuoteErrorCode; message: string } };
+
+export type QuoteState =
+  // A recipient being re-priced keeps the last figures on screen, so the
+  // numbers do not blink out on every keystroke.
+  | { status: "loading"; quote?: RecipientQuote }
+  | { status: "ready"; quote: RecipientQuote }
+  | { status: "error"; code: QuoteErrorCode; message: string };
+
+/**
+ * The pricing request for a recipient, or null while they are incomplete -
+ * there is no point asking Shopify to price half an address.
+ *
+ * Two cart lines of the same variant are one line to Shopify's pricing, so
+ * their quantities are added together here.
+ */
+export function buildQuoteRequest(
+  recipient: Recipient,
+  items: GiftItem[],
+): QuoteRequest | null {
+  if (missingDetails(recipient, items).length > 0) {
+    return null;
+  }
+  const quantities = new Map<string, number>();
+  for (const { item, quantity } of recipientItems(recipient, items)) {
+    quantities.set(
+      item.variantId,
+      (quantities.get(item.variantId) ?? 0) + quantity,
+    );
+  }
+  return {
+    address: {
+      firstName: recipient.firstName.trim(),
+      lastName: recipient.lastName.trim(),
+      company: recipient.company.trim(),
+      address1: recipient.address1.trim(),
+      address2: recipient.address2.trim(),
+      city: recipient.city.trim(),
+      state: recipient.state,
+      zip: recipient.zip.trim(),
+      phone: recipient.phone.trim(),
+    },
+    items: [...quantities.entries()]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([variantId, quantity]) => ({ variantId, quantity })),
+    shippingMethod: recipient.shippingMethod,
+  };
+}
+
+/**
+ * The whole order's figures, available only once every recipient has been
+ * priced. Until then a total would be a number that is about to change, so
+ * this returns null and the page says the figures are on their way.
+ */
+export function totalQuotes(
+  recipients: Recipient[],
+  quotes: Record<string, QuoteState>,
+) {
+  if (recipients.length === 0) {
+    return null;
+  }
+  const totals = { merchandise: 0, discount: 0, shipping: 0, tax: 0, total: 0 };
+  for (const recipient of recipients) {
+    const state = quotes[recipient.id];
+    if (state?.status !== "ready") {
+      return null;
+    }
+    totals.merchandise += state.quote.merchandise;
+    totals.discount += state.quote.discount;
+    totals.shipping += state.quote.shipping;
+    totals.tax += state.quote.tax;
+    totals.total += state.quote.total;
+  }
+  return totals;
 }
 
 const STORAGE_PREFIX = "multi-recipient:v1:";

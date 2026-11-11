@@ -2076,6 +2076,16 @@ export const themeSchema: HydrogenThemeSchema = {
           condition: (theme: any) => theme.enableMultiRecipient === true,
         },
         {
+          type: "text",
+          label: "Shipping methods to hide",
+          name: "multiRecipientHiddenRates",
+          defaultValue: "Local Pickup Point",
+          placeholder: "Local Pickup Point",
+          helpText:
+            "Shipping methods that should not be offered on the multi-recipient page, by the name shoppers see at checkout. Separate several with commas.",
+          condition: (theme: any) => theme.enableMultiRecipient === true,
+        },
+        {
           type: "heading",
           label: "Cart page recommendations",
         },

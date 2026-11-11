@@ -88,3 +88,32 @@ export async function loadSavedAddresses(
     return { isLoggedIn: false, addresses: [] };
   }
 }
+
+const CUSTOMER_ID_QUERY = `#graphql
+  query MultiRecipientCustomerId {
+    customer {
+      id
+    }
+  }
+` as const;
+
+/**
+ * The logged-in shopper's customer id, or null for a guest. Like the saved
+ * addresses lookup it never throws: pricing an order must still work when
+ * the account service is briefly unreachable.
+ */
+export async function loadCustomerId(
+  context: AppLoadContext,
+): Promise<string | null> {
+  try {
+    if (!(await context.customerAccount.isLoggedIn())) {
+      return null;
+    }
+    const { data } = await context.customerAccount.query<{
+      customer?: { id?: string | null } | null;
+    }>(CUSTOMER_ID_QUERY);
+    return data?.customer?.id ?? null;
+  } catch {
+    return null;
+  }
+}

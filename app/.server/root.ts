@@ -42,7 +42,10 @@ export async function loadCriticalData({
       publicStorefrontId: env.PUBLIC_STOREFRONT_ID,
     }),
     consent: {
-      checkoutDomain: env.PUBLIC_CHECKOUT_DOMAIN,
+      // Fall back to the store domain, matching the CSP in entry.server.tsx.
+      // Without a checkout domain, Analytics.Provider throws in the browser and
+      // Shopify analytics + GTM events silently stop on that storefront.
+      checkoutDomain: env.PUBLIC_CHECKOUT_DOMAIN || env.PUBLIC_STORE_DOMAIN,
       storefrontAccessToken: env.PUBLIC_STOREFRONT_API_TOKEN,
       withPrivacyBanner: false,
       // localize the privacy banner

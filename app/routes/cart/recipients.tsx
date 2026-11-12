@@ -8,6 +8,7 @@ import {
   redirect,
   useLoaderData,
 } from "react-router";
+import { hasAdminCredentials } from "~/.server/admin-api";
 import { Button } from "~/components/button";
 import { Link } from "~/components/link";
 import {
@@ -20,12 +21,16 @@ import {
 } from "~/components/multi-recipient/order-summary";
 import { RecipientCard } from "~/components/multi-recipient/recipient-card";
 import { Section } from "~/components/section";
+import { usePrefixPathWithLocale } from "~/hooks/use-prefix-path-with-locale";
 import { useRecipientQuotes } from "~/hooks/use-recipient-quotes";
 import { loadSavedAddresses } from "~/routes/account/address/saved-addresses";
 import { routeHeaders } from "~/utils/cache";
 import {
+  buildCheckoutRequest,
+  type CheckoutResponse,
   duplicateRecipient,
   loadRecipients,
+  MAX_RECIPIENTS,
   missingDetails,
   newRecipient,
   type Recipient,
@@ -63,7 +68,12 @@ export async function loader({ context }: LoaderFunctionArgs) {
     multiRecipientAddOnsCollection?: string;
   };
 
-  if (settings.enableMultiRecipient !== true) {
+  // Switched on, and set up: without Admin API variables the page could
+  // neither price a recipient nor take payment.
+  if (
+    settings.enableMultiRecipient !== true ||
+    !hasAdminCredentials(context.env)
+  ) {
     throw redirect(`${storefront.i18n.pathPrefix ?? ""}/cart`);
   }
 
@@ -205,6 +215,13 @@ export default function RecipientsRoute() {
   const [openId, setOpenId] = useState<string | null>(null);
   const [restored, setRestored] = useState(false);
   const [confirmingClear, setConfirmingClear] = useState(false);
+  const [checkout, setCheckout] = useState<{
+    status: "idle" | "working" | "error";
+    message?: string;
+  }>({ status: "idle" });
+  const checkoutEndpoint = usePrefixPathWithLocale(
+    "/api/multi-recipient/checkout",
+  );
 
   // Restore once, in the browser, after the first render: the server has no
   // access to the tab's storage, and reading it during render would make the
@@ -300,6 +317,45 @@ export default function RecipientsRoute() {
     setRecipients([first]);
     setOpenId(first.id);
     setConfirmingClear(false);
+  }
+
+  /**
+   * Hands the order over for payment. The server prices every recipient
+   * again and answers with Shopify's payment page for the whole order; the
+   * figures there, not the ones here, are what is charged.
+   */
+  async function startCheckout() {
+    const request = buildCheckoutRequest(recipients, items, quotes);
+    if (!request || checkout.status === "working") {
+      return;
+    }
+    setCheckout({ status: "working" });
+    try {
+      const response = await fetch(checkoutEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(request),
+      });
+      const result = (await response.json()) as CheckoutResponse;
+      if ("invoiceUrl" in result) {
+        // Stay "working" while the browser leaves, so the button cannot be
+        // pressed again on the way out.
+        window.location.assign(result.invoiceUrl);
+        return;
+      }
+      setCheckout({ status: "error", message: result.error.message });
+      // Open the recipient the problem is with, if it names one.
+      const at = result.error.recipient;
+      if (typeof at === "number" && recipients[at]) {
+        setOpenId(recipients[at].id);
+      }
+    } catch {
+      setCheckout({
+        status: "error",
+        message:
+          "We couldn't start checkout just now. Nothing was charged - please try again in a moment.",
+      });
+    }
   }
 
   if (items.length === 0) {
@@ -453,6 +509,13 @@ export default function RecipientsRoute() {
             readyCount={readyCount}
             totals={totals}
             discountCodes={discountCodes}
+            checkout={checkout}
+            onCheckout={startCheckout}
+            blocked={
+              recipients.length > MAX_RECIPIENTS
+                ? `One order can go to at most ${MAX_RECIPIENTS} recipients. Please remove some, or place a second order.`
+                : undefined
+            }
           />
         </div>
       </div>

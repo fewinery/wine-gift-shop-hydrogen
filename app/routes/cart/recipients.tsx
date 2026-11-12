@@ -208,7 +208,7 @@ const HEADING_CLASS =
 export default function RecipientsRoute() {
   const { cart, isLoggedIn, savedAddresses, addOns } =
     useLoaderData<typeof loader>();
-  const { giftNoteText, multiRecipientAddOnsHeading } = useThemeSettings();
+  const { multiRecipientAddOnsHeading } = useThemeSettings();
 
   const cartId = cart?.id ?? "";
   const items = useMemo(() => toGiftItems(cart), [cart]);
@@ -481,7 +481,7 @@ export default function RecipientsRoute() {
                     addRecipient(duplicateRecipient(recipient))
                   }
                   onRemove={() => removeRecipient(recipient.id)}
-                  giftNote={giftNoteText}
+                  giftNote={GIFT_NOTE_TEXT}
                   quote={quotes[recipient.id]}
                   onRetry={() => retry(recipient.id)}
                 />

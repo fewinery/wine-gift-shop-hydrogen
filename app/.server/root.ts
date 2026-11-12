@@ -7,6 +7,7 @@ import type {
 } from "storefront-api.generated";
 import invariant from "tiny-invariant";
 import type { EnhancedMenu } from "~/types/menu";
+import { hasAdminCredentials } from "./admin-api";
 import { seoPayload } from "./seo";
 
 /**

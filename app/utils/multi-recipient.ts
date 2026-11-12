@@ -527,6 +527,23 @@ export const SPLIT_DONE_TAG = "Multi_rec_split_done";
 export const ATTENTION_TAG = "Multi_rec_needs_attention";
 /** Set on the parent when the children do not add up to what was paid. */
 export const REVIEW_TAG = "Multi_rec_review";
+/** Followed by the storefront's own address on the parent and every child.
+ * These orders are created by an app, so Shopify's Channel column names the
+ * app, not the brand; this tag is how they are filtered by brand. */
+export const SITE_TAG_PREFIX = "Multi_rec_site_";
+/** Shopify refuses an order tag longer than this. */
+const TAG_MAX_LENGTH = 40;
+
+/** The brand tag for the address a shopper is buying from, or "" if there
+ * is no address to name. A long address is cut to fit, never rejected. */
+export function siteTag(host: string): string {
+  const name = (host ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/:\d+$/, "")
+    .replace(/^www\./, "");
+  return name ? `${SITE_TAG_PREFIX}${name}`.slice(0, TAG_MAX_LENGTH) : "";
+}
 
 /** One recipient as the page hands it over to be turned into an order. */
 export interface CheckoutRecipient {

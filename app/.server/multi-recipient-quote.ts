@@ -67,7 +67,7 @@ function amount(money: Money | null | undefined) {
   return Number(money?.shopMoney?.amount) || 0;
 }
 
-type QuoteFailure = Extract<QuoteResponse, { error: unknown }>;
+export type QuoteFailure = Extract<QuoteResponse, { error: unknown }>;
 
 function failure(code: QuoteErrorCode, message: string): QuoteFailure {
   return { error: { code, message } };
@@ -76,25 +76,25 @@ function failure(code: QuoteErrorCode, message: string): QuoteFailure {
 const UNAVAILABLE =
   "Tax and shipping can't be calculated right now. Please try again in a moment.";
 
-export async function quoteRecipient({
-  env,
+/**
+ * The draft order input for one recipient: their gifts, their address, the
+ * cart's discount codes and, when known, who is buying. Pricing and the real
+ * order are both built from this, so they cannot drift apart.
+ */
+export function pricingInput({
   request,
   discountCodes,
   customerId,
-  hiddenRates,
 }: {
-  env: Env;
   request: QuoteRequest;
   /** Read from the shopper's cart on the server, never from the browser. */
   discountCodes: string[];
   /** Set for logged-in shoppers, so prices and tax that depend on who is
    * buying come out the same here as on the order. */
   customerId: string | null;
-  /** Shipping method names this storefront does not offer for gifts. */
-  hiddenRates: string[];
-}): Promise<QuoteResponse> {
+}): Record<string, unknown> {
   const { address } = request;
-  const input: Record<string, unknown> = {
+  return {
     lineItems: request.items.map((item) => ({
       variantId: item.variantId,
       quantity: item.quantity,
@@ -115,8 +115,24 @@ export async function quoteRecipient({
     acceptAutomaticDiscounts: true,
     ...(customerId ? { purchasingEntity: { customerId } } : {}),
   };
+}
 
-  // First pass: which shipping methods does Shopify offer for this address?
+export interface OfferedRate {
+  /** Shopify's own reference for the rate; needed to apply it. */
+  handle: string;
+  title: string;
+  amount: number;
+}
+
+/**
+ * The shipping methods Shopify offers for an input, cheapest first, with the
+ * ones this storefront hides taken out.
+ */
+export async function offeredRates(
+  env: Env,
+  input: Record<string, unknown>,
+  hiddenRates: string[],
+): Promise<{ rates: OfferedRate[] } | QuoteFailure> {
   const first = await calculate(env, input);
   if ("error" in first) {
     return first;
@@ -140,6 +156,31 @@ export async function quoteRecipient({
       "We can't ship these gifts to this address. Check the address, or choose different gifts for this recipient.",
     );
   }
+  return { rates };
+}
+
+export async function quoteRecipient({
+  env,
+  request,
+  discountCodes,
+  customerId,
+  hiddenRates,
+}: {
+  env: Env;
+  request: QuoteRequest;
+  discountCodes: string[];
+  customerId: string | null;
+  /** Shipping method names this storefront does not offer for gifts. */
+  hiddenRates: string[];
+}): Promise<QuoteResponse> {
+  const input = pricingInput({ request, discountCodes, customerId });
+
+  // First pass: which shipping methods does Shopify offer for this address?
+  const offered = await offeredRates(env, input, hiddenRates);
+  if ("error" in offered) {
+    return offered;
+  }
+  const { rates } = offered;
 
   const chosen =
     rates.find((rate) => rate.title === request.shippingMethod) ?? rates[0];

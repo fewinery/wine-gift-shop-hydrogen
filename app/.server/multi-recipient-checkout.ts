@@ -5,6 +5,7 @@ import {
   type CheckoutResponse,
   PARENT_TAG,
   type QuoteRequest,
+  siteTag,
   TEST_TAG,
 } from "~/utils/multi-recipient";
 
@@ -260,6 +261,7 @@ export async function createMultiRecipientCheckout({
   customerId,
   hiddenRates,
   testMode,
+  site,
 }: {
   env: Env;
   recipients: CheckoutRecipientInput[];
@@ -269,8 +271,16 @@ export async function createMultiRecipientCheckout({
   hiddenRates: string[];
   /** Adds the test tag to everything, for storefronts used for testing. */
   testMode: boolean;
+  /** The address the shopper is buying from (the brand's own domain). It
+   * goes on every order as a tag and a detail, since the orders' channel
+   * will name the app that created them, not the brand. */
+  site: string;
 }): Promise<CheckoutResponse & { parentId?: string }> {
-  const extraTags = testMode ? [TEST_TAG] : [];
+  const brandTag = siteTag(site);
+  const extraTags = [
+    ...(brandTag ? [brandTag] : []),
+    ...(testMode ? [TEST_TAG] : []),
+  ];
 
   async function createChild(
     recipient: CheckoutRecipientInput,
@@ -339,6 +349,7 @@ export async function createMultiRecipientCheckout({
           { key: "Gift From", value: gift.from },
           { key: "Gift Message", value: gift.message },
           { key: "Recipient email", value: recipient.email },
+          { key: "Storefront", value: site },
         ].filter((attribute) => attribute.value),
       },
     });
@@ -513,7 +524,8 @@ export async function createMultiRecipientCheckout({
       tags: [PARENT_TAG, ...extraTags],
       customAttributes: [
         { key: "_mr_children", value: String(children.length) },
-      ],
+        { key: "Storefront", value: site },
+      ].filter((attribute) => attribute.value),
       ...(discount > 0
         ? {
             appliedDiscount: {

@@ -209,6 +209,9 @@ export function OrderSummary({
   readyCount,
   totals,
   discountCodes,
+  checkout,
+  onCheckout,
+  blocked,
 }: {
   lines: OrderLine[];
   /** The gifts at their cart prices, used until Shopify's figures arrive. */
@@ -219,6 +222,11 @@ export function OrderSummary({
   /** Shopify's figures for the whole order, or null while any are missing. */
   totals: OrderTotals | null;
   discountCodes: string[];
+  /** Where the hand-off to payment stands. */
+  checkout: { status: "idle" | "working" | "error"; message?: string };
+  onCheckout: () => void;
+  /** A reason payment cannot start even with every recipient ready. */
+  blocked?: string;
 }) {
   const assigned = lines.filter((line) => line.quantity > 0);
   const money = (amount: number) =>
@@ -288,14 +296,24 @@ export function OrderSummary({
         )}
       </div>
 
-      {/* Payment arrives in the next release. The button is shown, disabled,
-          so the page can be reviewed as a whole - and says why, so nobody
-          who lands here early thinks it is broken. */}
-      <Button className="w-full" disabled>
-        Checkout
+      {/* Payment needs a real figure for every recipient, so the button
+          waits for that. While the order is being prepared it is locked, so
+          a second press cannot start a second one. */}
+      <Button
+        className="w-full"
+        disabled={!totals || Boolean(blocked) || checkout.status === "working"}
+        onClick={onCheckout}
+      >
+        {checkout.status === "working" ? "Preparing your order..." : "Checkout"}
       </Button>
+      {blocked && <p className="text-amber-900 text-sm">{blocked}</p>}
+      {checkout.status === "error" && (
+        <p className="text-red-800 text-sm" role="alert">
+          {checkout.message}
+        </p>
+      )}
       <p className="text-neutral-500 text-xs">
-        Preview: payment for multi-recipient orders is not switched on yet.
+        You pay once, on the next page, for every recipient.
       </p>
     </div>
   );

@@ -760,19 +760,6 @@ export const themeSchema: HydrogenThemeSchema = {
       ],
     },
     {
-      group: "Gift message",
-      inputs: [
-        {
-          type: "textarea",
-          name: "giftNoteText",
-          label: "Gift note instructions",
-          defaultValue:
-            "If your order includes a 3D wood card, your message will be printed on it. Otherwise, it will be included as a paper note.",
-          placeholder: "Enter instructions for the customer...",
-        },
-      ],
-    },
-    {
       group: "Blog",
       inputs: [
         {

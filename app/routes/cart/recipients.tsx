@@ -25,6 +25,7 @@ import { usePrefixPathWithLocale } from "~/hooks/use-prefix-path-with-locale";
 import { useRecipientQuotes } from "~/hooks/use-recipient-quotes";
 import { loadSavedAddresses } from "~/routes/account/address/saved-addresses";
 import { routeHeaders } from "~/utils/cache";
+import { GIFT_NOTE_TEXT } from "~/utils/gift-note";
 import {
   buildCheckoutRequest,
   type CheckoutResponse,

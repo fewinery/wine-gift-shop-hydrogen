@@ -7,7 +7,6 @@ import {
 import * as Dialog from "@radix-ui/react-dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { ShopPayButton } from "@shopify/hydrogen";
-import { useThemeSettings } from "@weaverse/hydrogen";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
 import { useFetcher } from "react-router";
@@ -22,6 +21,7 @@ import { ProductMedia } from "~/components/product/product-media";
 import { Quantity } from "~/components/product/quantity";
 import { Skeleton } from "~/components/skeleton";
 import JudgemeStarsRating from "~/sections/main-product/judgeme-stars-rating";
+import { GIFT_NOTE_TEXT } from "~/utils/gift-note";
 import { ProductBadges } from "./badges";
 import { VariantPrices } from "./variant-prices";
 import { VariantSelector } from "./variant-selector";
@@ -50,8 +50,7 @@ export function QuickShop({
   const [quantity, setQuantity] = useState<number>(1);
   const [selectedVariant, setSelectedVariant] =
     useState<ProductVariantFragment>(product?.selectedOrFirstAvailableVariant);
-  const themeSettings = useThemeSettings();
-  const { giftNoteText = "" } = themeSettings;
+  const giftNoteText = GIFT_NOTE_TEXT;
 
   const [isGift, setIsGift] = useState(false);
   const [giftFields, setGiftFields] = useState<GiftFields>({

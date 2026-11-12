@@ -760,19 +760,6 @@ export const themeSchema: HydrogenThemeSchema = {
       ],
     },
     {
-      group: "Gift message",
-      inputs: [
-        {
-          type: "textarea",
-          name: "giftNoteText",
-          label: "Gift note instructions",
-          defaultValue:
-            "If your order includes a 3D wood card, your message will be printed on it. Otherwise, it will be included as a paper note.",
-          placeholder: "Enter instructions for the customer...",
-        },
-      ],
-    },
-    {
       group: "Blog",
       inputs: [
         {
@@ -2061,10 +2048,10 @@ export const themeSchema: HydrogenThemeSchema = {
           type: "text",
           label: "Add-ons collection handle",
           name: "multiRecipientAddOnsCollection",
-          defaultValue: "",
-          placeholder: "gift-add-ons",
+          defaultValue: "multi-recipient-add-ons",
+          placeholder: "multi-recipient-add-ons",
           helpText:
-            "Products from this collection are offered as extras on the multi-recipient page. The last part of the collection URL: /collections/<strong>handle</strong>. Use products that can be added without choosing options. Leave empty to show no add-ons.",
+            "Products from this collection are offered as extras on the multi-recipient page. The last part of the collection URL: /collections/<strong>handle</strong>. Use products that can be added without choosing options, and make sure they are available to this storefront. Clear the field to show no add-ons.",
           condition: (theme: any) => theme.enableMultiRecipient === true,
         },
         {

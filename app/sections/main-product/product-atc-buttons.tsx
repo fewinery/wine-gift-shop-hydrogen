@@ -3,11 +3,7 @@ import {
   ShopPayButton,
   useOptimisticVariant,
 } from "@shopify/hydrogen";
-import {
-  createSchema,
-  type HydrogenComponentProps,
-  useThemeSettings,
-} from "@weaverse/hydrogen";
+import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
 import { useEffect, useRef, useState } from "react";
 import { useLoaderData } from "react-router";
 import { ArrowLeft, ArrowRight } from "~/components/icons";
@@ -23,6 +19,7 @@ import { useWinePicker, WinePicker } from "~/components/product/wine-picker";
 import type { loader as productRouteLoader } from "~/routes/products/product";
 import { cn } from "~/utils/cn";
 import { isCombinedListing } from "~/utils/combined-listings";
+import { GIFT_NOTE_TEXT } from "~/utils/gift-note";
 import { useProductQuantity } from "./product-quantity-selector";
 
 const GIFT_PACKAGE_TAG = "gift-package";
@@ -68,8 +65,7 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
   } = props;
   const { product, storeDomain } = useLoaderData<typeof productRouteLoader>();
   const [quantity] = useProductQuantity(product?.handle);
-  const themeSettings = useThemeSettings();
-  const { giftNoteText = "" } = themeSettings;
+  const giftNoteText = GIFT_NOTE_TEXT;
 
   const [isGift, setIsGift] = useState(false);
   const [giftFields, setGiftFields] = useState<GiftFields>({

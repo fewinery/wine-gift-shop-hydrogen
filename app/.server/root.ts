@@ -7,6 +7,7 @@ import type {
 } from "storefront-api.generated";
 import invariant from "tiny-invariant";
 import type { EnhancedMenu } from "~/types/menu";
+import { hasAdminCredentials } from "./admin-api";
 import { seoPayload } from "./seo";
 
 /**
@@ -55,6 +56,9 @@ export async function loadCriticalData({
     selectedLocale: storefront.i18n,
     weaverseTheme,
     googleGtmID: env.PUBLIC_GOOGLE_GTM_ID,
+    // Only whether the variables exist - never the values. The cart uses it
+    // to hide the multi-recipient button on a storefront not set up for it.
+    multiRecipientConfigured: hasAdminCredentials(env),
     swatchesConfigs,
     env: {
       ADOBE_PROJECT_ID: env.ADOBE_PROJECT_ID,

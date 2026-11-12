@@ -43,6 +43,12 @@ declare global {
     GORGIAS_API_KEY: string;
     B2B_ENABLED?: string;
     B2B_PUBLIC_CATALOG?: string;
+    // Shared with the store's Flow workflow that reports paid
+    // multi-recipient orders; see routes/api/multi-recipient-split.
+    MULTI_RECIPIENT_SPLIT_SECRET?: string;
+    // "true" on storefronts used for testing: tags their multi-recipient
+    // orders Multi_rec_test so the warehouse can ignore them.
+    MULTI_RECIPIENT_TEST_MODE?: string;
   }
 }
 
@@ -74,6 +80,9 @@ declare module "react-router" {
     // declare local additions to the Remix session data here
     b2bLocation?: { companyName: string; locationName: string };
     b2bLocationCount?: number;
+    // The last multi-recipient parent draft this shopper started, so an
+    // unpaid one can be cleared when they start again.
+    multiRecipientDraft?: string;
   }
 }
 

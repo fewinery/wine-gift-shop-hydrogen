@@ -11,6 +11,7 @@ import { Button } from "~/components/button";
 import { Link } from "~/components/link";
 import { Skeleton } from "~/components/skeleton";
 import { Spinner } from "~/components/spinner";
+import { useMultiRecipientEnabled } from "~/hooks/use-multi-recipient-enabled";
 import type { CartLayoutType } from "~/types/others";
 import {
   DiscountDialog,
@@ -150,9 +151,9 @@ export function CartSummary({
     cartContinueShoppingBgColor,
     cartContinueShoppingTextColor,
     cartContinueShoppingBorderColor,
-    enableMultiRecipient,
     multiRecipientButtonText,
   } = useThemeSettings();
+  const multiRecipientEnabled = useMultiRecipientEnabled();
   const closeCartDrawer = useCartDrawerStore((state) => state.close);
   // Only a path on this site ("/", "/collections/all"); anything else falls
   // back to the home page rather than sending shoppers off the storefront.
@@ -392,9 +393,10 @@ export function CartSummary({
             </Button>
           </a>
           {/* @todo: <CartShopPayButton cart={cart} /> */}
-          {/* Off unless the storefront turns it on in Theme Settings -> Cart,
-              so every other storefront renders nothing here. */}
-          {enableMultiRecipient === true && (
+          {/* Off unless the storefront turns it on in Theme Settings -> Cart
+              and has the Admin API variables it needs, so every other
+              storefront renders nothing here. */}
+          {multiRecipientEnabled && (
             <Link
               variant="outline"
               to="/cart/recipients"

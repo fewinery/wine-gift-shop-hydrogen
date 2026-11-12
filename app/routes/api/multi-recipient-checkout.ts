@@ -236,6 +236,8 @@ export async function action({ request, context }: ActionFunctionArgs) {
     customerId,
     hiddenRates,
     testMode: env.MULTI_RECIPIENT_TEST_MODE === "true",
+    // The address in the shopper's browser: the brand they are buying from.
+    site: new URL(request.url).host,
   });
 
   if ("invoiceUrl" in result) {

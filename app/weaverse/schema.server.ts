@@ -2047,7 +2047,7 @@ export const themeSchema: HydrogenThemeSchema = {
           name: "enableMultiRecipient",
           defaultValue: false,
           helpText:
-            "Adds a button to the cart drawer and cart page that opens a page for sending one order to several addresses.",
+            "Adds a button to the cart drawer and cart page that opens a page for sending one order to several addresses. The storefront also needs the Admin API variables (SHOPIFY_APP_CLIENT_ID and SHOPIFY_APP_CLIENT_SECRET, or SHOPIFY_ADMIN_API_TOKEN) in Oxygen - without them the button stays hidden.",
         },
         {
           type: "text",

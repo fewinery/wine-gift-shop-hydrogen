@@ -79,8 +79,15 @@ export function CartMain({
           // inside it. A grid item defaults to min-width:auto, so one long
           // product name or offer label stretches the column past the drawer
           // and the totals end up printing off the right edge.
+          //
+          // The drawer is exactly as tall as the screen, so the two rows
+          // share that height: the totals and buttons take what they need
+          // and the list of items scrolls in whatever is left. min-h-0 is
+          // what lets the list be shorter than its contents. On a screen too
+          // short for even one item plus the buttons (a phone on its side),
+          // the whole column scrolls instead, so Checkout is always reachable.
           layout === "drawer" &&
-            "grid min-w-0 grow grid-cols-1 grid-rows-[1fr_auto] px-4",
+            "grid min-h-0 min-w-0 grow grid-cols-1 grid-rows-[minmax(8rem,1fr)_auto] overflow-y-auto px-4",
           layout === "page" && [
             "mx-auto w-full max-w-(--page-width) pb-12",
             "grid md:items-start lg:grid-cols-[1fr_480px]",
@@ -94,11 +101,19 @@ export function CartMain({
             "-mx-4 min-w-0 pb-4",
             y > 0 ? "border-line-subtle border-t" : "",
             layout === "page" && "grow md:translate-y-4",
-            layout === "drawer" && "transition",
+            layout === "drawer" && "flex min-h-0 flex-col transition",
           ])}
         >
           <ScrollArea
-            className={clsx(layout === "drawer" && "max-h-[calc(100vh-312px)]")}
+            // In the drawer the list fills its row and scrolls inside it. It
+            // used to be capped at "screen height minus 312px", a guess at
+            // how tall the totals and buttons were; once they grew past that
+            // (discount rows, a second button) the buttons fell off the
+            // bottom of the screen with no way to scroll to them.
+            rootClassName={clsx(
+              layout === "drawer" && "flex min-h-0 flex-1 flex-col",
+            )}
+            className={clsx(layout === "drawer" && "h-auto min-h-0 flex-1")}
             size="sm"
           >
             <ul

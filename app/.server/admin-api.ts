@@ -76,6 +76,18 @@ async function getAdminAccessToken(env: Env): Promise<string | null> {
   return json.access_token;
 }
 
+/**
+ * Whether this storefront has been given what it needs to reach the Admin
+ * API. It says nothing about which permissions the app was granted - only
+ * that a call can be attempted at all.
+ */
+export function hasAdminCredentials(env: Env): boolean {
+  return Boolean(
+    env.SHOPIFY_ADMIN_API_TOKEN ||
+      (env.SHOPIFY_APP_CLIENT_ID && env.SHOPIFY_APP_CLIENT_SECRET),
+  );
+}
+
 export type AdminResult<T> =
   | { ok: true; data: T }
   | { ok: false; reason: "not-configured" | "failed"; detail: string };

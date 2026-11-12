@@ -505,3 +505,88 @@ export function saveRecipients(cartId: string, recipients: Recipient[]) {
     // reload.
   }
 }
+
+/** The most recipients one order can have. Every recipient is a real order
+ * to create, and the request that creates them has a time limit. */
+export const MAX_RECIPIENTS = 25;
+
+/** Order tags. The parent is the single order the shopper pays; each child
+ * is the order one address is fulfilled from. */
+export const PARENT_TAG = "Multi_rec_parent_order";
+export const CHILD_TAG = "Multi_rec_child_order";
+/** Added to both when the storefront is in test mode, so a warehouse has one
+ * thing to ignore. */
+export const TEST_TAG = "Multi_rec_test";
+/** Followed by the parent's order name on every child, so one search finds
+ * every order from one purchase. */
+export const FROM_TAG_PREFIX = "Multi_rec_from_";
+/** Set on the parent once every child exists. */
+export const SPLIT_DONE_TAG = "Multi_rec_split_done";
+/** Set on the parent when a child could not be created and a person has to
+ * look. */
+export const ATTENTION_TAG = "Multi_rec_needs_attention";
+/** Set on the parent when the children do not add up to what was paid. */
+export const REVIEW_TAG = "Multi_rec_review";
+
+/** One recipient as the page hands it over to be turned into an order. */
+export interface CheckoutRecipient {
+  address: QuoteRequest["address"];
+  /** The recipient's own email, kept for reference; notifications go to
+   * the buyer. */
+  email: string;
+  /** Cart lines rather than variants, so each line keeps what was chosen
+   * for it on the product page - a logo, a wood card, a package. */
+  lines: Array<{ lineId: string; quantity: number }>;
+  shippingMethod: string;
+  gift: { to: string; from: string; message: string };
+}
+
+export interface CheckoutRequest {
+  recipients: CheckoutRecipient[];
+}
+
+export type CheckoutResponse =
+  | { invoiceUrl: string }
+  // recipient is the position of the one at fault, when there is one.
+  | { error: { message: string; recipient?: number } };
+
+/**
+ * What to send to start payment, or null if the order is not ready for it:
+ * every recipient has to be complete and priced, and there cannot be more of
+ * them than one order can hold.
+ *
+ * Each recipient goes with the shipping method their price was worked out
+ * for, so what is charged is what was on screen.
+ */
+export function buildCheckoutRequest(
+  recipients: Recipient[],
+  items: GiftItem[],
+  quotes: Record<string, QuoteState>,
+): CheckoutRequest | null {
+  if (recipients.length === 0 || recipients.length > MAX_RECIPIENTS) {
+    return null;
+  }
+  const out: CheckoutRecipient[] = [];
+  for (const recipient of recipients) {
+    const state = quotes[recipient.id];
+    const priced = buildQuoteRequest(recipient, items);
+    if (!priced || state?.status !== "ready") {
+      return null;
+    }
+    out.push({
+      address: priced.address,
+      email: recipient.email.trim(),
+      lines: recipientItems(recipient, items).map(({ item, quantity }) => ({
+        lineId: item.lineId,
+        quantity,
+      })),
+      shippingMethod: state.quote.shippingMethod,
+      gift: {
+        to: recipient.giftTo.trim(),
+        from: recipient.giftFrom.trim(),
+        message: recipient.giftMessage.trim(),
+      },
+    });
+  }
+  return { recipients: out };
+}

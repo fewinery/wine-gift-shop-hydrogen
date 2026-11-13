@@ -89,7 +89,8 @@ before any of their brands can use the feature.
 
 1. **The app.** *FEW Customer Writer* must be installed and approved with these
    permissions: read and write customers, read and write draft orders, read and
-   write orders.
+   write orders, and read products. Without read products everything works,
+   but the add-ons row leaves out unlisted products.
 2. **One "home" storefront.** Pick one storefront on that store that will
    always exist. Give it the variable `MULTI_RECIPIENT_SPLIT_SECRET` (a long
    random value, marked as secret) and redeploy. It does the split for every
@@ -133,7 +134,7 @@ Other settings in the same place:
 | Setting | What it does |
 | --- | --- |
 | Button text | The label of the button in the cart |
-| Add-ons collection handle | Products offered as extras on the recipients page. Defaults to `multi-recipient-add-ons`. The products must be available to that storefront and addable without choosing options. Clear the field to show none |
+| Add-ons collection handle | Products offered as extras on the recipients page. Defaults to `multi-recipient-add-ons`. Unlisted products in it are shown too. A product appears only on storefronts whose sales channel it is available to, and never while it is a draft. Products must be addable without choosing options. Clear the field to show none |
 | Add-ons heading | The title above that row |
 | Hidden shipping methods | Shipping method names not offered for gifts, separated by commas. Defaults to "Local Pickup Point" |
 
@@ -311,6 +312,38 @@ once as the children. Giftship orders have the same shape today.
 
 Finance should confirm these filters match how Giftship orders are reported
 today before the first live brand.
+
+---
+
+## Build-your-own bundles
+
+A product that adds several things in one click (the package, the wines
+picked for it, a wood card, merch) can keep them together as **one bundle**,
+or add them as **separate items**. It is set per product and is off unless
+switched on, so existing products keep working exactly as before.
+
+| | Separate items (default) | One bundle |
+| --- | --- | --- |
+| Cart and cart drawer | One line per piece | One item: the kit's name, its contents listed underneath, one quantity, one price, one remove button |
+| Quantity on the product page | Applies to the main product only | Counts whole kits: every piece is multiplied |
+| Recipients page | Each piece can go to anyone | The kit is one gift. Each recipient gets a number of whole kits; it cannot be split |
+| Checkout, emails, orders | One line per piece | Still one line per piece, each marked **Bundle: kit name** so the warehouse knows they go in one box |
+| Prices and discounts | Unchanged | Unchanged: the kit costs what its pieces cost |
+
+The add-ons row on the recipients page is not affected: anything added there
+is a separate item that can go to any recipient, next to their kits.
+
+### Switching it on for a product
+
+1. **Once per Shopify store:** Settings > Custom data > Products > Add
+   definition. Name **Add as one bundle**, namespace and key
+   `custom.add_as_bundle`, type **True or false**, and turn on **Storefront
+   access**.
+2. **Per product:** open the product, set **Add as one bundle** to *True*,
+   save. It shows on the storefront within a few minutes.
+
+Adding the same kit twice (same wines, merch and message) raises its
+quantity. A kit with different choices becomes a second, separate bundle.
 
 ---
 

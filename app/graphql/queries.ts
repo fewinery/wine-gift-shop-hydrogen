@@ -287,6 +287,10 @@ export const PRODUCT_QUERY = `#graphql
         value
       }
 
+      addAsBundle: metafield(namespace: "custom", key: "add_as_bundle") {
+        value
+      }
+
       goesWellWith: metafield(namespace: "custom", key: "goes_well_with") {
         references(first: 10) {
           nodes {

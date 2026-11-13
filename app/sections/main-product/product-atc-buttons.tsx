@@ -17,6 +17,7 @@ import {
 } from "~/components/product/merch-upsell";
 import { useWinePicker, WinePicker } from "~/components/product/wine-picker";
 import type { loader as productRouteLoader } from "~/routes/products/product";
+import { toBundleLines } from "~/utils/bundle";
 import { cn } from "~/utils/cn";
 import { isCombinedListing } from "~/utils/combined-listings";
 import { GIFT_NOTE_TEXT } from "~/utils/gift-note";
@@ -209,6 +210,47 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
     !hasWoodCardsUpsell && isGiftPackage && isGift && isGiftFieldsValid
       ? `[${product.title}] Gift - To: ${giftFields.to.trim()}, From: ${giftFields.from.trim()}, Message: ${giftFields.message.trim()}`
       : undefined;
+
+  // Everything this click adds, as one kit holds it: the product itself,
+  // then the wines, wood card and merch chosen with it.
+  const kitLines = [
+    {
+      merchandiseId: selectedVariant?.id,
+      quantity: 1,
+      selectedVariant,
+      ...(giftProperties || wine.attributes
+        ? {
+            attributes: [...(giftProperties ?? []), ...(wine.attributes ?? [])],
+          }
+        : {}),
+    },
+    ...wine.lines,
+    ...(selectedWoodCardVariant
+      ? [
+          {
+            merchandiseId: selectedWoodCardVariant.id,
+            quantity: 1,
+            ...(woodCardGiftProperties && {
+              attributes: woodCardGiftProperties,
+            }),
+          },
+        ]
+      : []),
+    // Merch carries no gift properties: it never turns on the message
+    // fields, so there is nothing to attach.
+    ...merchLines,
+  ];
+  // A product set to "add as one bundle" (its custom.add_as_bundle
+  // metafield) keeps those pieces together in the cart, and the quantity
+  // box counts whole kits. Any other product adds them as separate items,
+  // with the quantity on the product alone, exactly as before.
+  const addAsBundle =
+    (product as { addAsBundle?: { value?: string | null } | null }).addAsBundle
+      ?.value === "true";
+  const cartLines =
+    addAsBundle && kitLines.length > 1
+      ? toBundleLines(kitLines, product.title, quantity)
+      : [{ ...kitLines[0], quantity }, ...kitLines.slice(1)];
 
   return (
     <div ref={ref} {...rest} className="min-w-0 space-y-4 empty:hidden">
@@ -505,36 +547,7 @@ export default function ProductATCButtons(props: ProductATCButtonsProps) {
           !wine.complete ||
           Boolean(selectedWoodCardId && !selectedWoodCardVariant)
         }
-        lines={[
-          {
-            merchandiseId: selectedVariant?.id,
-            quantity,
-            selectedVariant,
-            ...(giftProperties || wine.attributes
-              ? {
-                  attributes: [
-                    ...(giftProperties ?? []),
-                    ...(wine.attributes ?? []),
-                  ],
-                }
-              : {}),
-          },
-          ...wine.lines,
-          ...(selectedWoodCardVariant
-            ? [
-                {
-                  merchandiseId: selectedWoodCardVariant.id,
-                  quantity: 1,
-                  ...(woodCardGiftProperties && {
-                    attributes: woodCardGiftProperties,
-                  }),
-                },
-              ]
-            : []),
-          // Merch carries no gift properties: it never turns on the message
-          // fields, so there is nothing to attach.
-          ...merchLines,
-        ]}
+        lines={cartLines}
         data-test="add-to-cart"
         note={giftNote}
         variant="primary"

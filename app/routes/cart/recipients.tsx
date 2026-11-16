@@ -9,6 +9,11 @@ import {
   useLoaderData,
 } from "react-router";
 import { hasAdminCredentials } from "~/.server/admin-api";
+import {
+  type AddOnNode,
+  loadAddOnsWithUnlisted,
+  toAddOns,
+} from "~/.server/multi-recipient-add-ons";
 import { Button } from "~/components/button";
 import { Link } from "~/components/link";
 import {
@@ -39,7 +44,7 @@ import {
   type SavedAddress,
   saveRecipients,
   summarize,
-  toGiftItems,
+  toCartGifts,
   totalQuotes,
 } from "~/utils/multi-recipient";
 
@@ -80,7 +85,7 @@ export async function loader({ context }: LoaderFunctionArgs) {
 
   // A failed add-ons lookup hides the row instead of taking the page down.
   const addOns = await loadAddOns(
-    storefront,
+    context,
     settings.multiRecipientAddOnsCollection,
   ).catch(() => [] as AddOn[]);
 
@@ -96,18 +101,6 @@ export async function loader({ context }: LoaderFunctionArgs) {
   );
 }
 
-interface AddOnNode {
-  id: string;
-  title: string;
-  handle: string;
-  featuredImage?: AddOn["image"];
-  selectedOrFirstAvailableVariant?: {
-    id: string;
-    availableForSale: boolean;
-    price: { amount: string; currencyCode: string };
-  } | null;
-}
-
 /**
  * Products offered as extras, from the collection named in Theme Settings.
  * A collection rather than "best sellers": brands share one Shopify catalog,
@@ -115,9 +108,10 @@ interface AddOnNode {
  * limited to things that can be added without choosing options first.
  */
 async function loadAddOns(
-  storefront: LoaderFunctionArgs["context"]["storefront"],
+  context: LoaderFunctionArgs["context"],
   collection: string | undefined,
 ): Promise<AddOn[]> {
+  const { storefront } = context;
   // Accept the handle however it is pasted: "gift-add-ons",
   // "/collections/gift-add-ons" or the full URL.
   const handle = collection
@@ -129,6 +123,12 @@ async function loadAddOns(
   if (!handle) {
     return [];
   }
+  // Unlisted products included, where the Admin API can list them.
+  const withUnlisted = await loadAddOnsWithUnlisted(context, handle);
+  if (withUnlisted) {
+    return withUnlisted;
+  }
+  // Otherwise the storefront's own list, which leaves unlisted ones out.
   const result = (await storefront.query(MULTI_RECIPIENT_ADD_ONS_QUERY, {
     variables: {
       handle,
@@ -136,22 +136,7 @@ async function loadAddOns(
       language: storefront.i18n.language,
     },
   })) as { collection?: { products?: { nodes?: AddOnNode[] } } | null };
-
-  const addOns: AddOn[] = [];
-  for (const node of result?.collection?.products?.nodes ?? []) {
-    const variant = node.selectedOrFirstAvailableVariant;
-    if (variant?.availableForSale) {
-      addOns.push({
-        id: node.id,
-        title: node.title,
-        handle: node.handle,
-        image: node.featuredImage?.url ? node.featuredImage : null,
-        variantId: variant.id,
-        price: variant.price,
-      });
-    }
-  }
-  return addOns;
+  return toAddOns(result?.collection?.products?.nodes ?? []);
 }
 
 const MULTI_RECIPIENT_ADD_ONS_QUERY = `#graphql
@@ -211,7 +196,8 @@ export default function RecipientsRoute() {
   const { multiRecipientAddOnsHeading } = useThemeSettings();
 
   const cartId = cart?.id ?? "";
-  const items = useMemo(() => toGiftItems(cart), [cart]);
+  // Build-your-own bundles arrive as one gift each, sent whole.
+  const items = useMemo(() => toCartGifts(cart), [cart]);
   const [recipients, setRecipients] = useState<Recipient[]>([]);
   const [openId, setOpenId] = useState<string | null>(null);
   const [restored, setRestored] = useState(false);

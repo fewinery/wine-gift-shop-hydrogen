@@ -6,6 +6,8 @@ import type { CartApiQueryFragment } from "storefront-api.generated";
 import { Link } from "~/components/link";
 import { ScrollArea } from "~/components/scroll-area";
 import type { CartLayoutType } from "~/types/others";
+import { groupBundles } from "~/utils/bundle";
+import { CartBundleItem } from "./cart-bundle-item";
 import { CartLineItem } from "./cart-line-item";
 import { CartSummary } from "./cart-summary";
 
@@ -123,9 +125,27 @@ export function CartMain({
                 layout === "drawer" && "gap-5",
               )}
             >
-              {(cart?.lines?.nodes ?? []).map((line) => (
-                <CartLineItem key={line.id} line={line} layout={layout} />
-              ))}
+              {/* Pieces added together as one bundle are shown as one item;
+                  every other line is shown on its own, as before. */}
+              {groupBundles(
+                cart?.lines?.nodes ?? [],
+                (line) => line.attributes,
+              ).map((entry) =>
+                entry.kind === "bundle" ? (
+                  <CartBundleItem
+                    key={`bundle-${entry.bundle.id}`}
+                    bundle={entry.bundle}
+                    parts={entry.parts}
+                    layout={layout}
+                  />
+                ) : (
+                  <CartLineItem
+                    key={entry.line.id}
+                    line={entry.line}
+                    layout={layout}
+                  />
+                ),
+              )}
             </ul>
           </ScrollArea>
         </div>

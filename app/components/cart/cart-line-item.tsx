@@ -39,7 +39,7 @@ interface LineAllocation {
  * One promotion can arrive as several allocations, so the titles are grouped
  * and the amounts summed - otherwise the same offer is listed twice.
  */
-function lineDiscounts(line: unknown) {
+export function lineDiscounts(line: unknown) {
   const allocations =
     (line as { discountAllocations?: LineAllocation[] | null })
       ?.discountAllocations ?? [];

@@ -7,7 +7,7 @@ import { Button } from "~/components/button";
 import { Image } from "~/components/image";
 import { AddStepper } from "~/components/product/add-stepper";
 import { cn } from "~/utils/cn";
-import { type GiftItem, MAX_PER_ITEM } from "~/utils/multi-recipient";
+import { type GiftItem, maxPerRecipient } from "~/utils/multi-recipient";
 
 /**
  * "Which gifts does this person get?" - every item in the cart, each with the
@@ -41,13 +41,13 @@ export function ItemPicker({
     }
   }, [open, value]);
 
-  function setQuantity(lineId: string, next: number) {
+  function setQuantity(item: GiftItem, next: number) {
     setDraft((current) => {
       const updated = { ...current };
       if (next <= 0) {
-        delete updated[lineId];
+        delete updated[item.lineId];
       } else {
-        updated[lineId] = Math.min(next, MAX_PER_ITEM);
+        updated[item.lineId] = Math.min(next, maxPerRecipient(item));
       }
       return updated;
     });
@@ -130,8 +130,8 @@ export function ItemPicker({
                       <div className="mt-auto w-32 pt-2">
                         <AddStepper
                           quantity={quantity}
-                          canAdd={quantity < MAX_PER_ITEM}
-                          onChange={(next) => setQuantity(item.lineId, next)}
+                          canAdd={quantity < maxPerRecipient(item)}
+                          onChange={(next) => setQuantity(item, next)}
                           addLabel="Add"
                         />
                       </div>

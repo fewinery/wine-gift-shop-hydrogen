@@ -11,6 +11,8 @@
  * definition of "a complete recipient".
  */
 
+import { groupBundles } from "~/utils/bundle";
+
 /** A cart line the shopper can hand to a recipient. */
 export interface GiftItem {
   /** The cart line id. Two lines of the same variant can differ by their
@@ -28,6 +30,9 @@ export interface GiftItem {
   } | null;
   unitPrice: number;
   currencyCode: string;
+  /** Set when this gift is a build-your-own bundle: the cart lines it is
+   * made of, and how many of each one bundle holds. */
+  parts?: Array<{ lineId: string; variantId: string; quantity: number }>;
 }
 
 export interface Recipient {
@@ -391,6 +396,103 @@ export type QuoteState =
   | { status: "error"; code: QuoteErrorCode; message: string };
 
 /**
+ * The cart's lines as the recipients page offers them, with each
+ * build-your-own bundle turned into a single gift (see utils/bundle). A
+ * bundle is always sent whole: a recipient gets a number of complete
+ * bundles, never some of its pieces.
+ */
+export function toCartGifts(cart: unknown): GiftItem[] {
+  const nodes =
+    (
+      cart as {
+        lines?: {
+          nodes?: Array<{
+            id?: string | null;
+            attributes?: Array<{
+              key?: string | null;
+              value?: string | null;
+            }> | null;
+          }> | null;
+        } | null;
+      }
+    )?.lines?.nodes ?? [];
+  const attributes = new Map(
+    nodes.map((node) => [node?.id ?? "", node?.attributes ?? []]),
+  );
+
+  const gifts: GiftItem[] = [];
+  for (const entry of groupBundles(toGiftItems(cart), (item) =>
+    attributes.get(item.lineId),
+  )) {
+    if (entry.kind === "line") {
+      gifts.push(entry.line);
+      continue;
+    }
+    const { bundle, parts } = entry;
+    // The piece named after the bundle is the kit itself; its picture
+    // stands for the whole bundle.
+    const main =
+      parts.find((part) => part.line.title === bundle.name) ?? parts[0];
+    gifts.push({
+      lineId: `bundle:${bundle.id}`,
+      variantId: main.line.variantId,
+      title: bundle.name || main.line.title,
+      variantTitle: `Includes ${parts
+        .map(
+          ({ line, unit }) =>
+            `${unit} × ${line.title}${line.variantTitle ? ` (${line.variantTitle})` : ""}`,
+        )
+        .join(", ")}`,
+      image: main.line.image,
+      unitPrice: parts.reduce(
+        (sum, { line, unit }) => sum + line.unitPrice * unit,
+        0,
+      ),
+      currencyCode: main.line.currencyCode,
+      parts: parts.map(({ line, unit }) => ({
+        lineId: line.lineId,
+        variantId: line.variantId,
+        quantity: unit,
+      })),
+    });
+  }
+  return gifts;
+}
+
+/** The most of one gift a single recipient can be given. A bundle counts
+ * whole bundles, so it stops where its largest piece would pass the limit. */
+export function maxPerRecipient(item: GiftItem) {
+  const largest = Math.max(
+    1,
+    ...(item.parts ?? []).map((part) => part.quantity),
+  );
+  return Math.max(1, Math.floor(MAX_PER_ITEM / largest));
+}
+
+/**
+ * The cart lines a recipient's gifts come to, and how many of each: a
+ * bundle is its pieces, times the number of bundles.
+ */
+export function recipientLines(recipient: Recipient, items: GiftItem[]) {
+  const lines: Array<{ lineId: string; variantId: string; quantity: number }> =
+    [];
+  for (const { item, quantity } of recipientItems(recipient, items)) {
+    if (item.parts?.length) {
+      for (const part of item.parts) {
+        lines.push({
+          lineId: part.lineId,
+          variantId: part.variantId,
+          quantity: part.quantity * quantity,
+        });
+      }
+    } else {
+      lines.push({ lineId: item.lineId, variantId: item.variantId, quantity });
+    }
+  }
+  return lines;
+}
+
+/**
  * The pricing request for a recipient, or null while they are incomplete -
  * there is no point asking Shopify to price half an address.
  *
@@ -405,11 +507,8 @@ export function buildQuoteRequest(
     return null;
   }
   const quantities = new Map<string, number>();
-  for (const { item, quantity } of recipientItems(recipient, items)) {
-    quantities.set(
-      item.variantId,
-      (quantities.get(item.variantId) ?? 0) + quantity,
-    );
+  for (const { variantId, quantity } of recipientLines(recipient, items)) {
+    quantities.set(variantId, (quantities.get(variantId) ?? 0) + quantity);
   }
   return {
     address: {
@@ -593,8 +692,9 @@ export function buildCheckoutRequest(
     out.push({
       address: priced.address,
       email: recipient.email.trim(),
-      lines: recipientItems(recipient, items).map(({ item, quantity }) => ({
-        lineId: item.lineId,
+      // A bundle goes as its pieces, each with its share of the count.
+      lines: recipientLines(recipient, items).map(({ lineId, quantity }) => ({
+        lineId,
         quantity,
       })),
       shippingMethod: state.quote.shippingMethod,

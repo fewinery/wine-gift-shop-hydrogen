@@ -32,7 +32,11 @@ export default {
       const response = await handleRequest(request);
 
       if (hydrogenContext.session.isPending) {
-        response.headers.set(
+        // append, not set: the response can already carry a cookie of its
+        // own - the cart's id, after a cart change - and set() would drop
+        // it. That happens whenever a logged-in shopper's sign-in is renewed
+        // during a cart change, leaving the browser on an older cart.
+        response.headers.append(
           "Set-Cookie",
           await hydrogenContext.session.commit(),
         );

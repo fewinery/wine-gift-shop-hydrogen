@@ -55,7 +55,7 @@ payment is what pays for the child orders.
 | Lines | Each gift as a plain line showing "Ship to: ...", plus a **Shipping** line and a **Tax** line | The real products, with the recipient's shipping method and Shopify's real tax |
 | Shipping address | None | The recipient's |
 | Inventory | Not touched | Reduced when the child is created |
-| Channel column | Draft Orders | FEW Customer Writer (the app) |
+| Channel column | Draft Orders | FEW App Hydrogen (the app) |
 | Gift message | Not shown | In the order note and in Additional details |
 
 The Channel column cannot show the brand, because Shopify names the app that
@@ -87,7 +87,7 @@ request after #183. Orders created before it do not have them.
 Wine Gift Shop is done. Corporate Wine Gift and Cuvigift each need all of this
 before any of their brands can use the feature.
 
-1. **The app.** *FEW Customer Writer* must be installed and approved with these
+1. **The app.** *FEW App Hydrogen* must be installed and approved with these
    permissions: read and write customers, read and write draft orders, read and
    write orders, and read products. Without read products everything works,
    but the add-ons row leaves out unlisted products.

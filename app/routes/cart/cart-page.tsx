@@ -24,6 +24,10 @@ import { Section } from "~/components/section";
 import { Swimlane } from "~/components/swimlane";
 import { PRODUCT_CARD_FRAGMENT } from "~/graphql/fragments";
 import { getFeaturedProducts } from "~/utils/featured-products";
+import {
+  getStorefrontHost,
+  STOREFRONT_ATTRIBUTE,
+} from "~/utils/storefront-attribute";
 
 export async function action({ request, context }: ActionFunctionArgs) {
   const { cart } = context;
@@ -99,6 +103,34 @@ export async function action({ request, context }: ActionFunctionArgs) {
       break;
     default:
       invariant(false, `${cartFormAction} cart action is not defined`);
+  }
+
+  /**
+   * Tag the cart with the storefront domain so the Shopify checkout pixel can
+   * send checkout and purchase events to the right brand's GTM container.
+   */
+  if (cartFormAction === CartForm.ACTIONS.LinesAdd && result?.cart?.id) {
+    const storefrontHost = getStorefrontHost(request);
+    const existing = result.cart.attributes ?? [];
+    const alreadyTagged = existing.some(
+      (attribute) =>
+        attribute.key === STOREFRONT_ATTRIBUTE &&
+        attribute.value === storefrontHost,
+    );
+    if (!alreadyTagged) {
+      const tagged = await cart.updateAttributes([
+        ...existing
+          .filter((attribute) => attribute.key !== STOREFRONT_ATTRIBUTE)
+          .map((attribute) => ({
+            key: attribute.key,
+            value: attribute.value ?? "",
+          })),
+        { key: STOREFRONT_ATTRIBUTE, value: storefrontHost },
+      ]);
+      if (tagged?.cart?.id) {
+        result = tagged;
+      }
+    }
   }
 
   /**

@@ -235,8 +235,8 @@ export function DiscountDialog({
               <Button
                 type="submit"
                 className="w-24 leading-tight! [--spinner-duration:400ms]"
-                loading={fetcher.state !== "idle"}
-                disabled={fetcher.state !== "idle"}
+                loading={checking}
+                disabled={checking}
               >
                 Apply
               </Button>

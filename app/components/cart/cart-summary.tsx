@@ -261,54 +261,60 @@ export function CartSummary({
           })}
         </div>
       )}
+      {/* Every code on the cart, including ones Shopify is not applying
+          here: a code that cannot combine with a discount already in the
+          cart is still on the order, and checkout weighs it again. Hiding it
+          left the shopper no way to see or remove it. */}
       {discountCodes?.length > 0 && (
         <div className="mb-4 flex flex-wrap justify-end gap-2">
-          {discountCodes
-            .filter((discount) => discount.applicable)
-            .map((discount) => {
-              const codes = discountCodes
-                .filter((d) => d.applicable)
-                .map((d) => d.code);
-              const updatedCodes = codes.filter((c) => c !== discount.code);
+          {discountCodes.map((discount) => {
+            const updatedCodes = discountCodes
+              .map((d) => d.code)
+              .filter((c) => c !== discount.code);
 
-              // Check if this specific discount is being removed
-              const isDCRemoving =
-                dcRemoveFetcher.state !== "idle" &&
-                removingDiscountCode === discount.code;
+            // Check if this specific discount is being removed
+            const isDCRemoving =
+              dcRemoveFetcher.state !== "idle" &&
+              removingDiscountCode === discount.code;
 
-              return (
-                <div
-                  key={discount.code}
-                  className="flex items-center justify-center gap-2 rounded-md bg-gray-200 px-2 py-1.5 [&>form]:flex"
+            return (
+              <div
+                key={discount.code}
+                className="flex items-center justify-center gap-2 rounded-md bg-gray-200 px-2 py-1.5 [&>form]:flex"
+              >
+                <TagIcon className="h-4.5 w-4.5" aria-hidden="true" />
+                <span className="leading-normal">{discount.code}</span>
+                {!discount.applicable && (
+                  <span className="text-body-subtle text-sm leading-normal">
+                    (checked at checkout)
+                  </span>
+                )}
+                <CartForm
+                  route="/cart"
+                  action={CartForm.ACTIONS.DiscountCodesUpdate}
+                  inputs={{ discountCodes: updatedCodes || [] }}
+                  fetcherKey="discount-code-remove"
                 >
-                  <TagIcon className="h-4.5 w-4.5" aria-hidden="true" />
-                  <span className="leading-normal">{discount.code}</span>
-                  <CartForm
-                    route="/cart"
-                    action={CartForm.ACTIONS.DiscountCodesUpdate}
-                    inputs={{ discountCodes: updatedCodes || [] }}
-                    fetcherKey="discount-code-remove"
+                  <button
+                    type="submit"
+                    className="relative ml-1 size-4 transition-colors hover:text-red-600"
+                    aria-label={`Remove discount code ${discount.code}`}
+                    onClick={() => setRemovingDiscountCode(discount.code)}
                   >
-                    <button
-                      type="submit"
-                      className="relative ml-1 size-4 transition-colors hover:text-red-600"
-                      aria-label={`Remove discount code ${discount.code}`}
-                      onClick={() => setRemovingDiscountCode(discount.code)}
-                    >
-                      {isDCRemoving ? (
-                        <Spinner size={16} />
-                      ) : (
-                        <XIcon
-                          className="size-4"
-                          weight="regular"
-                          aria-hidden="true"
-                        />
-                      )}
-                    </button>
-                  </CartForm>
-                </div>
-              );
-            })}
+                    {isDCRemoving ? (
+                      <Spinner size={16} />
+                    ) : (
+                      <XIcon
+                        className="size-4"
+                        weight="regular"
+                        aria-hidden="true"
+                      />
+                    )}
+                  </button>
+                </CartForm>
+              </div>
+            );
+          })}
         </div>
       )}
       <dl className="mb-4 grid gap-1">

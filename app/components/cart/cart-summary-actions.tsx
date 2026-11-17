@@ -122,17 +122,35 @@ export function DiscountDialog({
 }) {
   const [code, setCode] = useState("");
   const fetcher = useFetcher();
-  const submitted = Boolean(code && fetcher.state === "idle" && fetcher.data);
-  const success = Boolean(
-    submitted && discountCodes?.find((d) => d.code === code && d.applicable),
+  // The cart's codes as they were when Apply was pressed. Shopify's answer
+  // is read from the cart, and the cart arrives a moment after the request
+  // itself finishes; until it has changed, the old cart says nothing about
+  // the new code.
+  const codesAtSubmit = useRef<unknown>(null);
+  const entered = code.trim().toLowerCase();
+  // Shopify can return the code in other capitals than were typed.
+  const found = discountCodes?.find((d) => d.code.toLowerCase() === entered);
+  const settled = Boolean(
+    entered &&
+      fetcher.state === "idle" &&
+      fetcher.data &&
+      (found || discountCodes !== codesAtSubmit.current),
   );
-  const error = submitted && !success;
+  const checking =
+    fetcher.state !== "idle" || Boolean(entered && fetcher.data && !settled);
+  const success = settled && Boolean(found?.applicable);
+  // Saved on the cart, but not lowering it. Usually the code cannot be
+  // combined with a discount the cart already has; checkout weighs them
+  // again, so the code stays on the order rather than being thrown away.
+  const notApplied = settled && Boolean(found) && !found?.applicable;
+  const error = settled && !found;
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    const discountCode = formData.get("discountCode") as string;
+    const discountCode = (formData.get("discountCode") as string)?.trim();
     if (discountCode) {
+      codesAtSubmit.current = discountCodes;
       fetcher.submit(
         {
           [CartForm.INPUT_NAME]: JSON.stringify({
@@ -193,11 +211,21 @@ export function DiscountDialog({
               required
             />
             {success && (
-              <Banner variant="success">
-                Discount applied successfully 🎉
+              <Banner variant="success">Discount applied successfully</Banner>
+            )}
+            {notApplied && (
+              <Banner variant="info">
+                {found?.code} is saved to your order, but it isn't lowering the
+                cart right now - usually because it can't be combined with a
+                discount you already have. Checkout checks it again and shows
+                whether it applies.
               </Banner>
             )}
-            {error && <Banner variant="error">Invalid discount code.</Banner>}
+            {error && (
+              <Banner variant="error">
+                We couldn't add that code. Please check it and try again.
+              </Banner>
+            )}
             <div className="flex items-center justify-end gap-3">
               <Dialog.Close asChild>
                 <Button variant="custom" className="w-24 border-none">
@@ -207,8 +235,8 @@ export function DiscountDialog({
               <Button
                 type="submit"
                 className="w-24 leading-tight! [--spinner-duration:400ms]"
-                loading={fetcher.state !== "idle"}
-                disabled={fetcher.state !== "idle"}
+                loading={checking}
+                disabled={checking}
               >
                 Apply
               </Button>

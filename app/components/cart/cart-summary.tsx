@@ -317,7 +317,7 @@ export function CartSummary({
           })}
         </div>
       )}
-      <dl className="mb-4 grid gap-1">              
+      <dl className="mb-4 grid gap-1">
         {hasOrderDiscount && (
           <SummaryRow label="Subtotal:" loading={isCartUpdating}>
             <Money data={money(subtotal, currencyCode)} />

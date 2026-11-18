@@ -140,7 +140,7 @@ export function CartSummary({
   const {
     enableCartNote,
     cartNoteButtonText,
-    enableDiscountCode,
+    enableDiscountCode: discountCodeSetting,
     discountCodeButtonText,
     enableGiftCard,
     giftCardButtonText,
@@ -153,6 +153,9 @@ export function CartSummary({
     cartContinueShoppingBorderColor,
     multiRecipientButtonText,
   } = useThemeSettings();
+  // Paused while the discount dialog is looked into; shoppers can still add
+  // a code at checkout. Put back to the setting alone once it is fixed.
+  const enableDiscountCode = discountCodeSetting && false;
   const multiRecipientEnabled = useMultiRecipientEnabled();
   const closeCartDrawer = useCartDrawerStore((state) => state.close);
   // Only a path on this site ("/", "/collections/all"); anything else falls

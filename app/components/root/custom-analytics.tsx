@@ -12,6 +12,7 @@ import {
 import { useEffect } from "react";
 import { useRouteLoaderData } from "react-router";
 import type { RootLoader } from "~/root";
+import { rememberAdClick } from "~/utils/ad-attribution";
 
 /**
  * Ecommerce events for Google Tag Manager.
@@ -106,6 +107,9 @@ export function CustomAnalytics() {
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: subscribe once on mount
   useEffect(() => {
+    // Keep the ad click from the landing URL for checkout.
+    rememberAdClick(window.location.href);
+
     setTimeout(() => {
       const isTrackingAllowed = canTrack();
       console.log("CustomAnalytics - isTrackingAllowed", isTrackingAllowed);

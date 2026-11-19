@@ -1,5 +1,6 @@
 import type { LoaderFunctionArgs } from "react-router";
 import { redirect } from "react-router";
+import { getAttributionAttributes } from "~/utils/ad-attribution";
 import {
   getStorefrontHost,
   STOREFRONT_ATTRIBUTE,
@@ -50,6 +51,7 @@ export async function loader({ request, context, params }: LoaderFunctionArgs) {
     discountCodes: discountArray,
     attributes: [
       { key: STOREFRONT_ATTRIBUTE, value: getStorefrontHost(request) },
+      ...getAttributionAttributes(request),
     ],
   });
 

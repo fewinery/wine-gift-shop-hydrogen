@@ -262,6 +262,7 @@ export async function createMultiRecipientCheckout({
   hiddenRates,
   testMode,
   site,
+  attribution = [],
 }: {
   env: Env;
   recipients: CheckoutRecipientInput[];
@@ -275,6 +276,8 @@ export async function createMultiRecipientCheckout({
    * goes on every order as a tag and a detail, since the orders' channel
    * will name the app that created them, not the brand. */
   site: string;
+  /** The shopper's ad click and browser IDs, for the checkout pixel. */
+  attribution?: Array<{ key: string; value: string }>;
 }): Promise<CheckoutResponse & { parentId?: string }> {
   const brandTag = siteTag(site);
   const extraTags = [
@@ -525,6 +528,7 @@ export async function createMultiRecipientCheckout({
       customAttributes: [
         { key: "_mr_children", value: String(children.length) },
         { key: "Storefront", value: site },
+        ...attribution,
       ].filter((attribute) => attribute.value),
       ...(discount > 0
         ? {

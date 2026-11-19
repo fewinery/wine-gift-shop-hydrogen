@@ -7,6 +7,7 @@ import {
   discardPreviousAttempt,
 } from "~/.server/multi-recipient-checkout";
 import { loadCustomerId } from "~/routes/account/address/saved-addresses";
+import { getAttributionAttributes } from "~/utils/ad-attribution";
 import {
   type CheckoutResponse,
   GIFT_FROM_MAX,
@@ -238,6 +239,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
     testMode: env.MULTI_RECIPIENT_TEST_MODE === "true",
     // The address in the shopper's browser: the brand they are buying from.
     site: new URL(request.url).host,
+    attribution: getAttributionAttributes(request),
   });
 
   if ("invoiceUrl" in result) {

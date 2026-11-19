@@ -23,6 +23,7 @@ import { ProductCard } from "~/components/product/product-card";
 import { Section } from "~/components/section";
 import { Swimlane } from "~/components/swimlane";
 import { PRODUCT_CARD_FRAGMENT } from "~/graphql/fragments";
+import { getAttributionAttributes } from "~/utils/ad-attribution";
 import { getFeaturedProducts } from "~/utils/featured-products";
 import {
   getStorefrontHost,
@@ -106,26 +107,32 @@ export async function action({ request, context }: ActionFunctionArgs) {
   }
 
   /**
-   * Tag the cart with the storefront domain so the Shopify checkout pixel can
-   * send checkout and purchase events to the right brand's GTM container.
+   * Tag the cart with the storefront domain and the shopper's ad click, so
+   * the Shopify checkout pixel can send checkout and purchase events to the
+   * right brand's GTM container and credit the sale to the ad.
    */
   if (cartFormAction === CartForm.ACTIONS.LinesAdd && result?.cart?.id) {
-    const storefrontHost = getStorefrontHost(request);
+    const wanted = [
+      { key: STOREFRONT_ATTRIBUTE, value: getStorefrontHost(request) },
+      ...getAttributionAttributes(request),
+    ];
     const existing = result.cart.attributes ?? [];
-    const alreadyTagged = existing.some(
-      (attribute) =>
-        attribute.key === STOREFRONT_ATTRIBUTE &&
-        attribute.value === storefrontHost,
+    const alreadyTagged = wanted.every((want) =>
+      existing.some(
+        (attribute) =>
+          attribute.key === want.key && attribute.value === want.value,
+      ),
     );
     if (!alreadyTagged) {
+      const wantedKeys = new Set(wanted.map((want) => want.key));
       const tagged = await cart.updateAttributes([
         ...existing
-          .filter((attribute) => attribute.key !== STOREFRONT_ATTRIBUTE)
+          .filter((attribute) => !wantedKeys.has(attribute.key))
           .map((attribute) => ({
             key: attribute.key,
             value: attribute.value ?? "",
           })),
-        { key: STOREFRONT_ATTRIBUTE, value: storefrontHost },
+        ...wanted,
       ]);
       if (tagged?.cart?.id) {
         result = tagged;

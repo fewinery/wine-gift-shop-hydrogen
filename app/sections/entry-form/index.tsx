@@ -78,9 +78,35 @@ const DATE_PART_CLASS = cn(FIELD_CLASS, "text-center");
 // browser drawing the open list dark over a light field.
 const DATE_SELECT_CLASS = cn(FIELD_CLASS, "[color-scheme:light]");
 
-const MONTH_OPTIONS = Array.from({ length: 12 }, (_, index) =>
-  String(index + 1).padStart(2, "0"),
-);
+// Visitors pick a month by name; the value stays the two-digit number so the
+// date sent to Shopify and Klaviyo is still YYYY-MM-DD.
+const MONTH_OPTIONS = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+].map((name, index) => ({
+  value: String(index + 1).padStart(2, "0"),
+  label: name,
+}));
+
+/**
+ * With dropdowns the month name takes two of the four columns so "September"
+ * fits; with typed boxes the year keeps the extra room.
+ */
+function dateColumnSpans(useDropdowns: boolean) {
+  return useDropdowns
+    ? { month: "col-span-2", year: undefined }
+    : { month: undefined, year: "col-span-2" };
+}
 
 const OLDEST_YEAR_OFFSET = 110;
 
@@ -500,12 +526,13 @@ function EntryForm(props: EntryFormProps) {
               <legend className={labelClass}>
                 {dateOfBirthLabel || "Date of Birth"}
               </legend>
-              {/* Four columns with the year taking two of them: the row fills
-                  the form width and the year stays the widest. */}
+              {/* Four columns, two of them for the widest part (see
+                  dateColumnSpans): the row fills the form width. */}
               <div className="grid grid-cols-4 items-end gap-3">
                 <DatePartCell
                   htmlFor="entry-dob-month"
-                  label="MM"
+                  label="Month"
+                  className={dateColumnSpans(useDropdowns).month}
                   labelClassName={dateLabelSize}
                 >
                   {useDropdowns ? (
@@ -527,10 +554,10 @@ function EntryForm(props: EntryFormProps) {
                       }}
                       className={dateSelectClass}
                     >
-                      <option value="">MM</option>
+                      <option value="">Month</option>
                       {MONTH_OPTIONS.map((month) => (
-                        <option key={month} value={month}>
-                          {month}
+                        <option key={month.value} value={month.value}>
+                          {month.label}
                         </option>
                       ))}
                     </select>
@@ -614,7 +641,7 @@ function EntryForm(props: EntryFormProps) {
                 <DatePartCell
                   htmlFor="entry-dob-year"
                   label="YYYY"
-                  className="col-span-2"
+                  className={dateColumnSpans(useDropdowns).year}
                   labelClassName={dateLabelSize}
                 >
                   {useDropdowns ? (

@@ -562,8 +562,6 @@ function EntryForm(props: EntryFormProps) {
                       ))}
                     </select>
                   ) : (
-                    </select>
-                  ) : (
                     <input
                       id="entry-dob-month"
                       type="text"

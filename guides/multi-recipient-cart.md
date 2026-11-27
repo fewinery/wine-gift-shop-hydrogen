@@ -9,7 +9,8 @@ customer service, the warehouse and finance.
 **Status.** Built into the shared theme and off by default on every
 storefront. First full test on staging on November 12, 2026 (parent order
 WGS-125926, three recipients, paid with store credit, club discount applied).
-No live brand has it switched on yet. The section
+Live on the Corporate Wine Gift brands since late November 2026. Wine Gift
+Shop brands: staging only so far. The section
 [Not tested yet](#not-tested-yet) lists what still needs a real run.
 
 ---
@@ -84,20 +85,30 @@ request after #183. Orders created before it do not have them.
 
 ### Once per Shopify store
 
-Wine Gift Shop is done. Corporate Wine Gift and Cuvigift each need all of this
-before any of their brands can use the feature.
+| Store | Status | Home storefront |
+| --- | --- | --- |
+| Wine Gift Shop | Done | `staging.winegiftshop.com`. **Move it to a production storefront before the first live WGS brand** |
+| Corporate Wine Gift | Done, live | `corcorangift.com` |
+| Cuvigift | Not started | None yet |
 
 1. **The app.** *FEW App Hydrogen* must be installed and approved with these
    permissions: read and write customers, read and write draft orders, read and
    write orders, and read products. Without read products everything works,
    but the add-ons row leaves out unlisted products.
-2. **One "home" storefront.** Pick one storefront on that store that will
-   always exist. Give it the variable `MULTI_RECIPIENT_SPLIT_SECRET` (a long
-   random value, marked as secret) and redeploy. It does the split for every
-   brand on the store. Today this is staging; **change it to a production
-   storefront before the first live brand is switched on.**
-3. **One Shopify Flow workflow**, named "[MR] Multi Recipient Split PLEASE DO
-   NOT TOUCH" on Wine Gift Shop:
+
+   The app belongs to the FEBrands organization, not to one store, so the same
+   app is installed on each store: dev.shopify.com > Apps >
+   *FEW App Hydrogen* > Installs card > **Install app** > pick the store. If
+   the store is not in the list, it belongs to another organization: stop and
+   ask a developer.
+2. **One "home" storefront.** Pick one **Hydrogen** storefront on that store
+   that will always exist, with its real domain set as Primary and a public
+   Production. A regular Online Store domain does not work: the split address
+   only exists in the Hydrogen code. The home storefront gets **all three**
+   variables (see [Variables at a glance](#variables-at-a-glance)) and does the
+   split for every brand on the store.
+3. **One Shopify Flow workflow** per store, named "[MR] Multi Recipient Split
+   PLEASE DO NOT TOUCH" on Wine Gift Shop:
 
    | Step | Setting |
    | --- | --- |
@@ -113,6 +124,13 @@ before any of their brands can use the feature.
    | On server error (5XX or 429) | Retry |
 
    One workflow covers every brand on the store. Do not create one per brand.
+
+   To check the home storefront is ready, open its site in Chrome, open the
+   Console (F12) and run
+   `fetch("/api/multi-recipient/split", { method: "POST" }).then((r) => console.log(r.status))`.
+   It sends nothing secret and changes nothing. **401** means ready; **503**
+   means the split secret is missing or not deployed yet; **404** means it is
+   not a Hydrogen storefront running this code.
 
 ### For each storefront (brand)
 
@@ -145,20 +163,40 @@ also carries `Multi_rec_test`. Never set it on a live brand.
 
 ### Variables at a glance
 
-| Variable | Where | Secret |
-| --- | --- | --- |
-| `SHOPIFY_APP_CLIENT_ID` | Every storefront that uses the feature | No |
-| `SHOPIFY_APP_CLIENT_SECRET` | Every storefront that uses the feature | Yes |
-| `MULTI_RECIPIENT_SPLIT_SECRET` | The home storefront only | Yes |
-| `MULTI_RECIPIENT_TEST_MODE` | Test storefronts only | No |
+> **Three on the home storefront, two everywhere else.**
+
+| Variable | Value | Where | Secret |
+| --- | --- | --- | --- |
+| `SHOPIFY_APP_CLIENT_ID` | The app's Client ID: dev.shopify.com > *FEW App Hydrogen* > Settings | Every storefront that uses the feature, the home one included | No |
+| `SHOPIFY_APP_CLIENT_SECRET` | The app's Client secret, from the same page | Every storefront that uses the feature, the home one included | Yes |
+| `MULTI_RECIPIENT_SPLIT_SECRET` | The same value as the store's Flow secret | **The home storefront only** | Yes |
+| `MULTI_RECIPIENT_TEST_MODE` | `true` | Test storefronts only | No |
+
+The client ID and secret are the same on every storefront and every store:
+each storefront uses them to reach its own store.
+
+The two secrets are both hidden once saved, so they are easy to mix up. Swapped
+values break different things:
+
+- **The split secret in `SHOPIFY_APP_CLIENT_SECRET`:** every recipient on that
+  brand shows "Tax and shipping can't be calculated right now".
+- **The client secret in the home storefront's `MULTI_RECIPIENT_SPLIT_SECRET`:**
+  paid orders are not split. Flow shows **Failed, 401**.
+
+Do not add the split secret to the other storefronts. It does nothing there,
+and it is how the two values got mixed up during the Corporate Wine Gift
+setup.
 
 Never paste a secret's value into a chat, a ticket or a screenshot.
 
 ### Before switching on a live brand
 
 - [ ] The Flow URL points at a production storefront, not staging
-- [ ] That storefront has `MULTI_RECIPIENT_SPLIT_SECRET` and was redeployed
+- [ ] That storefront has all three variables, was redeployed, and the
+      Console check prints 401
 - [ ] The brand's storefront has the two app variables and was redeployed
+- [ ] On the brand's recipients page, a complete address shows **Ready** with
+      shipping and tax
 - [ ] The warehouse ignores `Multi_rec_test` and ships `Multi_rec_child_order`
 - [ ] The warehouse does **not** try to ship `Multi_rec_parent_order`
 - [ ] Finance has updated its report filters (see [Reports](#reports))
@@ -194,11 +232,39 @@ and their tax.
 1. Cancel every child as above (restock, record the refund).
 2. Open the **parent** > Refund > refund everything.
 
-### Refund part of an order (damaged bottle, goodwill)
+### Refund one recipient after it shipped (lost, damaged, never arrived)
 
-1. Open the **parent** > Refund > type the amount. This returns the money.
-2. Open the **child** it relates to > Refund > record the same amount. Restock
-   only if the item is really coming back.
+1. Open that recipient's **child** and note its total.
+2. Open the **parent** > Refund. Do not pick any lines: type the child's total
+   in the refund amount, add a reason, and refund. This returns the money.
+3. Back on the **child** > Refund > select everything and record the full
+   refund. Do not restock unless the items are really coming back.
+
+### Refund part of one recipient's order (one bottle, shipping, goodwill)
+
+Use the child to work out the amount and the parent to pay it.
+
+1. **Find the amount on the child.** Open the **child** > Refund. Select the
+   item and quantity (or the shipping), and read the amount Shopify shows: it
+   includes that item's tax. Note it, then leave the page **without**
+   refunding. For a goodwill amount, simply decide the amount.
+2. **Pay it from the parent.** Open the **parent** > Refund. Do not pick any
+   lines: type the amount from step 1, add a reason, and refund. This is the
+   step that returns the customer's money.
+3. **Record it on the child.** Open the **child** > Refund again, select the
+   same item and quantity, and record the same amount. Restock only if the
+   item is really coming back.
+
+Rules of thumb:
+
+- Never refund one recipient for more than their child's total; anything above
+  it is another recipient's share.
+- The parent is cancelled and archived but can still be refunded. To find it,
+  search the order number in the child's `Multi_rec_from_` tag.
+- The parent's lines ("Ship to: ...", Shipping, Tax) do not match items one to
+  one, so always type the amount instead of picking lines.
+- The money goes back to the **buyer**, to how they paid. Recipients never see
+  a refund.
 
 ### Change an address or a gift message
 
@@ -233,6 +299,21 @@ gift card. Shopify will not refund more than was paid on the parent.
 
 ## When something goes wrong
 
+### "Tax and shipping can't be calculated right now" on every recipient
+
+The brand's storefront cannot reach Shopify through the app. In order of
+likelihood:
+
+1. `SHOPIFY_APP_CLIENT_SECRET` on that storefront holds the wrong value, often
+   the split secret. Copy the Client secret again from dev.shopify.com >
+   *FEW App Hydrogen* > Settings, paste it with no spaces, save and redeploy.
+2. `SHOPIFY_APP_CLIENT_ID` does not match the Client ID on that page.
+3. The app is not installed on that Shopify store.
+
+If one brand works and another on the same store does not, it is almost
+always 1. The storefront's Oxygen deployment logs say which: "Shopify client
+credentials grant failed" means the app could not sign in.
+
 ### A parent is Paid and still open after several minutes
 
 The split did not run. Open Shopify Flow > the workflow > run history.
@@ -240,7 +321,7 @@ The split did not run. Open Shopify Flow > the workflow > run history.
 | Flow shows | Cause | Fix |
 | --- | --- | --- |
 | No run for that order | The workflow is off, or the order has no parent tag | Turn the workflow on. Then ask for the split to be re-run |
-| Failed, 401 | The secret in Flow and the storefront variable differ | Set both to the same value, redeploy the home storefront, re-run |
+| Failed, 401 | The secret in Flow and the home storefront's variable differ, or the variable holds the app's client secret by mistake | Set both to the same value, redeploy the home storefront, re-run |
 | Retrying, 503 | The home storefront is missing the secret, or Shopify was briefly unavailable | Flow keeps trying for a day. If it is the secret, add it and redeploy |
 | Failed, 422 | A child could not be created. The parent also gets `Multi_rec_needs_attention` | See below |
 
@@ -374,11 +455,13 @@ quantity. A kit with different choices becomes a second, separate bundle.
 
 - Paying by card or gift card (the first test used store credit)
 - A guest buyer, and which emails a guest receives
-- The refund and cancel steps in this guide, on real orders
+- The refund and cancel steps in this guide, on real orders. The QA test
+  orders on the Corporate Wine Gift brands are a good place to try one
+  partial refund and one cancelled recipient
 - How ShipHero treats each tag
 - A B2B company buyer
 - Safari on iPhone
-- Corporate Wine Gift and Cuvigift
+- Cuvigift
 
 Update this guide as each one is confirmed.
 

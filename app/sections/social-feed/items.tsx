@@ -4,11 +4,13 @@ import { createContext } from "react";
 export interface SocialFeedDisplay {
   cardHeight: number;
   showCreator: boolean;
+  autoplay: boolean;
 }
 
 export const SocialFeedDisplayContext = createContext<SocialFeedDisplay>({
   cardHeight: 620,
   showCreator: true,
+  autoplay: true,
 });
 
 interface SocialFeedItemsProps extends HydrogenComponentProps {
@@ -17,6 +19,7 @@ interface SocialFeedItemsProps extends HydrogenComponentProps {
   columns?: number;
   cardHeight?: number;
   showCreator?: boolean;
+  autoplay?: boolean;
 }
 
 function SocialFeedItems(props: SocialFeedItemsProps) {
@@ -27,6 +30,7 @@ function SocialFeedItems(props: SocialFeedItemsProps) {
     columns = 3,
     cardHeight = 620,
     showCreator,
+    autoplay,
     ...rest
   } = props;
 
@@ -44,6 +48,7 @@ function SocialFeedItems(props: SocialFeedItemsProps) {
       value={{
         cardHeight: Number(cardHeight) || 620,
         showCreator: showCreator !== false,
+        autoplay: autoplay !== false,
       }}
     >
       <div ref={ref} {...rest}>
@@ -97,8 +102,7 @@ export const schema = createSchema({
           label: "Columns (desktop)",
           defaultValue: 3,
           configs: { min: 1, max: 5, step: 1 },
-          condition: (data: SocialFeedItemsProps) =>
-            data.feedLayout !== "row",
+          condition: (data: SocialFeedItemsProps) => data.feedLayout !== "row",
         },
         {
           type: "range",
@@ -114,6 +118,14 @@ export const schema = createSchema({
           name: "showCreator",
           label: "Show account name under each post",
           defaultValue: true,
+        },
+        {
+          type: "switch",
+          name: "autoplay",
+          label: "Autoplay videos (muted)",
+          defaultValue: true,
+          helpText:
+            "TikTok, YouTube Shorts and Facebook videos start playing on their own with the sound off. Instagram does not allow autoplay, so Instagram posts always wait for a click.",
         },
       ],
     },

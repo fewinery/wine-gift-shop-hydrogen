@@ -105,6 +105,9 @@ import * as ShopByCategoryItems from "~/sections/shop-by-category/items";
 import * as SingleProduct from "~/sections/single-product";
 import * as SlideShow from "~/sections/slideshow";
 import * as SlideShowSlide from "~/sections/slideshow/slide";
+import * as SocialFeed from "~/sections/social-feed";
+import * as SocialFeedItem from "~/sections/social-feed/item";
+import * as SocialFeedItems from "~/sections/social-feed/items";
 import * as Spacer from "~/sections/spacer";
 import * as StepsGuide from "~/sections/steps-guide";
 import * as StepsGuideHeader from "~/sections/steps-guide/header";
@@ -236,9 +239,6 @@ export const components: HydrogenComponent[] = [
   ClubComparison,
   ClubComparisonHeader,
   ClubComparisonItems,
-  ClubComparisonItem,
-  Testimonials,
-  TestimonialsHeader,
   TestimonialsItems,
   TestimonialItem,
   ReservationForm,

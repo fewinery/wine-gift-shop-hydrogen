@@ -1,6 +1,6 @@
 import { createSchema, type HydrogenComponentProps } from "@weaverse/hydrogen";
 import type { ElementType } from "react";
-import { useContext } from "react";
+import { useCallback, useContext, useEffect, useRef } from "react";
 import { SocialFeedDisplayContext } from "./items";
 
 type Platform = "instagram" | "tiktok" | "facebook" | "youtube";
@@ -13,7 +13,9 @@ interface ParsedPost {
 // Turns a normal share link into the platform's official embed player URL.
 // No API keys or account connection needed: these are the public embeds
 // each platform provides for any public post.
-export function parsePostUrl(raw: string): ParsedPost | null {
+// With autoplay on, videos start muted (browsers block autoplay with sound).
+// Instagram's embed has no autoplay option, so it always waits for a click.
+export function parsePostUrl(raw: string, autoplay = false): ParsedPost | null {
   const url = raw?.trim();
   if (!url) {
     return null;
@@ -36,7 +38,7 @@ export function parsePostUrl(raw: string): ParsedPost | null {
   if (tiktok) {
     return {
       platform: "tiktok",
-      embedUrl: `https://www.tiktok.com/player/v1/${tiktok[1]}?description=1&music_info=1&rel=0`,
+      embedUrl: `https://www.tiktok.com/player/v1/${tiktok[1]}?description=1&music_info=1&rel=0${autoplay ? "&autoplay=1&loop=1&muted=1" : ""}`,
     };
   }
 
@@ -46,7 +48,7 @@ export function parsePostUrl(raw: string): ParsedPost | null {
   if (youtube) {
     return {
       platform: "youtube",
-      embedUrl: `https://www.youtube.com/embed/${youtube[1]}`,
+      embedUrl: `https://www.youtube.com/embed/${youtube[1]}${autoplay ? `?autoplay=1&mute=1&loop=1&playlist=${youtube[1]}&playsinline=1` : ""}`,
     };
   }
 
@@ -55,7 +57,7 @@ export function parsePostUrl(raw: string): ParsedPost | null {
     const plugin = isVideo ? "video.php" : "post.php";
     return {
       platform: "facebook",
-      embedUrl: `https://www.facebook.com/plugins/${plugin}?href=${encodeURIComponent(url)}&show_text=true`,
+      embedUrl: `https://www.facebook.com/plugins/${plugin}?href=${encodeURIComponent(url)}&show_text=true${autoplay && isVideo ? "&autoplay=true" : ""}`,
     };
   }
 
@@ -79,8 +81,46 @@ interface SocialFeedItemProps extends HydrogenComponentProps {
 
 function SocialFeedItem(props: SocialFeedItemProps) {
   const { ref, postUrl, creatorName, creatorLink, source, ...rest } = props;
-  const { cardHeight, showCreator } = useContext(SocialFeedDisplayContext);
-  const parsed = parsePostUrl(postUrl);
+  const { cardHeight, showCreator, autoplay } = useContext(
+    SocialFeedDisplayContext,
+  );
+  const parsed = parsePostUrl(postUrl, autoplay);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const muteTikTok = autoplay && parsed?.platform === "tiktok";
+
+  // TikTok's player accepts a "mute" command from the page. Send it when the
+  // player says it is ready, so autoplaying TikToks always start silent.
+  // Visitors can still turn the sound on with the player's volume button.
+  const sendTikTokMute = useCallback(() => {
+    iframeRef.current?.contentWindow?.postMessage(
+      { type: "mute", value: null, "x-tiktok-player": true },
+      "https://www.tiktok.com",
+    );
+  }, []);
+
+  useEffect(() => {
+    if (!muteTikTok) {
+      return;
+    }
+    const onMessage = (event: MessageEvent) => {
+      if (event.source !== iframeRef.current?.contentWindow) {
+        return;
+      }
+      let data = event.data;
+      if (typeof data === "string") {
+        try {
+          data = JSON.parse(data);
+        } catch {
+          return;
+        }
+      }
+      if (data?.type === "onPlayerReady") {
+        sendTikTokMute();
+      }
+    };
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, [muteTikTok, sendTikTokMute]);
   const name = creatorName?.trim();
   const profileLink = creatorLink?.trim();
 
@@ -93,7 +133,9 @@ function SocialFeedItem(props: SocialFeedItemProps) {
     <div ref={ref} {...rest} className="flex h-full flex-col">
       {parsed ? (
         <iframe
+          ref={iframeRef}
           src={parsed.embedUrl}
+          onLoad={muteTikTok ? sendTikTokMute : undefined}
           title={`${platformLabels[parsed.platform]} post${name ? ` by ${name}` : ""}`}
           loading="lazy"
           scrolling="no"
